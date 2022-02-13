@@ -11,6 +11,7 @@ Welcome to mcstatus's documentation!
    :caption: Contents:
 
    ./contributing.rst
+   ./modules.rst
 
 
 Indices and tables
