@@ -10,6 +10,7 @@ Welcome to mcstatus's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   ./contributing.rst
 
 
 Indices and tables
