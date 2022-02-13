@@ -42,6 +42,7 @@ tox-poetry = "^0.4.1"
 optional = true
 
 [tool.poetry.group.doc.dependencies]
+furo = "^2022.1.2"
 Sphinx = "^4.3.0"
 
 [tool.poetry.group.test.dependencies]

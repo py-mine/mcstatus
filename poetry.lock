@@ -44,6 +44,21 @@ python-versions = ">=3.6"
 pytz = ">=2015.7"
 
 [[package]]
+name = "beautifulsoup4"
+version = "4.11.1"
+description = "Screen-scraping library"
+category = "dev"
+optional = false
+python-versions = ">=3.6.0"
+
+[package.dependencies]
+soupsieve = ">1.2"
+
+[package.extras]
+html5lib = ["html5lib"]
+lxml = ["lxml"]
+
+[[package]]
 name = "black"
 version = "22.12.0"
 description = "The uncompromising code formatter."
@@ -327,6 +342,20 @@ python-versions = ">=3.7"
 
 [package.dependencies]
 flake8 = ">=3.8.0"
+
+[[package]]
+name = "furo"
+version = "2022.9.29"
+description = "A clean customisable Sphinx documentation theme."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+beautifulsoup4 = "*"
+pygments = ">=2.7"
+sphinx = ">=4.0,<6.0"
+sphinx-basic-ng = "*"
 
 [[package]]
 name = "identify"
@@ -863,6 +892,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "soupsieve"
+version = "2.3.2.post1"
+description = "A modern CSS selector implementation for Beautiful Soup."
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "sphinx"
 version = "4.5.0"
 description = "Python documentation generator"
@@ -893,6 +930,20 @@ sphinxcontrib-serializinghtml = ">=1.1.5"
 docs = ["sphinxcontrib-websupport"]
 lint = ["docutils-stubs", "flake8 (>=3.5.0)", "isort", "mypy (>=0.931)", "types-requests", "types-typed-ast"]
 test = ["cython", "html5lib", "pytest", "pytest-cov", "typed-ast"]
+
+[[package]]
+name = "sphinx-basic-ng"
+version = "1.0.0b1"
+description = "A modern skeleton for Sphinx themes."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+sphinx = ">=4.0"
+
+[package.extras]
+docs = ["furo", "ipython", "myst-parser", "sphinx-copybutton", "sphinx-inline-tabs"]
 
 [[package]]
 name = "sphinxcontrib-applehelp"
@@ -1122,7 +1173,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4"
-content-hash = "d21540185dc393cd030ab7871c9535a767af7d2adb32b66d680e76cb0e692b58"
+content-hash = "f427f16ec032ba8336a55020b9eb4b101ca69d840a06d9d884565b7b3ec3446e"
 
 [metadata.files]
 alabaster = [
@@ -1140,6 +1191,10 @@ attrs = [
 babel = [
     {file = "Babel-2.11.0-py3-none-any.whl", hash = "sha256:1ad3eca1c885218f6dce2ab67291178944f810a10a9b5f3cb8382a5a232b64fe"},
     {file = "Babel-2.11.0.tar.gz", hash = "sha256:5ef4b3226b0180dedded4229651c8b0e1a3a6a2837d45a073272f313e4cf97f6"},
+]
+beautifulsoup4 = [
+    {file = "beautifulsoup4-4.11.1-py3-none-any.whl", hash = "sha256:58d5c3d29f5a36ffeb94f02f0d786cd53014cf9b3b3951d42e0080d8a9498d30"},
+    {file = "beautifulsoup4-4.11.1.tar.gz", hash = "sha256:ad9aa55b65ef2808eb405f46cf74df7fcb7044d5cbc26487f96eb2ef2e436693"},
 ]
 black = [
     {file = "black-22.12.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9eedd20838bd5d75b80c9f5487dbcb06836a43833a37846cf1d8c1cc01cef59d"},
@@ -1464,6 +1519,10 @@ flake8-tidy-imports = [
     {file = "flake8-tidy-imports-4.8.0.tar.gz", hash = "sha256:df44f9c841b5dfb3a7a1f0da8546b319d772c2a816a1afefcce43e167a593d83"},
     {file = "flake8_tidy_imports-4.8.0-py3-none-any.whl", hash = "sha256:25bd9799358edefa0e010ce2c587b093c3aba942e96aeaa99b6d0500ae1bf09c"},
 ]
+furo = [
+    {file = "furo-2022.9.29-py3-none-any.whl", hash = "sha256:559ee17999c0f52728481dcf6b1b0cf8c9743e68c5e3a18cb45a7992747869a9"},
+    {file = "furo-2022.9.29.tar.gz", hash = "sha256:d4238145629c623609c2deb5384f8d036e2a1ee2a101d64b67b4348112470dbd"},
+]
 identify = [
     {file = "identify-2.5.13-py2.py3-none-any.whl", hash = "sha256:8aa48ce56e38c28b6faa9f261075dea0a942dfbb42b341b4e711896cbb40f3f7"},
     {file = "identify-2.5.13.tar.gz", hash = "sha256:abb546bca6f470228785338a01b539de8a85bbf46491250ae03363956d8ebb10"},
@@ -1724,9 +1783,17 @@ snowballstemmer = [
     {file = "snowballstemmer-2.2.0-py2.py3-none-any.whl", hash = "sha256:c8e1716e83cc398ae16824e5572ae04e0d9fc2c6b985fb0f900f5f0c96ecba1a"},
     {file = "snowballstemmer-2.2.0.tar.gz", hash = "sha256:09b16deb8547d3412ad7b590689584cd0fe25ec8db3be37788be3810cbf19cb1"},
 ]
+soupsieve = [
+    {file = "soupsieve-2.3.2.post1-py3-none-any.whl", hash = "sha256:3b2503d3c7084a42b1ebd08116e5f81aadfaea95863628c80a3b774a11b7c759"},
+    {file = "soupsieve-2.3.2.post1.tar.gz", hash = "sha256:fc53893b3da2c33de295667a0e19f078c14bf86544af307354de5fcf12a3f30d"},
+]
 sphinx = [
     {file = "Sphinx-4.5.0-py3-none-any.whl", hash = "sha256:ebf612653238bcc8f4359627a9b7ce44ede6fdd75d9d30f68255c7383d3a6226"},
     {file = "Sphinx-4.5.0.tar.gz", hash = "sha256:7bf8ca9637a4ee15af412d1a1d9689fec70523a68ca9bb9127c2f3eeb344e2e6"},
+]
+sphinx-basic-ng = [
+    {file = "sphinx_basic_ng-1.0.0b1-py3-none-any.whl", hash = "sha256:ade597a3029c7865b24ad0eda88318766bcc2f9f4cef60df7e28126fde94db2a"},
+    {file = "sphinx_basic_ng-1.0.0b1.tar.gz", hash = "sha256:89374bd3ccd9452a301786781e28c8718e99960f2d4f411845ea75fc7bb5a9b0"},
 ]
 sphinxcontrib-applehelp = [
     {file = "sphinxcontrib.applehelp-1.0.3-py3-none-any.whl", hash = "sha256:ba0f2a22e6eeada8da6428d0d520215ee8864253f32facf958cca81e426f661d"},
