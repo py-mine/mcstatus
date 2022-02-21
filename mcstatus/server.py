@@ -262,6 +262,7 @@ class MinecraftServer(JavaServer):
 
     This class is kept purely for backwards compatibility reasons and will be removed eventually.
     """
+
     def __init__(self, host: str, port: int = 25565, timeout: float = 3):
         super().__init__(host, port=port, timeout=timeout)
 
@@ -272,5 +273,6 @@ class MinecraftBedrockServer(BedrockServer):
 
     This class is kept purely for backwards compatibility reasons and will be removed eventually.
     """
+
     def __init__(self, host: str, port: int = 19139, timeout: float = 3):
         super().__init__(host, port=port, timeout=timeout)
