@@ -35,6 +35,7 @@ class MCServer(ABC):
     :param int port: The port that the server is on.
     :param float timeout: Timeout, in seconds, before failing to connect.
     """
+
     def __init__(self, host: str, port: int, *, timeout: float = 3):
         self.ensure_valid(host, port)
         self.host = host
