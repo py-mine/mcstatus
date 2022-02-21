@@ -62,7 +62,7 @@ class MCServer(ABC):
         return (tmp.hostname, tmp.port)
 
     @staticmethod
-    def ensure_valid(host: object, port: object):
+    def ensure_valid(host: object, port: object) -> None:
         if not isinstance(host, str):
             raise TypeError(f"Host must be a string address, got {type(host)} ({host!r})")
         if not isinstance(port, int):
