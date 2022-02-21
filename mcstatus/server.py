@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC
 from typing import Optional, TYPE_CHECKING, Tuple
 from urllib.parse import urlparse
 
@@ -24,37 +25,57 @@ if TYPE_CHECKING:
 __all__ = ["JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
 
 
-def parse_address(address: str) -> Tuple[str, Optional[int]]:
-    tmp = urlparse("//" + address)
-    if not tmp.hostname:
-        raise ValueError(f"Invalid address '{address}'")
-    return (tmp.hostname, tmp.port)
+class MCServer(ABC):
+    """Base abstract class for a general minecraft server.
 
+    This class only contains the basic logic shared across both java and bedrock versions,
+    it doesn't include any version specific settings and it can't be used to make any requests.
 
-def ensure_valid(host: object, port: object):
-    if not isinstance(host, str):
-        raise TypeError(f"Host must be a string address, got {type(host)} ({host!r})")
-    if not isinstance(port, int):
-        raise TypeError(f"Port must be an integer port number, got {type(port)} ({port})")
-    if port > 65535 or port < 0:
-        raise ValueError(f"Port must be within the allowed range (0-2^16), got {port}")
-
-
-class JavaServer:
-    """Base class for a Minecraft Java Edition server.
-
-    :param str host: The host/address/ip of the Minecraft server.
+    :param str host: The host/ip of the minecraft server.
     :param int port: The port that the server is on.
-    :param float timeout: The timeout in seconds before failing to connect.
-    :attr host:
-    :attr port:
+    :param float timeout: Timeout, in seconds, before failing to connect.
     """
-
-    def __init__(self, host: str, port: int = 25565, timeout: float = 3):
-        ensure_valid(host, port)
+    def __init__(self, host: str, port: int, *, timeout: float = 3):
+        self.ensure_valid(host, port)
         self.host = host
         self.port = port
         self.timeout = timeout
+
+    @classmethod
+    def lookup(cls, address: str, *, timeout: float = 3) -> Self:
+        """Parse the given address into host and port used to make an instance.
+
+        :param str address: This mimics the address field of a server in minecraft
+        :param float timeout: Timeout, in seconds, before failing to connect.
+        """
+        host, port = cls.parse_address(address)
+        if port is None:
+            raise ValueError("Given address didn't contain port and there's no default port to fallback to.")
+        return cls(host, port, timeout=timeout)
+
+    @staticmethod
+    def parse_address(address: str) -> Tuple[str, Optional[int]]:
+        tmp = urlparse("//" + address)
+        if not tmp.hostname:
+            raise ValueError(f"Invalid address '{address}'")
+        return (tmp.hostname, tmp.port)
+
+    @staticmethod
+    def ensure_valid(host: object, port: object):
+        if not isinstance(host, str):
+            raise TypeError(f"Host must be a string address, got {type(host)} ({host!r})")
+        if not isinstance(port, int):
+            raise TypeError(f"Port must be an integer port number, got {type(port)} ({port})")
+        if port > 65535 or port < 0:
+            raise ValueError(f"Port must be within the allowed range (0-2^16), got {port}")
+
+
+class JavaServer(MCServer):
+    """Base class for a Minecraft Java Edition server."""
+
+    def __init__(self, host: str, port: int = 25565, *, timeout: float = 3):
+        """Override init to add a default port for java servers of 25565."""
+        super().__init__(host, port, timeout=timeout)
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
@@ -66,7 +87,7 @@ class JavaServer:
         :rtype: MinecraftServer
         """
 
-        host, port = parse_address(address)
+        host, port = cls.parse_address(address)
         if port is None:
             port = 25565
             try:
@@ -78,7 +99,7 @@ class JavaServer:
             except Exception:
                 pass
 
-        return cls(host, port, timeout)
+        return cls(host, port, timeout=timeout)
 
     def ping(self, **kwargs) -> float:
         """Checks the latency between a Minecraft Java Edition server and the client (you).
@@ -205,31 +226,22 @@ class JavaServer:
         return await querier.read_query()
 
 
-class BedrockServer:
-    """Base class for a Minecraft Bedrock Edition server.
+class BedrockServer(MCServer):
+    """Base class for a Minecraft Bedrock Edition server."""
 
-    :param str host: The host/address/ip of the Minecraft server.
-    :param int port: The port that the server is on.
-    :param float timeout: The timeout in seconds before failing to connect.
-    :attr host:
-    :attr port:
-    """
-
-    def __init__(self, host: str, port: int = 19132, timeout: float = 3):
-        ensure_valid(host, port)
-        self.host = host
-        self.port = port
-        self.timeout = timeout
+    def __init__(self, host: str, port: int = 19139, *, timeout: float = 3):
+        """Override init to add a default port for bedrock servers of 19139."""
+        super().__init__(host, port, timeout=timeout)
 
     @classmethod
     def lookup(cls, address: str) -> Self:
-        """Parses a given address and returns a MinecraftBedrockServer instance.
+        """Parses a given address and returns a BedrockServer instance.
 
         :param str address: The address of the Minecraft server, like `example.com:19132`
         :return: A `MinecraftBedrockServer` instance.
         :rtype: MinecraftBedrockServer
         """
-        host, port = parse_address(address)
+        host, port = cls.parse_address(address)
         # If the address didn't contain port, fall back to constructor's default
         if port is None:
             return cls(host)
