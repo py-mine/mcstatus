@@ -1,8 +1,8 @@
 import asyncio
 import sys
+from unittest.mock import Mock, patch
 
 import dns.resolver
-from unittest.mock import patch, Mock
 import pytest
 
 from mcstatus.protocol.connection import Connection
