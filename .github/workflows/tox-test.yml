@@ -53,7 +53,7 @@ jobs:
           path: |
             ${{ env.PYTHONUSERBASE }}
             ${{ env.TOXDIR }}
-          key: "python-0-${{ runner.os }}-${{ env.PYTHONUSERBASE }}-\
+          key: "python-1-${{ runner.os }}-${{ env.PYTHONUSERBASE }}-\
                 ${{ env.TOXDIR }}-${{ steps.python.outputs.python-version }}-\
                 ${{ hashFiles('./pyproject.toml', './poetry.lock') }}"
 
