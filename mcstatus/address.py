@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import ipaddress
 from pathlib import Path
-from typing import NamedTuple, TYPE_CHECKING
+from typing import NamedTuple, Optional, TYPE_CHECKING
 from urllib.parse import urlparse
 
 import dns.asyncresolver
@@ -10,6 +10,21 @@ import dns.resolver
 
 if TYPE_CHECKING:
     from typing_extensions import Self
+
+
+def _valid_urlparse(address: str, /) -> tuple[str, Optional[int]]:
+    """Parses a string address like 127.0.0.1:25565 into host and port parts
+
+    If the address doesn't have a specified port, None will be returned instead.
+
+    :raises ValueError:
+        Unable to resolve hostname of given address
+    """
+    tmp = urlparse("//" + address)
+    if not tmp.hostname:
+        raise ValueError(f"Invalid address '{address}', can't parse.")
+
+    return tmp.hostname, tmp.port
 
 
 class Address(NamedTuple):
@@ -36,22 +51,20 @@ class Address(NamedTuple):
         """Parses a string address like 127.0.0.1:25565 into host and port parts
 
         If the address has a port specified, use it, if not, fall back to default_port.
-        In case default_port isn't available and port wasn't specified, raise ValueError.
-        """
-        tmp = urlparse("//" + address)
-        if not tmp.hostname:
-            raise ValueError(f"Invalid address '{address}', can't parse.")
 
-        if tmp.port is None:
+        :raises ValueError:
+            Either the address isn't valid and can't be parsed,
+            or it lacks a port and `default_port` wasn't specified.
+        """
+        hostname, port = _valid_urlparse(address)
+        if port is None:
             if default_port is not None:
                 port = default_port
             else:
                 raise ValueError(
                     f"Given address '{address}' doesn't contain port and default_port wasn't specified, can't parse."
                 )
-        else:
-            port = tmp.port
-        return cls(host=tmp.hostname, port=port)
+        return cls(host=hostname, port=port)
 
     def resolve_ip(self, lifetime: float = None) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
         """Resolves a hostname's A record into an IP address.
