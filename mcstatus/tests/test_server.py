@@ -2,6 +2,7 @@ import asyncio
 import sys
 from unittest.mock import Mock, patch
 
+import dns.resolver
 import pytest
 
 from mcstatus.protocol.connection import Connection
@@ -176,17 +177,9 @@ class TestMinecraftServer:
 
     def test_by_address_no_srv(self):
         with patch("dns.resolver.resolve") as resolve:
-            resolve.return_value = []
-            self.server = MinecraftServer.lookup("example.org")
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", "SRV")
-        assert self.server.host == "example.org"
-        assert self.server.port == 25565
-
-    def test_by_address_invalid_srv(self):
-        with patch("dns.resolver.resolve") as resolve:
-            resolve.side_effect = [Exception]
-            self.server = MinecraftServer.lookup("example.org")
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", "SRV")
+            resolve.side_effect = [dns.resolver.NXDOMAIN]
+            self.server = MinecraftServer.lookup("example.org", timeout=3)
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", "SRV", lifetime=3)
         assert self.server.host == "example.org"
         assert self.server.port == 25565
 
@@ -196,8 +189,8 @@ class TestMinecraftServer:
             answer.target = "different.example.org."
             answer.port = 12345
             resolve.return_value = [answer]
-            self.server = MinecraftServer.lookup("example.org")
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", "SRV")
+            self.server = MinecraftServer.lookup("example.org", timeout=3)
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", "SRV", lifetime=3)
         assert self.server.host == "different.example.org"
         assert self.server.port == 12345
 
