@@ -1,2 +1,3 @@
-# CI workflows
+# Devops & CI workflows
 .github/workflows/**        @ItsDrike
+.pre-commit-config.yaml     @ItsDrike
