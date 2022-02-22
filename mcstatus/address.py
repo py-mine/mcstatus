@@ -27,12 +27,12 @@ def _valid_urlparse(address: str) -> Tuple[str, Optional[int]]:
     return tmp.hostname, tmp.port
 
 
-class AddressBase(NamedTuple):
+class _AddressBase(NamedTuple):
     host: str
     port: int
 
 
-class Address(AddressBase):
+class Address(_AddressBase):
     def __new__(cls, *a, **kw):
         instance = super().__new__(cls, *a, **kw)
 
