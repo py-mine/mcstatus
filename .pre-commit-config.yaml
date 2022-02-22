@@ -41,4 +41,4 @@ repos:
         entry: poetry run pyright
         language: system
         types: [python]
-        pass_filenames: false
+        pass_filenames: false # pyright runs for the entire project, it can't run for single files
