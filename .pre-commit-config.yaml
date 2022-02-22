@@ -19,8 +19,11 @@ repos:
     hooks:
       - id: black
         name: Black
-        description: Auto-format the code with black
-        entry: poetry run black
+        description: Enforce proper black formatting
+        # We don't auto-format here, because that doesn't give us non-zero return code
+        # meaning no matter if some formatting was performed, we'd see the hook pass.
+        # We can just leave it to a user to run the formatter themselves
+        entry: poetry run black --check
         language: system
         types: [python]
 
