@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import ipaddress
-import dns.resolver
-import dns.asyncresolver
 from pathlib import Path
-from urllib.parse import urlparse
 from typing import NamedTuple, TYPE_CHECKING
+from urllib.parse import urlparse
+
+import dns.asyncresolver
+import dns.resolver
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -45,7 +46,9 @@ class Address(NamedTuple):
             if default_port is not None:
                 port = default_port
             else:
-                raise ValueError(f"Given address '{address}' doesn't contain port and default_port wasn't specified, can't parse.")
+                raise ValueError(
+                    f"Given address '{address}' doesn't contain port and default_port wasn't specified, can't parse."
+                )
         else:
             port = tmp.port
         return cls(host=tmp.hostname, port=port)
