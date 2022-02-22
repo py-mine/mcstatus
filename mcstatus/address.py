@@ -1,12 +1,53 @@
+from __future__ import annotations
+
 import ipaddress
 import dns.resolver
 import dns.asyncresolver
-from typing import NamedTuple
+from pathlib import Path
+from typing import NamedTuple, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class Address(NamedTuple):
     host: str
     port: int
+
+    @classmethod
+    def from_tuple(cls, tup: tuple[str, int], /) -> Self:
+        """Construct the class from a regular tuple of (host, port), commonly used for addresses."""
+        return cls(host=tup[0], port=tup[1])
+
+    @classmethod
+    def from_path(cls, path: Path, /, *, default_port: int = None) -> Self:
+        """Construct the class from a Path object.
+
+        If path has a port specified, use it, if not fall back to default_port.
+        In case default_port isn't available and port wasn't specified, raise ValueError.
+        """
+        address = str(path)
+        return cls.parse_address(address, default_port=default_port)
+
+    @classmethod
+    def parse_address(cls, address: str, /, *, default_port: int = None) -> Self:
+        """Parses a string address like 127.0.0.1:25565 into host and port parts
+
+        If the address has a port specified, use it, if not, fall back to default_port.
+        In case default_port isn't available and port wasn't specified, raise ValueError.
+        """
+        tmp = urlparse("//" + address)
+        if not tmp.hostname:
+            raise ValueError(f"Invalid address '{address}', can't parse.")
+
+        if tmp.port is None:
+            if default_port is not None:
+                port = default_port
+            else:
+                raise ValueError(f"Given address '{address}' doesn't contain port and default_port wasn't specified, can't parse.")
+        else:
+            port = tmp.port
+        return cls(host=tmp.hostname, port=port)
 
     def resolve_ip(self, lifetime: float = None) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
         """Resolves a hostname's A record into an IP address.
