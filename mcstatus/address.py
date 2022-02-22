@@ -27,9 +27,28 @@ def _valid_urlparse(address: str, /) -> tuple[str, Optional[int]]:
     return tmp.hostname, tmp.port
 
 
-class Address(NamedTuple):
+class AddressBase(NamedTuple):
     host: str
     port: int
+
+
+class Address(AddressBase):
+    def __new__(cls, *a, **kw):
+        instance = super().__new__(cls, *a, **kw)
+
+        # Ensure the validity of the address before allowing it's creation
+        cls._ensure_validity(instance.host, instance.port)
+
+        return instance
+
+    @staticmethod
+    def _ensure_validity(host: object, port: object) -> None:
+        if not isinstance(host, str):
+            raise TypeError(f"Host must be a string address, got {type(host)} ({host!r})")
+        if not isinstance(port, int):
+            raise TypeError(f"Port must be an integer port number, got {type(port)} ({port})")
+        if port > 65535 or port < 0:
+            raise ValueError(f"Port must be within the allowed range (0-2^16), got {port}")
 
     @classmethod
     def from_tuple(cls, tup: tuple[str, int], /) -> Self:
