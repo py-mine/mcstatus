@@ -4,7 +4,7 @@ import asyncio
 import inspect
 import warnings
 from functools import wraps
-from typing import Callable, Tuple, Type, Iterable
+from typing import Callable, Iterable, Tuple, Type
 
 
 def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> Callable:
