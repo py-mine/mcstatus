@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import ipaddress
 from pathlib import Path
-from typing import NamedTuple, Optional, TYPE_CHECKING
+from typing import NamedTuple, Optional, TYPE_CHECKING, Tuple, Union
 from urllib.parse import urlparse
 
 import dns.asyncresolver
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-def _valid_urlparse(address: str, /) -> tuple[str, Optional[int]]:
+def _valid_urlparse(address: str, /) -> Tuple[str, Optional[int]]:
     """Parses a string address like 127.0.0.1:25565 into host and port parts
 
     If the address doesn't have a specified port, None will be returned instead.
@@ -51,7 +51,7 @@ class Address(AddressBase):
             raise ValueError(f"Port must be within the allowed range (0-2^16), got {port}")
 
     @classmethod
-    def from_tuple(cls, tup: tuple[str, int], /) -> Self:
+    def from_tuple(cls, tup: Tuple[str, int], /) -> Self:
         """Construct the class from a regular tuple of (host, port), commonly used for addresses."""
         return cls(host=tup[0], port=tup[1])
 
@@ -85,7 +85,7 @@ class Address(AddressBase):
                 )
         return cls(host=hostname, port=port)
 
-    def resolve_ip(self, lifetime: float = None) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
+    def resolve_ip(self, lifetime: float = None) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
         """Resolves a hostname's A record into an IP address.
 
         If the host is already an IP, this resolving is skipped
@@ -111,7 +111,7 @@ class Address(AddressBase):
             ip_addr = str(answer).rstrip(".")
             return ipaddress.ip_address(ip_addr)
 
-    async def async_resolve_ip(self, lifetime: float = None) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
+    async def async_resolve_ip(self, lifetime: float = None) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
         """Resolves a hostname's A record into an IP address.
 
         See the docstring for `resolve_ip` for further info. This function is purely
