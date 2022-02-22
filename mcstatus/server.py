@@ -30,8 +30,6 @@ class MinecraftServer:
     :param str host: The host/address/ip of the Minecraft server.
     :param int port: The port that the server is on.
     :param float timeout: The timeout in seconds before failing to connect.
-    :attr host:
-    :attr port:
     """
 
     def __init__(self, host: str, port: int = 25565, timeout: float = 3):
@@ -201,8 +199,6 @@ class MinecraftBedrockServer:
     :param str host: The host/address/ip of the Minecraft server.
     :param int port: The port that the server is on.
     :param float timeout: The timeout in seconds before failing to connect.
-    :attr host:
-    :attr port:
     """
 
     def __init__(self, host: str, port: int = 19132, timeout: float = 3):
