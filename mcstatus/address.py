@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-def _valid_urlparse(address: str, /) -> Tuple[str, Optional[int]]:
+def _valid_urlparse(address: str) -> Tuple[str, Optional[int]]:
     """Parses a string address like 127.0.0.1:25565 into host and port parts
 
     If the address doesn't have a specified port, None will be returned instead.
@@ -51,12 +51,12 @@ class Address(AddressBase):
             raise ValueError(f"Port must be within the allowed range (0-2^16), got {port}")
 
     @classmethod
-    def from_tuple(cls, tup: Tuple[str, int], /) -> Self:
+    def from_tuple(cls, tup: Tuple[str, int]) -> Self:
         """Construct the class from a regular tuple of (host, port), commonly used for addresses."""
         return cls(host=tup[0], port=tup[1])
 
     @classmethod
-    def from_path(cls, path: Path, /, *, default_port: int = None) -> Self:
+    def from_path(cls, path: Path, *, default_port: int = None) -> Self:
         """Construct the class from a Path object.
 
         If path has a port specified, use it, if not fall back to default_port.
@@ -66,7 +66,7 @@ class Address(AddressBase):
         return cls.parse_address(address, default_port=default_port)
 
     @classmethod
-    def parse_address(cls, address: str, /, *, default_port: int = None) -> Self:
+    def parse_address(cls, address: str, *, default_port: int = None) -> Self:
         """Parses a string address like 127.0.0.1:25565 into host and port parts
 
         If the address has a port specified, use it, if not, fall back to default_port.
@@ -131,7 +131,7 @@ class Address(AddressBase):
             return ipaddress.ip_address(ip_addr)
 
 
-def minecraft_srv_address_lookup(address: str, /, *, default_port: int = None, lifetime: float = 3) -> Address:
+def minecraft_srv_address_lookup(address: str, *, default_port: int = None, lifetime: float = 3) -> Address:
     """Parses the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port
 
     This function essentially mimics the address field of a minecraft java server. It expects an address like
@@ -174,7 +174,7 @@ def minecraft_srv_address_lookup(address: str, /, *, default_port: int = None, l
     return Address(host, port)
 
 
-async def async_minecraft_srv_address_lookup(address: str, /, *, default_port: int = None, lifetime: float = 3) -> Address:
+async def async_minecraft_srv_address_lookup(address: str, *, default_port: int = None, lifetime: float = 3) -> Address:
     """Parses the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port
 
     This function is an async alternative to minecraft_srv_address_lookup, check it's docstring for more details.
