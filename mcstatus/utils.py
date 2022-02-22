@@ -64,12 +64,12 @@ def deprecated(
     def decorate_func(func: Callable, warn_message: str):
         @wraps(func)
         def sync_wrapper(*args, **kwargs):
-            warnings.warn(warn_message)
+            warnings.warn(warn_message, category=DeprecationWarning)
             return func(*args, **kwargs)
 
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
-            warnings.warn(warn_message)
+            warnings.warn(warn_message, category=DeprecationWarning)
             return await func(*args, **kwargs)
 
         if asyncio.iscoroutinefunction(func):
