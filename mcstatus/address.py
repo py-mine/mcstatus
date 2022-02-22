@@ -46,9 +46,9 @@ class Address(AddressBase):
         if not isinstance(host, str):
             raise TypeError(f"Host must be a string address, got {type(host)} ({host!r})")
         if not isinstance(port, int):
-            raise TypeError(f"Port must be an integer port number, got {type(port)} ({port})")
+            raise TypeError(f"Port must be an integer port number, got {type(port)} ({port!r})")
         if port > 65535 or port < 0:
-            raise ValueError(f"Port must be within the allowed range (0-2^16), got {port}")
+            raise ValueError(f"Port must be within the allowed range (0-2^16), got {port!r}")
 
     @classmethod
     def from_tuple(cls, tup: Tuple[str, int]) -> Self:
