@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 import dns.resolver
 from dns.exception import DNSException
 
+from mcstatus.address import Address
 from mcstatus.bedrock_status import BedrockServerStatus, BedrockStatusResponse
 from mcstatus.pinger import AsyncServerPinger, PingResponse, ServerPinger
 from mcstatus.protocol.connection import (
@@ -31,15 +32,6 @@ def parse_address(address: str) -> Tuple[str, Optional[int]]:
     return (tmp.hostname, tmp.port)
 
 
-def ensure_valid(host: object, port: object):
-    if not isinstance(host, str):
-        raise TypeError(f"Host must be a string address, got {type(host)} ({host!r})")
-    if not isinstance(port, int):
-        raise TypeError(f"Port must be an integer port number, got {type(port)} ({port})")
-    if port > 65535 or port < 0:
-        raise ValueError(f"Port must be within the allowed range (0-2^16), got {port}")
-
-
 class MinecraftServer:
     """Base class for a Minecraft Java Edition server.
 
@@ -51,10 +43,18 @@ class MinecraftServer:
     """
 
     def __init__(self, host: str, port: int = 25565, timeout: float = 3):
-        ensure_valid(host, port)
-        self.host = host
-        self.port = port
+        self.address = Address(host, port)
         self.timeout = timeout
+
+    @property
+    def host(self) -> str:
+        # TODO: Add a deprecation notice once #222 is merged
+        return self.address.host
+
+    @property
+    def port(self) -> int:
+        # TODO: Add a deprecation notice once #222 is merged
+        return self.address.port
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
@@ -216,10 +216,18 @@ class MinecraftBedrockServer:
     """
 
     def __init__(self, host: str, port: int = 19132, timeout: float = 3):
-        ensure_valid(host, port)
-        self.host = host
-        self.port = port
+        self.address = Address(host, port)
         self.timeout = timeout
+
+    @property
+    def host(self) -> str:
+        # TODO: Add a deprecation notice once #222 is merged
+        return self.address.host
+
+    @property
+    def port(self) -> int:
+        # TODO: Add a deprecation notice once #222 is merged
+        return self.address.port
 
     @classmethod
     def lookup(cls, address: str) -> Self:
