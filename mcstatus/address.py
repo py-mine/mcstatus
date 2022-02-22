@@ -4,6 +4,7 @@ import ipaddress
 import dns.resolver
 import dns.asyncresolver
 from pathlib import Path
+from urllib.parse import urlparse
 from typing import NamedTuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -73,7 +74,6 @@ class Address(NamedTuple):
             # does actually point to multiple IPs, we just pick the first one
             answer = answers[0]
             ip_addr = str(answer).rstrip(".")
-            print(f"Resolved A record for {self.host} -> {ip_addr}")
             return ipaddress.ip_address(ip_addr)
 
     async def async_resolve_ip(self, lifetime: float = None) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
@@ -93,5 +93,4 @@ class Address(NamedTuple):
             # does actually point to multiple IPs, we just pick the first one
             answer = answers[0]
             ip_addr = str(answer).rstrip(".")
-            print(f"Resolved A record for {self.host} -> {ip_addr}")
             return ipaddress.ip_address(ip_addr)
