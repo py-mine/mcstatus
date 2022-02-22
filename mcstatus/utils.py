@@ -56,7 +56,7 @@ def deprecated(
     version: str = None,
     date: str = None,
     msg: str = None,
-    methods: Iterable[str] = None
+    methods: Iterable[str] = None,
 ):
     if date is not None and version is not None:
         raise ValueError("Expected removal timeframe can either be a date, or a version, not both.")

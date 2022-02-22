@@ -256,7 +256,7 @@ class BedrockServer:
         return await BedrockServerStatus(self.host, self.port, self.timeout, **kwargs).read_status_async()
 
 
-@deprecated(replacement="JavaServer", date="2022-08", methods=("__init__", ))
+@deprecated(replacement="JavaServer", date="2022-08", methods=("__init__",))
 class MinecraftServer(JavaServer):
     """This is a deprecated version of the base class for a Java Minecraft Server.
 
@@ -267,7 +267,7 @@ class MinecraftServer(JavaServer):
         super().__init__(host, port=port, timeout=timeout)
 
 
-@deprecated(replacement="BedrockServer", date="2022-08", methods=("__init__", ))
+@deprecated(replacement="BedrockServer", date="2022-08", methods=("__init__",))
 class MinecraftBedrockServer(BedrockServer):
     """This is a deprecated version of the base class for a Bedrock Minecraft Server.
 
