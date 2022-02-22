@@ -110,3 +110,76 @@ class Address(NamedTuple):
             answer = answers[0]
             ip_addr = str(answer).rstrip(".")
             return ipaddress.ip_address(ip_addr)
+
+
+def minecraft_srv_address_lookup(address: str, /, *, default_port: int = None, lifetime: float = 3) -> Address:
+    """Parses the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port
+
+    This function essentially mimics the address field of a minecraft java server. It expects an address like
+    '192.168.0.100:25565', if this address does contain a port, it will simply use it. If it doesn't, it will try
+    to perform an SRV lookup, which if found, will contain the info on which port to use. If there's no SRV record,
+    this will fall back to the given default_port.
+
+    :param address:
+        The same address which would be used in minecraft's server address field.
+        Can look like: '127.0.0.1', or '192.168.0.100:12345', or 'mc.hypixel.net', or 'example.com:12345'.
+    :param lifetime:
+        How many seconds a query should run before timing out.
+        Default value for this is inherited from dns.resolver.resolve
+    :raises ValueError:
+        Either the address isn't valid and can't be parsed,
+        or it lacks a port, SRV record isn't present, and `default_port` wasn't specified.
+    """
+    host, port = _valid_urlparse(address)
+
+    # If we didn't find the port, check for an SRV record, pointing us
+    # to the port which we should use. If there's no such record, fall
+    # back to the default port.
+    if port is None:
+        try:
+            answers = dns.resolver.resolve("_minecraft._tcp." + host, "SRV", lifetime=lifetime)
+        except dns.resolver.NXDOMAIN:
+            if default_port is None:
+                raise ValueError(
+                    f"Given address '{address}' doesn't contain port, doesn't have an SRV record pointing to a port,"
+                    " and default_port wasn't specified, can't parse."
+                )
+            else:
+                return Address(host, default_port)
+        else:
+            # The record was found, use it instead
+            answer = answers[0]
+            host = str(answer.target).rstrip(".")
+            port = int(answer.port)
+
+    return Address(host, port)
+
+
+async def async_minecraft_srv_address_lookup(address: str, /, *, default_port: int = None, lifetime: float = 3) -> Address:
+    """Parses the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port
+
+    This function is an async alternative to minecraft_srv_address_lookup, check it's docstring for more details.
+    """
+    host, port = _valid_urlparse(address)
+
+    # If we didn't find the port, check for an SRV record, pointing us
+    # to the port which we should use. If there's no such record, fall
+    # back to the default port.
+    if port is None:
+        try:
+            answers = await dns.asyncresolver.resolve("_minecraft._tcp." + host, "SRV", lifetime=lifetime)
+        except dns.resolver.NXDOMAIN:
+            if default_port is None:
+                raise ValueError(
+                    f"Given address '{address}' doesn't contain port, doesn't have an SRV record pointing to a port,"
+                    " and default_port wasn't specified, can't parse."
+                )
+            else:
+                return Address(host, default_port)
+        else:
+            # The record was found, use it instead
+            answer = answers[0]
+            host = str(answer.target).rstrip(".")
+            port = int(answer.port)
+
+    return Address(host, port)
