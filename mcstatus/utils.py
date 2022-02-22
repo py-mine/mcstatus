@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import warnings
 from functools import wraps
-from typing import Callable, Tuple, Type
+from typing import Callable, Tuple, Type, Iterable
 
 
 def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> Callable:
@@ -49,26 +50,18 @@ def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> 
     return decorate
 
 
-def deprecated(replacement: str = None, version: str = None, date: str = None, msg: str = None):
+def deprecated(
+    *,
+    replacement: str = None,
+    version: str = None,
+    date: str = None,
+    msg: str = None,
+    methods: Iterable[str] = None
+):
     if date is not None and version is not None:
         raise ValueError("Expected removal timeframe can either be a date, or a version, not both.")
 
-    def decorate(func: Callable) -> Callable:
-        # Construct and send the warning message
-        name = getattr(func, "__qualname__", func.__name__)
-        warn_message = f"'{name}' is deprecated and is expected to be removed"
-        if version is not None:
-            warn_message += f" in {version}"
-        elif date is not None:
-            warn_message += f" in {date}"
-        else:
-            warn_message += " eventually"
-        if replacement is not None:
-            warn_message += f", use '{replacement}' instead"
-        warn_message += "."
-        if msg is not None:
-            warn_message += f" ({msg})"
-
+    def decorate_func(func: Callable, warn_message: str):
         @wraps(func)
         def sync_wrapper(*args, **kwargs):
             warnings.warn(warn_message)
@@ -82,5 +75,35 @@ def deprecated(replacement: str = None, version: str = None, date: str = None, m
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
         return sync_wrapper
+
+    def decorate(obj: Callable) -> Callable:
+        # Construct and send the warning message
+        name = getattr(obj, "__qualname__", obj.__name__)
+        warn_message = f"'{name}' is deprecated and is expected to be removed"
+        if version is not None:
+            warn_message += f" in {version}"
+        elif date is not None:
+            warn_message += f" in {date}"
+        else:
+            warn_message += " eventually"
+        if replacement is not None:
+            warn_message += f", use '{replacement}' instead"
+        warn_message += "."
+        if msg is not None:
+            warn_message += f" ({msg})"
+
+        if inspect.isclass(obj):
+            if methods is None:
+                raise ValueError("When deprecating a class, you need to specify 'methods' which will get the notice")
+
+            # Decorate every specified method of given class
+            for method in methods:
+                new_func = decorate_func(getattr(obj, method), warn_message)
+                setattr(obj, method, new_func)
+            return obj
+
+        if methods is not None:
+            raise ValueError("Methods can only be specified when decorating a class, not a function")
+        return decorate_func(obj, warn_message)
 
     return decorate
