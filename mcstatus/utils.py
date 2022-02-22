@@ -50,10 +50,10 @@ def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> 
 
 
 def deprecated(replacement: str = None, version: str = None, date: str = None, msg: str = None):
-    def decorate(func: Callable) -> Callable:
-        if date is not None and version is not None:
-            raise ValueError("Expected removal timeframe can either be a date, or a version, not both.")
+    if date is not None and version is not None:
+        raise ValueError("Expected removal timeframe can either be a date, or a version, not both.")
 
+    def decorate(func: Callable) -> Callable:
         # Construct and send the warning message
         name = getattr(func, "__qualname__", func.__name__)
         warn_message = f"'{name}' is deprecated and is expected to be removed"
