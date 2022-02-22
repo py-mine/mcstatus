@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING, Tuple
-from urllib.parse import urlparse
+from typing import TYPE_CHECKING
 
 import dns.resolver
 from dns.exception import DNSException
@@ -23,13 +22,6 @@ if TYPE_CHECKING:
 
 
 __all__ = ["MinecraftServer", "MinecraftBedrockServer"]
-
-
-def parse_address(address: str) -> Tuple[str, Optional[int]]:
-    tmp = urlparse("//" + address)
-    if not tmp.hostname:
-        raise ValueError(f"Invalid address '{address}'")
-    return (tmp.hostname, tmp.port)
 
 
 class MinecraftServer:
