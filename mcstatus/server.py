@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 import dns.resolver
 from dns.exception import DNSException
 
-from mcstatus.address import Address
+from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus.bedrock_status import BedrockServerStatus, BedrockStatusResponse
 from mcstatus.pinger import AsyncServerPinger, PingResponse, ServerPinger
 from mcstatus.protocol.connection import (
@@ -63,22 +63,20 @@ class MinecraftServer:
         :param str address: The address of the Minecraft server, like `example.com:25565`.
         :param float timeout: The timeout in seconds before failing to connect.
         :return: A `MinecraftServer` instance.
-        :rtype: MinecraftServer
         """
+        addr = minecraft_srv_address_lookup(address, default_port=25565, lifetime=timeout)
+        return cls(addr.host, addr.port, timeout=timeout)
 
-        host, port = parse_address(address)
-        if port is None:
-            port = 25565
-            try:
-                answers = dns.resolver.resolve("_minecraft._tcp." + host, "SRV")
-                if len(answers):
-                    answer = answers[0]
-                    host = str(answer.target).rstrip(".")
-                    port = int(answer.port)
-            except Exception:
-                pass
+    @classmethod
+    async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
+        """Parses the given address and checks DNS records for an SRV record that points to the Minecraft server.
 
-        return cls(host, port, timeout)
+        :param str address: The address of the Minecraft server, like `example.com:25565`.
+        :param float timeout: The timeout in seconds before failing to connect.
+        :return: A `MinecraftServer` instance.
+        """
+        addr = await async_minecraft_srv_address_lookup(address, default_port=25565, lifetime=timeout)
+        return cls(addr.host, addr.port, timeout=timeout)
 
     def ping(self, **kwargs) -> float:
         """Checks the latency between a Minecraft Java Edition server and the client (you).
@@ -230,18 +228,15 @@ class MinecraftBedrockServer:
         return self.address.port
 
     @classmethod
-    def lookup(cls, address: str) -> Self:
+    def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Parses a given address and returns a MinecraftBedrockServer instance.
 
         :param str address: The address of the Minecraft server, like `example.com:19132`
+        :param float timeout: The timeout in seconds before failing to connect.
         :return: A `MinecraftBedrockServer` instance.
-        :rtype: MinecraftBedrockServer
         """
-        host, port = parse_address(address)
-        # If the address didn't contain port, fall back to constructor's default
-        if port is None:
-            return cls(host)
-        return cls(host, port)
+        addr = Address.parse_address(address, default_port=19132)
+        return cls(addr.host, addr.port, timeout=timeout)
 
     @retry(tries=3)
     def status(self, **kwargs) -> BedrockStatusResponse:
