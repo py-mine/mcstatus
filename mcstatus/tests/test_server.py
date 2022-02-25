@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 
 import dns.resolver
 import pytest
+from dns.rdatatype import RdataType
 
 from mcstatus.protocol.connection import Connection
 from mcstatus.server import MinecraftServer
@@ -16,7 +17,7 @@ class MockProtocolFactory(asyncio.Protocol):
         self.data_expected_to_receive = data_expected_to_receive
         self.data_to_respond_with = data_to_respond_with
 
-    def connection_made(self, transport):
+    def connection_made(self, transport: asyncio.Transport):
         print("connection_made")
         self.transport = transport
 
@@ -179,7 +180,7 @@ class TestMinecraftServer:
         with patch("dns.resolver.resolve") as resolve:
             resolve.side_effect = [dns.resolver.NXDOMAIN]
             self.server = MinecraftServer.lookup("example.org", timeout=3)
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", "SRV", lifetime=3)
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3)
         assert self.server.host == "example.org"
         assert self.server.port == 25565
 
@@ -190,7 +191,7 @@ class TestMinecraftServer:
             answer.port = 12345
             resolve.return_value = [answer]
             self.server = MinecraftServer.lookup("example.org", timeout=3)
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", "SRV", lifetime=3)
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3)
         assert self.server.host == "different.example.org"
         assert self.server.port == 12345
 

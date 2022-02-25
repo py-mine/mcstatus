@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 
 import dns.asyncresolver
 import dns.resolver
+from dns.rdatatype import RdataType
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -104,7 +105,7 @@ class Address(_AddressBase):
             # ValueError is raised if the given address wasn't valid
             # this means it's a hostname and we should try to resolve
             # the A record
-            answers = dns.resolver.resolve(self.host, "A", lifetime=lifetime)
+            answers = dns.resolver.resolve(self.host, RdataType.A, lifetime=lifetime)
             # There should only be one answer here, though in case the server
             # does actually point to multiple IPs, we just pick the first one
             answer = answers[0]
@@ -123,7 +124,7 @@ class Address(_AddressBase):
             # ValueError is raised if the given address wasn't valid
             # this means it's a hostname and we should try to resolve
             # the A record
-            answers = await dns.asyncresolver.resolve(self.host, "A", lifetime=lifetime)
+            answers = await dns.asyncresolver.resolve(self.host, RdataType.A, lifetime=lifetime)
             # There should only be one answer here, though in case the server
             # does actually point to multiple IPs, we just pick the first one
             answer = answers[0]
@@ -156,7 +157,7 @@ def minecraft_srv_address_lookup(address: str, *, default_port: int = None, life
     # back to the default port.
     if port is None:
         try:
-            answers = dns.resolver.resolve("_minecraft._tcp." + host, "SRV", lifetime=lifetime)
+            answers = dns.resolver.resolve("_minecraft._tcp." + host, RdataType.SRV, lifetime=lifetime)
         except dns.resolver.NXDOMAIN:
             if default_port is None:
                 raise ValueError(
@@ -186,7 +187,7 @@ async def async_minecraft_srv_address_lookup(address: str, *, default_port: int 
     # back to the default port.
     if port is None:
         try:
-            answers = await dns.asyncresolver.resolve("_minecraft._tcp." + host, "SRV", lifetime=lifetime)
+            answers = await dns.asyncresolver.resolve("_minecraft._tcp." + host, RdataType.SRV, lifetime=lifetime)
         except dns.resolver.NXDOMAIN:
             if default_port is None:
                 raise ValueError(

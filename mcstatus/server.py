@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 import dns.resolver
 from dns.exception import DNSException
+from dns.rdatatype import RdataType
 
 from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus.bedrock_status import BedrockServerStatus, BedrockStatusResponse
@@ -151,7 +152,7 @@ class MinecraftServer:
         """
         host = self.host
         try:
-            answers = dns.resolver.resolve(host, "A")
+            answers = dns.resolver.resolve(host, RdataType.A)
             if len(answers):
                 answer = answers[0]
                 host = str(answer).rstrip(".")
@@ -175,7 +176,7 @@ class MinecraftServer:
         """
         host = self.host
         try:
-            answers = dns.resolver.resolve(host, "A")
+            answers = dns.resolver.resolve(host, RdataType.A)
             if len(answers):
                 answer = answers[0]
                 host = str(answer).rstrip(".")
