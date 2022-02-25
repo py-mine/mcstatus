@@ -4,6 +4,7 @@ from typing import Optional, TYPE_CHECKING, Tuple
 from urllib.parse import urlparse
 
 import dns.resolver
+from dns.rdatatype import RdataType
 from dns.exception import DNSException
 
 from mcstatus.bedrock_status import BedrockServerStatus, BedrockStatusResponse
@@ -70,7 +71,7 @@ class MinecraftServer:
         if port is None:
             port = 25565
             try:
-                answers = dns.resolver.resolve("_minecraft._tcp." + host, "SRV")
+                answers = dns.resolver.resolve("_minecraft._tcp." + host, RdataType.SRV)
                 if len(answers):
                     answer = answers[0]
                     host = str(answer.target).rstrip(".")
@@ -163,7 +164,7 @@ class MinecraftServer:
         """
         host = self.host
         try:
-            answers = dns.resolver.resolve(host, "A")
+            answers = dns.resolver.resolve(host, RdataType.A)
             if len(answers):
                 answer = answers[0]
                 host = str(answer).rstrip(".")
@@ -187,7 +188,7 @@ class MinecraftServer:
         """
         host = self.host
         try:
-            answers = dns.resolver.resolve(host, "A")
+            answers = dns.resolver.resolve(host, RdataType.A)
             if len(answers):
                 answer = answers[0]
                 host = str(answer).rstrip(".")
