@@ -83,6 +83,7 @@ jobs:
         if: always() && github.event_name == 'pull_request'
         continue-on-error: true
         run: cat $GITHUB_EVENT_PATH | jq '.pull_request' > pull_request_payload.json
+        shell: bash
 
       # This only makes sense if the previous step succeeded. To
       # get the original outcome of the previous step before the
