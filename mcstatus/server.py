@@ -4,8 +4,8 @@ from typing import Optional, TYPE_CHECKING, Tuple
 from urllib.parse import urlparse
 
 import dns.resolver
-from dns.rdatatype import RdataType
 from dns.exception import DNSException
+from dns.rdatatype import RdataType
 
 from mcstatus.bedrock_status import BedrockServerStatus, BedrockStatusResponse
 from mcstatus.pinger import AsyncServerPinger, PingResponse, ServerPinger
