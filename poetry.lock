@@ -512,11 +512,11 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyright"
-version = "0.0.13"
+version = "1.1.224.post0"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
-python-versions = ">=3"
+python-versions = ">=3.7"
 
 [package.dependencies]
 nodeenv = ">=1.6.0"
@@ -830,7 +830,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4"
-content-hash = "834deb57b209e158ef3a71e95b02e63ddffe4a3e7c23b7af1b114afca72a8000"
+content-hash = "198ed190d83a9ba3c4cb9d0c32aeb0932c3f72cab91bf16ef64fda67879dba98"
 
 [metadata.files]
 asyncio-dgram = [
@@ -1143,8 +1143,8 @@ pyparsing = [
     {file = "pyparsing-3.0.7.tar.gz", hash = "sha256:18ee9022775d270c55187733956460083db60b37d0d0fb357445f3094eed3eea"},
 ]
 pyright = [
-    {file = "pyright-0.0.13-py3-none-any.whl", hash = "sha256:520458c87dc456ed0d405a08a565066aaf5b76281d23861759cfaa3c73f5bda0"},
-    {file = "pyright-0.0.13.tar.gz", hash = "sha256:ca97f9121927847d0aea5d2e757a0bf6d3c25c116c90a3ce6263b4167a12dfc4"},
+    {file = "pyright-1.1.224.post0-py3-none-any.whl", hash = "sha256:db6d04aa62dbae6104625858075653152718a4e7a29b6ea519e8e99b1d72fde2"},
+    {file = "pyright-1.1.224.post0.tar.gz", hash = "sha256:c987d31d9d5dcf960a68ee94c6f0699b43209b48ee46504f62971c1fef221b09"},
 ]
 pytest = [
     {file = "pytest-6.2.5-py3-none-any.whl", hash = "sha256:7310f8d27bc79ced999e760ca304d69f6ba6c6649c0b60fb0e04a4a77cacc134"},
