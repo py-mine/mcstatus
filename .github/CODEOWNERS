@@ -1,2 +1,3 @@
 # CI workflows
 .github/workflows/**        @ItsDrike
+.github/dependabot.yml      @ItsDrike
