@@ -1,13 +1,13 @@
 [[package]]
 name = "asyncio-dgram"
-version = "1.2.0"
+version = "2.1.2"
 description = "Higher level Datagram support for Asyncio"
 category = "main"
 optional = false
 python-versions = ">=3.5"
 
 [package.extras]
-test = ["black (>=20.8b1)", "flake8 (>=3.8.3)", "pytest (>=5.4.3)", "pytest-asyncio (>=0.14.0)"]
+test = ["black (>=20.8b1)", "flake8 (>=3.8.3)", "mypy-extensions (>=0.4.3)", "mypy (>=0.812)", "pytest-asyncio (>=0.14.0)", "pytest (>=5.4.3)", "typed-ast (>=1.4.3)", "typing-extensions (>=3.10.0.0)"]
 
 [[package]]
 name = "atomicwrites"
@@ -830,12 +830,12 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4"
-content-hash = "c1550ee4f558527b30c151524e41e65cca3fd21cc6cc68ecdcb76e66b4580306"
+content-hash = "f161fd1d8371256c00bceea308a41ff30c84b87e3e7c4b6c00493bcb9344d0d1"
 
 [metadata.files]
 asyncio-dgram = [
-    {file = "asyncio-dgram-1.2.0.tar.gz", hash = "sha256:c5464927f3ebc9a32aa6bbb3676fc1d645ae8bc9b4597feac8ab527b6fc33f38"},
-    {file = "asyncio_dgram-1.2.0-py3-none-any.whl", hash = "sha256:d969f2c033542dbddab2fd8c0add51b62c3e01b686a21f84b8d3011cdfd4ce89"},
+    {file = "asyncio-dgram-2.1.2.tar.gz", hash = "sha256:bc28a90bc0523009fb0da16ca983c1400ff403a315754d86e037910563697f91"},
+    {file = "asyncio_dgram-2.1.2-py3-none-any.whl", hash = "sha256:9ef55fc760f93c8212709329a1e28a1cf1c1f0fc8222f1be0227c2b7606a10a2"},
 ]
 atomicwrites = [
     {file = "atomicwrites-1.4.0-py2.py3-none-any.whl", hash = "sha256:6d1784dea7c0c8d4a5172b6c620f40b6e4cbfdf96d783691f2e1302a7b88e197"},
