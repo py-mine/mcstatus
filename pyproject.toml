@@ -36,7 +36,7 @@ dnspython = "2.2.0"
 
 [tool.poetry.dev-dependencies]
 coverage = "^6.3.2"
-pytest = "^6.2.5"
+pytest = "^7.0.1"
 pytest-asyncio = "^0.18.1"
 pytest-cov = "^3.0.0"
 twine = "^3.8.0"
