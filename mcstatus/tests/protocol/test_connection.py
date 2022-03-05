@@ -2,11 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from mcstatus.protocol.connection import (
-    Connection,
-    TCPSocketConnection,
-    UDPSocketConnection,
-)
+from mcstatus.protocol.connection import Connection, TCPSocketConnection, UDPSocketConnection
 
 
 class TestConnection:
