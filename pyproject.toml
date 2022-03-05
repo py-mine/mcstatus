@@ -33,6 +33,8 @@ python = ">=3.7,<4"
 asyncio-dgram = "1.2.0"
 click = ">=7.1.2,<9"
 dnspython = "2.1.0"
+isort = "^5.10.1"
+flake8-isort = "^4.1.1"
 
 [tool.poetry.dev-dependencies]
 coverage = "^6.1.1"
@@ -48,7 +50,6 @@ typing-extensions = "^4.0.1"
 flake8 = "^4.0.1"
 flake8-bugbear = "^22.1.11"
 flake8-tidy-imports = "^4.6.0"
-flake8-import-order = "^0.18.1"
 pep8-naming = "^0.12.1"
 flake8-annotations = "^2.7.0"
 pre-commit = "^2.17.0"
@@ -68,6 +69,14 @@ style = "pep440"
 
 [tool.black]
 line-length = 127
+
+[tool.isort]
+line_length = 127
+atomic = true
+order_by_type = false
+case_sensitive = true
+combine_as_imports = true
+multi_line_output = 6
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
