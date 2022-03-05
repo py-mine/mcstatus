@@ -33,8 +33,6 @@ python = ">=3.7,<4"
 asyncio-dgram = "2.1.2"
 click = ">=7.1.2,<9"
 dnspython = "2.2.0"
-isort = "^5.10.1"
-flake8-isort = "^4.1.1"
 
 [tool.poetry.dev-dependencies]
 coverage = "^6.3.2"
@@ -53,6 +51,8 @@ flake8-tidy-imports = "^4.6.0"
 pep8-naming = "^0.12.1"
 flake8-annotations = "^2.7.0"
 pre-commit = "^2.17.0"
+isort = "^5.10.1"
+flake8-isort = "^4.1.1"
 
 [tool.poetry.scripts]
 mcstatus = 'mcstatus.scripts.mcstatus:cli'
