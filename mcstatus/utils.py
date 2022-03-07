@@ -4,7 +4,7 @@ import asyncio
 import inspect
 import warnings
 from functools import wraps
-from typing import Callable, Iterable, Tuple, Type
+from typing import Callable, Iterable, Optional, Tuple, Type
 
 
 def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> Callable:
@@ -52,11 +52,11 @@ def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> 
 
 def deprecated(
     *,
-    replacement: str = None,
-    version: str = None,
-    date: str = None,
-    msg: str = None,
-    methods: Iterable[str] = None,
+    replacement: Optional[str] = None,
+    version: Optional[str] = None,
+    date: Optional[str] = None,
+    msg: Optional[str] = None,
+    methods: Optional[Iterable[str]] = None,
 ):
     if date is not None and version is not None:
         raise ValueError("Expected removal timeframe can either be a date, or a version, not both.")
