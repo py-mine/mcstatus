@@ -13,6 +13,9 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
+__all__ = ("Address", "minecraft_srv_address_lookup", "async_minecraft_srv_address_lookup")
+
+
 def _valid_urlparse(address: str) -> Tuple[str, Optional[int]]:
     """Parses a string address like 127.0.0.1:25565 into host and port parts
 
