@@ -4,7 +4,8 @@ import asyncio
 import socket
 import struct
 from abc import ABC, abstractmethod
-from ctypes import c_int32 as signed_int32, c_uint32 as unsigned_int32
+from ctypes import c_int32 as signed_int32
+from ctypes import c_uint32 as unsigned_int32
 from ipaddress import ip_address
 from typing import Iterable, Optional, SupportsBytes, TYPE_CHECKING, Tuple, Union
 
