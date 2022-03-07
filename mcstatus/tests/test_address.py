@@ -1,5 +1,6 @@
 import ipaddress
 from pathlib import Path
+from typing import Awaitable, Callable, TypeVar
 from unittest.mock import MagicMock, Mock, patch
 
 import dns.resolver
@@ -7,6 +8,22 @@ import pytest
 from dns.rdatatype import RdataType
 
 from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
+
+T = TypeVar("T")
+
+
+def const_coro(value: T) -> Callable[..., Awaitable[T]]:
+    """This is a helper function, which returns an async func returning value.
+
+    This is needed because in python 3.7, Mock.return_value didn't properly cover
+    async functions, which means we need to do Mock.side_effect = some_coro. This
+    function just makes it easy to quickly construct these coroutines.
+    """
+
+    async def inner(*a, **kw) -> T:
+        return value
+
+    return inner
 
 
 class TestSRVLookup:
@@ -36,7 +53,7 @@ class TestSRVLookup:
         with patch("dns.asyncresolver.resolve") as resolve:
             resolve.side_effect = [dns.resolver.NXDOMAIN]
             address = await async_minecraft_srv_address_lookup("example.org", default_port=25565, lifetime=3)
-            resolve.assert_awaited_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3)
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3)
 
         assert address.host == "example.org"
         assert address.port == 25565
@@ -47,10 +64,10 @@ class TestSRVLookup:
             answer = Mock()
             answer.target = "different.example.org."
             answer.port = 12345
-            resolve.return_value = [answer]
+            resolve.side_effect = const_coro([answer])
 
             address = await async_minecraft_srv_address_lookup("example.org", lifetime=3)
-            resolve.assert_awaited_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3)
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3)
         assert address.host == "different.example.org"
         assert address.port == 12345
 
@@ -144,11 +161,11 @@ class TestAddressIPResolving:
         with patch("dns.asyncresolver.resolve") as resolve:
             answer = MagicMock()
             answer.__str__.return_value = "48.225.1.104."
-            resolve.return_value = [answer]
+            resolve.side_effect = const_coro([answer])
 
             resolved_ip = await self.host_addr.async_resolve_ip(lifetime=3)
 
-            resolve.assert_awaited_once_with(self.host_addr.host, RdataType.A, lifetime=3)
+            resolve.assert_called_once_with(self.host_addr.host, RdataType.A, lifetime=3)
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == "48.225.1.104"
 
