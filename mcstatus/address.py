@@ -32,6 +32,13 @@ def _valid_urlparse(address: str) -> Tuple[str, Optional[int]]:
 
 
 class _AddressBase(NamedTuple):
+    """Intermediate NamedTuple class representing an address.
+
+    We can't extend this class directly, since NamedTuples are slotted and
+    read-only, however child classes can extend __new__, allowing us do some
+    needed processing on child classes derived from this base class.
+    """
+
     host: str
     port: int
 
