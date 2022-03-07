@@ -32,7 +32,7 @@ packages = [
 python = ">=3.7,<4"
 asyncio-dgram = "2.1.2"
 click = ">=7.1.2,<9"
-dnspython = "2.2.0"
+dnspython = "2.2.1"
 
 [tool.poetry.dev-dependencies]
 coverage = "^6.3.2"
