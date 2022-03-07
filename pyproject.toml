@@ -5,7 +5,7 @@ description = "A library to query Minecraft Servers for their status and capabil
 authors = ["Nathan Adams <dinnerbone@dinnerbone.com>"]
 license = "Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/Dinnerbone/mcstatus"
+repository = "https://github.com/py-mine/mcstatus"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -30,27 +30,28 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.7,<4"
-asyncio-dgram = "1.2.0"
+asyncio-dgram = "2.1.2"
 click = ">=7.1.2,<9"
-dnspython = "2.1.0"
+dnspython = "2.2.0"
 
 [tool.poetry.dev-dependencies]
-coverage = "^6.1.1"
-pytest = "^6.2.5"
-pytest-asyncio = "^0.16.0"
+coverage = "^6.3.2"
+pytest = "^7.0.1"
+pytest-asyncio = "^0.18.1"
 pytest-cov = "^3.0.0"
-twine = "^3.5.0"
+twine = "^3.8.0"
 black = "^22.1.0"
 tox = "^3.24.5"
 tox-poetry = "^0.4.1"
-pyright = "^0.0.13"
-typing-extensions = "^4.0.1"
+pyright = "^1.1.226"
+typing-extensions = "^4.1.1"
 flake8 = "^4.0.1"
 flake8-bugbear = "^22.1.11"
 flake8-tidy-imports = "^4.6.0"
 flake8-import-order = "^0.18.1"
 pep8-naming = "^0.12.1"
 flake8-annotations = "^2.7.0"
+pre-commit = "^2.17.0"
 
 [tool.poetry.scripts]
 mcstatus = 'mcstatus.scripts.mcstatus:cli'
