@@ -71,14 +71,10 @@ style = "pep440"
 line-length = 127
 
 [tool.isort]
+profile = "black"
 line_length = 127
-atomic = true
 order_by_type = false
 case_sensitive = true
-combine_as_imports = true
-multi_line_output = 3
-include_trailing_comma = true
-ensure_newline_before_comments = true
 skip = [".venv", ".git", ".cache", ".tox"]
 
 [build-system]
