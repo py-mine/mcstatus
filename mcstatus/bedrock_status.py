@@ -4,6 +4,7 @@ import asyncio
 import socket
 import struct
 from time import perf_counter
+from typing import Optional
 
 import asyncio_dgram
 
@@ -32,12 +33,12 @@ class BedrockServerStatus:
             gamemode = None
 
         return BedrockStatusResponse(
-            protocol=decoded_data[2],
+            protocol=int(decoded_data[2]),
             brand=decoded_data[0],
             version=decoded_data[3],
             latency=latency,
-            players_online=decoded_data[4],
-            players_max=decoded_data[5],
+            players_online=int(decoded_data[4]),
+            players_max=int(decoded_data[5]),
             motd=decoded_data[1],
             map_=map_,
             gamemode=gamemode,
@@ -73,22 +74,22 @@ class BedrockServerStatus:
 
 class BedrockStatusResponse:
     class Version:
-        def __init__(self, protocol, brand, version):
+        def __init__(self, protocol: int, brand: str, version: str):
             self.protocol = protocol
             self.brand = brand
             self.version = version
 
     def __init__(
         self,
-        protocol,
-        brand,
-        version,
-        latency,
-        players_online,
-        players_max,
-        motd,
-        map_,
-        gamemode,
+        protocol: int,
+        brand: str,
+        version: str,
+        latency: float,
+        players_online: int,
+        players_max: int,
+        motd: str,
+        map_: Optional[str],
+        gamemode: Optional[str],
     ):
         self.version = self.Version(protocol, brand, version)
         self.latency = latency
