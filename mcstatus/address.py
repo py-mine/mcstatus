@@ -37,6 +37,14 @@ class _AddressBase(NamedTuple):
 
 
 class Address(_AddressBase):
+    """Extension of a NamedTuple of host and port, for storing addresses.
+
+    This class inherits from tuple, and is fully compatible with all functions
+    which require pure (host, port) address tuples, but on top of that, it includes
+    some neat functionalities, such as validity ensuring, alternative constructors
+    for easy quick creation and methods handling IP resolving.
+    """
+
     def __new__(cls, *a, **kw):
         instance = super().__new__(cls, *a, **kw)
 
