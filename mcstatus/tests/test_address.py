@@ -105,6 +105,13 @@ class TestAddressConstructing:
         assert addr.host == "example.org"
         assert addr.port == 25565
 
+    def test_tuple_behavior(self):
+        addr = Address("example.org", 25565)
+        assert isinstance(addr, tuple)
+        assert len(addr) == 2
+        assert addr[0] == "example.org"
+        assert addr[1] == 25565
+
     def test_from_tuple_constructor(self):
         addr = Address.from_tuple(("example.org", 12345))
         assert addr.host == "example.org"
