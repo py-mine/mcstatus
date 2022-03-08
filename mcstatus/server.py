@@ -2,10 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import dns.resolver
-from dns.exception import DNSException
-from dns.rdatatype import RdataType
-
 from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus.bedrock_status import BedrockServerStatus, BedrockStatusResponse
 from mcstatus.pinger import AsyncServerPinger, PingResponse, ServerPinger
@@ -150,16 +146,8 @@ class MinecraftServer:
         :return: Query status information in a `QueryResponse` instance.
         :rtype: QueryResponse
         """
-        host = self.host
-        try:
-            answers = dns.resolver.resolve(host, RdataType.A)
-            if len(answers):
-                answer = answers[0]
-                host = str(answer).rstrip(".")
-        except DNSException:
-            pass
-
-        return self._retry_query(host)
+        ip = str(self.address.resolve_ip())
+        return self._retry_query(ip)
 
     @retry(tries=3)
     def _retry_query(self, host: str) -> QueryResponse:
@@ -174,16 +162,8 @@ class MinecraftServer:
         :return: Query status information in a `QueryResponse` instance.
         :rtype: QueryResponse
         """
-        host = self.host
-        try:
-            answers = dns.resolver.resolve(host, RdataType.A)
-            if len(answers):
-                answer = answers[0]
-                host = str(answer).rstrip(".")
-        except DNSException:
-            pass
-
-        return await self._retry_async_query(host)
+        ip = str(self.address.async_resolve_ip())
+        return await self._retry_async_query(ip)
 
     @retry(tries=3)
     async def _retry_async_query(self, host) -> QueryResponse:
