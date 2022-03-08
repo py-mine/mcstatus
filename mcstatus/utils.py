@@ -77,7 +77,7 @@ def deprecated(
         if version is not None:
             warn_message += f" in {version}"
         elif date is not None:
-            warn_message += f" in {date}"
+            warn_message += f" on {date}"
         else:
             warn_message += " eventually"
         if replacement is not None:
