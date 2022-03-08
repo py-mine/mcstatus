@@ -72,7 +72,7 @@ class TestSRVLookup:
         assert address.port == 12345
 
 
-class TestAddress:
+class TestAddressValidity:
     def test_address_validation_valid(self):
         Address._ensure_validity("example.org", 25565)
         Address._ensure_validity("192.168.0.100", 54321)
