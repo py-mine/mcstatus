@@ -100,6 +100,11 @@ class TestAddressValidity:
 
 
 class TestAddressConstructing:
+    def test_init_constructor(self):
+        addr = Address("example.org", 25565)
+        assert addr.host == "example.org"
+        assert addr.port == 25565
+
     def test_from_tuple_constructor(self):
         addr = Address.from_tuple(("example.org", 12345))
         assert addr.host == "example.org"
