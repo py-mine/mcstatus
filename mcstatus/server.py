@@ -73,7 +73,7 @@ class MinecraftServer:
         :rtype: float
         """
 
-        connection = TCPSocketConnection((self.host, self.port), self.timeout)
+        connection = TCPSocketConnection(self.address, self.timeout)
         return self._retry_ping(connection, **kwargs)
 
     @retry(tries=3)
@@ -91,7 +91,7 @@ class MinecraftServer:
         """
 
         connection = TCPAsyncSocketConnection()
-        await connection.connect((self.host, self.port), self.timeout)
+        await connection.connect(self.address, self.timeout)
         return await self._retry_async_ping(connection, **kwargs)
 
     @retry(tries=3)
@@ -109,7 +109,7 @@ class MinecraftServer:
         :rtype: PingResponse
         """
 
-        connection = TCPSocketConnection((self.host, self.port), self.timeout)
+        connection = TCPSocketConnection(self.address, self.timeout)
         return self._retry_status(connection, **kwargs)
 
     @retry(tries=3)
@@ -129,7 +129,7 @@ class MinecraftServer:
         """
 
         connection = TCPAsyncSocketConnection()
-        await connection.connect((self.host, self.port), self.timeout)
+        await connection.connect(self.address, self.timeout)
         return await self._retry_async_status(connection, **kwargs)
 
     @retry(tries=3)
