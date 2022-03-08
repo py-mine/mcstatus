@@ -99,7 +99,7 @@ class TestAddressValidity:
                 Address._ensure_validity(test_host, test_port)
 
 
-class TestAddressConstructors:
+class TestAddressConstructing:
     def test_from_tuple_constructor(self):
         addr = Address.from_tuple(("example.org", 12345))
         assert addr.host == "example.org"
