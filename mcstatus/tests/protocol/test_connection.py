@@ -2,6 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPSocketConnection, UDPSocketConnection
 
 
@@ -206,12 +207,14 @@ class TestConnection:
 
 class TCPSocketConnectionTest:
     def setup_method(self):
+        self.test_addr = Address("localhost", 1234)
+
         socket = Mock()
         socket.recv = Mock()
         socket.send = Mock()
         with patch("socket.create_connection") as create_connection:
             create_connection.return_value = socket
-            self.connection = TCPSocketConnection(("localhost", 1234))
+            self.connection = TCPSocketConnection(self.test_addr)
 
     def test_flush(self):
         with pytest.raises(TypeError):
@@ -244,12 +247,14 @@ class TCPSocketConnectionTest:
 
 class UDPSocketConnectionTest:
     def setup_method(self):
+        self.test_addr = Address("localhost", 1234)
+
         socket = Mock()
         socket.recvfrom = Mock()
         socket.sendto = Mock()
         with patch("socket.socket") as create_socket:
             create_socket.return_value = socket
-            self.connection = UDPSocketConnection(("localhost", 1234))
+            self.connection = UDPSocketConnection(self.test_addr)
 
     def test_flush(self):
         with pytest.raises(TypeError):
@@ -272,5 +277,5 @@ class UDPSocketConnectionTest:
 
         self.connection.socket.sendto.assert_called_once_with(  # type: ignore[attr-defined]
             bytearray.fromhex("7FAA"),
-            ("localhost", 1234),
+            self.test_addr,
         )

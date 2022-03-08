@@ -151,7 +151,7 @@ class MinecraftServer:
 
     @retry(tries=3)
     def _retry_query(self, host: str) -> QueryResponse:
-        connection = UDPSocketConnection((host, self.port), self.timeout)
+        connection = UDPSocketConnection(Address(host, self.port), self.timeout)
         querier = ServerQuerier(connection)
         querier.handshake()
         return querier.read_query()
@@ -168,7 +168,7 @@ class MinecraftServer:
     @retry(tries=3)
     async def _retry_async_query(self, host) -> QueryResponse:
         connection = UDPAsyncSocketConnection()
-        await connection.connect((host, self.port), self.timeout)
+        await connection.connect(Address(host, self.port), self.timeout)
         querier = AsyncServerQuerier(connection)
         await querier.handshake()
         return await querier.read_query()
