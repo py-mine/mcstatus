@@ -51,6 +51,7 @@ def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> 
 
 
 def deprecated(
+    obj: Optional[Callable] = None,
     *,
     replacement: Optional[str] = None,
     version: Optional[str] = None,
@@ -99,4 +100,9 @@ def deprecated(
             raise ValueError("Methods can only be specified when decorating a class, not a function")
         return decorate_func(obj, warn_message)
 
+    # In case the decorator was used like @deprecated, instead of @deprecated()
+    # we got the object already, pass it over to the local decorate function
+    # This can happen since all of the arguments are optional and can be omitted
+    if obj:
+        return decorate(obj)
     return decorate
