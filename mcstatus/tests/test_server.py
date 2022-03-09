@@ -180,7 +180,7 @@ class TestJavaServer:
         with patch("dns.resolver.resolve") as resolve:
             resolve.side_effect = [dns.resolver.NXDOMAIN]
             self.server = JavaServer.lookup("example.org")
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", "SRV")
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV)
         assert self.server.host == "example.org"
         assert self.server.port == 25565
 
