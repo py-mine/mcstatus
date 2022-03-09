@@ -78,7 +78,7 @@ class JavaServer:
 
     @retry(tries=3)
     def _retry_ping(self, connection: TCPSocketConnection, **kwargs) -> float:
-        pinger = ServerPinger(connection, host=self.host, port=self.port, **kwargs)
+        pinger = ServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         return pinger.test_ping()
 
@@ -96,7 +96,7 @@ class JavaServer:
 
     @retry(tries=3)
     async def _retry_async_ping(self, connection: TCPAsyncSocketConnection, **kwargs) -> float:
-        pinger = AsyncServerPinger(connection, host=self.host, port=self.port, **kwargs)
+        pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         ping = await pinger.test_ping()
         return ping
@@ -114,7 +114,7 @@ class JavaServer:
 
     @retry(tries=3)
     def _retry_status(self, connection: TCPSocketConnection, **kwargs) -> PingResponse:
-        pinger = ServerPinger(connection, host=self.host, port=self.port, **kwargs)
+        pinger = ServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         result = pinger.read_status()
         result.latency = pinger.test_ping()
@@ -134,7 +134,7 @@ class JavaServer:
 
     @retry(tries=3)
     async def _retry_async_status(self, connection: TCPAsyncSocketConnection, **kwargs) -> PingResponse:
-        pinger = AsyncServerPinger(connection, host=self.host, port=self.port, **kwargs)
+        pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         result = await pinger.read_status()
         result.latency = await pinger.test_ping()
@@ -215,7 +215,7 @@ class BedrockServer:
         :return: Status information in a `BedrockStatusResponse` instance.
         :rtype: BedrockStatusResponse
         """
-        return BedrockServerStatus(self.host, self.port, self.timeout, **kwargs).read_status()
+        return BedrockServerStatus(self.address, self.timeout, **kwargs).read_status()
 
     @retry(tries=3)
     async def async_status(self, **kwargs) -> BedrockStatusResponse:
@@ -225,7 +225,7 @@ class BedrockServer:
         :return: Status information in a `BedrockStatusResponse` instance.
         :rtype: BedrockStatusResponse
         """
-        return await BedrockServerStatus(self.host, self.port, self.timeout, **kwargs).read_status_async()
+        return await BedrockServerStatus(self.address, self.timeout, **kwargs).read_status_async()
 
 
 @deprecated(replacement="JavaServer", date="2022-08", methods=("__init__",))
