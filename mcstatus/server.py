@@ -155,9 +155,9 @@ class JavaServer:
         try:
             ip = str(self.address.resolve_ip())
         except dns.resolver.NXDOMAIN:
-            ip = self.host
+            ip = self.address.host
 
-        return self._retry_query(Address(ip, self.port))
+        return self._retry_query(Address(ip, self.address.port))
 
     @retry(tries=3)
     def _retry_query(self, addr: Address) -> QueryResponse:
@@ -179,8 +179,9 @@ class JavaServer:
         try:
             ip = str(self.address.async_resolve_ip())
         except dns.resolver.NXDOMAIN:
-            ip = self.host
-        return await self._retry_async_query(Address(ip, self.port))
+            ip = self.address.host
+
+        return await self._retry_async_query(Address(ip, self.address.port))
 
     @retry(tries=3)
     async def _retry_async_query(self, address: Address) -> QueryResponse:
