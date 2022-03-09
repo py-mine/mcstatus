@@ -52,13 +52,12 @@ class Address(_AddressBase):
     for easy quick creation and methods handling IP resolving.
     """
 
-    def __new__(cls, *a, **kw):
-        instance = super().__new__(cls, *a, **kw)
+    def __init__(self, *a, **kw):
+        # We don't call super's __init__, because NamedTuples handle everything
+        # from __new__ and the passed self already has all of the parameters set.
 
-        # Ensure the validity of the address before allowing it's creation
-        cls._ensure_validity(instance.host, instance.port)
-
-        return instance
+        # Make sure the address is valid
+        self._ensure_validity(self.host, self.port)
 
     @staticmethod
     def _ensure_validity(host: object, port: object) -> None:
