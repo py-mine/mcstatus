@@ -147,11 +147,11 @@ class JavaServer:
         :rtype: QueryResponse
         """
         ip = str(self.address.resolve_ip())
-        return self._retry_query(ip)
+        return self._retry_query(Address(ip, self.port))
 
     @retry(tries=3)
-    def _retry_query(self, host: str) -> QueryResponse:
-        connection = UDPSocketConnection(Address(host, self.port), self.timeout)
+    def _retry_query(self, addr: Address) -> QueryResponse:
+        connection = UDPSocketConnection(addr, self.timeout)
         querier = ServerQuerier(connection)
         querier.handshake()
         return querier.read_query()
@@ -163,12 +163,12 @@ class JavaServer:
         :rtype: QueryResponse
         """
         ip = str(self.address.async_resolve_ip())
-        return await self._retry_async_query(ip)
+        return await self._retry_async_query(Address(ip, self.port))
 
     @retry(tries=3)
-    async def _retry_async_query(self, host) -> QueryResponse:
+    async def _retry_async_query(self, address: Address) -> QueryResponse:
         connection = UDPAsyncSocketConnection()
-        await connection.connect(Address(host, self.port), self.timeout)
+        await connection.connect(address, self.timeout)
         querier = AsyncServerQuerier(connection)
         await querier.handshake()
         return await querier.read_query()
