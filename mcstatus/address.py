@@ -55,6 +55,7 @@ class Address(_AddressBase):
     def __init__(self, *a, **kw):
         # We don't call super's __init__, because NamedTuples handle everything
         # from __new__ and the passed self already has all of the parameters set.
+        self._cached_ip: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None
 
         # Make sure the address is valid
         self._ensure_validity(self.host, self.port)
@@ -116,8 +117,11 @@ class Address(_AddressBase):
             One of the exceptions possibly raised by dns.resolver.resolve
             Most notably this will be `dns.exception.Timeout` and `dns.resolver.NXDOMAIN`
         """
+        if self._cached_ip is not None:
+            return self._cached_ip
+
         try:
-            return ipaddress.ip_address(self.host)
+            ip = ipaddress.ip_address(self.host)
         except ValueError:
             # ValueError is raised if the given address wasn't valid
             # this means it's a hostname and we should try to resolve
@@ -127,7 +131,10 @@ class Address(_AddressBase):
             # does actually point to multiple IPs, we just pick the first one
             answer = answers[0]
             ip_addr = str(answer).rstrip(".")
-            return ipaddress.ip_address(ip_addr)
+            ip = ipaddress.ip_address(ip_addr)
+
+        self._cached_ip = ip
+        return self._cached_ip
 
     async def async_resolve_ip(self, lifetime: Optional[float] = None) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
         """Resolves a hostname's A record into an IP address.
@@ -135,8 +142,11 @@ class Address(_AddressBase):
         See the docstring for `resolve_ip` for further info. This function is purely
         an async alternative to it.
         """
+        if self._cached_ip is not None:
+            return self._cached_ip
+
         try:
-            return ipaddress.ip_address(self.host)
+            ip = ipaddress.ip_address(self.host)
         except ValueError:
             # ValueError is raised if the given address wasn't valid
             # this means it's a hostname and we should try to resolve
@@ -146,7 +156,10 @@ class Address(_AddressBase):
             # does actually point to multiple IPs, we just pick the first one
             answer = answers[0]
             ip_addr = str(answer).rstrip(".")
-            return ipaddress.ip_address(ip_addr)
+            ip = ipaddress.ip_address(ip_addr)
+
+        self._cached_ip = ip
+        return self._cached_ip
 
 
 def minecraft_srv_address_lookup(
