@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+import warnings
 
 import dns.resolver
 
@@ -155,6 +156,7 @@ class JavaServer:
         try:
             ip = str(self.address.resolve_ip())
         except dns.resolver.NXDOMAIN:
+            warnings.warn(f"Resolving IP for {self.address.host} failed with NXDOMAIN")
             ip = self.address.host
 
         return self._retry_query(Address(ip, self.address.port))
@@ -179,6 +181,7 @@ class JavaServer:
         try:
             ip = str(self.address.async_resolve_ip())
         except dns.resolver.NXDOMAIN:
+            warnings.warn(f"Resolving IP for {self.address.host} failed with NXDOMAIN")
             ip = self.address.host
 
         return await self._retry_async_query(Address(ip, self.address.port))
