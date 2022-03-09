@@ -173,3 +173,14 @@ class TestJavaServer:
                 with pytest.raises(Exception):
                     self.server.query()
                 assert querier.call_count == 3
+
+    def test_lookup_constructor(self):
+        s = JavaServer.lookup("example.org:25565")
+        assert s.address.host == "example.org"
+        assert s.address.port == 25565
+
+    @pytest.mark.asyncio
+    async def test_async_lookup_constructor(self):
+        s = await JavaServer.async_lookup("example.org:25565")
+        assert s.address.host == "example.org"
+        assert s.address.port == 25565
