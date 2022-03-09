@@ -4,6 +4,7 @@ from typing import Optional, TYPE_CHECKING, Tuple
 from urllib.parse import urlparse
 
 import dns.resolver
+from dns.rdatatype import RdataType
 
 from mcstatus.bedrock_status import BedrockServerStatus, BedrockStatusResponse
 from mcstatus.pinger import AsyncServerPinger, PingResponse, ServerPinger
@@ -14,14 +15,13 @@ from mcstatus.protocol.connection import (
     UDPSocketConnection,
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
-from mcstatus.utils import retry
-
+from mcstatus.utils import deprecated, retry
 
 if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = ["MinecraftServer", "MinecraftBedrockServer"]
+__all__ = ["JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
 
 
 def parse_address(address: str) -> Tuple[str, Optional[int]]:
@@ -40,7 +40,7 @@ def ensure_valid(host: object, port: object):
         raise ValueError(f"Port must be within the allowed range (0-2^16), got {port}")
 
 
-class MinecraftServer:
+class JavaServer:
     """Base class for a Minecraft Java Edition server.
 
     :param str host: The host/address/ip of the Minecraft server.
@@ -67,7 +67,7 @@ class MinecraftServer:
         :raises: dns.resolver.Timeout if the SRV record wasn't found in time
         :raises: Other dns.resolver.resolve exception pointing to a deeper issue
         """
-        answers = dns.resolver.resolve("_minecraft._tcp." + address, "SRV")
+        answers = dns.resolver.resolve("_minecraft._tcp." + address, RdataType.SRV)
         # There should only be one answer here, though in case the server
         # does actually point to multiple IPs, we just pick the first one
         answer = answers[0]
@@ -86,7 +86,7 @@ class MinecraftServer:
         :raises: dns.resolver.Timeout if the record wasn't found in time
         :raises: Other dns.resolver.resolve exception pointing to a deeper issue
         """
-        answers = dns.resolver.resolve(hostname, "A")
+        answers = dns.resolver.resolve(hostname, RdataType.A)
         # There should only be one answer here, though in case the server
         # does actually point to multiple IPs, we just pick the first one
         answer = answers[0]
@@ -242,7 +242,7 @@ class MinecraftServer:
         return await querier.read_query()
 
 
-class MinecraftBedrockServer:
+class BedrockServer:
     """Base class for a Minecraft Bedrock Edition server.
 
     :param str host: The host/address/ip of the Minecraft server.
@@ -291,3 +291,25 @@ class MinecraftBedrockServer:
         :rtype: BedrockStatusResponse
         """
         return await BedrockServerStatus(self.host, self.port, self.timeout, **kwargs).read_status_async()
+
+
+@deprecated(replacement="JavaServer", date="2022-08", methods=("__init__",))
+class MinecraftServer(JavaServer):
+    """This is a deprecated version of the base class for a Java Minecraft Server.
+
+    This class is kept purely for backwards compatibility reasons and will be removed eventually.
+    """
+
+    def __init__(self, host: str, port: int = 25565, timeout: float = 3):
+        super().__init__(host, port=port, timeout=timeout)
+
+
+@deprecated(replacement="BedrockServer", date="2022-08", methods=("__init__",))
+class MinecraftBedrockServer(BedrockServer):
+    """This is a deprecated version of the base class for a Bedrock Minecraft Server.
+
+    This class is kept purely for backwards compatibility reasons and will be removed eventually.
+    """
+
+    def __init__(self, host: str, port: int = 19139, timeout: float = 3):
+        super().__init__(host, port=port, timeout=timeout)

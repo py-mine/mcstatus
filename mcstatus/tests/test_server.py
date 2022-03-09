@@ -4,9 +4,10 @@ from unittest.mock import Mock, patch
 
 import dns.resolver
 import pytest
+from dns.rdatatype import RdataType
 
 from mcstatus.protocol.connection import Connection
-from mcstatus.server import MinecraftServer
+from mcstatus.server import JavaServer
 
 
 class MockProtocolFactory(asyncio.Protocol):
@@ -16,7 +17,7 @@ class MockProtocolFactory(asyncio.Protocol):
         self.data_expected_to_receive = data_expected_to_receive
         self.data_to_respond_with = data_to_respond_with
 
-    def connection_made(self, transport):
+    def connection_made(self, transport: asyncio.Transport):
         print("connection_made")
         self.transport = transport
 
@@ -58,7 +59,7 @@ async def create_mock_packet_server(event_loop):
         await server.wait_closed()
 
 
-class TestAsyncMinecraftServer:
+class TestAsyncJavaServer:
     @pytest.mark.skipif(
         sys.platform.startswith("win"),
         reason="async bug on Windows https://github.com/Dinnerbone/mcstatus/issues/140",
@@ -70,16 +71,16 @@ class TestAsyncMinecraftServer:
             data_expected_to_receive=bytearray.fromhex("09010000000001C54246"),
             data_to_respond_with=bytearray.fromhex("0F002F096C6F63616C686F737463DD0109010000000001C54246"),
         )
-        minecraft_server = MinecraftServer("localhost", port=unused_tcp_port)
+        minecraft_server = JavaServer("localhost", port=unused_tcp_port)
 
         latency = await minecraft_server.async_ping(ping_token=29704774, version=47)
         assert latency >= 0
 
 
-class TestMinecraftServer:
+class TestJavaServer:
     def setup_method(self):
         self.socket = Connection()
-        self.server = MinecraftServer("localhost", port=25565)
+        self.server = JavaServer("localhost", port=25565)
 
     def test_ping(self):
         self.socket.receive(bytearray.fromhex("09010000000001C54246"))
@@ -178,7 +179,7 @@ class TestMinecraftServer:
     def test_by_address_no_srv(self):
         with patch("dns.resolver.resolve") as resolve:
             resolve.side_effect = [dns.resolver.NXDOMAIN]
-            self.server = MinecraftServer.lookup("example.org")
+            self.server = JavaServer.lookup("example.org")
             resolve.assert_called_once_with("_minecraft._tcp.example.org", "SRV")
         assert self.server.host == "example.org"
         assert self.server.port == 25565
@@ -189,20 +190,20 @@ class TestMinecraftServer:
             answer.target = "different.example.org."
             answer.port = 12345
             resolve.return_value = [answer]
-            self.server = MinecraftServer.lookup("example.org")
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", "SRV")
+            self.server = JavaServer.lookup("example.org")
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV)
         assert self.server.host == "different.example.org"
         assert self.server.port == 12345
 
     def test_by_address_with_port(self):
-        self.server = MinecraftServer.lookup("example.org:12345")
+        self.server = JavaServer.lookup("example.org:12345")
         assert self.server.host == "example.org"
         assert self.server.port == 12345
 
     def test_by_address_with_multiple_ports(self):
         with pytest.raises(ValueError):
-            MinecraftServer.lookup("example.org:12345:6789")
+            JavaServer.lookup("example.org:12345:6789")
 
     def test_by_address_with_invalid_port(self):
         with pytest.raises(ValueError):
-            MinecraftServer.lookup("example.org:port")
+            JavaServer.lookup("example.org:port")
