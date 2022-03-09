@@ -179,7 +179,7 @@ class JavaServer:
         # into '127.0.0.1'. This try-except needs to be removed once this issue
         # is resolved!
         try:
-            ip = str(self.address.async_resolve_ip())
+            ip = str(await self.address.async_resolve_ip())
         except dns.resolver.NXDOMAIN:
             warnings.warn(f"Resolving IP for {self.address.host} failed with NXDOMAIN")
             ip = self.address.host
