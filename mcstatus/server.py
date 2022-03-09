@@ -210,13 +210,11 @@ class BedrockServer:
     @property
     @deprecated(replacement="address.host", date="2022-08")
     def host(self) -> str:
-        # TODO: Add a deprecation notice once #222 is merged
         return self.address.host
 
     @property
     @deprecated(replacement="address.host", date="2022-08")
     def port(self) -> int:
-        # TODO: Add a deprecation notice once #222 is merged
         return self.address.port
 
     @classmethod
