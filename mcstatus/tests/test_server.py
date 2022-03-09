@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from mcstatus.protocol.connection import Connection
-from mcstatus.server import MinecraftServer
+from mcstatus.server import JavaServer
 
 
 class MockProtocolFactory(asyncio.Protocol):
@@ -57,7 +57,7 @@ async def create_mock_packet_server(event_loop):
         await server.wait_closed()
 
 
-class TestAsyncMinecraftServer:
+class TestAsyncJavaServer:
     @pytest.mark.skipif(
         sys.platform.startswith("win"),
         reason="async bug on Windows https://github.com/Dinnerbone/mcstatus/issues/140",
@@ -69,16 +69,16 @@ class TestAsyncMinecraftServer:
             data_expected_to_receive=bytearray.fromhex("09010000000001C54246"),
             data_to_respond_with=bytearray.fromhex("0F002F096C6F63616C686F737463DD0109010000000001C54246"),
         )
-        minecraft_server = MinecraftServer("localhost", port=unused_tcp_port)
+        minecraft_server = JavaServer("localhost", port=unused_tcp_port)
 
         latency = await minecraft_server.async_ping(ping_token=29704774, version=47)
         assert latency >= 0
 
 
-class TestMinecraftServer:
+class TestJavaServer:
     def setup_method(self):
         self.socket = Connection()
-        self.server = MinecraftServer("localhost", port=25565)
+        self.server = JavaServer("localhost", port=25565)
 
     def test_ping(self):
         self.socket.receive(bytearray.fromhex("09010000000001C54246"))
