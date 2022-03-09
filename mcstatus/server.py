@@ -16,13 +16,13 @@ from mcstatus.protocol.connection import (
     UDPSocketConnection,
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
-from mcstatus.utils import retry
+from mcstatus.utils import deprecated, retry
 
 if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = ["MinecraftServer", "MinecraftBedrockServer"]
+__all__ = ["JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
 
 
 def parse_address(address: str) -> Tuple[str, Optional[int]]:
@@ -41,7 +41,7 @@ def ensure_valid(host: object, port: object):
         raise ValueError(f"Port must be within the allowed range (0-2^16), got {port}")
 
 
-class MinecraftServer:
+class JavaServer:
     """Base class for a Minecraft Java Edition server.
 
     :param str host: The host/address/ip of the Minecraft server.
@@ -206,7 +206,7 @@ class MinecraftServer:
         return await querier.read_query()
 
 
-class MinecraftBedrockServer:
+class BedrockServer:
     """Base class for a Minecraft Bedrock Edition server.
 
     :param str host: The host/address/ip of the Minecraft server.
@@ -255,3 +255,25 @@ class MinecraftBedrockServer:
         :rtype: BedrockStatusResponse
         """
         return await BedrockServerStatus(self.host, self.port, self.timeout, **kwargs).read_status_async()
+
+
+@deprecated(replacement="JavaServer", date="2022-08", methods=("__init__",))
+class MinecraftServer(JavaServer):
+    """This is a deprecated version of the base class for a Java Minecraft Server.
+
+    This class is kept purely for backwards compatibility reasons and will be removed eventually.
+    """
+
+    def __init__(self, host: str, port: int = 25565, timeout: float = 3):
+        super().__init__(host, port=port, timeout=timeout)
+
+
+@deprecated(replacement="BedrockServer", date="2022-08", methods=("__init__",))
+class MinecraftBedrockServer(BedrockServer):
+    """This is a deprecated version of the base class for a Bedrock Minecraft Server.
+
+    This class is kept purely for backwards compatibility reasons and will be removed eventually.
+    """
+
+    def __init__(self, host: str, port: int = 19139, timeout: float = 3):
+        super().__init__(host, port=port, timeout=timeout)
