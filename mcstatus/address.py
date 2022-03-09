@@ -150,7 +150,12 @@ class Address(_AddressBase):
             return ipaddress.ip_address(ip_addr)
 
 
-def minecraft_srv_address_lookup(address: str, *, default_port: Optional[int] = None, lifetime: float = 3) -> Address:
+def minecraft_srv_address_lookup(
+    address: str,
+    *,
+    default_port: Optional[int] = None,
+    lifetime: Optional[float] = None,
+) -> Address:
     """Parses the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port
 
     This function essentially mimics the address field of a minecraft java server. It expects an address like
@@ -197,7 +202,7 @@ async def async_minecraft_srv_address_lookup(
     address: str,
     *,
     default_port: Optional[int] = None,
-    lifetime: float = 3,
+    lifetime: Optional[float] = None,
 ) -> Address:
     """Parses the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port
 
