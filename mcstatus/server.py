@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 
 import dns.resolver
 from dns.exception import DNSException
+from dns.rdatatype import RdataType
 
 from mcstatus.bedrock_status import BedrockServerStatus, BedrockStatusResponse
 from mcstatus.pinger import AsyncServerPinger, PingResponse, ServerPinger
@@ -92,7 +93,7 @@ class JavaServer(MCServer):
         if port is None:
             port = 25565
             try:
-                answers = dns.resolver.resolve("_minecraft._tcp." + host, "SRV")
+                answers = dns.resolver.resolve("_minecraft._tcp." + host, RdataType.SRV)
                 if len(answers):
                     answer = answers[0]
                     host = str(answer.target).rstrip(".")
@@ -185,7 +186,7 @@ class JavaServer(MCServer):
         """
         host = self.host
         try:
-            answers = dns.resolver.resolve(host, "A")
+            answers = dns.resolver.resolve(host, RdataType.A)
             if len(answers):
                 answer = answers[0]
                 host = str(answer).rstrip(".")
@@ -209,7 +210,7 @@ class JavaServer(MCServer):
         """
         host = self.host
         try:
-            answers = dns.resolver.resolve(host, "A")
+            answers = dns.resolver.resolve(host, RdataType.A)
             if len(answers):
                 answer = answers[0]
                 host = str(answer).rstrip(".")
@@ -269,7 +270,7 @@ class BedrockServer(MCServer):
         return await BedrockServerStatus(self.host, self.port, self.timeout, **kwargs).read_status_async()
 
 
-@deprecated(replacement="JavaServer")
+@deprecated(replacement="JavaServer", date="2022-08", methods=("__init__",))
 class MinecraftServer(JavaServer):
     """This is a deprecated version of the base class for a Java Minecraft Server.
 
@@ -280,7 +281,7 @@ class MinecraftServer(JavaServer):
         super().__init__(host, port=port, timeout=timeout)
 
 
-@deprecated(replacement="BedrockServer")
+@deprecated(replacement="BedrockServer", date="2022-08", methods=("__init__",))
 class MinecraftBedrockServer(BedrockServer):
     """This is a deprecated version of the base class for a Bedrock Minecraft Server.
 
