@@ -5,6 +5,7 @@ import json
 import random
 from typing import List, Optional, Union
 
+from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
 
 STYLE_MAP = {
@@ -37,8 +38,7 @@ class ServerPinger:
     def __init__(
         self,
         connection: TCPSocketConnection,
-        host: str = "",
-        port: int = 0,
+        address: Address,
         version: int = 47,
         ping_token=None,
     ):
@@ -46,16 +46,15 @@ class ServerPinger:
             ping_token = random.randint(0, (1 << 63) - 1)
         self.version = version
         self.connection = connection
-        self.host = host
-        self.port = port
+        self.address = address
         self.ping_token = ping_token
 
     def handshake(self) -> None:
         packet = Connection()
         packet.write_varint(0)
         packet.write_varint(self.version)
-        packet.write_utf(self.host)
-        packet.write_ushort(self.port)
+        packet.write_utf(self.address.host)
+        packet.write_ushort(self.address.port)
         packet.write_varint(1)  # Intention to query status
 
         self.connection.write_buffer(packet)
@@ -100,10 +99,14 @@ class ServerPinger:
 
 class AsyncServerPinger(ServerPinger):
     def __init__(
-        self, connection: TCPAsyncSocketConnection, host: str = "", port: int = 0, version: int = 47, ping_token=None
+        self,
+        connection: TCPAsyncSocketConnection,
+        address: Address,
+        version: int = 47,
+        ping_token=None,
     ):
         # We do this to inform python about self.connection type (it's async)
-        super().__init__(connection, host=host, port=port, version=version, ping_token=ping_token)  # type: ignore[arg-type]
+        super().__init__(connection, address=address, version=version, ping_token=ping_token)  # type: ignore[arg-type]
         self.connection: TCPAsyncSocketConnection
 
     async def read_status(self) -> "PingResponse":

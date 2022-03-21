@@ -1,12 +1,17 @@
 import pytest
 
+from mcstatus.address import Address
 from mcstatus.pinger import PingResponse, ServerPinger
 from mcstatus.protocol.connection import Connection
 
 
 class TestServerPinger:
     def setup_method(self):
-        self.pinger = ServerPinger(Connection(), host="localhost", port=25565, version=44)  # type: ignore[arg-type]
+        self.pinger = ServerPinger(
+            Connection(),  # type: ignore[arg-type]
+            address=Address("localhost", 25565),
+            version=44,
+        )
 
     def test_handshake(self):
         self.pinger.handshake()
