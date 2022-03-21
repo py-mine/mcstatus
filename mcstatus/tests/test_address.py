@@ -73,30 +73,35 @@ class TestSRVLookup:
 
 
 class TestAddressValidity:
-    def test_address_validation_valid(self):
-        Address._ensure_validity("example.org", 25565)
-        Address._ensure_validity("192.168.0.100", 54321)
-        Address._ensure_validity("2345:0425:2CA1:0000:0000:0567:5673:23b5", 100)
-        Address._ensure_validity("2345:0425:2CA1::0567:5673:23b5", 12345)
+    @pytest.mark.parametrize(
+        "address,port",
+        [
+            ("example.org", 25565),
+            ("192.168.0.100", 54321),
+            ("2345:0425:2CA1:0000:0000:0567:5673:23b5", 100),
+            ("2345:0425:2CA1::0567:5673:23b5", 12345),
+        ],
+    )
+    def test_address_validation_valid(self, address, port):
+        Address._ensure_validity(address, port)
 
-    def test_address_validation_invalid_port(self):
-        # Shouldn't accept port out of range
-        with pytest.raises(ValueError):
-            Address._ensure_validity("example.org", 100_000)
-        with pytest.raises(ValueError):
-            Address._ensure_validity("example.org", -1)
-
-    def test_address_validation_invalid_types(self):
-        cases = (
-            ("example.org", "25565"),
-            (25565, "example.org"),
-            (("example.org", 25565), None),
-            (0, 0),
-            ("", ""),
-        )
-        for test_host, test_port in cases:
-            with pytest.raises(TypeError):
-                Address._ensure_validity(test_host, test_port)
+    @pytest.mark.parametrize(
+        "address,port,exception",
+        [
+            # Out of range port
+            ("example.org", 100_000, ValueError),
+            ("example.org", -1, ValueError),
+            # Invalid types
+            ("example.org", "25565", TypeError),
+            (25565, "example.org", TypeError),
+            (("example.org", 25565), None, TypeError),
+            (0, 0, TypeError),
+            ("", "", TypeError),
+        ],
+    )
+    def test_address_validation_invalid(self, address, port, exception):
+        with pytest.raises(exception):
+            Address._ensure_validity(address, port)
 
 
 class TestAddressConstructing:
