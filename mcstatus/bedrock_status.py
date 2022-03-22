@@ -8,13 +8,14 @@ from typing import Optional
 
 import asyncio_dgram
 
+from mcstatus.address import Address
+
 
 class BedrockServerStatus:
     request_status_data = b"\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\x00\xfe\xfe\xfe\xfe\xfd\xfd\xfd\xfd\x124Vx"
 
-    def __init__(self, host: str, port: int = 19132, timeout: float = 3):
-        self.host = host
-        self.port = port
+    def __init__(self, address: Address, timeout: float = 3):
+        self.address = address
         self.timeout = timeout
 
     @staticmethod
@@ -50,7 +51,7 @@ class BedrockServerStatus:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.settimeout(self.timeout)
 
-        s.sendto(self.request_status_data, (self.host, self.port))
+        s.sendto(self.request_status_data, self.address)
         data, _ = s.recvfrom(2048)
 
         return self.parse_response(data, (perf_counter() - start))
@@ -60,7 +61,7 @@ class BedrockServerStatus:
         stream = None
 
         try:
-            conn = asyncio_dgram.connect((self.host, self.port))
+            conn = asyncio_dgram.connect(self.address)
             stream = await asyncio.wait_for(conn, timeout=self.timeout)
 
             await asyncio.wait_for(stream.send(self.request_status_data), timeout=self.timeout)

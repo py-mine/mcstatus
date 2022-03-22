@@ -2,6 +2,7 @@ import asyncio
 
 import pytest
 
+from mcstatus.address import Address
 from mcstatus.pinger import AsyncServerPinger
 from mcstatus.protocol.connection import Connection
 
@@ -22,7 +23,9 @@ class FakeAsyncConnection(Connection):
 class TestAsyncServerPinger:
     def setup_method(self):
         self.pinger = AsyncServerPinger(
-            FakeAsyncConnection(), host="localhost", port=25565, version=44  # type: ignore[arg-type]
+            FakeAsyncConnection(),  # type: ignore[arg-type]
+            address=Address("localhost", 25565),
+            version=44,
         )
 
     def test_handshake(self):
