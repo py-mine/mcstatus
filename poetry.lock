@@ -230,7 +230,7 @@ typed-ast = {version = ">=1.4,<2.0", markers = "python_version < \"3.8\""}
 
 [[package]]
 name = "flake8-bugbear"
-version = "22.1.11"
+version = "22.3.20"
 description = "A plugin for flake8 finding likely bugs and design problems in your program. Contains warnings that don't belong in pyflakes and pycodestyle."
 category = "dev"
 optional = false
@@ -865,7 +865,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4"
-content-hash = "e6cc5233d48aee2a5deead99523121eb2ca59ff75dae0a59214202919d51b779"
+content-hash = "85d4e9cad9c7ce3c2ff7afa696fe2a496ad1aa93fdb8547a5b1baa1a79605851"
 
 [metadata.files]
 asyncio-dgram = [
@@ -1071,8 +1071,8 @@ flake8-annotations = [
     {file = "flake8_annotations-2.7.0-py3-none-any.whl", hash = "sha256:3edfbbfb58e404868834fe6ec3eaf49c139f64f0701259f707d043185545151e"},
 ]
 flake8-bugbear = [
-    {file = "flake8-bugbear-22.1.11.tar.gz", hash = "sha256:4c2a4136bd4ecb8bf02d5159af302ffc067642784c9d0488b33ce4610da825ee"},
-    {file = "flake8_bugbear-22.1.11-py3-none-any.whl", hash = "sha256:ce7ae44aaaf67ef192b8a6de94a5ac617144e1675ad0654fdea556f48dc18d9b"},
+    {file = "flake8-bugbear-22.3.20.tar.gz", hash = "sha256:152e64a86f6bff6e295d630ccc993f62434c1fd2b20d2fae47547cb1c1b868e0"},
+    {file = "flake8_bugbear-22.3.20-py3-none-any.whl", hash = "sha256:19fe179ee3286e16198603c438788e2949e79f31d653f0bdb56d53fb69217bd0"},
 ]
 flake8-isort = [
     {file = "flake8-isort-4.1.1.tar.gz", hash = "sha256:d814304ab70e6e58859bc5c3e221e2e6e71c958e7005239202fee19c24f82717"},
