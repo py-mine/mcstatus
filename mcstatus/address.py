@@ -5,9 +5,9 @@ from pathlib import Path
 from typing import NamedTuple, Optional, TYPE_CHECKING, Tuple, Union
 from urllib.parse import urlparse
 
-import dns.asyncresolver
 import dns.resolver
-from dns.rdatatype import RdataType
+
+import mcstatus.dns
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -126,11 +126,7 @@ class Address(_AddressBase):
             # ValueError is raised if the given address wasn't valid
             # this means it's a hostname and we should try to resolve
             # the A record
-            answers = dns.resolver.resolve(self.host, RdataType.A, lifetime=lifetime)
-            # There should only be one answer here, though in case the server
-            # does actually point to multiple IPs, we just pick the first one
-            answer = answers[0]
-            ip_addr = str(answer).rstrip(".")
+            ip_addr = mcstatus.dns.resolve_a_record(self.host, lifetime=lifetime)
             ip = ipaddress.ip_address(ip_addr)
 
         self._cached_ip = ip
@@ -151,11 +147,7 @@ class Address(_AddressBase):
             # ValueError is raised if the given address wasn't valid
             # this means it's a hostname and we should try to resolve
             # the A record
-            answers = await dns.asyncresolver.resolve(self.host, RdataType.A, lifetime=lifetime)
-            # There should only be one answer here, though in case the server
-            # does actually point to multiple IPs, we just pick the first one
-            answer = answers[0]
-            ip_addr = str(answer).rstrip(".")
+            ip_addr = await mcstatus.dns.async_resolve_a_record(self.host, lifetime=lifetime)
             ip = ipaddress.ip_address(ip_addr)
 
         self._cached_ip = ip
@@ -195,7 +187,7 @@ def minecraft_srv_address_lookup(
     # port which we should use. If there's no such record, fall back
     # to the default_port (if it's defined).
     try:
-        answers = dns.resolver.resolve("_minecraft._tcp." + host, RdataType.SRV, lifetime=lifetime)
+        host, port = mcstatus.dns.resolve_mc_srv(host, lifetime=lifetime)
     except dns.resolver.NXDOMAIN:
         if default_port is None:
             raise ValueError(
@@ -203,11 +195,6 @@ def minecraft_srv_address_lookup(
                 " and default_port wasn't specified, can't parse."
             )
         port = default_port
-    else:
-        # The record was found, use it instead
-        answer = answers[0]
-        host = str(answer.target).rstrip(".")
-        port = int(answer.port)
 
     return Address(host, port)
 
@@ -232,7 +219,7 @@ async def async_minecraft_srv_address_lookup(
     # port which we should use. If there's no such record, fall back
     # to the default_port (if it's defined).
     try:
-        answers = await dns.asyncresolver.resolve("_minecraft._tcp." + host, RdataType.SRV, lifetime=lifetime)
+        host, port = await mcstatus.dns.async_resolve_mc_srv(host, lifetime=lifetime)
     except dns.resolver.NXDOMAIN:
         if default_port is None:
             raise ValueError(
@@ -240,10 +227,5 @@ async def async_minecraft_srv_address_lookup(
                 " and default_port wasn't specified, can't parse."
             )
         port = default_port
-    else:
-        # The record was found, use it instead
-        answer = answers[0]
-        host = str(answer.target).rstrip(".")
-        port = int(answer.port)
 
     return Address(host, port)
