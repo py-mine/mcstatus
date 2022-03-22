@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING, Tuple
-from urllib.parse import urlparse
+import warnings
+from typing import TYPE_CHECKING
 
 import dns.resolver
-from dns.rdatatype import RdataType
 
+from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus.bedrock_status import BedrockServerStatus, BedrockStatusResponse
 from mcstatus.pinger import AsyncServerPinger, PingResponse, ServerPinger
 from mcstatus.protocol.connection import (
@@ -24,100 +24,49 @@ if TYPE_CHECKING:
 __all__ = ["JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
 
 
-def parse_address(address: str) -> Tuple[str, Optional[int]]:
-    tmp = urlparse("//" + address)
-    if not tmp.hostname:
-        raise ValueError(f"Invalid address '{address}'")
-    return (tmp.hostname, tmp.port)
-
-
-def ensure_valid(host: object, port: object):
-    if not isinstance(host, str):
-        raise TypeError(f"Host must be a string address, got {type(host)} ({host!r})")
-    if not isinstance(port, int):
-        raise TypeError(f"Port must be an integer port number, got {type(port)} ({port})")
-    if port > 65535 or port < 0:
-        raise ValueError(f"Port must be within the allowed range (0-2^16), got {port}")
-
-
 class JavaServer:
     """Base class for a Minecraft Java Edition server.
 
     :param str host: The host/address/ip of the Minecraft server.
     :param int port: The port that the server is on.
     :param float timeout: The timeout in seconds before failing to connect.
-    :attr host:
-    :attr port:
     """
 
     def __init__(self, host: str, port: int = 25565, timeout: float = 3):
-        ensure_valid(host, port)
-        self.host = host
-        self.port = port
+        self.address = Address(host, port)
         self.timeout = timeout
 
-    @staticmethod
-    def _dns_srv_lookup(address: str) -> Tuple[str, int]:
-        """Perform a DNS resolution for SRV record pointing to the Java Server.
+    @property
+    @deprecated(replacement="address.host", date="2022-08")
+    def host(self) -> str:
+        return self.address.host
 
-        :param str address: The address to resolve for.
-        :return: A tuple of host string and port number
-        :raises: dns.resolver.NXDOMAIN if the SRV record doesn't exist
-        :raises: dns.resolver.YXDOMAIN if the SRV record name is too long
-        :raises: dns.resolver.Timeout if the SRV record wasn't found in time
-        :raises: Other dns.resolver.resolve exception pointing to a deeper issue
-        """
-        answers = dns.resolver.resolve("_minecraft._tcp." + address, RdataType.SRV)
-        # There should only be one answer here, though in case the server
-        # does actually point to multiple IPs, we just pick the first one
-        answer = answers[0]
-        host = str(answer.target).rstrip(".")
-        port = int(answer.port)
-        return host, port
-
-    @staticmethod
-    def _dns_a_lookup(hostname: str) -> str:
-        """Perform a DNS resolution for an A record to given hostname
-
-        :param str address: The address to resolve for.
-        :return: The resolved IP address from the A record
-        :raises: dns.resolver.NXDOMAIN if the record wasn't found
-        :raises: dns.resolver.YXDOMAIN if the record name was too long
-        :raises: dns.resolver.Timeout if the record wasn't found in time
-        :raises: Other dns.resolver.resolve exception pointing to a deeper issue
-        """
-        answers = dns.resolver.resolve(hostname, RdataType.A)
-        # There should only be one answer here, though in case the server
-        # does actually point to multiple IPs, we just pick the first one
-        answer = answers[0]
-        hostname = str(answer).rstrip(".")
-        return hostname
+    @property
+    @deprecated(replacement="address.port", date="2022-08")
+    def port(self) -> int:
+        return self.address.port
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Parses the given address and checks DNS records for an SRV record that points to the Minecraft server.
 
-        :param str address: The address of the Minecraft server, like `example.com:25565`
+        :param str address: The address of the Minecraft server, like `example.com:25565`.
         :param float timeout: The timeout in seconds before failing to connect.
         :return: A `MinecraftServer` instance.
         """
-        host, port = parse_address(address)
+        addr = minecraft_srv_address_lookup(address, default_port=25565, lifetime=timeout)
+        return cls(addr.host, addr.port, timeout=timeout)
 
-        # If we have a port, no DNS resolution is needed, just make the instance, we know where to connect
-        if port is not None:
-            return cls(host, port, timeout=timeout)
+    @classmethod
+    async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
+        """Parses the given address and checks DNS records for an SRV record that points to the Minecraft server.
 
-        # Try to look for an SRV DNS record. If present, make the instance with host and port from it.
-        try:
-            host, port = cls._dns_srv_lookup(host)
-        except dns.resolver.NXDOMAIN:
-            # The DNS record doesn't exist, this doesn't necessarily mean the server doesn't exist though
-            # SRV record is optional and some servers don't expose it. So we simply use the host from the
-            # address and fall back to the default port
-            return cls(host, timeout=timeout)
-
-        # We have the host and port from the SRV record, use it to make the instance
-        return cls(host, port, timeout=timeout)
+        :param str address: The address of the Minecraft server, like `example.com:25565`.
+        :param float timeout: The timeout in seconds before failing to connect.
+        :return: A `MinecraftServer` instance.
+        """
+        addr = await async_minecraft_srv_address_lookup(address, default_port=25565, lifetime=timeout)
+        return cls(addr.host, addr.port, timeout=timeout)
 
     def ping(self, **kwargs) -> float:
         """Checks the latency between a Minecraft Java Edition server and the client (you).
@@ -127,12 +76,12 @@ class JavaServer:
         :rtype: float
         """
 
-        connection = TCPSocketConnection((self.host, self.port), self.timeout)
+        connection = TCPSocketConnection(self.address, self.timeout)
         return self._retry_ping(connection, **kwargs)
 
     @retry(tries=3)
     def _retry_ping(self, connection: TCPSocketConnection, **kwargs) -> float:
-        pinger = ServerPinger(connection, host=self.host, port=self.port, **kwargs)
+        pinger = ServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         return pinger.test_ping()
 
@@ -145,12 +94,12 @@ class JavaServer:
         """
 
         connection = TCPAsyncSocketConnection()
-        await connection.connect((self.host, self.port), self.timeout)
+        await connection.connect(self.address, self.timeout)
         return await self._retry_async_ping(connection, **kwargs)
 
     @retry(tries=3)
     async def _retry_async_ping(self, connection: TCPAsyncSocketConnection, **kwargs) -> float:
-        pinger = AsyncServerPinger(connection, host=self.host, port=self.port, **kwargs)
+        pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         ping = await pinger.test_ping()
         return ping
@@ -163,12 +112,12 @@ class JavaServer:
         :rtype: PingResponse
         """
 
-        connection = TCPSocketConnection((self.host, self.port), self.timeout)
+        connection = TCPSocketConnection(self.address, self.timeout)
         return self._retry_status(connection, **kwargs)
 
     @retry(tries=3)
     def _retry_status(self, connection: TCPSocketConnection, **kwargs) -> PingResponse:
-        pinger = ServerPinger(connection, host=self.host, port=self.port, **kwargs)
+        pinger = ServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         result = pinger.read_status()
         result.latency = pinger.test_ping()
@@ -183,12 +132,12 @@ class JavaServer:
         """
 
         connection = TCPAsyncSocketConnection()
-        await connection.connect((self.host, self.port), self.timeout)
+        await connection.connect(self.address, self.timeout)
         return await self._retry_async_status(connection, **kwargs)
 
     @retry(tries=3)
     async def _retry_async_status(self, connection: TCPAsyncSocketConnection, **kwargs) -> PingResponse:
-        pinger = AsyncServerPinger(connection, host=self.host, port=self.port, **kwargs)
+        pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         result = await pinger.read_status()
         result.latency = await pinger.test_ping()
@@ -200,19 +149,21 @@ class JavaServer:
         :return: Query status information in a `QueryResponse` instance.
         :rtype: QueryResponse
         """
+        # TODO: WARNING: This try-except for NXDOMAIN is only done because
+        # of failing tests on mac-os, which for some reason can't resolve 'localhost'
+        # into '127.0.0.1'. This try-except needs to be removed once this issue
+        # is resolved!
         try:
-            ip = self._dns_a_lookup(self.host)
+            ip = str(self.address.resolve_ip())
         except dns.resolver.NXDOMAIN:
-            # The A record lookup can fail here since the host could already be an IP, not a hostname
-            # However it can also fail if the hostname is just invalid and doesn't have any MC server
-            # attached to it, in which case we'll get an error after connecting with the socket.
-            ip = self.host
+            warnings.warn(f"Resolving IP for {self.address.host} failed with NXDOMAIN")
+            ip = self.address.host
 
-        return self._retry_query(ip)
+        return self._retry_query(Address(ip, self.address.port))
 
     @retry(tries=3)
-    def _retry_query(self, ip: str) -> QueryResponse:
-        connection = UDPSocketConnection((ip, self.port), self.timeout)
+    def _retry_query(self, addr: Address) -> QueryResponse:
+        connection = UDPSocketConnection(addr, self.timeout)
         querier = ServerQuerier(connection)
         querier.handshake()
         return querier.read_query()
@@ -223,20 +174,22 @@ class JavaServer:
         :return: Query status information in a `QueryResponse` instance.
         :rtype: QueryResponse
         """
+        # TODO: WARNING: This try-except for NXDOMAIN is only done because
+        # of failing tests on mac-os, which for some reason can't resolve 'localhost'
+        # into '127.0.0.1'. This try-except needs to be removed once this issue
+        # is resolved!
         try:
-            ip = self._dns_a_lookup(self.host)
+            ip = str(await self.address.async_resolve_ip())
         except dns.resolver.NXDOMAIN:
-            # The A record lookup can fail here since the host could already be an IP, not a hostname
-            # However it can also fail if the hostname is just invalid and doesn't have any MC server
-            # attached to it, in which case we'll get an error after connecting with the socket.
-            ip = self.host
+            warnings.warn(f"Resolving IP for {self.address.host} failed with NXDOMAIN")
+            ip = self.address.host
 
-        return await self._retry_async_query(ip)
+        return await self._retry_async_query(Address(ip, self.address.port))
 
     @retry(tries=3)
-    async def _retry_async_query(self, ip: str) -> QueryResponse:
+    async def _retry_async_query(self, address: Address) -> QueryResponse:
         connection = UDPAsyncSocketConnection()
-        await connection.connect((ip, self.port), self.timeout)
+        await connection.connect(address, self.timeout)
         querier = AsyncServerQuerier(connection)
         await querier.handshake()
         return await querier.read_query()
@@ -248,29 +201,32 @@ class BedrockServer:
     :param str host: The host/address/ip of the Minecraft server.
     :param int port: The port that the server is on.
     :param float timeout: The timeout in seconds before failing to connect.
-    :attr host:
-    :attr port:
     """
 
     def __init__(self, host: str, port: int = 19132, timeout: float = 3):
-        ensure_valid(host, port)
-        self.host = host
-        self.port = port
+        self.address = Address(host, port)
         self.timeout = timeout
 
+    @property
+    @deprecated(replacement="address.host", date="2022-08")
+    def host(self) -> str:
+        return self.address.host
+
+    @property
+    @deprecated(replacement="address.host", date="2022-08")
+    def port(self) -> int:
+        return self.address.port
+
     @classmethod
-    def lookup(cls, address: str) -> Self:
+    def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Parses a given address and returns a MinecraftBedrockServer instance.
 
         :param str address: The address of the Minecraft server, like `example.com:19132`
+        :param float timeout: The timeout in seconds before failing to connect.
         :return: A `MinecraftBedrockServer` instance.
-        :rtype: MinecraftBedrockServer
         """
-        host, port = parse_address(address)
-        # If the address didn't contain port, fall back to constructor's default
-        if port is None:
-            return cls(host)
-        return cls(host, port)
+        addr = Address.parse_address(address, default_port=19132)
+        return cls(addr.host, addr.port, timeout=timeout)
 
     @retry(tries=3)
     def status(self, **kwargs) -> BedrockStatusResponse:
@@ -280,7 +236,7 @@ class BedrockServer:
         :return: Status information in a `BedrockStatusResponse` instance.
         :rtype: BedrockStatusResponse
         """
-        return BedrockServerStatus(self.host, self.port, self.timeout, **kwargs).read_status()
+        return BedrockServerStatus(self.address, self.timeout, **kwargs).read_status()
 
     @retry(tries=3)
     async def async_status(self, **kwargs) -> BedrockStatusResponse:
@@ -290,7 +246,7 @@ class BedrockServer:
         :return: Status information in a `BedrockStatusResponse` instance.
         :rtype: BedrockStatusResponse
         """
-        return await BedrockServerStatus(self.host, self.port, self.timeout, **kwargs).read_status_async()
+        return await BedrockServerStatus(self.address, self.timeout, **kwargs).read_status_async()
 
 
 @deprecated(replacement="JavaServer", date="2022-08", methods=("__init__",))

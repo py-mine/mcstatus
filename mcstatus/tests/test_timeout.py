@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
+from mcstatus.address import Address
 from mcstatus.protocol.connection import TCPAsyncSocketConnection
 
 
@@ -19,6 +20,7 @@ async def fake_asyncio_asyncio_open_connection(hostname: str, port: int):
 class TestAsyncSocketConnection:
     def setup_method(self):
         self.tcp_async_socket = TCPAsyncSocketConnection()
+        self.test_addr = Address("dummy_address", 1234)
 
     def test_tcp_socket_read(self):
         try:
@@ -28,7 +30,7 @@ class TestAsyncSocketConnection:
 
         loop = asyncio.get_event_loop()
         with patch("asyncio.open_connection", fake_asyncio_asyncio_open_connection):
-            loop.run_until_complete(self.tcp_async_socket.connect(("dummy_address", 1234), timeout=0.01))
+            loop.run_until_complete(self.tcp_async_socket.connect(self.test_addr, timeout=0.01))
 
             with pytest.raises(TimeoutError):
                 loop.run_until_complete(self.tcp_async_socket.read(10))

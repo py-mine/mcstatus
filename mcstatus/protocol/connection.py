@@ -7,9 +7,11 @@ from abc import ABC, abstractmethod
 from ctypes import c_int32 as signed_int32
 from ctypes import c_uint32 as unsigned_int32
 from ipaddress import ip_address
-from typing import Iterable, Optional, SupportsBytes, TYPE_CHECKING, Tuple, Union
+from typing import Iterable, Optional, SupportsBytes, TYPE_CHECKING, Union
 
 import asyncio_dgram
+
+from mcstatus.address import Address
 
 if TYPE_CHECKING:
     from typing_extensions import SupportsIndex  # Python 3.7 doesn't support this yet.
@@ -196,7 +198,7 @@ class AsyncReadConnection(Connection, ABC):
 
 
 class TCPSocketConnection(Connection):
-    def __init__(self, addr: Tuple[str, int], timeout: float = 3):
+    def __init__(self, addr: Address, timeout: float = 3):
         Connection.__init__(self)
         self.socket = socket.create_connection(addr, timeout=timeout)
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -230,7 +232,7 @@ class TCPSocketConnection(Connection):
 
 
 class UDPSocketConnection(Connection):
-    def __init__(self, addr: Tuple[str, int], timeout: float = 3):
+    def __init__(self, addr: Address, timeout: float = 3):
         Connection.__init__(self)
         self.addr = addr
         self.socket = socket.socket(
@@ -275,7 +277,7 @@ class TCPAsyncSocketConnection(AsyncReadConnection):
     def __init__(self):
         super().__init__()
 
-    async def connect(self, addr: Tuple[str, int], timeout: float = 3):
+    async def connect(self, addr: Address, timeout: float = 3):
         self.timeout = timeout
         conn = asyncio.open_connection(addr[0], addr[1])
         self.reader, self.writer = await asyncio.wait_for(conn, timeout=self.timeout)
@@ -307,7 +309,7 @@ class UDPAsyncSocketConnection(AsyncReadConnection):
     def __init__(self):
         super().__init__()
 
-    async def connect(self, addr: Tuple[str, int], timeout: float = 3):
+    async def connect(self, addr: Address, timeout: float = 3):
         self.timeout = timeout
         conn = asyncio_dgram.connect((addr[0], addr[1]))
         self.stream = await asyncio.wait_for(conn, timeout=self.timeout)

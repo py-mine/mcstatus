@@ -532,7 +532,7 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyright"
-version = "1.1.227"
+version = "1.1.230"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
@@ -548,11 +548,11 @@ dev = ["twine (>=3.4.1)"]
 
 [[package]]
 name = "pytest"
-version = "7.0.1"
+version = "7.1.1"
 description = "pytest: simple powerful testing with Python"
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 atomicwrites = {version = ">=1.0", markers = "sys_platform == \"win32\""}
@@ -865,7 +865,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4"
-content-hash = "3d0069308223b149da8965463802eb47bfddf47d75b7e293ebf8c1d5905247f3"
+content-hash = "df4ddc8dd096e5cba926673c0449819ebd7f22611e6d0c284b67390d964ff432"
 
 [metadata.files]
 asyncio-dgram = [
@@ -1179,12 +1179,12 @@ pyparsing = [
     {file = "pyparsing-3.0.7.tar.gz", hash = "sha256:18ee9022775d270c55187733956460083db60b37d0d0fb357445f3094eed3eea"},
 ]
 pyright = [
-    {file = "pyright-1.1.227-py3-none-any.whl", hash = "sha256:0cb7b7a7ce84472c2b70dbfb8d376a32b39da6adc191c2840591c84e54c68e8a"},
-    {file = "pyright-1.1.227.tar.gz", hash = "sha256:e58918cf294d622f3ef93a54cbed8e8fd30835465bf47f13b5934ddf72174e7e"},
+    {file = "pyright-1.1.230-py3-none-any.whl", hash = "sha256:6a9aaf49967ac5fe18235b4521de6d4a9ae44042b56a8409b627970e52d1522a"},
+    {file = "pyright-1.1.230.tar.gz", hash = "sha256:26ad23aef696b0e44bb1d4afb3d97dd278b51a4b72631b2040164273d46b4e39"},
 ]
 pytest = [
-    {file = "pytest-7.0.1-py3-none-any.whl", hash = "sha256:9ce3ff477af913ecf6321fe337b93a2c0dcf2a0a1439c43f5452112c1e4280db"},
-    {file = "pytest-7.0.1.tar.gz", hash = "sha256:e30905a0c131d3d94b89624a1cc5afec3e0ba2fbdb151867d8e0ebd49850f171"},
+    {file = "pytest-7.1.1-py3-none-any.whl", hash = "sha256:92f723789a8fdd7180b6b06483874feca4c48a5c76968e03bb3e7f806a1869ea"},
+    {file = "pytest-7.1.1.tar.gz", hash = "sha256:841132caef6b1ad17a9afde46dc4f6cfa59a05f9555aae5151f73bdf2820ca63"},
 ]
 pytest-asyncio = [
     {file = "pytest-asyncio-0.18.2.tar.gz", hash = "sha256:fc8e4190f33fee7797cc7f1829f46a82c213f088af5d1bb5d4e454fe87e6cdc2"},
