@@ -123,16 +123,18 @@ def deprecated(
         if msg is not None:
             warn_message += f" ({msg})"
 
+        # If we're deprecating class, deprecate it's methods and return the class
         if inspect.isclass(obj):
             if methods is None:
                 raise ValueError("When deprecating a class, you need to specify 'methods' which will get the notice")
 
-            # Decorate every specified method of given class
             for method in methods:
                 new_func = decorate_func(getattr(obj, method), warn_message)
                 setattr(obj, method, new_func)
+
             return obj
 
+        # Regular function deprecation
         if methods is not None:
             raise ValueError("Methods can only be specified when decorating a class, not a function")
         return decorate_func(obj, warn_message)
