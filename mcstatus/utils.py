@@ -4,7 +4,16 @@ import asyncio
 import inspect
 import warnings
 from functools import wraps
-from typing import Callable, Iterable, Optional, Tuple, Type
+from typing import Callable, Iterable, Optional, TYPE_CHECKING, Tuple, Type, TypeVar, overload
+
+if TYPE_CHECKING:
+    from typing_extensions import ParamSpec
+
+    P = ParamSpec("P")
+    P2 = ParamSpec("P2")
+
+R = TypeVar("R")
+R2 = TypeVar("R2")
 
 
 def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> Callable:
@@ -50,6 +59,32 @@ def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> 
     return decorate
 
 
+@overload
+def deprecated(
+    obj: Callable[P, R],
+    *,
+    replacement: Optional[str] = None,
+    version: Optional[str] = None,
+    date: Optional[str] = None,
+    msg: Optional[str] = None,
+    methods: Optional[Iterable[str]] = None,
+) -> Callable[P, R]:
+    ...
+
+
+@overload
+def deprecated(
+    obj: None = None,
+    *,
+    replacement: Optional[str] = None,
+    version: Optional[str] = None,
+    date: Optional[str] = None,
+    msg: Optional[str] = None,
+    methods: Optional[Iterable[str]] = None,
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
+    ...
+
+
 def deprecated(
     obj: Optional[Callable] = None,
     *,
@@ -58,13 +93,13 @@ def deprecated(
     date: Optional[str] = None,
     msg: Optional[str] = None,
     methods: Optional[Iterable[str]] = None,
-):
+) -> Callable:
     if date is not None and version is not None:
         raise ValueError("Expected removal timeframe can either be a date, or a version, not both.")
 
-    def decorate_func(func: Callable, warn_message: str):
+    def decorate_func(func: Callable[P2, R2], warn_message: str) -> Callable[P2, R2]:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: P2.args, **kwargs: P2.kwargs) -> R2:
             warnings.simplefilter("always", DeprecationWarning)
             warnings.warn(warn_message, category=DeprecationWarning)
             warnings.simplefilter("default", DeprecationWarning)
@@ -72,7 +107,7 @@ def deprecated(
 
         return wrapper
 
-    def decorate(obj: Callable) -> Callable:
+    def decorate(obj: Callable[P, R]) -> Callable[P, R]:
         # Construct and send the warning message
         name = getattr(obj, "__qualname__", obj.__name__)
         warn_message = f"'{name}' is deprecated and is expected to be removed"
