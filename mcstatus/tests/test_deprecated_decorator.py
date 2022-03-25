@@ -71,3 +71,21 @@ def test_deprecated_arguments(arguments):
 
         for value in arguments.values():
             assert value in warning_message
+
+
+def test_deprecated_no_call_decorator():
+    """This makes sure deprecated decorator can run directly on a function without first being called.
+
+    Usually we use deprecated decorator with arguments like @deprecated(msg='hi'), however this means
+    that using it normally would usually require doing @deprecated(), but since all of the arguments
+    are optional, we can also support using @deprecated, without calling it first. This tests that
+    this behavior is in fact working.
+    """
+    f = deprecated(lambda x: x)
+
+    with warnings.catch_warnings(record=True) as w:
+        result = f(10)
+        assert issubclass(w[-1].category, DeprecationWarning)
+        assert "deprecated" in str(w[-1].message).lower()
+
+    assert result == 10
