@@ -65,7 +65,9 @@ def deprecated(
     def decorate_func(func: Callable, warn_message: str):
         @wraps(func)
         def wrapper(*args, **kwargs):
+            warnings.simplefilter("always", DeprecationWarning)
             warnings.warn(warn_message, category=DeprecationWarning)
+            warnings.simplefilter("default", DeprecationWarning)
             return func(*args, **kwargs)
 
         return wrapper
