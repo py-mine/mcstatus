@@ -5,9 +5,9 @@ from json import dumps as json_dumps
 
 import click
 
-from mcstatus import MinecraftServer
+from mcstatus import JavaServer
 
-server: MinecraftServer = None  # type: ignore[assignment]  # This will be set with cli function
+server: JavaServer = None  # type: ignore[assignment]  # This will be set with cli function
 
 
 @click.group(context_settings=dict(help_option_names=["-h", "--help"]))
@@ -43,7 +43,7 @@ def cli(address):
     players: 1/20 ['Dinnerbone (61699b2e-d327-4a01-9f1e-0ea8c3f06bc6)']
     """
     global server
-    server = MinecraftServer.lookup(address)
+    server = JavaServer.lookup(address)
 
 
 @cli.command(short_help="prints server latency")
