@@ -16,11 +16,11 @@ We provide both an API which you can use in your projects, and a command line sc
 
 Java Edition
 ```python
-from mcstatus import MinecraftServer
+from mcstatus import JavaServer
 
 # You can pass the same address you'd enter into the address field in minecraft into the 'lookup' function
-# If you know the host and port, you may skip this and use MinecraftServer("example.org", 1234)
-server = MinecraftServer.lookup("example.org:1234")
+# If you know the host and port, you may skip this and use JavaServer("example.org", 1234)
+server = JavaServer.lookup("example.org:1234")
 
 # 'status' is supported by all Minecraft servers that are version 1.7 or higher.
 status = server.status()
@@ -39,11 +39,11 @@ print(f"The server has the following players online: {', '.join(query.players.na
 
 Bedrock Edition
 ```python
-from mcstatus import MinecraftBedrockServer
+from mcstatus import BedrockServer
 
 # You can pass the same address you'd enter into the address field in minecraft into the 'lookup' function
 # If you know the host and port, you may skip this and use MinecraftBedrockServer("example.org", 19132)
-server = MinecraftBedrockServer.lookup("example.org:19132")
+server = BedrockServer.lookup("example.org:19132")
 
 # 'status' is the only feature that is supported by Bedrock at this time.
 # In this case status includes players_online, latency, motd, map, gamemode, and players_max. (ex: status.gamemode)
