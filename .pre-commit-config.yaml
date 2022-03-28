@@ -38,7 +38,7 @@ repos:
       - id: isort
         name: ISort
         description: Sort imports with isort
-        entry: isort
+        entry: poetry run isort
         language: system
         types: [python]
 
