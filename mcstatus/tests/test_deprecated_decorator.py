@@ -26,7 +26,7 @@ def test_deprecated_class_produces_warning():
 def test_deprecated_function_return_result():
     f = deprecated()(lambda x: x)
 
-    with warnings.catch_warnings():
+    with warnings.catch_warnings(record=True):
         result = f(10)
 
     assert result == 10
@@ -35,7 +35,7 @@ def test_deprecated_function_return_result():
 def test_deprecated_class_return_result():
     dep_cls = deprecated(methods=["foo"])(type("TestCls", (), {"foo": lambda x: x}))
 
-    with warnings.catch_warnings():
+    with warnings.catch_warnings(record=True):
         result = dep_cls.foo(10)
 
     assert result == 10
