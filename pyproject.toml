@@ -53,6 +53,7 @@ tox = "^3.24.5"
 tox-poetry = "^0.4.1"
 twine = "^3.8.0"
 typing-extensions = "^4.1.1"
+flake8-docstrings = "^1.6.0"
 
 [tool.poetry.scripts]
 mcstatus = 'mcstatus.scripts.mcstatus:cli'
