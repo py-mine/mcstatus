@@ -18,7 +18,7 @@ R2 = TypeVar("R2")
 
 def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> Callable:
     """
-    Decorator that re-runs given function tries times if error occurs.
+    Re-run given decorated function tries times if an error occurs.
 
     The amount of tries will either be the value given to the decorator,
     or if tries is present in keyword arguments on function call, this

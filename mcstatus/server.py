@@ -48,7 +48,7 @@ class JavaServer:
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Parses the given address and checks DNS records for an SRV record that points to the Minecraft server.
+        """Parse the given address and check DNS records for an SRV record that points to the Minecraft server.
 
         :param str address: The address of the Minecraft server, like `example.com:25565`.
         :param float timeout: The timeout in seconds before failing to connect.
@@ -59,7 +59,7 @@ class JavaServer:
 
     @classmethod
     async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Parses the given address and checks DNS records for an SRV record that points to the Minecraft server.
+        """Parse the given address and check DNS records for an SRV record that points to the Minecraft server.
 
         :param str address: The address of the Minecraft server, like `example.com:25565`.
         :param float timeout: The timeout in seconds before failing to connect.
@@ -69,13 +69,12 @@ class JavaServer:
         return cls(addr.host, addr.port, timeout=timeout)
 
     def ping(self, **kwargs) -> float:
-        """Checks the latency between a Minecraft Java Edition server and the client (you).
+        """Check the latency between a Minecraft Java Edition server and the client (you).
 
         :param type **kwargs: Passed to a `ServerPinger` instance.
         :return: The latency between the Minecraft Server and you.
         :rtype: float
         """
-
         connection = TCPSocketConnection(self.address, self.timeout)
         return self._retry_ping(connection, **kwargs)
 
@@ -86,13 +85,12 @@ class JavaServer:
         return pinger.test_ping()
 
     async def async_ping(self, **kwargs) -> float:
-        """Asynchronously checks the latency between a Minecraft Java Edition server and the client (you).
+        """Asynchronously check the latency between a Minecraft Java Edition server and the client (you).
 
         :param type **kwargs: Passed to a `AsyncServerPinger` instance.
         :return: The latency between the Minecraft Server and you.
         :rtype: float
         """
-
         connection = TCPAsyncSocketConnection()
         await connection.connect(self.address, self.timeout)
         return await self._retry_async_ping(connection, **kwargs)
@@ -105,13 +103,12 @@ class JavaServer:
         return ping
 
     def status(self, **kwargs) -> PingResponse:
-        """Checks the status of a Minecraft Java Edition server via the ping protocol.
+        """Check the status of a Minecraft Java Edition server via the ping protocol.
 
         :param type **kwargs: Passed to a `ServerPinger` instance.
         :return: Status information in a `PingResponse` instance.
         :rtype: PingResponse
         """
-
         connection = TCPSocketConnection(self.address, self.timeout)
         return self._retry_status(connection, **kwargs)
 
@@ -124,13 +121,12 @@ class JavaServer:
         return result
 
     async def async_status(self, **kwargs) -> PingResponse:
-        """Asynchronously checks the status of a Minecraft Java Edition server via the ping protocol.
+        """Asynchronously check the status of a Minecraft Java Edition server via the ping protocol.
 
         :param type **kwargs: Passed to a `AsyncServerPinger` instance.
         :return: Status information in a `PingResponse` instance.
         :rtype: PingResponse
         """
-
         connection = TCPAsyncSocketConnection()
         await connection.connect(self.address, self.timeout)
         return await self._retry_async_status(connection, **kwargs)
@@ -144,7 +140,7 @@ class JavaServer:
         return result
 
     def query(self) -> QueryResponse:
-        """Checks the status of a Minecraft Java Edition server via the query protocol.
+        """Check the status of a Minecraft Java Edition server via the query protocol.
 
         :return: Query status information in a `QueryResponse` instance.
         :rtype: QueryResponse
@@ -169,7 +165,7 @@ class JavaServer:
         return querier.read_query()
 
     async def async_query(self) -> QueryResponse:
-        """Asynchronously checks the status of a Minecraft Java Edition server via the query protocol.
+        """Asynchronously check the status of a Minecraft Java Edition server via the query protocol.
 
         :return: Query status information in a `QueryResponse` instance.
         :rtype: QueryResponse
@@ -219,7 +215,7 @@ class BedrockServer:
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Parses a given address and returns a MinecraftBedrockServer instance.
+        """Parse a given address and return a BedrockServer instance.
 
         :param str address: The address of the Minecraft server, like `example.com:19132`
         :param float timeout: The timeout in seconds before failing to connect.
@@ -230,7 +226,7 @@ class BedrockServer:
 
     @retry(tries=3)
     def status(self, **kwargs) -> BedrockStatusResponse:
-        """Checks the status of a Minecraft Bedrock Edition server.
+        """Check the status of a Minecraft Bedrock Edition server.
 
         :param type **kwargs: Passed to a `BedrockServerStatus` instance.
         :return: Status information in a `BedrockStatusResponse` instance.
@@ -240,7 +236,7 @@ class BedrockServer:
 
     @retry(tries=3)
     async def async_status(self, **kwargs) -> BedrockStatusResponse:
-        """Asynchronously checks the status of a Minecraft Bedrock Edition server.
+        """Asynchronously check the status of a Minecraft Bedrock Edition server.
 
         :param type **kwargs: Passed to a `BedrockServerStatus` instance.
         :return: Status information in a `BedrockStatusResponse` instance.
