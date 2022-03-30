@@ -28,3 +28,4 @@ ignore=
     D408, # Section underline should be in the line following the section’s name
     D409, # Section underline should match the length of its name
     D416, # Section name should end with a colon
+per-file-ignores=mcstatus/tests/*:D
