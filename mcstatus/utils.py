@@ -94,6 +94,15 @@ def deprecated(
     msg: Optional[str] = None,
     methods: Optional[Iterable[str]] = None,
 ) -> Callable:
+    """Mark decorated object as deprecated and produce a DeprecationWarning each time it's called.
+
+    Optionally, some keyword-only arguments can be used to further specify the produced message.
+    :param replacement: New non-deprecated object which replaces the now deprecated one.
+    :param version: Version tag, in which this deprecated object is expected to be removed (10.0.1).
+    :param date: Date on which this deprecated object is expected to be removed (2022-10).
+    :param msg: Additional message appended to the warning message, usually explaining the deprecation.
+    :param methods: When deprecating a class, which of it's methods should produce the deprecation warning.
+    """
     if date is not None and version is not None:
         raise ValueError("Expected removal timeframe can either be a date, or a version, not both.")
 

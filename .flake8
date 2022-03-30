@@ -20,7 +20,6 @@ ignore=
     D107, # Missing docstring in __init__
     D101, # TEMPORARY: Missing docstring in class
     D102, # TEMPORARY: Missing docstring in public method
-    D103, # TEMPORARY: Missing docstring in public function
     D106, # TEMPORARY: Missing docstring in public nested class
     D301, # Using r""" if backslashes are in a docstring
     D302, # Deprecated using u""" for unicode docstrings
