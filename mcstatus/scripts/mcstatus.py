@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import socket
+import textwrap
 from json import dumps as json_dumps
 
 import click
@@ -10,37 +11,45 @@ from mcstatus import JavaServer
 server: JavaServer = None  # type: ignore[assignment]  # This will be set with cli function
 
 
-@click.group(context_settings=dict(help_option_names=["-h", "--help"]))
+@click.group(
+    context_settings=dict(help_option_names=["-h", "--help"]),
+    help=textwrap.dedent(
+        """
+        Mcstatus provides an easy way to query Minecraft servers for any information they can expose.
+
+        It provides three modes of access: query, status, and ping.
+
+        Examples:
+
+        \b
+        $ mcstatus example.org ping
+        21.120ms
+
+        \b
+        $ mcstatus example.org:1234 ping
+        159.903ms
+
+        \b
+        $ mcstatus example.org status
+        version: v1.8.8 (protocol 47)
+        description: "A Minecraft Server"
+        players: 1/20 ['Dinnerbone (61699b2e-d327-4a01-9f1e-0ea8c3f06bc6)']
+
+        \b
+        $ mcstatus example.org query
+        host: 93.148.216.34:25565
+        software: v1.8.8 vanilla
+        plugins: []
+        motd: "A Minecraft Server"
+        players: 1/20 ['Dinnerbone (61699b2e-d327-4a01-9f1e-0ea8c3f06bc6)']
+    """
+    ),
+)
 @click.argument("address")
 def cli(address):
-    """
-    mcstatus provides an easy way to query Minecraft servers for
-    any information they can expose. It provides three modes of
-    access: query, status, and ping.
+    """Lookup a Java minecraft server by given address.
 
-    Examples:
-
-    \b
-    $ mcstatus example.org ping
-    21.120ms
-
-    \b
-    $ mcstatus example.org:1234 ping
-    159.903ms
-
-    \b
-    $ mcstatus example.org status
-    version: v1.8.8 (protocol 47)
-    description: "A Minecraft Server"
-    players: 1/20 ['Dinnerbone (61699b2e-d327-4a01-9f1e-0ea8c3f06bc6)']
-
-    \b
-    $ mcstatus example.org query
-    host: 93.148.216.34:25565
-    software: v1.8.8 vanilla
-    plugins: []
-    motd: "A Minecraft Server"
-    players: 1/20 ['Dinnerbone (61699b2e-d327-4a01-9f1e-0ea8c3f06bc6)']
+    This is script's entry point.
     """
     global server
     server = JavaServer.lookup(address)
@@ -48,17 +57,15 @@ def cli(address):
 
 @cli.command(short_help="prints server latency")
 def ping():
-    """
-    Ping server for latency.
-    """
+    """Ping server for latency."""
     click.echo(f"{server.ping()}ms")
 
 
 @cli.command(short_help="basic server information")
 def status():
-    """
-    Prints server status. Supported by all Minecraft
-    servers that are version 1.7 or higher.
+    """Print server status.
+
+    Supported by all Minecraft servers that are version 1.7 or higher.
     """
     response = server.status()
     if response.players.sample is not None:
@@ -73,9 +80,9 @@ def status():
 
 @cli.command(short_help="all available server information in json")
 def json():
-    """
-    Prints server status and query in json. Supported by all Minecraft
-    servers that are version 1.7 or higher.
+    """Print server status and query in json.
+
+    Supported by all Minecraft servers that are version 1.7 or higher.
     """
     data = {}
     data["online"] = False
@@ -107,9 +114,9 @@ def json():
 
 @cli.command(short_help="detailed server information")
 def query():
-    """
-    Prints detailed server information. Must be enabled in
-    servers' server.properties file.
+    """Print detailed server information.
+
+    Query must be enabled in servers' server.properties file.
     """
     try:
         response = server.query()

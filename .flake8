@@ -13,3 +13,18 @@ ignore=
     ANN101, # self param annotation
     ANN102, # cls param annotation
     ANN204, # return type annotation for special methods
+
+    D100, # Missing docstring in public module
+    D104, # Missing docstring in public package
+    D105, # Missing docstring in magic method
+    D107, # Missing docstring in __init__
+    D101, # TEMPORARY: Missing docstring in class
+    D102, # TEMPORARY: Missing docstring in public method
+    D106, # TEMPORARY: Missing docstring in public nested class
+    D301, # Using r""" if backslashes are in a docstring
+    D302, # Deprecated using u""" for unicode docstrings
+    D407, # Missing dashed underline under section
+    D408, # Section underline should be in the line following the section’s name
+    D409, # Section underline should match the length of its name
+    D416, # Section name should end with a colon
+per-file-ignores=mcstatus/tests/*:D

@@ -17,7 +17,7 @@ __all__ = ("Address", "minecraft_srv_address_lookup", "async_minecraft_srv_addre
 
 
 def _valid_urlparse(address: str) -> Tuple[str, Optional[int]]:
-    """Parses a string address like 127.0.0.1:25565 into host and port parts
+    """Parse a string address like 127.0.0.1:25565 into host and port parts.
 
     If the address doesn't have a specified port, None will be returned instead.
 
@@ -86,7 +86,7 @@ class Address(_AddressBase):
 
     @classmethod
     def parse_address(cls, address: str, *, default_port: Optional[int] = None) -> Self:
-        """Parses a string address like 127.0.0.1:25565 into host and port parts
+        """Parse a string address like 127.0.0.1:25565 into host and port parts.
 
         If the address has a port specified, use it, if not, fall back to default_port.
 
@@ -105,7 +105,7 @@ class Address(_AddressBase):
         return cls(host=hostname, port=port)
 
     def resolve_ip(self, lifetime: Optional[float] = None) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
-        """Resolves a hostname's A record into an IP address.
+        """Resolve a hostname's A record into an IP address.
 
         If the host is already an IP, this resolving is skipped
         and host is returned directly.
@@ -137,7 +137,7 @@ class Address(_AddressBase):
         return self._cached_ip
 
     async def async_resolve_ip(self, lifetime: Optional[float] = None) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
-        """Resolves a hostname's A record into an IP address.
+        """Resolve a hostname's A record into an IP address.
 
         See the docstring for `resolve_ip` for further info. This function is purely
         an async alternative to it.
@@ -168,7 +168,7 @@ def minecraft_srv_address_lookup(
     default_port: Optional[int] = None,
     lifetime: Optional[float] = None,
 ) -> Address:
-    """Parses the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port
+    """Parse the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port.
 
     This function essentially mimics the address field of a minecraft java server. It expects an address like
     '192.168.0.100:25565', if this address does contain a port, it will simply use it. If it doesn't, it will try
@@ -218,7 +218,7 @@ async def async_minecraft_srv_address_lookup(
     default_port: Optional[int] = None,
     lifetime: Optional[float] = None,
 ) -> Address:
-    """Parses the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port
+    """Parse the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port.
 
     This function is an async alternative to minecraft_srv_address_lookup, check it's docstring for more details.
     """

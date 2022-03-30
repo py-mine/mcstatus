@@ -20,6 +20,11 @@ if TYPE_CHECKING:
 
 
 def ip_type(address: Union[int, str]) -> Optional[int]:
+    """Determine the IP version (IPv6/IPv4).
+
+    :return: 4 or 6 depending on the IP version.
+    :raises ValueError: IP isn't valid.
+    """
     try:
         return ip_address(address).version
     except ValueError:
