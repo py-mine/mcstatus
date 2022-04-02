@@ -204,10 +204,7 @@ def minecraft_srv_address_lookup(
             )
         port = default_port
     else:
-        # The record was found, use it instead
-        answer = answers[0]
-        host = str(answer.target).rstrip(".")
-        port = int(answer.port)
+        return _parse_first_found_record(answers)
 
     return Address(host, port)
 
@@ -241,9 +238,13 @@ async def async_minecraft_srv_address_lookup(
             )
         port = default_port
     else:
-        # The record was found, use it instead
-        answer = answers[0]
-        host = str(answer.target).rstrip(".")
-        port = int(answer.port)
+        return _parse_first_found_record(answers)
 
+    return Address(host, port)
+
+
+def _parse_first_found_record(answers) -> Address:
+    answer = answers[0]
+    host = str(answer.target).rstrip(".")
+    port = int(answer.port)
     return Address(host, port)
