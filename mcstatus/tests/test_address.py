@@ -27,9 +27,10 @@ def const_coro(value: T) -> Callable[..., Awaitable[T]]:
 
 
 class TestSRVLookup:
-    def test_address_no_srv(self):
+    @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
+    def test_address_no_srv(self, exception):
         with patch("dns.resolver.resolve") as resolve:
-            resolve.side_effect = [dns.resolver.NXDOMAIN]
+            resolve.side_effect = [exception]
             address = minecraft_srv_address_lookup("example.org", default_port=25565, lifetime=3)
             resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3)
 
@@ -49,9 +50,10 @@ class TestSRVLookup:
         assert address.port == 12345
 
     @pytest.mark.asyncio
-    async def test_async_address_no_srv(self):
+    @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
+    async def test_async_address_no_srv(self, exception):
         with patch("dns.asyncresolver.resolve") as resolve:
-            resolve.side_effect = [dns.resolver.NXDOMAIN]
+            resolve.side_effect = [exception]
             address = await async_minecraft_srv_address_lookup("example.org", default_port=25565, lifetime=3)
             resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3)
 
