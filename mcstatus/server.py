@@ -216,8 +216,8 @@ class JavaServer(MCServer):
 class BedrockServer(MCServer):
     """Base class for a Minecraft Bedrock Edition server."""
 
-    def __init__(self, host: str, port: int = 19139, timeout: float = 3):
-        """Override init to add a default port for bedrock servers of 19139."""
+    def __init__(self, host: str, port: int = 19132, timeout: float = 3):
+        """Override init to add a default port for bedrock servers of 19132."""
         super().__init__(host, port, timeout=timeout)
 
     @retry(tries=3)
@@ -259,5 +259,5 @@ class MinecraftBedrockServer(BedrockServer):
     This class is kept purely for backwards compatibility reasons and will be removed eventually.
     """
 
-    def __init__(self, host: str, port: int = 19139, timeout: float = 3):
+    def __init__(self, host: str, port: int = 19132, timeout: float = 3):
         super().__init__(host, port=port, timeout=timeout)
