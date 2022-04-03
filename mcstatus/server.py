@@ -85,15 +85,9 @@ class JavaServer(MCServer):
 
     @classmethod
     async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Mimics minecraft's server address field.
+        """Asynchronous alternative to lookup
 
-        With Java servers, on top of just parsing the address, we also check the
-        DNS records for an SRV record that points to the server, which is the same
-        behavior as with minecraft's server address field for java. This DNS record
-        resolution is happening asynchronously (see lookup).
-
-        :param str address: The address of the Minecraft server, like `example.com:25565`.
-        :param float timeout: The timeout in seconds before failing to connect.
+        For more details, check the docstring of the synchronous lookup function.
         """
         addr = await async_minecraft_srv_address_lookup(address, default_port=25565, lifetime=timeout)
         return cls(addr.host, addr.port, timeout=timeout)
