@@ -70,7 +70,7 @@ class JavaServer(MCServer):
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Mimcs minecraft's server address field.
+        """Mimics minecraft's server address field.
 
         With Java servers, on top of just parsing the address, we also check the
         DNS records for an SRV record that points to the server, which is the same
