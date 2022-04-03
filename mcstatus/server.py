@@ -33,7 +33,7 @@ class MCServer(ABC):
 
     :param str host: The host/ip of the minecraft server.
     :param int port: The port that the server is on.
-    :param float timeout: Timeout, in seconds, before failing to connect.
+    :param float timeout: The timeout in seconds before failing to connect.
     """
 
     def __init__(self, host: str, port: int, timeout: float = 3):
