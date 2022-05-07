@@ -4,7 +4,7 @@ import asyncio
 import inspect
 import warnings
 from functools import wraps
-from typing import Callable, Iterable, Optional, TYPE_CHECKING, Tuple, Type, TypeVar, overload
+from typing import Callable, Iterable, Optional, Protocol, TYPE_CHECKING, Tuple, Type, TypeVar, Union, cast, overload
 
 if TYPE_CHECKING:
     from typing_extensions import ParamSpec
@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     P = ParamSpec("P")
     P2 = ParamSpec("P2")
 
+T = TypeVar("T")
 R = TypeVar("R")
 R2 = TypeVar("R2")
 
@@ -59,6 +60,16 @@ def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> 
     return decorate
 
 
+class DeprecatedReturn(Protocol):
+    @overload
+    def __call__(self, __x: Type[T]) -> Type[T]:
+        ...
+
+    @overload
+    def __call__(self, __x: Callable[P, R]) -> Callable[P, R]:
+        ...
+
+
 @overload
 def deprecated(
     obj: Callable[P, R],
@@ -67,8 +78,20 @@ def deprecated(
     version: Optional[str] = None,
     date: Optional[str] = None,
     msg: Optional[str] = None,
-    methods: Optional[Iterable[str]] = None,
 ) -> Callable[P, R]:
+    ...
+
+
+@overload
+def deprecated(
+    obj: Type[T],
+    *,
+    replacement: Optional[str] = None,
+    version: Optional[str] = None,
+    date: Optional[str] = None,
+    msg: Optional[str] = None,
+    methods: Iterable[str],
+) -> Type[T]:
     ...
 
 
@@ -81,12 +104,12 @@ def deprecated(
     date: Optional[str] = None,
     msg: Optional[str] = None,
     methods: Optional[Iterable[str]] = None,
-) -> Callable[[Callable[P, R]], Callable[P, R]]:
+) -> DeprecatedReturn:
     ...
 
 
 def deprecated(
-    obj: Optional[Callable] = None,
+    obj: Optional[Union[Callable, Type[object]]] = None,
     *,
     replacement: Optional[str] = None,
     version: Optional[str] = None,
@@ -107,7 +130,15 @@ def deprecated(
 
         return wrapper
 
+    @overload
     def decorate(obj: Callable[P, R]) -> Callable[P, R]:
+        ...
+
+    @overload
+    def decorate(obj: Type[T]) -> Type[T]:
+        ...
+
+    def decorate(obj: Union[Callable[P, R], Type[T]]) -> Union[Callable[P, R], Type[T]]:
         # Construct and send the warning message
         name = getattr(obj, "__qualname__", obj.__name__)
         warn_message = f"'{name}' is deprecated and is expected to be removed"
@@ -125,6 +156,8 @@ def deprecated(
 
         # If we're deprecating class, deprecate it's methods and return the class
         if inspect.isclass(obj):
+            obj = cast(Type[T], obj)
+
             if methods is None:
                 raise ValueError("When deprecating a class, you need to specify 'methods' which will get the notice")
 
