@@ -155,7 +155,3 @@ class BedrockServerVersion(ServerVersion):
 
     # Like `MCPE` or another.
     brand: Optional[str]
-
-
-class NotBedrockAndNotJavaServer(TypeError):
-    """Exception for when server is not Bedrock or Java."""

@@ -8,7 +8,7 @@ import dns.resolver
 
 from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus.bedrock_status import BedrockServerStatus
-from mcstatus.mc_server import BedrockServerResponse, JavaServerResponse, MCServerResponse, NotBedrockAndNotJavaServer
+from mcstatus.mc_server import BedrockServerResponse, JavaServerResponse, MCServerResponse
 from mcstatus.pinger import AsyncServerPinger, ServerPinger
 from mcstatus.protocol.connection import (
     TCPAsyncSocketConnection,
@@ -23,7 +23,16 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = ["ping", "async_ping", "MCServer", "JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
+__all__ = [
+    "ping",
+    "async_ping",
+    "NotBedrockAndNotJavaServer",
+    "MCServer",
+    "JavaServer",
+    "BedrockServer",
+    "MinecraftServer",
+    "MinecraftBedrockServer",
+]
 
 
 def ping(address: str, timeout: int = 3, java_first: bool = False, **kwargs) -> Tuple[MCServer, MCServerResponse]:
@@ -58,6 +67,10 @@ async def async_ping(address: str, timeout: int = 3, java_first: bool = False, *
             continue
 
     raise NotBedrockAndNotJavaServer(f"The server ({address}) is not a java or bedrock server.")
+
+
+class NotBedrockAndNotJavaServer(TypeError):
+    """Exception for when server is not Bedrock or Java."""
 
 
 class MCServer(ABC):
