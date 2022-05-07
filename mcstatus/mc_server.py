@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Literal, Optional, Union
+from typing import List, Optional, Union
+
+from typing_extensions import Literal
 
 from mcstatus.bedrock_status import BedrockStatusResponse
 from mcstatus.pinger import PingResponse
