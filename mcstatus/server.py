@@ -24,8 +24,6 @@ if TYPE_CHECKING:
 
 
 __all__ = [
-    "ping",
-    "async_ping",
     "NotBedrockAndNotJavaServer",
     "MCServer",
     "JavaServer",
@@ -33,40 +31,6 @@ __all__ = [
     "MinecraftServer",
     "MinecraftBedrockServer",
 ]
-
-
-def ping(address: str, timeout: int = 3, java_first: bool = False, **kwargs) -> Tuple[MCServer, MCServerResponse]:
-    """Ping a Minecraft server and get `MCServerResponse` object."""
-    servers = [BedrockServer, JavaServer]
-    if java_first:
-        servers.reverse()
-
-    for server_cls in servers:
-        server = server_cls.lookup(address, timeout=timeout)
-
-        try:
-            return server, server.status(**kwargs)
-        except Exception:  # TODO: better exception, also how about standardize exceptions?
-            continue
-
-    raise NotBedrockAndNotJavaServer(f"The server ({address}) is not a java or bedrock server.")
-
-
-async def async_ping(address: str, timeout: int = 3, java_first: bool = False, **kwargs) -> Tuple[MCServer, MCServerResponse]:
-    """Ping a Minecraft server and get `MCServerResponse` object."""
-    servers = [BedrockServer, JavaServer]
-    if java_first:
-        servers.reverse()
-
-    for server_cls in servers:
-        server = await server_cls.async_lookup(address, timeout=timeout)
-
-        try:
-            return server, await server.async_status(**kwargs)
-        except Exception:  # TODO: better exception, also how about standardize exceptions?
-            continue
-
-    raise NotBedrockAndNotJavaServer(f"The server ({address}) is not a java or bedrock server.")
 
 
 class NotBedrockAndNotJavaServer(TypeError):
