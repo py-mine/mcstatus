@@ -1,1 +1,1 @@
-from mcstatus.server import BedrockServer, JavaServer, MinecraftBedrockServer, MinecraftServer  # noqa: F401
+from mcstatus.server import BedrockServer, JavaServer, MCServer, MinecraftBedrockServer, MinecraftServer  # noqa: F401

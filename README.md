@@ -51,6 +51,26 @@ status = server.status()
 print(f"The server has {status.players_online} players online and replied in {status.latency} ms")
 ```
 
+We also have a `MCServer` class which support multi-platform status.
+This working very easy, it just ping server as Java Server and then as Bedrock Server.
+You can reverse it with `first_bedrock` option.
+```python
+from mcstatus import MCServer
+
+server = MCServer.lookup("example.org:19132")
+
+# Status and query the only feature that is supported by MCServer at this time.
+# But this give same functionality as all from JavaServer and BedrockServer combined.
+status = server.status()
+print(f"The server has {status.players.online} players online and replied in {status.latency} ms")
+
+# Will only work if it is Java server. In another way - will be raised `socket.timeout` exception.
+# NOTE: This is just a proxy to `JavaServer.query`, so output will be the same.
+query = server.query()
+print(f"The server has the following players online: {', '.join(query.players.names)}")
+```
+You can see all available fields from `status` [here](/mcstatus/mc_server.py#L12).
+
 ### Command Line Interface
 
 At present time, this only works with Java servers, Bedrock is not yet supported.

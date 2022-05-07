@@ -8,6 +8,7 @@ import dns.resolver
 
 from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus.bedrock_status import BedrockServerStatus, BedrockStatusResponse
+from mcstatus.mc_server import MCServerResponse, NotBedrockAndNotJavaServer
 from mcstatus.pinger import AsyncServerPinger, PingResponse, ServerPinger
 from mcstatus.protocol.connection import (
     TCPAsyncSocketConnection,
@@ -22,14 +23,17 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = ["JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
+__all__ = ["MCServer", "JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
 
 
 class MCServer(ABC):
-    """Base abstract class for a general minecraft server.
+    """Base class for a general minecraft server.
 
-    This class only contains the basic logic shared across both java and bedrock versions,
-    it doesn't include any version specific settings and it can't be used to make any requests.
+    This class contains the basic logic shared across both java and bedrock versions,
+    also it to can be used as cross-platform ping.
+
+    Firstly it will try to ping server as `JavaServer`, if it fails it will try to ping as `BedrockServer`.
+    You can reverse it with the `first_bedrock` argument.
 
     :param str host: The host/ip of the minecraft server.
     :param int port: The port that the server is on.
@@ -52,13 +56,71 @@ class MCServer(ABC):
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Mimics minecraft's server address field.
+        """Proxy to `JavaServer.lookup`. May also work with bedrock servers."""
+        server = JavaServer.lookup(address, timeout=timeout)
+        return cls(server.address.host, server.address.port, server.timeout)
 
-        :param str address: The address of the Minecraft server, like `example.com:19132`
-        :param float timeout: The timeout in seconds before failing to connect.
+    @classmethod
+    async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
+        """Proxy to `JavaServer.async_lookup`. May also work with bedrock servers."""
+        server = await JavaServer.async_lookup(address, timeout=timeout)
+        return cls(server.address.host, server.address.port, server.timeout)
+
+    def status(self, first_bedrock: bool = False, **kwargs) -> MCServerResponse:
+        """Checks the status of a Minecraft server via the ping protocol.
+
+        :param first_bedrock: If true, will try to ping as bedrock first, if it fails it will try to ping as java.
+        :param type **kwargs: Passed to a `ServerPinger` instance.
+        :raise NotBedrockAndNotJavaServer: If the server is not a java or bedrock server.
+        :return: Status information in a `PingResponse` instance.
         """
-        addr = Address.parse_address(address, default_port=None)
-        return cls(addr.host, addr.port, timeout=timeout)
+        platforms = [JavaServer, BedrockServer]
+        if first_bedrock:
+            platforms.reverse()
+
+        for platform in platforms:
+            try:
+                return MCServerResponse.build(platform.status(**kwargs))
+            except Exception:  # TODO: better exception, also how about standardize exceptions?
+                continue
+        raise NotBedrockAndNotJavaServer(
+            f"The server ({self.address.host}:{self.address.port}) is not a java or bedrock server."
+        )
+
+    async def async_status(self, first_bedrock: bool = False, **kwargs) -> MCServerResponse:
+        """Asynchronously checks the status of a Minecraft server via the ping protocol.
+
+        :param first_bedrock: If true, will try to ping as bedrock first, if it fails it will try to ping as java.
+        :param type **kwargs: Passed to a `AsyncServerPinger` instance.
+        :raise NotBedrockAndNotJavaServer: If the server is not a java or bedrock server.
+        :return: Status information in a `PingResponse` instance.
+        """
+        platforms = [JavaServer, BedrockServer]
+        if first_bedrock:
+            platforms.reverse()
+
+        for platform in platforms:
+            try:
+                return MCServerResponse.build(await platform.async_status(**kwargs))
+            except Exception:  # TODO: better exception, also how about standardize exceptions?
+                continue
+        raise NotBedrockAndNotJavaServer(
+            f"The server ({self.address.host}:{self.address.port}) is not a java or bedrock server."
+        )
+
+    def query(self) -> QueryResponse:
+        """Proxy to `JavaServer.query`.
+
+        You don't need this function for Bedrock servers, because Bedrock doesn't support query protocol.
+        """
+        return JavaServer(self.address.host, self.address.port, self.timeout).query()
+
+    async def async_query(self) -> QueryResponse:
+        """Proxy to `JavaServer.async_query`.
+
+        You don't need this function for Bedrock servers, because Bedrock doesn't support query protocol.
+        """
+        return await JavaServer(self.address.host, self.address.port, self.timeout).async_query()
 
 
 class JavaServer(MCServer):
