@@ -1,4 +1,5 @@
 import warnings
+from typing import Any
 
 import pytest
 
@@ -15,11 +16,11 @@ def test_deprecated_function_produces_warning():
 
 
 def test_deprecated_class_produces_warning():
-    test_cls = type("TestCls", (), {"foo": lambda: None})
+    test_cls: Any = type("TestCls", (), {"foo": lambda: None})  # https://github.com/microsoft/pyright/discussions/3438
     dep_cls = deprecated(methods=["foo"])(test_cls)
 
     with warnings.catch_warnings(record=True) as w:
-        dep_cls.foo()  # type: ignore # https://github.com/microsoft/pyright/discussions/3438
+        dep_cls.foo()
         assert issubclass(w[-1].category, DeprecationWarning)
         assert "deprecated" in str(w[-1].message).lower()
 
@@ -34,11 +35,11 @@ def test_deprecated_function_return_result():
 
 
 def test_deprecated_class_return_result():
-    test_cls = type("TestCls", (), {"foo": lambda x: x})
+    test_cls: Any = type("TestCls", (), {"foo": lambda x: x})  # https://github.com/microsoft/pyright/discussions/3438
     dep_cls = deprecated(methods=["foo"])(test_cls)
 
     with warnings.catch_warnings(record=True):
-        result = dep_cls.foo(10)  # type: ignore # https://github.com/microsoft/pyright/discussions/3438
+        result = dep_cls.foo(10)
 
     assert result == 10
 
@@ -49,7 +50,7 @@ def test_deprecated_function_with_methods():
 
 
 def test_deprecated_class_without_methods():
-    test_cls = type("TestCls", (), {"foo": lambda x: x})
+    test_cls: Any = type("TestCls", (), {"foo": lambda x: x})  # https://github.com/microsoft/pyright/discussions/3438
     with pytest.raises(ValueError):
         deprecated()(test_cls)
 
