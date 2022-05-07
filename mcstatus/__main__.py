@@ -6,7 +6,8 @@ from json import dumps as json_dumps
 
 import click
 
-from mcstatus import MCServer
+from mcstatus import JavaServer, MCServer
+from mcstatus.mc_server import JavaServerResponse
 
 server: MCServer = None  # type: ignore[assignment]  # This will be set with cli function
 
@@ -54,10 +55,13 @@ def status():
     servers that are version 1.7 or higher.
     """
     response = server.status()
-    if response.players.list is not None:
-        player_sample = str([f"{player.name} ({player.uuid})" for player in response.players.list])
+    if isinstance(response, JavaServerResponse):
+        if response.players.list is not None:
+            player_sample = str([f"{player.name} ({player.uuid})" for player in response.players.list])
+        else:
+            player_sample = "No players online or can't get them"
     else:
-        player_sample = "No players online"
+        player_sample = "Can't get players list"
 
     click.echo(f"version: v{response.version.name} (protocol {response.version.protocol})")
     click.echo(f'motd: "{response.motd}"')
@@ -85,6 +89,9 @@ def query():
     Prints detailed server information. Must be enabled in
     servers' server.properties file.
     """
+    if not isinstance(server, JavaServer):
+        click.echo("Only Java Servers support query")
+        return
     try:
         response = server.query()
     except socket.timeout:

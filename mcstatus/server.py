@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import warnings
-from abc import ABC
-from typing import TYPE_CHECKING
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Tuple
 
 import dns.resolver
 
 from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
-from mcstatus.bedrock_status import BedrockServerStatus, BedrockStatusResponse
-from mcstatus.mc_server import MCServerResponse, NotBedrockAndNotJavaServer
-from mcstatus.pinger import AsyncServerPinger, PingResponse, ServerPinger
+from mcstatus.bedrock_status import BedrockServerStatus
+from mcstatus.mc_server import BedrockServerResponse, JavaServerResponse, MCServerResponse, NotBedrockAndNotJavaServer
+from mcstatus.pinger import AsyncServerPinger, ServerPinger
 from mcstatus.protocol.connection import (
     TCPAsyncSocketConnection,
     TCPSocketConnection,
@@ -23,7 +23,41 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = ["MCServer", "JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
+__all__ = ["ping", "async_ping", "MCServer", "JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
+
+
+def ping(address: str, timeout: int = 3, java_first: bool = False, **kwargs) -> Tuple[MCServer, MCServerResponse]:
+    """Ping a Minecraft server and get `MCServerResponse` object."""
+    servers = [BedrockServer, JavaServer]
+    if java_first:
+        servers.reverse()
+
+    for server_cls in servers:
+        server = server_cls.lookup(address, timeout=timeout)
+
+        try:
+            return server, server.status(**kwargs)
+        except Exception:  # TODO: better exception, also how about standardize exceptions?
+            continue
+
+    raise NotBedrockAndNotJavaServer(f"The server ({address}) is not a java or bedrock server.")
+
+
+async def async_ping(address: str, timeout: int = 3, java_first: bool = False, **kwargs) -> Tuple[MCServer, MCServerResponse]:
+    """Ping a Minecraft server and get `MCServerResponse` object."""
+    servers = [BedrockServer, JavaServer]
+    if java_first:
+        servers.reverse()
+
+    for server_cls in servers:
+        server = await server_cls.async_lookup(address, timeout=timeout)
+
+        try:
+            return server, await server.async_status(**kwargs)
+        except Exception:  # TODO: better exception, also how about standardize exceptions?
+            continue
+
+    raise NotBedrockAndNotJavaServer(f"The server ({address}) is not a java or bedrock server.")
 
 
 class MCServer(ABC):
@@ -55,72 +89,24 @@ class MCServer(ABC):
         return self.address.port
 
     @classmethod
+    @abstractmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Proxy to `JavaServer.lookup`. May also work with bedrock servers."""
-        server = JavaServer.lookup(address, timeout=timeout)
-        return cls(server.address.host, server.address.port, server.timeout)
+        """Lookup a minecraft server. This can have additional logic in children classes."""
 
     @classmethod
+    @abstractmethod
     async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Proxy to `JavaServer.async_lookup`. May also work with bedrock servers."""
-        server = await JavaServer.async_lookup(address, timeout=timeout)
-        return cls(server.address.host, server.address.port, server.timeout)
+        """Async lookup a minecraft server. This can have additional logic in children classes."""
 
-    def status(self, first_bedrock: bool = False, **kwargs) -> MCServerResponse:
-        """Checks the status of a Minecraft server via the ping protocol.
+    @classmethod
+    @abstractmethod
+    def status(cls, **kwargs) -> MCServerResponse:
+        """Get the status of the minecraft server."""
 
-        :param first_bedrock: If true, will try to ping as bedrock first, if it fails it will try to ping as java.
-        :param type **kwargs: Passed to a `ServerPinger` instance.
-        :raise NotBedrockAndNotJavaServer: If the server is not a java or bedrock server.
-        :return: Status information in a `PingResponse` instance.
-        """
-        platforms = [JavaServer, BedrockServer]
-        if first_bedrock:
-            platforms.reverse()
-
-        for platform in platforms:
-            try:
-                return MCServerResponse.build(platform.status(**kwargs))
-            except Exception:  # TODO: better exception, also how about standardize exceptions?
-                continue
-        raise NotBedrockAndNotJavaServer(
-            f"The server ({self.address.host}:{self.address.port}) is not a java or bedrock server."
-        )
-
-    async def async_status(self, first_bedrock: bool = False, **kwargs) -> MCServerResponse:
-        """Asynchronously checks the status of a Minecraft server via the ping protocol.
-
-        :param first_bedrock: If true, will try to ping as bedrock first, if it fails it will try to ping as java.
-        :param type **kwargs: Passed to a `AsyncServerPinger` instance.
-        :raise NotBedrockAndNotJavaServer: If the server is not a java or bedrock server.
-        :return: Status information in a `PingResponse` instance.
-        """
-        platforms = [JavaServer, BedrockServer]
-        if first_bedrock:
-            platforms.reverse()
-
-        for platform in platforms:
-            try:
-                return MCServerResponse.build(await platform.async_status(**kwargs))
-            except Exception:  # TODO: better exception, also how about standardize exceptions?
-                continue
-        raise NotBedrockAndNotJavaServer(
-            f"The server ({self.address.host}:{self.address.port}) is not a java or bedrock server."
-        )
-
-    def query(self) -> QueryResponse:
-        """Proxy to `JavaServer.query`.
-
-        You don't need this function for Bedrock servers, because Bedrock doesn't support query protocol.
-        """
-        return JavaServer(self.address.host, self.address.port, self.timeout).query()
-
-    async def async_query(self) -> QueryResponse:
-        """Proxy to `JavaServer.async_query`.
-
-        You don't need this function for Bedrock servers, because Bedrock doesn't support query protocol.
-        """
-        return await JavaServer(self.address.host, self.address.port, self.timeout).async_query()
+    @classmethod
+    @abstractmethod
+    async def async_status(cls, **kwargs) -> MCServerResponse:
+        """Async get the status of the minecraft server."""
 
 
 class JavaServer(MCServer):
@@ -188,7 +174,7 @@ class JavaServer(MCServer):
         ping = await pinger.test_ping()
         return ping
 
-    def status(self, **kwargs) -> PingResponse:
+    def status(self, **kwargs) -> JavaServerResponse:
         """Checks the status of a Minecraft Java Edition server via the ping protocol.
 
         :param type **kwargs: Passed to a `ServerPinger` instance.
@@ -199,14 +185,14 @@ class JavaServer(MCServer):
         return self._retry_status(connection, **kwargs)
 
     @retry(tries=3)
-    def _retry_status(self, connection: TCPSocketConnection, **kwargs) -> PingResponse:
+    def _retry_status(self, connection: TCPSocketConnection, **kwargs) -> JavaServerResponse:
         pinger = ServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         result = pinger.read_status()
         result.latency = pinger.test_ping()
-        return result
+        return JavaServerResponse.build(result)
 
-    async def async_status(self, **kwargs) -> PingResponse:
+    async def async_status(self, **kwargs) -> JavaServerResponse:
         """Asynchronously checks the status of a Minecraft Java Edition server via the ping protocol.
 
         :param type **kwargs: Passed to a `AsyncServerPinger` instance.
@@ -218,12 +204,12 @@ class JavaServer(MCServer):
         return await self._retry_async_status(connection, **kwargs)
 
     @retry(tries=3)
-    async def _retry_async_status(self, connection: TCPAsyncSocketConnection, **kwargs) -> PingResponse:
+    async def _retry_async_status(self, connection: TCPAsyncSocketConnection, **kwargs) -> JavaServerResponse:
         pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         result = await pinger.read_status()
         result.latency = await pinger.test_ping()
-        return result
+        return JavaServerResponse.build(result)
 
     def query(self) -> QueryResponse:
         """Checks the status of a Minecraft Java Edition server via the query protocol."""
@@ -276,25 +262,36 @@ class BedrockServer(MCServer):
         """Override init to add a default port for bedrock servers of 19132."""
         super().__init__(host, port, timeout=timeout)
 
+    @classmethod
+    def lookup(cls, address: str, timeout: float = 3) -> Self:
+        """Parse `address` parameter and return initialized object."""
+        host, port = address.split(":")
+        return cls(host, int(port), timeout=timeout)
+
+    @classmethod
+    async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
+        """Just call `lookup` without any async, for implement all methods from abstract class."""
+        return cls.lookup(address, timeout)
+
     @retry(tries=3)
-    def status(self, **kwargs) -> BedrockStatusResponse:
+    def status(self, **kwargs) -> BedrockServerResponse:
         """Checks the status of a Minecraft Bedrock Edition server.
 
         :param type **kwargs: Passed to a `BedrockServerStatus` instance.
-        :return: Status information in a `BedrockStatusResponse` instance.
-        :rtype: BedrockStatusResponse
+        :return: Status information in a `BedrockServerResponse` instance.
+        :rtype: BedrockServerResponse
         """
-        return BedrockServerStatus(self.address, self.timeout, **kwargs).read_status()
+        return BedrockServerResponse.build(BedrockServerStatus(self.address, self.timeout, **kwargs).read_status())
 
     @retry(tries=3)
-    async def async_status(self, **kwargs) -> BedrockStatusResponse:
+    async def async_status(self, **kwargs) -> BedrockServerResponse:
         """Asynchronously checks the status of a Minecraft Bedrock Edition server.
 
         :param type **kwargs: Passed to a `BedrockServerStatus` instance.
-        :return: Status information in a `BedrockStatusResponse` instance.
-        :rtype: BedrockStatusResponse
+        :return: Status information in a `BedrockServerResponse` instance.
+        :rtype: BedrockServerResponse
         """
-        return await BedrockServerStatus(self.address, self.timeout, **kwargs).read_status_async()
+        return BedrockServerResponse.build(await BedrockServerStatus(self.address, self.timeout, **kwargs).read_status_async())
 
 
 @deprecated(replacement="JavaServer", date="2022-08", methods=("__init__",))
