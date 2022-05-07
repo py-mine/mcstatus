@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import socket
+from dataclasses import asdict
 from json import dumps as json_dumps
 
 import click
 
-from mcstatus import JavaServer
+from mcstatus import MCServer
 
-server: JavaServer = None  # type: ignore[assignment]  # This will be set with cli function
+server: MCServer = None  # type: ignore[assignment]  # This will be set with cli function
 
 
 @click.group(context_settings=dict(help_option_names=["-h", "--help"]))
@@ -43,15 +44,7 @@ def cli(address):
     players: 1/20 ['Dinnerbone (61699b2e-d327-4a01-9f1e-0ea8c3f06bc6)']
     """
     global server
-    server = JavaServer.lookup(address)
-
-
-@cli.command(short_help="prints server latency")
-def ping():
-    """
-    Ping server for latency.
-    """
-    click.echo(f"{server.ping()}ms")
+    server = MCServer.lookup(address)
 
 
 @cli.command(short_help="basic server information")
@@ -61,13 +54,13 @@ def status():
     servers that are version 1.7 or higher.
     """
     response = server.status()
-    if response.players.sample is not None:
-        player_sample = str([f"{player.name} ({player.id})" for player in response.players.sample])
+    if response.players.list is not None:
+        player_sample = str([f"{player.name} ({player.uuid})" for player in response.players.list])
     else:
         player_sample = "No players online"
 
     click.echo(f"version: v{response.version.name} (protocol {response.version.protocol})")
-    click.echo(f'description: "{response.description}"')
+    click.echo(f'motd: "{response.motd}"')
     click.echo(f"players: {response.players.online}/{response.players.max} {player_sample}")
 
 
@@ -77,31 +70,12 @@ def json():
     Prints server status and query in json. Supported by all Minecraft
     servers that are version 1.7 or higher.
     """
-    data = {}
-    data["online"] = False
-    # Build data with responses and quit on exception
     try:
-        ping_res = server.ping()
-        data["online"] = True
-        data["ping"] = ping_res
-
         status_res = server.status(tries=1)
-        data["version"] = status_res.version.name
-        data["protocol"] = status_res.version.protocol
-        data["motd"] = status_res.description
-        data["player_count"] = status_res.players.online
-        data["player_max"] = status_res.players.max
-        data["players"] = []
-        if status_res.players.sample is not None:
-            data["players"] = [{"name": player.name, "id": player.id} for player in status_res.players.sample]
-
-        query_res = server.query(tries=1)  # type: ignore[call-arg] # tries is supported with retry decorator
-        data["host_ip"] = query_res.raw["hostip"]
-        data["host_port"] = query_res.raw["hostport"]
-        data["map"] = query_res.map
-        data["plugins"] = query_res.software.plugins
+        data = asdict(status_res)
+        data["online"] = True
     except Exception:  # TODO: Check what this actually excepts
-        pass
+        data = {"online": False}
     click.echo(json_dumps(data))
 
 
