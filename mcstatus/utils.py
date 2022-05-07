@@ -4,13 +4,15 @@ import asyncio
 import inspect
 import warnings
 from functools import wraps
-from typing import Callable, Iterable, Optional, Protocol, TYPE_CHECKING, Tuple, Type, TypeVar, Union, cast, overload
+from typing import Callable, Iterable, Optional, TYPE_CHECKING, Tuple, Type, TypeVar, Union, cast, overload
 
 if TYPE_CHECKING:
-    from typing_extensions import ParamSpec
+    from typing_extensions import ParamSpec, Protocol
 
     P = ParamSpec("P")
     P2 = ParamSpec("P2")
+else:
+    Protocol = object
 
 T = TypeVar("T")
 R = TypeVar("R")
