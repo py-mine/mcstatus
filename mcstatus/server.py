@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from abc import ABC
 from typing import TYPE_CHECKING
 
 import dns.resolver
@@ -24,15 +25,18 @@ if TYPE_CHECKING:
 __all__ = ["JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
 
 
-class JavaServer:
-    """Base class for a Minecraft Java Edition server.
+class MCServer(ABC):
+    """Base abstract class for a general minecraft server.
 
-    :param str host: The host/address/ip of the Minecraft server.
+    This class only contains the basic logic shared across both java and bedrock versions,
+    it doesn't include any version specific settings and it can't be used to make any requests.
+
+    :param str host: The host/ip of the minecraft server.
     :param int port: The port that the server is on.
     :param float timeout: The timeout in seconds before failing to connect.
     """
 
-    def __init__(self, host: str, port: int = 25565, timeout: float = 3):
+    def __init__(self, host: str, port: int, timeout: float = 3):
         self.address = Address(host, port)
         self.timeout = timeout
 
@@ -48,22 +52,42 @@ class JavaServer:
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Parses the given address and checks DNS records for an SRV record that points to the Minecraft server.
+        """Mimics minecraft's server address field.
+
+        :param str address: The address of the Minecraft server, like `example.com:19132`
+        :param float timeout: The timeout in seconds before failing to connect.
+        """
+        addr = Address.parse_address(address, default_port=None)
+        return cls(addr.host, addr.port, timeout=timeout)
+
+
+class JavaServer(MCServer):
+    """Base class for a Minecraft Java Edition server."""
+
+    def __init__(self, host: str, port: int = 25565, timeout: float = 3):
+        """Override init to add a default port for java servers of 25565."""
+        super().__init__(host, port, timeout=timeout)
+
+    @classmethod
+    def lookup(cls, address: str, timeout: float = 3) -> Self:
+        """Mimics minecraft's server address field.
+
+        With Java servers, on top of just parsing the address, we also check the
+        DNS records for an SRV record that points to the server, which is the same
+        behavior as with minecraft's server address field for java. This DNS record
+        resolution is happening synchronously (see async_lookup).
 
         :param str address: The address of the Minecraft server, like `example.com:25565`.
         :param float timeout: The timeout in seconds before failing to connect.
-        :return: A `MinecraftServer` instance.
         """
         addr = minecraft_srv_address_lookup(address, default_port=25565, lifetime=timeout)
         return cls(addr.host, addr.port, timeout=timeout)
 
     @classmethod
     async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Parses the given address and checks DNS records for an SRV record that points to the Minecraft server.
+        """Asynchronous alternative to lookup
 
-        :param str address: The address of the Minecraft server, like `example.com:25565`.
-        :param float timeout: The timeout in seconds before failing to connect.
-        :return: A `MinecraftServer` instance.
+        For more details, check the docstring of the synchronous lookup function.
         """
         addr = await async_minecraft_srv_address_lookup(address, default_port=25565, lifetime=timeout)
         return cls(addr.host, addr.port, timeout=timeout)
@@ -73,7 +97,6 @@ class JavaServer:
 
         :param type **kwargs: Passed to a `ServerPinger` instance.
         :return: The latency between the Minecraft Server and you.
-        :rtype: float
         """
 
         connection = TCPSocketConnection(self.address, self.timeout)
@@ -90,7 +113,6 @@ class JavaServer:
 
         :param type **kwargs: Passed to a `AsyncServerPinger` instance.
         :return: The latency between the Minecraft Server and you.
-        :rtype: float
         """
 
         connection = TCPAsyncSocketConnection()
@@ -109,7 +131,6 @@ class JavaServer:
 
         :param type **kwargs: Passed to a `ServerPinger` instance.
         :return: Status information in a `PingResponse` instance.
-        :rtype: PingResponse
         """
 
         connection = TCPSocketConnection(self.address, self.timeout)
@@ -128,7 +149,6 @@ class JavaServer:
 
         :param type **kwargs: Passed to a `AsyncServerPinger` instance.
         :return: Status information in a `PingResponse` instance.
-        :rtype: PingResponse
         """
 
         connection = TCPAsyncSocketConnection()
@@ -144,11 +164,7 @@ class JavaServer:
         return result
 
     def query(self) -> QueryResponse:
-        """Checks the status of a Minecraft Java Edition server via the query protocol.
-
-        :return: Query status information in a `QueryResponse` instance.
-        :rtype: QueryResponse
-        """
+        """Checks the status of a Minecraft Java Edition server via the query protocol."""
         # TODO: WARNING: This try-except for NXDOMAIN is only done because
         # of failing tests on mac-os, which for some reason can't resolve 'localhost'
         # into '127.0.0.1'. This try-except needs to be removed once this issue
@@ -169,11 +185,7 @@ class JavaServer:
         return querier.read_query()
 
     async def async_query(self) -> QueryResponse:
-        """Asynchronously checks the status of a Minecraft Java Edition server via the query protocol.
-
-        :return: Query status information in a `QueryResponse` instance.
-        :rtype: QueryResponse
-        """
+        """Asynchronously checks the status of a Minecraft Java Edition server via the query protocol."""
         # TODO: WARNING: This try-except for NXDOMAIN is only done because
         # of failing tests on mac-os, which for some reason can't resolve 'localhost'
         # into '127.0.0.1'. This try-except needs to be removed once this issue
@@ -195,38 +207,12 @@ class JavaServer:
         return await querier.read_query()
 
 
-class BedrockServer:
-    """Base class for a Minecraft Bedrock Edition server.
-
-    :param str host: The host/address/ip of the Minecraft server.
-    :param int port: The port that the server is on.
-    :param float timeout: The timeout in seconds before failing to connect.
-    """
+class BedrockServer(MCServer):
+    """Base class for a Minecraft Bedrock Edition server."""
 
     def __init__(self, host: str, port: int = 19132, timeout: float = 3):
-        self.address = Address(host, port)
-        self.timeout = timeout
-
-    @property
-    @deprecated(replacement="address.host", date="2022-08")
-    def host(self) -> str:
-        return self.address.host
-
-    @property
-    @deprecated(replacement="address.host", date="2022-08")
-    def port(self) -> int:
-        return self.address.port
-
-    @classmethod
-    def lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Parses a given address and returns a MinecraftBedrockServer instance.
-
-        :param str address: The address of the Minecraft server, like `example.com:19132`
-        :param float timeout: The timeout in seconds before failing to connect.
-        :return: A `MinecraftBedrockServer` instance.
-        """
-        addr = Address.parse_address(address, default_port=19132)
-        return cls(addr.host, addr.port, timeout=timeout)
+        """Override init to add a default port for bedrock servers of 19132."""
+        super().__init__(host, port, timeout=timeout)
 
     @retry(tries=3)
     def status(self, **kwargs) -> BedrockStatusResponse:
@@ -267,5 +253,5 @@ class MinecraftBedrockServer(BedrockServer):
     This class is kept purely for backwards compatibility reasons and will be removed eventually.
     """
 
-    def __init__(self, host: str, port: int = 19139, timeout: float = 3):
+    def __init__(self, host: str, port: int = 19132, timeout: float = 3):
         super().__init__(host, port=port, timeout=timeout)
