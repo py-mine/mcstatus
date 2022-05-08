@@ -46,7 +46,7 @@ STYLE_MAP = {
 
 
 def _validate_data(raw: Dict[str, Any], who: str, required: Iterable[Tuple[str, type]]) -> None:
-    """This function ensures that all required keys are present, and are of specified type.
+    """Ensure that all required keys are present, and have the specified type.
 
     :param raw: The raw dict answer to check.
     :param who: The name of the object that is checking the data. Example `status`, `player` etc.
@@ -81,13 +81,15 @@ class AbstractDataclass(ABC):
 
 @dataclass
 class MCStatusResponse(AbstractDataclass):
-    """Class for storing shared data from a status response."""
+    """Class for storing shared data from a status response.
+
+    :param motd: Message Of The Day. Also known as `Description`.
+    :param latency: Latency between a server and the client (you). In milliseconds.
+    """
 
     players: StatusPlayers
     version: StatusVersion
-    # Message Of The Day. Also known as `Description`.
     motd: str
-    # Latency between a server and the client (you). In milliseconds.
     latency: float
 
     @classmethod
@@ -104,11 +106,13 @@ class MCStatusResponse(AbstractDataclass):
 
 @dataclass
 class JavaStatusResponse(MCStatusResponse):
-    """Dataclass for storing Java status answer object."""
+    """Class for storing JavaServer data from a status response.
+
+    :param icon: Icon of the server. Can be unset. BASE64 encoded.
+    """
 
     players: JavaStatusPlayers
     version: JavaStatusVersion
-    # Icon of the server. Can be unset. BASE64 encoded.
     icon: Optional[str]
 
     @classmethod
@@ -167,13 +171,15 @@ class JavaStatusResponse(MCStatusResponse):
 
 @dataclass
 class BedrockStatusResponse(MCStatusResponse):
-    """Dataclass for storing Java status answer object."""
+    """Class for storing BedrockServer data from a status response.
+
+    :param map_name: Name of the map. Can be unset.
+    :param gamemode: Gamemode of the server. Can be hidden.
+    """
 
     players: BedrockStatusPlayers
     version: BedrockStatusVersion
-    # Can be unset.
     map_name: Optional[str]
-    # Can be hidden.
     gamemode: Optional[str]
 
     @classmethod
@@ -213,7 +219,7 @@ class BedrockStatusResponse(MCStatusResponse):
 
 @dataclass
 class StatusPlayers(AbstractDataclass):
-    """Dataclass for storing players list and some global info about players, like current online."""
+    """Class for storing players info, like current online."""
 
     online: int
     max: int
@@ -221,9 +227,11 @@ class StatusPlayers(AbstractDataclass):
 
 @dataclass
 class JavaStatusPlayers(StatusPlayers):
-    """Dataclass for storing players list and some global info about players, like current online."""
+    """Class which extends a `StatusPlayers` class with list of players.
 
-    # List of players. Can be unset. In Java can be empty even if online > 0.
+    :param players: List of players. Can be empty even if online > 0.
+    """
+
     list: List[JavaStatusPlayer]
 
     @classmethod
@@ -231,7 +239,7 @@ class JavaStatusPlayers(StatusPlayers):
         """Build `JavaStatusPlayers` from raw response dict.
 
         :param raw: Raw response dict.
-        :raise ValueError: If the required keys (online, max, sample) are not present.
+        :raise ValueError: If the required keys (online, max) are not present.
         :raise TypeError: If the required keys (online - int, max - int, sample - list) are not of the specified type.
         :return: `JavaStatusPlayers` object.
         """
@@ -247,12 +255,12 @@ class JavaStatusPlayers(StatusPlayers):
 
 @dataclass
 class BedrockStatusPlayers(StatusPlayers):
-    """Dataclass for storing players list and some global info about players, like current online."""
+    """Class which represents `BedrockStatusResponse` players field."""
 
 
 @dataclass
 class JavaStatusPlayer:
-    """Dataclass for storing player info. Only for Java."""
+    """Class for storing player info. Only for Java."""
 
     name: str
     uuid: str
@@ -272,17 +280,19 @@ class JavaStatusPlayer:
 
 @dataclass
 class StatusVersion(AbstractDataclass):
-    """Dataclass for storing version info."""
+    """Class for storing version info.
 
-    # Version name. Example `1.18.0`.
+    :param name: Version name. Example `1.18.0`.
+    :param protocol: Version protocol. See https://minecraft.fandom.com/wiki/Protocol_version.
+    """
+
     name: str
-    # Version protocol. See https://minecraft.fandom.com/wiki/Protocol_version.
     protocol: int
 
 
 @dataclass
 class JavaStatusVersion(StatusVersion):
-    """Dataclass for storing version info for Java."""
+    """Class for storing Java version info."""
 
     @classmethod
     def build(cls, raw: Dict[str, Any]) -> JavaStatusVersion:
@@ -299,7 +309,9 @@ class JavaStatusVersion(StatusVersion):
 
 @dataclass
 class BedrockStatusVersion(StatusVersion):
-    """Dataclass for storing version info for Bedrock."""
+    """Class for storing Bedrock version info.
 
-    # Like `MCPE` or another.
+    :param brand: Like `MCPE` or another.
+    """
+
     brand: Optional[str]
