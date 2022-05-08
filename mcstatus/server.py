@@ -38,13 +38,10 @@ class NotBedrockAndNotJavaServer(TypeError):
 
 
 class MCServer(ABC):
-    """Base class for a general minecraft server.
+    """Base abstract class for a general minecraft server.
 
-    This class contains the basic logic shared across both java and bedrock versions,
-    also it to can be used as cross-platform ping.
-
-    Firstly it will try to ping server as `JavaServer`, if it fails it will try to ping as `BedrockServer`.
-    You can reverse it with the `first_bedrock` argument.
+    This class only contains the basic logic shared across both java and bedrock versions,
+    it doesn't include any version specific settings, and it can't be used to make any requests.
 
     :param str host: The host/ip of the minecraft server.
     :param int port: The port that the server is on.
