@@ -66,6 +66,8 @@ class MCServerResponse(AbstractDataclass):
 class JavaServerResponse(MCServerResponse):
     """Dataclass for storing Java status answer object."""
 
+    players: JavaServerPlayers
+    version: JavaServerVersion
     # Icon of the server. Can be unset. BASE64 encoded.
     icon: Optional[str]
 
@@ -138,6 +140,8 @@ class JavaServerResponse(MCServerResponse):
 class BedrockServerResponse(MCServerResponse):
     """Dataclass for storing Java status answer object."""
 
+    players: BedrockServerPlayers
+    version: BedrockServerVersion
     # Can be unset.
     map_name: Optional[str]
     # Can be hidden.
