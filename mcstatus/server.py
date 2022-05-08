@@ -246,8 +246,8 @@ class BedrockServer(MCServer):
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Parse `address` parameter and return initialized object."""
-        host, port = address.split(":")
-        return cls(host, int(port), timeout=timeout)
+        address = Address.parse_address(address)
+        return cls(address.host, address.port, timeout=timeout)
 
     @classmethod
     async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
