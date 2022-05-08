@@ -12,14 +12,14 @@ def resolve_a_record(hostname: str, lifetime: Optional[float] = None) -> str:
     :return: The resolved IP address from the A record
     :raises dns.exception.DNSException:
         One of the exceptions possibly raised by dns.resolver.resolve
-        Most notably this will be `dns.exception.Timeout` and `dns.resolver.NXDOMAIN`
+        Most notably this will be `dns.exception.Timeout`, `dns.resolver.NXDOMAIN` and `dns.resolver.NoAnswer`
     """
     answers = dns.resolver.resolve(hostname, RdataType.A, lifetime=lifetime)
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
     answer = answers[0]
-    hostname = str(answer).rstrip(".")
-    return hostname
+    ip = str(answer).rstrip(".")
+    return ip
 
 
 async def async_resolve_a_record(hostname: str, lifetime: Optional[float] = None) -> str:
@@ -31,8 +31,8 @@ async def async_resolve_a_record(hostname: str, lifetime: Optional[float] = None
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
     answer = answers[0]
-    hostname = str(answer).rstrip(".")
-    return hostname
+    ip = str(answer).rstrip(".")
+    return ip
 
 
 def resolve_srv_record(query_name: str, lifetime: Optional[float] = None) -> Tuple[str, int]:
@@ -42,7 +42,7 @@ def resolve_srv_record(query_name: str, lifetime: Optional[float] = None) -> Tup
     :return: A tuple of host string and port number
     :raises dns.exception.DNSException:
         One of the exceptions possibly raised by dns.resolver.resolve
-        Most notably this will be `dns.exception.Timeout` and `dns.resolver.NXDOMAIN`
+        Most notably this will be `dns.exception.Timeout`, `dns.resolver.NXDOMAIN` and `dns.resolver.NoAnswer`
     """
     answers = dns.resolver.resolve(query_name, RdataType.SRV, lifetime=lifetime)
     # There should only be one answer here, though in case the server
@@ -74,7 +74,7 @@ def resolve_mc_srv(hostname: str, lifetime: Optional[float] = None) -> Tuple[str
     :return: Obtained target and port from the SRV record, on which the server should live on.
     :raises dns.exception.DNSException:
         One of the exceptions possibly raised by dns.resolver.resolve
-        Most notably this will be `dns.exception.Timeout` and `dns.resolver.NXDOMAIN`
+        Most notably this will be `dns.exception.Timeout`, `dns.resolver.NXDOMAIN` and `dns.resolver.NoAnswer`
 
     Returns obtained target and port from the SRV record, on which
     the minecraft server should live on.
