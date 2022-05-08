@@ -3,6 +3,7 @@ import sys
 from unittest.mock import Mock, patch
 
 import pytest
+import pytest_asyncio
 
 from mcstatus.protocol.connection import Connection
 from mcstatus.server import JavaServer
@@ -37,7 +38,7 @@ class MockProtocolFactory(asyncio.Protocol):
         print("resume_writing")
 
 
-@pytest.fixture()
+@pytest_asyncio.fixture()
 async def create_mock_packet_server(event_loop):
     servers = []
 

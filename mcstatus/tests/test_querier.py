@@ -42,6 +42,21 @@ class TestMinecraftQuerier:
         }
         assert response.players.names == ["Dinnerbone", "Djinnibone", "Steve"]
 
+    def test_query_handles_unorderd_map_response(self):
+        self.querier.connection.receive(
+            bytearray(
+                b"\x00\x00\x00\x00\x00GeyserMC\x00\x80\x00hostname\x00Geyser\x00hostip\x001.1.1.1\x00plugins\x00\x00numplayers"
+                b"\x001\x00gametype\x00SMP\x00maxplayers\x00100\x00hostport\x0019132\x00version\x00Geyser"
+                b" (git-master-0fd903e) 1.18.10\x00map\x00Geyser\x00game_id\x00MINECRAFT\x00\x00\x01player_\x00\x00\x00"
+            )
+        )
+        response = self.querier.read_query()
+        self.querier.connection.flush()
+
+        assert response.raw["game_id"] == "MINECRAFT"
+        assert response.motd == "Geyser"
+        assert response.software.version == "Geyser (git-master-0fd903e) 1.18.10"
+
     def test_query_handles_unicode_motd_with_nulls(self):
         self.querier.connection.receive(
             bytearray(

@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 import re
 import struct
-from typing import List, TYPE_CHECKING
+from typing import Dict, List, TYPE_CHECKING
 
 from mcstatus.protocol.connection import Connection, UDPAsyncSocketConnection, UDPSocketConnection
 
@@ -123,7 +123,7 @@ class QueryResponse:
     players: Players
     software: Software
 
-    def __init__(self, raw, players):
+    def __init__(self, raw: Dict[str, str], players: List[str]):
         try:
             self.raw = raw
             self.motd = raw["hostname"]
@@ -137,12 +137,15 @@ class QueryResponse:
     def from_connection(cls, response: Connection) -> Self:
         response.read(len("splitnum") + 1 + 1 + 1)
         data = {}
-        players = []
 
         while True:
             key = response.read_ascii()
             if key == "hostname":  # hostname is actually motd in the query protocol
-                match = re.search(b"(.*)\x00gametype", response.received, flags=re.DOTALL)
+                match = re.search(
+                    b"(.*?)\x00(hostip|hostport|game_id|gametype|map|maxplayers|numplayers|plugins|version)",
+                    response.received,
+                    flags=re.DOTALL,
+                )
                 motd = match.group(1) if match else ""
                 # Since the query protocol does not properly support unicode, the motd is still not resolved
                 # correctly; however, this will avoid other parameter parsing errors.
@@ -157,10 +160,11 @@ class QueryResponse:
 
         response.read(len("player_") + 1 + 1)
 
+        players = []
         while True:
-            motd = response.read_ascii()
-            if len(motd) == 0:
+            player = response.read_ascii()
+            if len(player) == 0:
                 break
-            players.append(motd)
+            players.append(player)
 
         return cls(data, players)
