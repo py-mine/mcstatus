@@ -32,7 +32,12 @@ STYLE_MAP = {
 
 @dataclass
 class AbstractDataclass(ABC):
-    """TODO why we need this class instead of just using just ABC?"""
+    """Abstract base class for all dataclasses.
+
+    We can't use just `ABC` because we need raise TypeError if we try to
+    instantiate an abstract dataclass. Class which inherit from `ABC` raises
+    it only if it has abstract methods.
+    """
 
     def __new__(cls, *args, **kwargs):
         if cls == AbstractDataclass or cls.__bases__[0] == AbstractDataclass:

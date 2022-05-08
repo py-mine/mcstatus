@@ -65,27 +65,35 @@ class MCServer(ABC):
     @classmethod
     @abstractmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Lookup a minecraft server. This can have additional logic in children classes.
+        """Mimics minecraft's server address field.
 
-        TODO: Write docstrings here.
+        With Java servers, on top of just parsing the address, we also check the
+        DNS records for an SRV record that points to the server, which is the same
+        behavior as with minecraft's server address field for java.
+
+        :param str address: The address of the Minecraft server, like `example.com:25565`.
+        :param float timeout: The timeout in seconds before failing to connect.
+        :return: The server object.
         """
         raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 
     @classmethod
     @abstractmethod
     def status(cls, **kwargs) -> MCServerResponse:
-        """Get the status of the minecraft server.
+        """Checks the status of a Minecraft server via the ping protocol.
 
-        TODO: Write docstrings here.
+        :param type **kwargs: Passed to a `ServerPinger` instance or to a `BedrockServerStatus` if it is a Bedrock server.
+        :return: Status information in a `MCServerResponse` instance.
         """
         raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 
     @classmethod
     @abstractmethod
     async def async_status(cls, **kwargs) -> MCServerResponse:
-        """Async get the status of the minecraft server.
+        """Asynchronously checks the status of a Minecraft server via the ping protocol.
 
-        TODO: Write docstrings here.
+        :param type **kwargs: Passed to a `AsyncServerPinger` instance or to a `BedrockServerStatus` if it is a Bedrock server.
+        :return: Status information in a `MCServerResponse` instance.
         """
         raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 
