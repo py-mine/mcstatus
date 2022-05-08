@@ -76,15 +76,6 @@ class MCServer(ABC):
 
     @classmethod
     @abstractmethod
-    async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Async lookup a minecraft server. This can have additional logic in children classes.
-
-        TODO: Write docstrings here.
-        """
-        raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
-
-    @classmethod
-    @abstractmethod
     def status(cls, **kwargs) -> MCServerResponse:
         """Get the status of the minecraft server.
 
@@ -260,11 +251,6 @@ class BedrockServer(MCServer):
         """Parse `address` parameter and return initialized object."""
         parsed_address = Address.parse_address(address, default_port=19132)
         return cls(parsed_address.host, parsed_address.port, timeout=timeout)
-
-    @classmethod
-    async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Just call `lookup` without any async, for implement all methods from abstract class."""
-        return cls.lookup(address, timeout)
 
     @retry(tries=3)
     def status(self, **kwargs) -> BedrockServerResponse:
