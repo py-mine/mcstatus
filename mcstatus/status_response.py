@@ -76,9 +76,14 @@ class AbstractDataclass(ABC):
     """
 
     def __new__(cls, *args, **kwargs):
+        """Check if someone tries to instantiate an abstract class.
+
+        :raises NotImplementedError: If someone tries to instantiate an abstract class.
+        :return: The new instance of child abstract class.
+        """
         if cls is AbstractDataclass or cls.__bases__[0] is AbstractDataclass:
-            raise TypeError("Cannot instantiate abstract class.")
-        return super().__new__(cls)
+            raise NotImplementedError("Cannot instantiate abstract class.")
+        return super().__new__(cls, *args, **kwargs)
 
 
 @dataclass
