@@ -220,7 +220,7 @@ class TestPingResponse:
             )
 
     def test_version_invalid(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             JavaServerResponse.build(
                 {
                     "description": "A Minecraft Server",
@@ -285,7 +285,7 @@ class TestPingResponsePlayers:
             JavaServerPlayers.build({"online": 5})
 
     def test_max_invalid(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             JavaServerPlayers.build({"max": "foo", "online": 5})
 
     def test_online_missing(self):
@@ -293,7 +293,7 @@ class TestPingResponsePlayers:
             JavaServerPlayers.build({"max": 20})
 
     def test_online_invalid(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             JavaServerPlayers.build({"max": 20, "online": "foo"})
 
     def test_valid(self):
@@ -315,7 +315,7 @@ class TestPingResponsePlayers:
         assert players.list[0].name == "Dinnerbone"
 
     def test_sample_invalid(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             JavaServerPlayers.build({"max": 20, "online": 1, "sample": "foo"})
 
     def test_sample_missing(self):
@@ -333,7 +333,7 @@ class TestPingResponsePlayersPlayer:
             JavaServerPlayer.build({"id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
 
     def test_name_invalid(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             JavaServerPlayer.build({"name": {}, "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
 
     def test_id_missing(self):
@@ -341,7 +341,7 @@ class TestPingResponsePlayersPlayer:
             JavaServerPlayer.build({"name": "Dinnerbone"})
 
     def test_id_invalid(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             JavaServerPlayer.build({"name": "Dinnerbone", "id": {}})
 
     def test_valid(self):
@@ -361,7 +361,7 @@ class TestPingResponseVersion:
             JavaServerVersion.build({"name": "foo"})
 
     def test_protocol_invalid(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             JavaServerVersion.build({"name": "foo", "protocol": "bar"})
 
     def test_name_missing(self):
@@ -369,7 +369,7 @@ class TestPingResponseVersion:
             JavaServerVersion.build({"protocol": 5})
 
     def test_name_invalid(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             JavaServerVersion.build({"name": {}, "protocol": 5})
 
     def test_valid(self):

@@ -235,7 +235,9 @@ class JavaServerPlayers(ServerPlayers):
         :raise TypeError: If the required keys (online - int, max - int, sample - list) are not of the specified type.
         :return: `JavaServerPlayers` object.
         """
-        _validate_data(raw, "players", [("online", int), ("max", int), ("sample", list)])
+        _validate_data(raw, "players", [("online", int), ("max", int)])
+        if "sample" in raw:
+            _validate_data(raw, "players", [("sample", list)])
         return cls(
             online=raw["online"],
             max=raw["max"],
