@@ -33,7 +33,7 @@ class TestServerPinger:
             players=JavaServerPlayers(max=20, online=0, list=None),
             version=JavaServerVersion(name="1.8-pre1", protocol=44),
             motd="A Minecraft Server",
-            latency=0,
+            latency=None,  # type: ignore[arg-type]
             icon=None,
         )
         assert self.pinger.connection.flush() == bytearray.fromhex("0100")

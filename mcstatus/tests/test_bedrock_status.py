@@ -11,13 +11,16 @@ def test_bedrock_response_contains_expected_fields():
     )
     parsed = BedrockServerStatus.parse_response(data, 1)
     assert isinstance(parsed, BedrockServerResponse)
-    # TODO rewrite code here to test new class
-    assert "gamemode" in parsed.__dict__
-    assert "latency" in parsed.__dict__
-    assert "map" in parsed.__dict__
     assert "motd" in parsed.__dict__
-    assert "players_max" in parsed.__dict__
-    assert "players_online" in parsed.__dict__
+    assert "latency" in parsed.__dict__
+    assert "map_name" in parsed.__dict__
+    assert "gamemode" in parsed.__dict__
+    assert "players" in parsed.__dict__
     assert "version" in parsed.__dict__
-    assert "brand" in parsed.version.__dict__
+
+    assert "online" in parsed.players.__dict__
+    assert "max" in parsed.players.__dict__
+
+    assert "name" in parsed.version.__dict__
     assert "protocol" in parsed.version.__dict__
+    assert "brand" in parsed.version.__dict__
