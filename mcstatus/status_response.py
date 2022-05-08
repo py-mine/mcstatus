@@ -223,8 +223,8 @@ class ServerPlayers(AbstractDataclass):
 class JavaServerPlayers(ServerPlayers):
     """Dataclass for storing players list and some global info about players, like current online."""
 
-    # List of players. Can be unset. In Java can be None even if online > 0.
-    list: Optional[List[JavaServerPlayer]]
+    # List of players. Can be unset. In Java can be empty even if online > 0.
+    list: List[JavaServerPlayer]
 
     @classmethod
     def build(cls, raw: Dict[str, Any]) -> JavaServerPlayers:
@@ -241,7 +241,7 @@ class JavaServerPlayers(ServerPlayers):
         return cls(
             online=raw["online"],
             max=raw["max"],
-            list=[JavaServerPlayer.build(player) for player in raw["sample"]] if "sample" in raw else None,
+            list=[JavaServerPlayer.build(player) for player in raw["sample"]] if "sample" in raw else [],
         )
 
 

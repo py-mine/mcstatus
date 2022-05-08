@@ -44,7 +44,7 @@ class TestAsyncServerPinger:
         status = async_decorator(self.pinger.read_status)()
 
         assert status == JavaServerResponse(
-            players=JavaServerPlayers(max=20, online=0, list=None),
+            players=JavaServerPlayers(max=20, online=0, list=[]),
             version=JavaServerVersion(name="1.8-pre1", protocol=44),
             motd="A Minecraft Server",
             latency=status.latency,
