@@ -35,7 +35,7 @@ def test_bedrock_response_have_right_types():
     parsed = BedrockServerStatus.parse_response(data, 1)
     assert isinstance(parsed, BedrockServerResponse)
     assert type(parsed.motd) is str
-    assert type(parsed.latency) is float
+    assert type(parsed.latency) is float or type(parsed.latency) is int
     assert type(parsed.map_name) is str
     assert type(parsed.gamemode) is str
     assert type(parsed.players) is BedrockServerPlayers
