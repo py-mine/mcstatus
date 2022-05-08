@@ -47,7 +47,7 @@ class AbstractDataclass(ABC):
 
 @dataclass
 class MCServerResponse(AbstractDataclass):
-    """Dataclass for storing cross-platform status answer object."""
+    """Class for storing shared data from a status response."""
 
     players: ServerPlayers
     version: ServerVersion
