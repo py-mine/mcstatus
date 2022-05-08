@@ -320,7 +320,7 @@ class TestPingResponsePlayers:
 
     def test_sample_missing(self):
         players = JavaStatusPlayers.build({"max": 20, "online": 1})
-        assert players.list is []
+        assert players.list == []
 
 
 class TestPingResponsePlayersPlayer:
