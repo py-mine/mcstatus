@@ -34,16 +34,16 @@ def test_bedrock_response_have_right_types():
     )
     parsed = BedrockServerStatus.parse_response(data, 1)
     assert isinstance(parsed, BedrockServerResponse)
-    assert type(parsed.motd) is str
-    assert type(parsed.latency) is float or type(parsed.latency) is int
-    assert type(parsed.map_name) is str
-    assert type(parsed.gamemode) is str
-    assert type(parsed.players) is BedrockServerPlayers
-    assert type(parsed.version) is BedrockServerVersion
+    assert isinstance(parsed.motd, str)
+    assert isinstance(parsed.latency, int)
+    assert isinstance(parsed.map_name, str)
+    assert isinstance(parsed.gamemode, str)
+    assert isinstance(parsed.players, BedrockServerPlayers)
+    assert isinstance(parsed.version, BedrockServerVersion)
 
-    assert type(parsed.players.online) is int
-    assert type(parsed.players.max) is int
+    assert isinstance(parsed.players.online, int)
+    assert isinstance(parsed.players.max, int)
 
-    assert type(parsed.version.name) is str
-    assert type(parsed.version.protocol) is int
-    assert type(parsed.version.brand) is str
+    assert isinstance(parsed.version.name, str)
+    assert isinstance(parsed.version.protocol, int)
+    assert isinstance(parsed.version.brand, str)
