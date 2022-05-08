@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 __all__ = [
     "STYLE_MAP",
@@ -43,6 +43,25 @@ STYLE_MAP = {
         "black": "0",
     },
 }
+
+
+def _validate_data(raw: Dict[str, Any], who: str, required: Iterable[Tuple[str, type]]) -> None:
+    """This function ensures that all required keys are present, and are of specified type.
+
+    :param raw: The raw dict answer to check.
+    :param who: The name of the object that is checking the data. Example `status`, `player` etc.
+    :param required: An iterable of string and type. The string is the required key which must be in `raw`, and
+        the `type` is the type that the key must be. If you want to ignore check of the type, set the type to `object`.
+    :raises ValueError: If the required keys are not present.
+    :raises TypeError: If the required keys are not of the specified type.
+    """
+    for required_key, required_type in required:
+        if required_key not in raw:
+            raise ValueError(f"Invalid {who} object (no '{required_key}' value)")
+        if not isinstance(raw[required_key], required_type):
+            raise TypeError(
+                f"Invalid {who} object (expected '{required_key}' to be {required_type}, was {type(raw[required_key])})"
+            )
 
 
 @dataclass
@@ -97,9 +116,12 @@ class JavaServerResponse(MCServerResponse):
         """Build JavaServerResponse and check is it valid.
 
         :param raw: Raw response dict.
+        :raise ValueError: If the required keys (players, version, description) are not present.
+        :raise TypeError: If the required keys (players - dict, version - dict, description - str)
+            are not of the specified type.
         :return: `JavaServerResponse` object.
         """
-        cls._validate(raw)
+        _validate_data(raw, "status", [("players", dict), ("version", dict), ("description", str)])
         return cls(
             players=JavaServerPlayers.build(raw["players"]),
             version=JavaServerVersion.build(raw["version"]),
@@ -108,20 +130,6 @@ class JavaServerResponse(MCServerResponse):
             # This will be set later.
             latency=None,  # type: ignore[assignment]
         )
-
-    @staticmethod
-    def _validate(raw: Dict[str, Any]) -> None:
-        """Check is the status object valid.
-
-        :param raw: Raw response dict.
-        :raises ValueError: If there are not 'players', 'version' or 'description' value in raw.
-        """
-        if "players" not in raw:
-            raise ValueError("Invalid status object (no 'players' value)")
-        if "version" not in raw:
-            raise ValueError("Invalid status object (no 'version' value)")
-        if "description" not in raw:
-            raise ValueError("Invalid status object (no 'description' value)")
 
     @staticmethod
     def _parse_description(raw_description: Union[dict, list, str]) -> str:
@@ -220,37 +228,19 @@ class JavaServerPlayers(ServerPlayers):
 
     @classmethod
     def build(cls, raw: Dict[str, Any]) -> JavaServerPlayers:
-        """Build `JavaServerPlayers` from raw response dict."""
-        cls._validate(raw)
+        """Build `JavaServerPlayers` from raw response dict.
+
+        :param raw: Raw response dict.
+        :raise ValueError: If the required keys (online, max, sample) are not present.
+        :raise TypeError: If the required keys (online - int, max - int, sample - list) are not of the specified type.
+        :return: `JavaServerPlayers` object.
+        """
+        _validate_data(raw, "players", [("online", int), ("max", int), ("sample", list)])
         return cls(
             online=raw["online"],
             max=raw["max"],
             list=[JavaServerPlayer.build(player) for player in raw["sample"]] if "sample" in raw else None,
         )
-
-    @staticmethod
-    def _validate(raw: Dict[str, Any]) -> None:
-        """Check is the status object valid.
-
-        :param raw: Raw response dict.
-        :raises ValueError: See source code for full list of possible reasons.
-        """
-        if not isinstance(raw, dict):
-            raise ValueError(f"Invalid players object (expected dict, found {type(raw)}")
-
-        if "online" not in raw:
-            raise ValueError("Invalid players object (no 'online' value)")
-        if not isinstance(raw["online"], int):
-            raise ValueError(f"Invalid players object (expected 'online' to be int, was {type(raw['online'])})")
-
-        if "max" not in raw:
-            raise ValueError("Invalid players object (no 'max' value)")
-        if not isinstance(raw["max"], int):
-            raise ValueError(f"Invalid players object (expected 'max' to be int, was {type(raw['max'])}")
-
-        if "sample" in raw:
-            if not isinstance(raw["sample"], list):
-                raise ValueError(f"Invalid players object (expected 'sample' to be list, was {type(raw['max'])})")
 
 
 @dataclass
@@ -267,29 +257,15 @@ class JavaServerPlayer:
 
     @classmethod
     def build(cls, raw: Dict[str, Any]) -> JavaServerPlayer:
-        """Build `JavaServerPlayer` from raw response dict."""
-        cls._validate(raw)
-        return cls(name=raw["name"], uuid=raw["id"])
-
-    @staticmethod
-    def _validate(raw: Dict[str, Any]) -> None:
-        """Check is the status object valid.
+        """Build `JavaServerPlayer` from raw response dict.
 
         :param raw: Raw response dict.
-        :raises ValueError: See source code for full list of possible reasons.
+        :raise ValueError: If the required keys (name, uuid) are not present.
+        :raise TypeError: If the required keys (name - str, uuid - str) are not of the specified type.
+        :return: `JavaServerPlayer` object.
         """
-        if not isinstance(raw, dict):
-            raise ValueError(f"Invalid player object (expected dict, found {type(raw)}")
-
-        if "name" not in raw:
-            raise ValueError("Invalid player object (no 'name' value)")
-        if not isinstance(raw["name"], str):
-            raise ValueError(f"Invalid player object (expected 'name' to be str, was {type(raw['name'])}")
-
-        if "id" not in raw:
-            raise ValueError("Invalid player object (no 'id' value)")
-        if not isinstance(raw["id"], str):
-            raise ValueError(f"Invalid player object (expected 'id' to be str, was {type(raw['id'])}")
+        _validate_data(raw, "player", [("name", str), ("id", str)])
+        return cls(name=raw["name"], uuid=raw["id"])
 
 
 @dataclass
@@ -308,29 +284,15 @@ class JavaServerVersion(ServerVersion):
 
     @classmethod
     def build(cls, raw: Dict[str, Any]) -> JavaServerVersion:
-        """Build `JavaServerVersion` from raw response dict."""
-        cls._validate(raw)
-        return cls(name=raw["name"], protocol=raw["protocol"])
-
-    @staticmethod
-    def _validate(raw: Dict[str, Any]) -> None:
-        """Check is the status object valid.
+        """Build `JavaServerVersion` from raw response dict.
 
         :param raw: Raw response dict.
-        :raises ValueError: See source code for full list of possible reasons.
+        :raise ValueError: If the required keys (name, protocol) are not present.
+        :raise TypeError: If the required keys (name - str, protocol - int) are not of the specified type.
+        :return: `JavaServerVersion` object.
         """
-        if not isinstance(raw, dict):
-            raise ValueError(f"Invalid version object (expected dict, found {type(raw)})")
-
-        if "name" not in raw:
-            raise ValueError("Invalid version object (no 'name' value)")
-        if not isinstance(raw["name"], str):
-            raise ValueError(f"Invalid version object (expected 'name' to be str, was {type(raw['name'])})")
-
-        if "protocol" not in raw:
-            raise ValueError("Invalid version object (no 'protocol' value)")
-        if not isinstance(raw["protocol"], int):
-            raise ValueError(f"Invalid version object (expected 'protocol' to be int, was {type(raw['protocol'])})")
+        _validate_data(raw, "version", [("name", str), ("protocol", int)])
+        return cls(name=raw["name"], protocol=raw["protocol"])
 
 
 @dataclass
