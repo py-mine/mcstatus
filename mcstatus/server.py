@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import warnings
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 import dns.resolver
 
 from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus.bedrock_status import BedrockServerStatus
-from mcstatus.mc_server import BedrockServerResponse, JavaServerResponse, MCServerResponse
 from mcstatus.pinger import AsyncServerPinger, ServerPinger
 from mcstatus.protocol.connection import (
     TCPAsyncSocketConnection,
@@ -17,6 +16,7 @@ from mcstatus.protocol.connection import (
     UDPSocketConnection,
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
+from mcstatus.status_response import BedrockServerResponse, JavaServerResponse, MCServerResponse
 from mcstatus.utils import deprecated, retry
 
 if TYPE_CHECKING:
@@ -68,25 +68,37 @@ class MCServer(ABC):
     @classmethod
     @abstractmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Lookup a minecraft server. This can have additional logic in children classes."""
+        """Lookup a minecraft server. This can have additional logic in children classes.
+
+        TODO: Write docstrings here.
+        """
         raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 
     @classmethod
     @abstractmethod
     async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Async lookup a minecraft server. This can have additional logic in children classes."""
+        """Async lookup a minecraft server. This can have additional logic in children classes.
+
+        TODO: Write docstrings here.
+        """
         raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 
     @classmethod
     @abstractmethod
     def status(cls, **kwargs) -> MCServerResponse:
-        """Get the status of the minecraft server."""
+        """Get the status of the minecraft server.
+
+        TODO: Write docstrings here.
+        """
         raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 
     @classmethod
     @abstractmethod
     async def async_status(cls, **kwargs) -> MCServerResponse:
-        """Async get the status of the minecraft server."""
+        """Async get the status of the minecraft server.
+
+        TODO: Write docstrings here.
+        """
         raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 
 

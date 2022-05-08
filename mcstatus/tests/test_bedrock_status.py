@@ -1,5 +1,5 @@
 from mcstatus.bedrock_status import BedrockServerStatus
-from mcstatus.mc_server import BedrockServerResponse
+from mcstatus.status_response import BedrockServerResponse
 
 
 def test_bedrock_response_contains_expected_fields():

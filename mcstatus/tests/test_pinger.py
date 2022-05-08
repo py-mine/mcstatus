@@ -1,9 +1,9 @@
 import pytest
 
 from mcstatus.address import Address
-from mcstatus.mc_server import JavaServerResponse, JavaServerPlayers, JavaServerPlayer, JavaServerVersion
 from mcstatus.pinger import ServerPinger
 from mcstatus.protocol.connection import Connection
+from mcstatus.status_response import JavaServerPlayer, JavaServerPlayers, JavaServerResponse, JavaServerVersion
 
 
 class TestServerPinger:
@@ -81,7 +81,6 @@ class TestServerPinger:
 
 
 class TestPingResponse:
-
     def test_motd(self):
         response = JavaServerResponse.build(
             {

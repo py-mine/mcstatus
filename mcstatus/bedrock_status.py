@@ -8,7 +8,7 @@ from time import perf_counter
 import asyncio_dgram
 
 from mcstatus.address import Address
-from mcstatus.mc_server import BedrockServerResponse
+from mcstatus.status_response import BedrockServerResponse
 
 
 class BedrockServerStatus:

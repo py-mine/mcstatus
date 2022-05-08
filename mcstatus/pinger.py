@@ -5,8 +5,8 @@ import json
 import random
 
 from mcstatus.address import Address
-from mcstatus.mc_server import JavaServerResponse
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
+from mcstatus.status_response import JavaServerResponse
 
 STYLE_MAP = {
     "bold": "l",

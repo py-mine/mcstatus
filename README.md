@@ -69,7 +69,7 @@ print(f"The server has {status.players.online} players online and replied in {st
 query = server.query()
 print(f"The server has the following players online: {', '.join(query.players.names)}")
 ```
-You can see all available fields from `status` [here](/mcstatus/mc_server.py#L14).
+You can see all available fields from `status` [here](/mcstatus/status_response.py#L14).
 
 ### Command Line Interface
 
