@@ -1,7 +1,8 @@
 import pytest
 
 from mcstatus.address import Address
-from mcstatus.pinger import PingResponse, ServerPinger
+from mcstatus.mc_server import JavaServerResponse, JavaServerPlayers, JavaServerPlayer, JavaServerVersion
+from mcstatus.pinger import ServerPinger
 from mcstatus.protocol.connection import Connection
 
 
@@ -80,8 +81,9 @@ class TestServerPinger:
 
 
 class TestPingResponse:
-    def test_raw(self):
-        response = PingResponse(
+
+    def test_motd(self):
+        response = JavaServerResponse.build(
             {
                 "description": "A Minecraft Server",
                 "players": {"max": 20, "online": 0},
@@ -89,26 +91,11 @@ class TestPingResponse:
             }
         )
 
-        assert response.raw == {
-            "description": "A Minecraft Server",
-            "players": {"max": 20, "online": 0},
-            "version": {"name": "1.8-pre1", "protocol": 44},
-        }
-
-    def test_description(self):
-        response = PingResponse(
-            {
-                "description": "A Minecraft Server",
-                "players": {"max": 20, "online": 0},
-                "version": {"name": "1.8-pre1", "protocol": 44},
-            }
-        )
-
-        assert response.description == "A Minecraft Server"
+        assert response.motd == "A Minecraft Server"
 
     def test_description_missing(self):
         with pytest.raises(ValueError):
-            PingResponse(
+            JavaServerResponse(
                 {
                     "players": {"max": 20, "online": 0},
                     "version": {"name": "1.8-pre1", "protocol": 44},
@@ -116,7 +103,7 @@ class TestPingResponse:
             )
 
     def test_parse_description_strips_html_color_codes(self):
-        out = PingResponse._parse_description(
+        out = JavaServerResponse._parse_description(
             {
                 "extra": [
                     {"text": " "},
@@ -175,13 +162,13 @@ class TestPingResponse:
         )
 
     def test_parse_description(self):
-        out = PingResponse._parse_description("test §2description")
+        out = JavaServerResponse._parse_description("test §2description")
         assert out == "test §2description"
 
-        out = PingResponse._parse_description({"text": "§8§lfoo"})
+        out = JavaServerResponse._parse_description({"text": "§8§lfoo"})
         assert out == "§8§lfoo"
 
-        out = PingResponse._parse_description(
+        out = JavaServerResponse._parse_description(
             {
                 "extra": [{"bold": True, "italic": True, "color": "gray", "text": "foo"}, {"color": "gold", "text": "bar"}],
                 "text": ".",
@@ -197,7 +184,7 @@ class TestPingResponse:
             "§7§l§ofoo§6bar.",
         }
 
-        out = PingResponse._parse_description(
+        out = JavaServerResponse._parse_description(
             [{"bold": True, "italic": True, "color": "gray", "text": "foo"}, {"color": "gold", "text": "bar"}]
         )
         assert out in {
@@ -210,7 +197,7 @@ class TestPingResponse:
         }
 
     def test_version(self):
-        response = PingResponse(
+        response = JavaServerResponse.build(
             {
                 "description": "A Minecraft Server",
                 "players": {"max": 20, "online": 0},
@@ -224,7 +211,7 @@ class TestPingResponse:
 
     def test_version_missing(self):
         with pytest.raises(ValueError):
-            PingResponse(
+            JavaServerResponse.build(
                 {
                     "description": "A Minecraft Server",
                     "players": {"max": 20, "online": 0},
@@ -233,7 +220,7 @@ class TestPingResponse:
 
     def test_version_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse(
+            JavaServerResponse.build(
                 {
                     "description": "A Minecraft Server",
                     "players": {"max": 20, "online": 0},
@@ -242,7 +229,7 @@ class TestPingResponse:
             )
 
     def test_players(self):
-        response = PingResponse(
+        response = JavaServerResponse.build(
             {
                 "description": "A Minecraft Server",
                 "players": {"max": 20, "online": 5},
@@ -256,7 +243,7 @@ class TestPingResponse:
 
     def test_players_missing(self):
         with pytest.raises(ValueError):
-            PingResponse(
+            JavaServerResponse.build(
                 {
                     "description": "A Minecraft Server",
                     "version": {"name": "1.8-pre1", "protocol": 44},
@@ -264,7 +251,7 @@ class TestPingResponse:
             )
 
     def test_favicon(self):
-        response = PingResponse(
+        response = JavaServerResponse.build(
             {
                 "description": "A Minecraft Server",
                 "players": {"max": 20, "online": 0},
@@ -273,10 +260,10 @@ class TestPingResponse:
             }
         )
 
-        assert response.favicon == "data:image/png;base64,foo"
+        assert response.icon == "data:image/png;base64,foo"
 
     def test_favicon_missing(self):
-        response = PingResponse(
+        response = JavaServerResponse.build(
             {
                 "description": "A Minecraft Server",
                 "players": {"max": 20, "online": 0},
@@ -284,38 +271,38 @@ class TestPingResponse:
             }
         )
 
-        assert response.favicon is None
+        assert response.icon is None
 
 
 class TestPingResponsePlayers:
     def test_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players("foo")
+            JavaServerPlayers.build("foo")
 
     def test_max_missing(self):
         with pytest.raises(ValueError):
-            PingResponse.Players({"online": 5})
+            JavaServerPlayers.build({"online": 5})
 
     def test_max_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players({"max": "foo", "online": 5})
+            JavaServerPlayers.build({"max": "foo", "online": 5})
 
     def test_online_missing(self):
         with pytest.raises(ValueError):
-            PingResponse.Players({"max": 20})
+            JavaServerPlayers.build({"max": 20})
 
     def test_online_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players({"max": 20, "online": "foo"})
+            JavaServerPlayers.build({"max": 20, "online": "foo"})
 
     def test_valid(self):
-        players = PingResponse.Players({"max": 20, "online": 5})
+        players = JavaServerPlayers.build({"max": 20, "online": 5})
 
         assert players.max == 20
         assert players.online == 5
 
     def test_sample(self):
-        players = PingResponse.Players(
+        players = JavaServerPlayers.build(
             {
                 "max": 20,
                 "online": 1,
@@ -323,69 +310,69 @@ class TestPingResponsePlayers:
             }
         )
 
-        assert players.sample is not None
-        assert players.sample[0].name == "Dinnerbone"
+        assert players.list is not None
+        assert players.list[0].name == "Dinnerbone"
 
     def test_sample_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players({"max": 20, "online": 1, "sample": "foo"})
+            JavaServerPlayers.build({"max": 20, "online": 1, "sample": "foo"})
 
     def test_sample_missing(self):
-        players = PingResponse.Players({"max": 20, "online": 1})
-        assert players.sample is None
+        players = JavaServerPlayers.build({"max": 20, "online": 1})
+        assert players.list is None
 
 
 class TestPingResponsePlayersPlayer:
     def test_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players.Player("foo")
+            JavaServerPlayer.build("foo")
 
     def test_name_missing(self):
         with pytest.raises(ValueError):
-            PingResponse.Players.Player({"id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
+            JavaServerPlayer.build({"id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
 
     def test_name_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players.Player({"name": {}, "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
+            JavaServerPlayer.build({"name": {}, "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
 
     def test_id_missing(self):
         with pytest.raises(ValueError):
-            PingResponse.Players.Player({"name": "Dinnerbone"})
+            JavaServerPlayer.build({"name": "Dinnerbone"})
 
     def test_id_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players.Player({"name": "Dinnerbone", "id": {}})
+            JavaServerPlayer.build({"name": "Dinnerbone", "id": {}})
 
     def test_valid(self):
-        player = PingResponse.Players.Player({"name": "Dinnerbone", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
+        player = JavaServerPlayer.build({"name": "Dinnerbone", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
 
         assert player.name == "Dinnerbone"
-        assert player.id == "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"
+        assert player.uuid == "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"
 
 
 class TestPingResponseVersion:
     def test_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Version("foo")
+            JavaServerVersion.build("foo")
 
     def test_protocol_missing(self):
         with pytest.raises(ValueError):
-            PingResponse.Version({"name": "foo"})
+            JavaServerVersion.build({"name": "foo"})
 
     def test_protocol_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Version({"name": "foo", "protocol": "bar"})
+            JavaServerVersion.build({"name": "foo", "protocol": "bar"})
 
     def test_name_missing(self):
         with pytest.raises(ValueError):
-            PingResponse.Version({"protocol": 5})
+            JavaServerVersion.build({"protocol": 5})
 
     def test_name_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Version({"name": {}, "protocol": 5})
+            JavaServerVersion.build({"name": {}, "protocol": 5})
 
     def test_valid(self):
-        players = PingResponse.Version({"name": "foo", "protocol": 5})
+        players = JavaServerVersion.build({"name": "foo", "protocol": 5})
 
         assert players.name == "foo"
         assert players.protocol == 5

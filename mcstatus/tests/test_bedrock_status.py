@@ -9,7 +9,8 @@ def test_bedrock_response_contains_expected_fields():
         b"3022;;Default;1;19132;-1;"
     )
     parsed = BedrockServerStatus.parse_response(data, 1)
-    assert isinstance(parsed, BedrockStatusResponse)
+    assert isinstance(parsed, BedrockServerResponse)
+    # TODO rewrite code here to test new class
     assert "gamemode" in parsed.__dict__
     assert "latency" in parsed.__dict__
     assert "map" in parsed.__dict__

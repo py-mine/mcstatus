@@ -3,9 +3,9 @@ from __future__ import annotations
 import datetime
 import json
 import random
-from typing import List, Optional, Union
 
 from mcstatus.address import Address
+from mcstatus.mc_server import JavaServerResponse
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
 
 STYLE_MAP = {
@@ -59,7 +59,7 @@ class ServerPinger:
 
         self.connection.write_buffer(packet)
 
-    def read_status(self) -> "PingResponse":
+    def read_status(self) -> "JavaServerResponse":
         request = Connection()
         request.write_varint(0)  # Request status
         self.connection.write_buffer(request)
@@ -72,7 +72,7 @@ class ServerPinger:
         except ValueError:
             raise IOError("Received invalid JSON")
         try:
-            return PingResponse(raw)
+            return JavaServerResponse.build(raw)
         except ValueError as e:
             raise IOError(f"Received invalid status response: {e}")
 
@@ -109,7 +109,7 @@ class AsyncServerPinger(ServerPinger):
         super().__init__(connection, address=address, version=version, ping_token=ping_token)  # type: ignore[arg-type]
         self.connection: TCPAsyncSocketConnection
 
-    async def read_status(self) -> "PingResponse":
+    async def read_status(self) -> "JavaServerResponse":
         request = Connection()
         request.write_varint(0)  # Request status
         self.connection.write_buffer(request)
@@ -122,7 +122,7 @@ class AsyncServerPinger(ServerPinger):
         except ValueError:
             raise IOError("Received invalid JSON")
         try:
-            return PingResponse(raw)
+            return JavaServerResponse.build(raw)
         except ValueError as e:
             raise IOError(f"Received invalid status response: {e}")
 
@@ -145,126 +145,3 @@ class AsyncServerPinger(ServerPinger):
 
         delta = received - sent
         return delta.total_seconds() * 1000
-
-
-class PingResponse:
-    # THIS IS SO UNPYTHONIC
-    # it's staying just because the tests depend on this structure
-    class Players:
-        class Player:
-            name: str
-            id: str
-
-            def __init__(self, raw):
-                if not isinstance(raw, dict):
-                    raise ValueError(f"Invalid player object (expected dict, found {type(raw)}")
-
-                if "name" not in raw:
-                    raise ValueError("Invalid player object (no 'name' value)")
-                if not isinstance(raw["name"], str):
-                    raise ValueError(f"Invalid player object (expected 'name' to be str, was {type(raw['name'])}")
-                self.name = raw["name"]
-
-                if "id" not in raw:
-                    raise ValueError("Invalid player object (no 'id' value)")
-                if not isinstance(raw["id"], str):
-                    raise ValueError(f"Invalid player object (expected 'id' to be str, was {type(raw['id'])}")
-                self.id = raw["id"]
-
-        online: int
-        max: int
-        sample: Optional[List["PingResponse.Players.Player"]]
-
-        def __init__(self, raw):
-            if not isinstance(raw, dict):
-                raise ValueError(f"Invalid players object (expected dict, found {type(raw)}")
-
-            if "online" not in raw:
-                raise ValueError("Invalid players object (no 'online' value)")
-            if not isinstance(raw["online"], int):
-                raise ValueError(f"Invalid players object (expected 'online' to be int, was {type(raw['online'])})")
-            self.online = raw["online"]
-
-            if "max" not in raw:
-                raise ValueError("Invalid players object (no 'max' value)")
-            if not isinstance(raw["max"], int):
-                raise ValueError(f"Invalid players object (expected 'max' to be int, was {type(raw['max'])}")
-            self.max = raw["max"]
-
-            if "sample" in raw:
-                if not isinstance(raw["sample"], list):
-                    raise ValueError(f"Invalid players object (expected 'sample' to be list, was {type(raw['max'])})")
-                self.sample = [PingResponse.Players.Player(p) for p in raw["sample"]]
-            else:
-                self.sample = None
-
-    class Version:
-        name: str
-        protocol: int
-
-        def __init__(self, raw):
-            if not isinstance(raw, dict):
-                raise ValueError(f"Invalid version object (expected dict, found {type(raw)})")
-
-            if "name" not in raw:
-                raise ValueError("Invalid version object (no 'name' value)")
-            if not isinstance(raw["name"], str):
-                raise ValueError(f"Invalid version object (expected 'name' to be str, was {type(raw['name'])})")
-            self.name = raw["name"]
-
-            if "protocol" not in raw:
-                raise ValueError("Invalid version object (no 'protocol' value)")
-            if not isinstance(raw["protocol"], int):
-                raise ValueError(f"Invalid version object (expected 'protocol' to be int, was {type(raw['protocol'])})")
-            self.protocol = raw["protocol"]
-
-    players: Players
-    version: Version
-    description: str
-    favicon: Optional[str]
-    latency: float = 0
-
-    def __init__(self, raw):
-        self.raw = raw
-
-        if "players" not in raw:
-            raise ValueError("Invalid status object (no 'players' value)")
-        self.players = PingResponse.Players(raw["players"])
-
-        if "version" not in raw:
-            raise ValueError("Invalid status object (no 'version' value)")
-        self.version = PingResponse.Version(raw["version"])
-
-        if "description" not in raw:
-            raise ValueError("Invalid status object (no 'description' value)")
-        self.description = self._parse_description(raw["description"])
-
-        self.favicon = raw.get("favicon")
-
-    @staticmethod
-    def _parse_description(raw_description: Union[dict, list, str]) -> str:
-        if isinstance(raw_description, str):
-            return raw_description
-
-        if isinstance(raw_description, dict):
-            entries = raw_description.get("extra", [])
-            end = raw_description["text"]
-        else:
-            entries = raw_description
-            end = ""
-
-        description = ""
-
-        for entry in entries:
-            for style_key, style_val in STYLE_MAP.items():
-                if entry.get(style_key):
-                    try:
-                        if isinstance(style_val, dict):
-                            style_val = style_val[entry[style_key]]
-
-                        description += f"§{style_val}"
-                    except KeyError:
-                        pass  # ignoring these key errors strips out html color codes
-            description += entry.get("text", "")
-
-        return description + end
