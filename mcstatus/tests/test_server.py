@@ -121,7 +121,7 @@ class TestJavaServer:
             players=JavaServerPlayers(max=20, online=0, list=None),
             version=JavaServerVersion(name="1.8", protocol=47),
             motd="A Minecraft Server",
-            latency=0,
+            latency=info.latency,
             icon=None,
         )
         assert info.latency >= 0

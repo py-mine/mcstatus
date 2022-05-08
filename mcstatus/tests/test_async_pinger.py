@@ -47,7 +47,7 @@ class TestAsyncServerPinger:
             players=JavaServerPlayers(max=20, online=0, list=None),
             version=JavaServerVersion(name="1.8-pre1", protocol=44),
             motd="A Minecraft Server",
-            latency=None,  # type: ignore[arg-type]
+            latency=status.latency,
             icon=None,
         )
         assert self.pinger.connection.flush() == bytearray.fromhex("0100")
