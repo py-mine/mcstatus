@@ -23,18 +23,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = [
-    "NotBedrockAndNotJavaServer",
-    "MCServer",
-    "JavaServer",
-    "BedrockServer",
-    "MinecraftServer",
-    "MinecraftBedrockServer",
-]
-
-
-class NotBedrockAndNotJavaServer(TypeError):
-    """Exception for when server is not Bedrock or Java."""
+__all__ = ["JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
 
 
 class MCServer(ABC):
@@ -75,7 +64,8 @@ class MCServer(ABC):
         :param float timeout: The timeout in seconds before failing to connect.
         :return: The server object.
         """
-        raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
+        addr = Address.parse_address(address, default_port=None)
+        return cls(addr.host, addr.port, timeout=timeout)
 
     @classmethod
     @abstractmethod
