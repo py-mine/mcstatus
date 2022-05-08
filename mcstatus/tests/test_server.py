@@ -7,7 +7,7 @@ import pytest_asyncio
 
 from mcstatus.protocol.connection import Connection
 from mcstatus.server import JavaServer
-from mcstatus.status_response import JavaServerPlayers, JavaServerResponse, JavaServerVersion
+from mcstatus.status_response import JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
 
 
 class MockProtocolFactory(asyncio.Protocol):
@@ -117,9 +117,9 @@ class TestJavaServer:
 
         assert self.socket.flush() == bytearray.fromhex("0F002F096C6F63616C686F737463DD01010009010000000001C54246")
         assert self.socket.remaining() == 0, "Data is pending to be read, but should be empty"
-        assert info == JavaServerResponse(
-            players=JavaServerPlayers(max=20, online=0, list=[]),
-            version=JavaServerVersion(name="1.8", protocol=47),
+        assert info == JavaStatusResponse(
+            players=JavaStatusPlayers(max=20, online=0, list=[]),
+            version=JavaStatusVersion(name="1.8", protocol=47),
             motd="A Minecraft Server",
             latency=info.latency,
             icon=None,

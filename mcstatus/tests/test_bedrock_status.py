@@ -1,5 +1,5 @@
 from mcstatus.bedrock_status import BedrockServerStatus
-from mcstatus.status_response import BedrockServerPlayers, BedrockServerResponse, BedrockServerVersion
+from mcstatus.status_response import BedrockStatusPlayers, BedrockStatusResponse, BedrockStatusVersion
 
 
 def test_bedrock_response_contains_expected_fields():
@@ -33,13 +33,13 @@ def test_bedrock_response_have_right_types():
         b"3022;;Default;1;19132;-1;"
     )
     parsed = BedrockServerStatus.parse_response(data, 1)
-    assert isinstance(parsed, BedrockServerResponse)
+    assert isinstance(parsed, BedrockStatusResponse)
     assert isinstance(parsed.motd, str)
     assert isinstance(parsed.latency, int)
     assert isinstance(parsed.map_name, str)
     assert isinstance(parsed.gamemode, str)
-    assert isinstance(parsed.players, BedrockServerPlayers)
-    assert isinstance(parsed.version, BedrockServerVersion)
+    assert isinstance(parsed.players, BedrockStatusPlayers)
+    assert isinstance(parsed.version, BedrockStatusVersion)
 
     assert isinstance(parsed.players.online, int)
     assert isinstance(parsed.players.max, int)

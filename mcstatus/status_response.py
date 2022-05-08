@@ -7,16 +7,16 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 __all__ = [
     "STYLE_MAP",
     "AbstractDataclass",
-    "MCServerResponse",
-    "JavaServerResponse",
-    "BedrockServerResponse",
-    "ServerPlayers",
-    "JavaServerPlayers",
-    "BedrockServerPlayers",
-    "JavaServerPlayer",
-    "ServerVersion",
-    "JavaServerVersion",
-    "BedrockServerVersion",
+    "MCStatusResponse",
+    "JavaStatusResponse",
+    "BedrockStatusResponse",
+    "StatusPlayers",
+    "JavaStatusPlayers",
+    "BedrockStatusPlayers",
+    "JavaStatusPlayer",
+    "StatusVersion",
+    "JavaStatusVersion",
+    "BedrockStatusVersion",
 ]
 
 STYLE_MAP = {
@@ -80,11 +80,11 @@ class AbstractDataclass(ABC):
 
 
 @dataclass
-class MCServerResponse(AbstractDataclass):
+class MCStatusResponse(AbstractDataclass):
     """Class for storing shared data from a status response."""
 
-    players: ServerPlayers
-    version: ServerVersion
+    players: StatusPlayers
+    version: StatusVersion
     # Message Of The Day. Also known as `Description`.
     motd: str
     # Latency between a server and the client (you). In milliseconds.
@@ -92,39 +92,39 @@ class MCServerResponse(AbstractDataclass):
 
     @classmethod
     @abstractmethod
-    def build(cls, *args, **kwargs) -> MCServerResponse:
-        """Build MCServerResponse and check is it valid.
+    def build(cls, *args, **kwargs) -> MCStatusResponse:
+        """Build MCStatusResponse and check is it valid.
 
         :param args: Arguments in specific realisation.
         :param kwargs: Keyword arguments in specific realisation.
-        :return: `MCServerResponse` object.
+        :return: `MCStatusResponse` object.
         """
         raise NotImplementedError("You can't use abstract methods.")
 
 
 @dataclass
-class JavaServerResponse(MCServerResponse):
+class JavaStatusResponse(MCStatusResponse):
     """Dataclass for storing Java status answer object."""
 
-    players: JavaServerPlayers
-    version: JavaServerVersion
+    players: JavaStatusPlayers
+    version: JavaStatusVersion
     # Icon of the server. Can be unset. BASE64 encoded.
     icon: Optional[str]
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> JavaServerResponse:
-        """Build JavaServerResponse and check is it valid.
+    def build(cls, raw: Dict[str, Any]) -> JavaStatusResponse:
+        """Build JavaStatusResponse and check is it valid.
 
         :param raw: Raw response dict.
         :raise ValueError: If the required keys (players, version, description) are not present.
         :raise TypeError: If the required keys (players - dict, version - dict, description - str)
             are not of the specified type.
-        :return: `JavaServerResponse` object.
+        :return: `JavaStatusResponse` object.
         """
         _validate_data(raw, "status", [("players", dict), ("version", dict), ("description", str)])
         return cls(
-            players=JavaServerPlayers.build(raw["players"]),
-            version=JavaServerVersion.build(raw["version"]),
+            players=JavaStatusPlayers.build(raw["players"]),
+            version=JavaStatusVersion.build(raw["version"]),
             motd=cls._parse_description(raw["description"]),
             icon=raw.get("favicon"),
             # This will be set later.
@@ -166,23 +166,23 @@ class JavaServerResponse(MCServerResponse):
 
 
 @dataclass
-class BedrockServerResponse(MCServerResponse):
+class BedrockStatusResponse(MCStatusResponse):
     """Dataclass for storing Java status answer object."""
 
-    players: BedrockServerPlayers
-    version: BedrockServerVersion
+    players: BedrockStatusPlayers
+    version: BedrockStatusVersion
     # Can be unset.
     map_name: Optional[str]
     # Can be hidden.
     gamemode: Optional[str]
 
     @classmethod
-    def build(cls, decoded_data: List[Any], latency: float) -> BedrockServerResponse:
-        """Build MCServerResponse and check is it valid.
+    def build(cls, decoded_data: List[Any], latency: float) -> BedrockStatusResponse:
+        """Build MCStatusResponse and check is it valid.
 
         :param decoded_data: Raw decoded response object.
         :param latency: Latency of the request.
-        :return: `BedrockServerResponse` object.
+        :return: `BedrockStatusResponse` object.
         """
 
         try:
@@ -195,11 +195,11 @@ class BedrockServerResponse(MCServerResponse):
             gamemode = None
 
         return cls(
-            players=BedrockServerPlayers(
+            players=BedrockStatusPlayers(
                 online=int(decoded_data[4]),
                 max=int(decoded_data[5]),
             ),
-            version=BedrockServerVersion(
+            version=BedrockStatusVersion(
                 name=decoded_data[3],
                 protocol=int(decoded_data[2]),
                 brand=decoded_data[0],
@@ -212,7 +212,7 @@ class BedrockServerResponse(MCServerResponse):
 
 
 @dataclass
-class ServerPlayers(AbstractDataclass):
+class StatusPlayers(AbstractDataclass):
     """Dataclass for storing players list and some global info about players, like current online."""
 
     online: int
@@ -220,20 +220,20 @@ class ServerPlayers(AbstractDataclass):
 
 
 @dataclass
-class JavaServerPlayers(ServerPlayers):
+class JavaStatusPlayers(StatusPlayers):
     """Dataclass for storing players list and some global info about players, like current online."""
 
     # List of players. Can be unset. In Java can be empty even if online > 0.
-    list: List[JavaServerPlayer]
+    list: List[JavaStatusPlayer]
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> JavaServerPlayers:
-        """Build `JavaServerPlayers` from raw response dict.
+    def build(cls, raw: Dict[str, Any]) -> JavaStatusPlayers:
+        """Build `JavaStatusPlayers` from raw response dict.
 
         :param raw: Raw response dict.
         :raise ValueError: If the required keys (online, max, sample) are not present.
         :raise TypeError: If the required keys (online - int, max - int, sample - list) are not of the specified type.
-        :return: `JavaServerPlayers` object.
+        :return: `JavaStatusPlayers` object.
         """
         _validate_data(raw, "players", [("online", int), ("max", int)])
         if "sample" in raw:
@@ -241,37 +241,37 @@ class JavaServerPlayers(ServerPlayers):
         return cls(
             online=raw["online"],
             max=raw["max"],
-            list=[JavaServerPlayer.build(player) for player in raw["sample"]] if "sample" in raw else [],
+            list=[JavaStatusPlayer.build(player) for player in raw["sample"]] if "sample" in raw else [],
         )
 
 
 @dataclass
-class BedrockServerPlayers(ServerPlayers):
+class BedrockStatusPlayers(StatusPlayers):
     """Dataclass for storing players list and some global info about players, like current online."""
 
 
 @dataclass
-class JavaServerPlayer:
+class JavaStatusPlayer:
     """Dataclass for storing player info. Only for Java."""
 
     name: str
     uuid: str
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> JavaServerPlayer:
-        """Build `JavaServerPlayer` from raw response dict.
+    def build(cls, raw: Dict[str, Any]) -> JavaStatusPlayer:
+        """Build `JavaStatusPlayer` from raw response dict.
 
         :param raw: Raw response dict.
         :raise ValueError: If the required keys (name, uuid) are not present.
         :raise TypeError: If the required keys (name - str, uuid - str) are not of the specified type.
-        :return: `JavaServerPlayer` object.
+        :return: `JavaStatusPlayer` object.
         """
         _validate_data(raw, "player", [("name", str), ("id", str)])
         return cls(name=raw["name"], uuid=raw["id"])
 
 
 @dataclass
-class ServerVersion(AbstractDataclass):
+class StatusVersion(AbstractDataclass):
     """Dataclass for storing version info."""
 
     # Version name. Example `1.18.0`.
@@ -281,24 +281,24 @@ class ServerVersion(AbstractDataclass):
 
 
 @dataclass
-class JavaServerVersion(ServerVersion):
+class JavaStatusVersion(StatusVersion):
     """Dataclass for storing version info for Java."""
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> JavaServerVersion:
-        """Build `JavaServerVersion` from raw response dict.
+    def build(cls, raw: Dict[str, Any]) -> JavaStatusVersion:
+        """Build `JavaStatusVersion` from raw response dict.
 
         :param raw: Raw response dict.
         :raise ValueError: If the required keys (name, protocol) are not present.
         :raise TypeError: If the required keys (name - str, protocol - int) are not of the specified type.
-        :return: `JavaServerVersion` object.
+        :return: `JavaStatusVersion` object.
         """
         _validate_data(raw, "version", [("name", str), ("protocol", int)])
         return cls(name=raw["name"], protocol=raw["protocol"])
 
 
 @dataclass
-class BedrockServerVersion(ServerVersion):
+class BedrockStatusVersion(StatusVersion):
     """Dataclass for storing version info for Bedrock."""
 
     # Like `MCPE` or another.

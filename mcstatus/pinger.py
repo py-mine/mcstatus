@@ -6,7 +6,7 @@ import random
 
 from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
-from mcstatus.status_response import JavaServerResponse
+from mcstatus.status_response import JavaStatusResponse
 
 STYLE_MAP = {
     "bold": "l",
@@ -59,7 +59,7 @@ class ServerPinger:
 
         self.connection.write_buffer(packet)
 
-    def read_status(self) -> "JavaServerResponse":
+    def read_status(self) -> "JavaStatusResponse":
         request = Connection()
         request.write_varint(0)  # Request status
         self.connection.write_buffer(request)
@@ -72,7 +72,7 @@ class ServerPinger:
         except ValueError:
             raise IOError("Received invalid JSON")
         try:
-            return JavaServerResponse.build(raw)
+            return JavaStatusResponse.build(raw)
         except ValueError as e:
             raise IOError(f"Received invalid status response: {e}")
 
@@ -109,7 +109,7 @@ class AsyncServerPinger(ServerPinger):
         super().__init__(connection, address=address, version=version, ping_token=ping_token)  # type: ignore[arg-type]
         self.connection: TCPAsyncSocketConnection
 
-    async def read_status(self) -> "JavaServerResponse":
+    async def read_status(self) -> "JavaStatusResponse":
         request = Connection()
         request.write_varint(0)  # Request status
         self.connection.write_buffer(request)
@@ -122,7 +122,7 @@ class AsyncServerPinger(ServerPinger):
         except ValueError:
             raise IOError("Received invalid JSON")
         try:
-            return JavaServerResponse.build(raw)
+            return JavaStatusResponse.build(raw)
         except ValueError as e:
             raise IOError(f"Received invalid status response: {e}")
 

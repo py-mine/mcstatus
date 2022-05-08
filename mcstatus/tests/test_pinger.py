@@ -3,7 +3,7 @@ import pytest
 from mcstatus.address import Address
 from mcstatus.pinger import ServerPinger
 from mcstatus.protocol.connection import Connection
-from mcstatus.status_response import JavaServerPlayer, JavaServerPlayers, JavaServerResponse, JavaServerVersion
+from mcstatus.status_response import JavaStatusPlayer, JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
 
 
 class TestServerPinger:
@@ -29,9 +29,9 @@ class TestServerPinger:
         )
         status = self.pinger.read_status()
 
-        assert status == JavaServerResponse(
-            players=JavaServerPlayers(max=20, online=0, list=[]),
-            version=JavaServerVersion(name="1.8-pre1", protocol=44),
+        assert status == JavaStatusResponse(
+            players=JavaStatusPlayers(max=20, online=0, list=[]),
+            version=JavaStatusVersion(name="1.8-pre1", protocol=44),
             motd="A Minecraft Server",
             latency=status.latency,
             icon=None,
@@ -84,7 +84,7 @@ class TestServerPinger:
 
 class TestPingResponse:
     def test_motd(self):
-        response = JavaServerResponse.build(
+        response = JavaStatusResponse.build(
             {
                 "description": "A Minecraft Server",
                 "players": {"max": 20, "online": 0},
@@ -96,7 +96,7 @@ class TestPingResponse:
 
     def test_description_missing(self):
         with pytest.raises(ValueError):
-            JavaServerResponse.build(
+            JavaStatusResponse.build(
                 {
                     "players": {"max": 20, "online": 0},
                     "version": {"name": "1.8-pre1", "protocol": 44},
@@ -104,7 +104,7 @@ class TestPingResponse:
             )
 
     def test_parse_description_strips_html_color_codes(self):
-        out = JavaServerResponse._parse_description(
+        out = JavaStatusResponse._parse_description(
             {
                 "extra": [
                     {"text": " "},
@@ -163,13 +163,13 @@ class TestPingResponse:
         )
 
     def test_parse_description(self):
-        out = JavaServerResponse._parse_description("test §2description")
+        out = JavaStatusResponse._parse_description("test §2description")
         assert out == "test §2description"
 
-        out = JavaServerResponse._parse_description({"text": "§8§lfoo"})
+        out = JavaStatusResponse._parse_description({"text": "§8§lfoo"})
         assert out == "§8§lfoo"
 
-        out = JavaServerResponse._parse_description(
+        out = JavaStatusResponse._parse_description(
             {
                 "extra": [{"bold": True, "italic": True, "color": "gray", "text": "foo"}, {"color": "gold", "text": "bar"}],
                 "text": ".",
@@ -185,7 +185,7 @@ class TestPingResponse:
             "§7§l§ofoo§6bar.",
         }
 
-        out = JavaServerResponse._parse_description(
+        out = JavaStatusResponse._parse_description(
             [{"bold": True, "italic": True, "color": "gray", "text": "foo"}, {"color": "gold", "text": "bar"}]
         )
         assert out in {
@@ -198,7 +198,7 @@ class TestPingResponse:
         }
 
     def test_version(self):
-        response = JavaServerResponse.build(
+        response = JavaStatusResponse.build(
             {
                 "description": "A Minecraft Server",
                 "players": {"max": 20, "online": 0},
@@ -212,7 +212,7 @@ class TestPingResponse:
 
     def test_version_missing(self):
         with pytest.raises(ValueError):
-            JavaServerResponse.build(
+            JavaStatusResponse.build(
                 {
                     "description": "A Minecraft Server",
                     "players": {"max": 20, "online": 0},
@@ -221,7 +221,7 @@ class TestPingResponse:
 
     def test_version_invalid(self):
         with pytest.raises(TypeError):
-            JavaServerResponse.build(
+            JavaStatusResponse.build(
                 {
                     "description": "A Minecraft Server",
                     "players": {"max": 20, "online": 0},
@@ -230,7 +230,7 @@ class TestPingResponse:
             )
 
     def test_players(self):
-        response = JavaServerResponse.build(
+        response = JavaStatusResponse.build(
             {
                 "description": "A Minecraft Server",
                 "players": {"max": 20, "online": 5},
@@ -244,7 +244,7 @@ class TestPingResponse:
 
     def test_players_missing(self):
         with pytest.raises(ValueError):
-            JavaServerResponse.build(
+            JavaStatusResponse.build(
                 {
                     "description": "A Minecraft Server",
                     "version": {"name": "1.8-pre1", "protocol": 44},
@@ -252,7 +252,7 @@ class TestPingResponse:
             )
 
     def test_favicon(self):
-        response = JavaServerResponse.build(
+        response = JavaStatusResponse.build(
             {
                 "description": "A Minecraft Server",
                 "players": {"max": 20, "online": 0},
@@ -264,7 +264,7 @@ class TestPingResponse:
         assert response.icon == "data:image/png;base64,foo"
 
     def test_favicon_missing(self):
-        response = JavaServerResponse.build(
+        response = JavaStatusResponse.build(
             {
                 "description": "A Minecraft Server",
                 "players": {"max": 20, "online": 0},
@@ -278,32 +278,32 @@ class TestPingResponse:
 class TestPingResponsePlayers:
     def test_invalid(self):
         with pytest.raises(ValueError):
-            JavaServerPlayers.build("foo")  # type: ignore[arg-type]
+            JavaStatusPlayers.build("foo")  # type: ignore[arg-type]
 
     def test_max_missing(self):
         with pytest.raises(ValueError):
-            JavaServerPlayers.build({"online": 5})
+            JavaStatusPlayers.build({"online": 5})
 
     def test_max_invalid(self):
         with pytest.raises(TypeError):
-            JavaServerPlayers.build({"max": "foo", "online": 5})
+            JavaStatusPlayers.build({"max": "foo", "online": 5})
 
     def test_online_missing(self):
         with pytest.raises(ValueError):
-            JavaServerPlayers.build({"max": 20})
+            JavaStatusPlayers.build({"max": 20})
 
     def test_online_invalid(self):
         with pytest.raises(TypeError):
-            JavaServerPlayers.build({"max": 20, "online": "foo"})
+            JavaStatusPlayers.build({"max": 20, "online": "foo"})
 
     def test_valid(self):
-        players = JavaServerPlayers.build({"max": 20, "online": 5})
+        players = JavaStatusPlayers.build({"max": 20, "online": 5})
 
         assert players.max == 20
         assert players.online == 5
 
     def test_sample(self):
-        players = JavaServerPlayers.build(
+        players = JavaStatusPlayers.build(
             {
                 "max": 20,
                 "online": 1,
@@ -316,36 +316,36 @@ class TestPingResponsePlayers:
 
     def test_sample_invalid(self):
         with pytest.raises(TypeError):
-            JavaServerPlayers.build({"max": 20, "online": 1, "sample": "foo"})
+            JavaStatusPlayers.build({"max": 20, "online": 1, "sample": "foo"})
 
     def test_sample_missing(self):
-        players = JavaServerPlayers.build({"max": 20, "online": 1})
+        players = JavaStatusPlayers.build({"max": 20, "online": 1})
         assert players.list is []
 
 
 class TestPingResponsePlayersPlayer:
     def test_invalid(self):
         with pytest.raises(ValueError):
-            JavaServerPlayer.build("foo")  # type: ignore[arg-type]
+            JavaStatusPlayer.build("foo")  # type: ignore[arg-type]
 
     def test_name_missing(self):
         with pytest.raises(ValueError):
-            JavaServerPlayer.build({"id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
+            JavaStatusPlayer.build({"id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
 
     def test_name_invalid(self):
         with pytest.raises(TypeError):
-            JavaServerPlayer.build({"name": {}, "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
+            JavaStatusPlayer.build({"name": {}, "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
 
     def test_id_missing(self):
         with pytest.raises(ValueError):
-            JavaServerPlayer.build({"name": "Dinnerbone"})
+            JavaStatusPlayer.build({"name": "Dinnerbone"})
 
     def test_id_invalid(self):
         with pytest.raises(TypeError):
-            JavaServerPlayer.build({"name": "Dinnerbone", "id": {}})
+            JavaStatusPlayer.build({"name": "Dinnerbone", "id": {}})
 
     def test_valid(self):
-        player = JavaServerPlayer.build({"name": "Dinnerbone", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
+        player = JavaStatusPlayer.build({"name": "Dinnerbone", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
 
         assert player.name == "Dinnerbone"
         assert player.uuid == "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"
@@ -354,26 +354,26 @@ class TestPingResponsePlayersPlayer:
 class TestPingResponseVersion:
     def test_invalid(self):
         with pytest.raises(ValueError):
-            JavaServerVersion.build("foo")  # type: ignore[arg-type]
+            JavaStatusVersion.build("foo")  # type: ignore[arg-type]
 
     def test_protocol_missing(self):
         with pytest.raises(ValueError):
-            JavaServerVersion.build({"name": "foo"})
+            JavaStatusVersion.build({"name": "foo"})
 
     def test_protocol_invalid(self):
         with pytest.raises(TypeError):
-            JavaServerVersion.build({"name": "foo", "protocol": "bar"})
+            JavaStatusVersion.build({"name": "foo", "protocol": "bar"})
 
     def test_name_missing(self):
         with pytest.raises(ValueError):
-            JavaServerVersion.build({"protocol": 5})
+            JavaStatusVersion.build({"protocol": 5})
 
     def test_name_invalid(self):
         with pytest.raises(TypeError):
-            JavaServerVersion.build({"name": {}, "protocol": 5})
+            JavaStatusVersion.build({"name": {}, "protocol": 5})
 
     def test_valid(self):
-        players = JavaServerVersion.build({"name": "foo", "protocol": 5})
+        players = JavaStatusVersion.build({"name": "foo", "protocol": 5})
 
         assert players.name == "foo"
         assert players.protocol == 5
