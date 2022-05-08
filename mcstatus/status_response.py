@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
 
-STYLE_MAP: Dict[str, str] = {
+STYLE_MAP = {
     "bold": "l",
     "italic": "o",
     "underlined": "n",
@@ -85,7 +85,7 @@ class JavaServerResponse(MCServerResponse):
             motd=cls._parse_description(raw["description"]),
             icon=raw.get("favicon"),
             # This will be set later.
-            latency=None,
+            latency=None,  # type: ignore[assignment]
         )
 
     @staticmethod

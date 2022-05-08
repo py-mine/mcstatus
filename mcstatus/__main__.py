@@ -61,13 +61,13 @@ def status():
     servers that are version 1.7 or higher.
     """
     response = server.status()
-    if response.players.sample is not None:
-        player_sample = str([f"{player.name} ({player.id})" for player in response.players.sample])
+    if response.players.list is not None:
+        player_sample = str([f"{player.name} ({player.uuid})" for player in response.players.list])
     else:
         player_sample = "No players online"
 
     click.echo(f"version: v{response.version.name} (protocol {response.version.protocol})")
-    click.echo(f'description: "{response.description}"')
+    click.echo(f'motd: "{response.motd}"')
     click.echo(f"players: {response.players.online}/{response.players.max} {player_sample}")
 
 
@@ -88,12 +88,12 @@ def json():
         status_res = server.status(tries=1)
         data["version"] = status_res.version.name
         data["protocol"] = status_res.version.protocol
-        data["motd"] = status_res.description
+        data["motd"] = status_res.motd
         data["player_count"] = status_res.players.online
         data["player_max"] = status_res.players.max
         data["players"] = []
-        if status_res.players.sample is not None:
-            data["players"] = [{"name": player.name, "id": player.id} for player in status_res.players.sample]
+        if status_res.players.list is not None:
+            data["players"] = [{"name": player.name, "id": player.uuid} for player in status_res.players.list]
 
         query_res = server.query(tries=1)  # type: ignore[call-arg] # tries is supported with retry decorator
         data["host_ip"] = query_res.raw["hostip"]

@@ -183,7 +183,7 @@ class JavaServer(MCServer):
         pinger.handshake()
         result = pinger.read_status()
         result.latency = pinger.test_ping()
-        return JavaServerResponse.build(result)
+        return result
 
     async def async_status(self, **kwargs) -> JavaServerResponse:
         """Asynchronously checks the status of a Minecraft Java Edition server via the ping protocol.
@@ -202,7 +202,7 @@ class JavaServer(MCServer):
         pinger.handshake()
         result = await pinger.read_status()
         result.latency = await pinger.test_ping()
-        return JavaServerResponse.build(result)
+        return result
 
     def query(self) -> QueryResponse:
         """Checks the status of a Minecraft Java Edition server via the query protocol."""
@@ -258,8 +258,8 @@ class BedrockServer(MCServer):
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Parse `address` parameter and return initialized object."""
-        address = Address.parse_address(address)
-        return cls(address.host, address.port, timeout=timeout)
+        parsed_address = Address.parse_address(address, default_port=19132)
+        return cls(parsed_address.host, parsed_address.port, timeout=timeout)
 
     @classmethod
     async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
@@ -274,7 +274,7 @@ class BedrockServer(MCServer):
         :return: Status information in a `BedrockServerResponse` instance.
         :rtype: BedrockServerResponse
         """
-        return BedrockServerResponse.build(BedrockServerStatus(self.address, self.timeout, **kwargs).read_status())
+        return BedrockServerStatus(self.address, self.timeout, **kwargs).read_status()
 
     @retry(tries=3)
     async def async_status(self, **kwargs) -> BedrockServerResponse:
@@ -284,7 +284,7 @@ class BedrockServer(MCServer):
         :return: Status information in a `BedrockServerResponse` instance.
         :rtype: BedrockServerResponse
         """
-        return BedrockServerResponse.build(await BedrockServerStatus(self.address, self.timeout, **kwargs).read_status_async())
+        return await BedrockServerStatus(self.address, self.timeout, **kwargs).read_status_async()
 
 
 @deprecated(replacement="JavaServer", date="2022-08", methods=("__init__",))

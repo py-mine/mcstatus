@@ -29,11 +29,13 @@ class TestServerPinger:
         )
         status = self.pinger.read_status()
 
-        assert status.raw == {
-            "description": "A Minecraft Server",
-            "players": {"max": 20, "online": 0},
-            "version": {"name": "1.8-pre1", "protocol": 44},
-        }
+        assert status == JavaServerResponse(
+            players=JavaServerPlayers(max=20, online=0, list=None),
+            version=JavaServerVersion(name="1.8-pre1", protocol=44),
+            motd="A Minecraft Server",
+            latency=0,
+            icon=None,
+        )
         assert self.pinger.connection.flush() == bytearray.fromhex("0100")
 
     def test_read_status_invalid_json(self):
@@ -94,7 +96,7 @@ class TestPingResponse:
 
     def test_description_missing(self):
         with pytest.raises(ValueError):
-            JavaServerResponse(
+            JavaServerResponse.build(
                 {
                     "players": {"max": 20, "online": 0},
                     "version": {"name": "1.8-pre1", "protocol": 44},
@@ -276,7 +278,7 @@ class TestPingResponse:
 class TestPingResponsePlayers:
     def test_invalid(self):
         with pytest.raises(ValueError):
-            JavaServerPlayers.build("foo")
+            JavaServerPlayers.build("foo")  # type: ignore[arg-type]
 
     def test_max_missing(self):
         with pytest.raises(ValueError):
@@ -324,7 +326,7 @@ class TestPingResponsePlayers:
 class TestPingResponsePlayersPlayer:
     def test_invalid(self):
         with pytest.raises(ValueError):
-            JavaServerPlayer.build("foo")
+            JavaServerPlayer.build("foo")  # type: ignore[arg-type]
 
     def test_name_missing(self):
         with pytest.raises(ValueError):
@@ -352,7 +354,7 @@ class TestPingResponsePlayersPlayer:
 class TestPingResponseVersion:
     def test_invalid(self):
         with pytest.raises(ValueError):
-            JavaServerVersion.build("foo")
+            JavaServerVersion.build("foo")  # type: ignore[arg-type]
 
     def test_protocol_missing(self):
         with pytest.raises(ValueError):
