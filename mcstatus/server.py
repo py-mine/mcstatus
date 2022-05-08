@@ -69,21 +69,25 @@ class MCServer(ABC):
     @abstractmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Lookup a minecraft server. This can have additional logic in children classes."""
+        raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 
     @classmethod
     @abstractmethod
     async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
         """Async lookup a minecraft server. This can have additional logic in children classes."""
+        raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 
     @classmethod
     @abstractmethod
     def status(cls, **kwargs) -> MCServerResponse:
         """Get the status of the minecraft server."""
+        raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 
     @classmethod
     @abstractmethod
     async def async_status(cls, **kwargs) -> MCServerResponse:
         """Async get the status of the minecraft server."""
+        raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 
 
 class JavaServer(MCServer):
