@@ -25,6 +25,8 @@ class MCServerResponse(AbstractDataclass):
     version: ServerVersion
     # Message Of The Day. Also known as `Description`.
     motd: str
+    # Latency between a server and the client (you). In milliseconds.
+    latency: float
 
     @classmethod
     @abstractmethod
@@ -42,8 +44,6 @@ class JavaServerResponse(MCServerResponse):
 
     # Icon of the server. Can be unset. BASE64 encoded.
     icon: Optional[str]
-    # Latency between a server and the client (you). In milliseconds.
-    latency: float
 
     @classmethod
     def build(cls, answer: PingResponse) -> JavaServerResponse:
@@ -95,6 +95,7 @@ class BedrockServerResponse(MCServerResponse):
                 brand=answer.version.brand,
             ),
             motd=answer.motd,
+            latency=answer.latency,
             map_name=answer.map,
             gamemode=answer.gamemode,
         )
