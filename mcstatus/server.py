@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = ["JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
+__all__ = ["MCServer", "JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
 
 
 class MCServer(ABC):
