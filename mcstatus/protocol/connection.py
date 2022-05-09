@@ -7,7 +7,7 @@ import socket
 import struct
 from abc import ABC, abstractmethod
 from ipaddress import ip_address
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional, TYPE_CHECKING, Union
 
 from ctypes import c_uint32 as unsigned_int32
 from ctypes import c_int32 as signed_int32
