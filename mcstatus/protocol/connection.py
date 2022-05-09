@@ -14,7 +14,10 @@ from ipaddress import ip_address
 from typing import Iterable, Optional, TYPE_CHECKING, Union
 
 import asyncio_dgram
-from typing_extensions import SupportsIndex
+if TYPE_CHECKING:
+    from typing_extensions import SupportsIndex  # Python 3.7 doesn't support this yet.
+
+    BytesConvertable = Union[SupportsIndex, Iterable[SupportsIndex]]
 
 if TYPE_CHECKING:
     BytesConvertable = Union[SupportsIndex, Iterable[SupportsIndex]]
