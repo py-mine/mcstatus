@@ -28,9 +28,8 @@ class TestAsyncSocketConnection:
         except ImportError:
             from asyncio import TimeoutError
 
-        loop = asyncio.get_event_loop()
         with patch("asyncio.open_connection", fake_asyncio_asyncio_open_connection):
-            loop.run_until_complete(self.tcp_async_socket.connect(self.test_addr, timeout=0.01))
+            asyncio.run(self.tcp_async_socket.connect(self.test_addr, timeout=0.01))
 
             with pytest.raises(TimeoutError):
-                loop.run_until_complete(self.tcp_async_socket.read(10))
+                asyncio.run(self.tcp_async_socket.read(10))
