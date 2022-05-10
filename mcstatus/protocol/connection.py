@@ -468,7 +468,7 @@ class SocketConnection(BaseSyncConnection):
 
     def __init__(self):
         "Set socket to none"
-        self.socket: socket.socket = None
+        self.socket: socket.socket
 
     def close(self) -> None:
         "Close self."
@@ -541,8 +541,8 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
     __slots__ = ("reader", "writer")
 
     def __init__(self):
-        self.reader: asyncio.StreamReader = None
-        self.writer: asyncio.StreamWriter = None
+        self.reader: asyncio.StreamReader
+        self.writer: asyncio.StreamWriter
 
     async def connect(self, addr: tuple[str, int], timeout: int = 3) -> None:
         "Use asyncio to open a connection to addr (host, port)."
@@ -578,8 +578,8 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
     __slots__ = ("stream", "timeout")
 
     def __init__(self):
-        self.stream: asyncio_dgram.aio.DatagramClient = None
-        self.timeout: int = None
+        self.stream: asyncio_dgram.aio.DatagramClient
+        self.timeout: int
 
     async def connect(self, addr: tuple, timeout: int = 3) -> None:
         "Connect to addr (host, port)"
