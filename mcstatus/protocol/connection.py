@@ -11,7 +11,7 @@ from ctypes import c_int64 as signed_int64
 from ctypes import c_uint32 as unsigned_int32
 from ctypes import c_uint64 as unsigned_int64
 from ipaddress import ip_address
-from typing import Iterable, Optional, TYPE_CHECKING, Union
+from typing import Iterable, Optional, TYPE_CHECKING, Union, Any
 
 import asyncio_dgram
 from typing_extensions import SupportsIndex
@@ -33,7 +33,7 @@ class BaseWriteSync(ABC):
     __slots__: tuple = tuple()
 
     @abstractmethod
-    def write(self, data: bytes) -> None:
+    def write(self, data: Any) -> None:
         "Write data to self."
         ...
 
@@ -123,7 +123,7 @@ class BaseWriteAsync(ABC):
     __slots__: tuple = tuple()
 
     @abstractmethod
-    async def write(self, data: bytes) -> None:
+    async def write(self, data: Any) -> None:
         "Write data to self."
         ...
 
@@ -484,7 +484,7 @@ class SocketConnection(BaseSyncConnection):
 class TCPSocketConnection(SocketConnection):
     "TCP Connection to addr. Timeout defaults to 3 secconds."
 
-    def __init__(self, addr: tuple[Optional[str], int], timeout: int = 3):
+    def __init__(self, addr: tuple[Optional[str], int], timeout: float = 3.0):
         "Create a connection to addr with self.socket, set TCP NODELAY to True."
         super().__init__()
         self.socket = socket.create_connection(addr, timeout=timeout)
@@ -509,7 +509,7 @@ class UDPSocketConnection(SocketConnection):
     "UDP Connection to addr. Default timout is 3 secconds."
     __slots__ = ("addr",)
 
-    def __init__(self, addr: tuple[str, int], timeout: int = 3):
+    def __init__(self, addr: tuple[str, int], timeout: float = 3.0):
         """Set self.addr to addr, set self.socket to new socket,
         AF_INET if IPv4, AF_INET6 otherwise."""
         super().__init__()
@@ -544,7 +544,7 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         self.reader: asyncio.StreamReader
         self.writer: asyncio.StreamWriter
 
-    async def connect(self, addr: tuple[str, int], timeout: int = 3) -> None:
+    async def connect(self, addr: tuple[str, int], timeout: float = 3.0) -> None:
         "Use asyncio to open a connection to addr (host, port)."
         conn = asyncio.open_connection(addr[0], addr[1])
         self.reader, self.writer = await asyncio.wait_for(conn, timeout=timeout)
@@ -579,9 +579,9 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
 
     def __init__(self):
         self.stream: asyncio_dgram.aio.DatagramClient
-        self.timeout: int
+        self.timeout: float
 
-    async def connect(self, addr: tuple, timeout: int = 3) -> None:
+    async def connect(self, addr: tuple, timeout: float = 3.0) -> None:
         "Connect to addr (host, port)"
         self.timeout = timeout
         conn = asyncio_dgram.connect((addr[0], addr[1]))
