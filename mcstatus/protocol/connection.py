@@ -11,7 +11,7 @@ from ctypes import c_int64 as signed_int64
 from ctypes import c_uint32 as unsigned_int32
 from ctypes import c_uint64 as unsigned_int64
 from ipaddress import ip_address
-from typing import Any, Iterable, Optional, TYPE_CHECKING, Union
+from typing import Iterable, Optional, TYPE_CHECKING, Union
 
 import asyncio_dgram
 from typing_extensions import SupportsIndex
@@ -33,7 +33,7 @@ class BaseWriteSync(ABC):
     __slots__: tuple = tuple()
 
     @abstractmethod
-    def write(self, data: Any) -> None:
+    def write(self, data: Union["Connection", str, bytearray, bytes]) -> None:
         "Write data to self."
         ...
 
@@ -123,7 +123,7 @@ class BaseWriteAsync(ABC):
     __slots__: tuple = tuple()
 
     @abstractmethod
-    async def write(self, data: Any) -> None:
+    async def write(self, data: Union["Connection", str, bytearray, bytes]) -> None:
         "Write data to self."
         ...
 
