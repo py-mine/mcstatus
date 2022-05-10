@@ -36,7 +36,7 @@ class MCServer(ABC):
     :param int timeout: The timeout in seconds before failing to connect.
     """
 
-    def __init__(self, host: str, port: int, timeout: int = 3):
+    def __init__(self, host: str, port: int, timeout: float = 3.0):
         self.address = Address(host, port)
         self.timeout = timeout
 
@@ -51,7 +51,7 @@ class MCServer(ABC):
         return self.address.port
 
     @classmethod
-    def lookup(cls, address: str, timeout: int = 3) -> Self:
+    def lookup(cls, address: str, timeout: float = 3.0) -> Self:
         """Mimics minecraft's server address field.
 
         :param str address: The address of the Minecraft server, like `example.com:19132`
@@ -64,12 +64,12 @@ class MCServer(ABC):
 class JavaServer(MCServer):
     """Base class for a Minecraft Java Edition server."""
 
-    def __init__(self, host: str, port: int = 25565, timeout: int = 3):
+    def __init__(self, host: str, port: int = 25565, timeout: float = 3.0):
         """Override init to add a default port for java servers of 25565."""
         super().__init__(host, port, timeout=timeout)
 
     @classmethod
-    def lookup(cls, address: str, timeout: int = 3) -> Self:
+    def lookup(cls, address: str, timeout: float = 3.0) -> Self:
         """Mimics minecraft's server address field.
 
         With Java servers, on top of just parsing the address, we also check the
@@ -84,7 +84,7 @@ class JavaServer(MCServer):
         return cls(addr.host, addr.port, timeout=timeout)
 
     @classmethod
-    async def async_lookup(cls, address: str, timeout: int = 3) -> Self:
+    async def async_lookup(cls, address: str, timeout: float = 3.0) -> Self:
         """Asynchronous alternative to lookup
 
         For more details, check the docstring of the synchronous lookup function.
@@ -210,7 +210,7 @@ class JavaServer(MCServer):
 class BedrockServer(MCServer):
     """Base class for a Minecraft Bedrock Edition server."""
 
-    def __init__(self, host: str, port: int = 19132, timeout: int = 3):
+    def __init__(self, host: str, port: int = 19132, timeout: float = 3.0):
         """Override init to add a default port for bedrock servers of 19132."""
         super().__init__(host, port, timeout=timeout)
 
@@ -242,7 +242,7 @@ class MinecraftServer(JavaServer):
     This class is kept purely for backwards compatibility reasons and will be removed eventually.
     """
 
-    def __init__(self, host: str, port: int = 25565, timeout: int = 3):
+    def __init__(self, host: str, port: int = 25565, timeout: float = 3.0):
         super().__init__(host, port=port, timeout=timeout)
 
 
@@ -253,5 +253,5 @@ class MinecraftBedrockServer(BedrockServer):
     This class is kept purely for backwards compatibility reasons and will be removed eventually.
     """
 
-    def __init__(self, host: str, port: int = 19132, timeout: int = 3):
+    def __init__(self, host: str, port: int = 19132, timeout: float = 3.0):
         super().__init__(host, port=port, timeout=timeout)
