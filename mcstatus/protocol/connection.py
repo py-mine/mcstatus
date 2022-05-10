@@ -500,8 +500,10 @@ class TCPSocketConnection(SocketConnection):
             result.extend(new)
         return result
 
-    def write(self, data: bytes) -> None:
+    def write(self, data: Union[Connection, bytes, bytearray]) -> None:
         "Send data on self.socket."
+        if isinstance(data, Connection):
+            data = bytearray(data.flush())
         self.socket.send(data)
 
 
@@ -531,8 +533,10 @@ class UDPSocketConnection(SocketConnection):
             result.extend(self.socket.recvfrom(self.remaining())[0])
         return result
 
-    def write(self, data: bytes) -> None:
+    def write(self, data: Union[Connection, bytes, bytearray]) -> None:
         "Use self.socket to send data to self.addr."
+        if isinstance(data, Connection):
+            data = bytearray(data.flush())
         self.socket.sendto(data, self.addr)
 
 
@@ -559,8 +563,10 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
             result.extend(new)
         return result
 
-    def write(self, data: bytes) -> None:
+    def write(self, data: Union[Connection, bytes, bytearray]) -> None:
         "Write data to self.writer."
+        if isinstance(data, Connection):
+            data = bytearray(data.flush())
         self.writer.write(data)
 
     def close(self) -> None:
@@ -597,8 +603,10 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         data, remote_addr = await asyncio.wait_for(self.stream.recv(), timeout=self.timeout)
         return bytearray(data)
 
-    async def write(self, data: bytes) -> None:
+    async def write(self, data: Union[Connection, bytes, bytearray]) -> None:
         "Send data with self.stream."
+        if isinstance(data, Connection):
+            data = bytearray(data.flush())
         await self.stream.send(data)
 
     def close(self) -> None:
