@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING, Tuple, Union
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 from mcstatus.utils import deprecated
 
@@ -101,7 +104,7 @@ class MCStatusResponse(AbstractDataclass):
 
     @classmethod
     @abstractmethod
-    def build(cls, *args, **kwargs) -> MCStatusResponse:
+    def build(cls, *args, **kwargs) -> Self:
         """Build MCStatusResponse and check is it valid.
 
         :param args: Arguments in specific realisation.
@@ -123,7 +126,7 @@ class NewJavaStatusResponse(MCStatusResponse):
     icon: Optional[str]
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> NewJavaStatusResponse:
+    def build(cls, raw: Dict[str, Any]) -> Self:
         """Build JavaStatusResponse and check is it valid.
 
         :param raw: Raw response dict.
@@ -190,7 +193,7 @@ class NewBedrockStatusResponse(MCStatusResponse):
     gamemode: Optional[str]
 
     @classmethod
-    def build(cls, decoded_data: List[Any], latency: float) -> NewBedrockStatusResponse:
+    def build(cls, decoded_data: List[Any], latency: float) -> Self:
         """Build MCStatusResponse and check is it valid.
 
         :param decoded_data: Raw decoded response object.
@@ -242,7 +245,7 @@ class JavaStatusPlayers(StatusPlayers):
     list: List[JavaStatusPlayer]
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> JavaStatusPlayers:
+    def build(cls, raw: Dict[str, Any]) -> Self:
         """Build `JavaStatusPlayers` from raw response dict.
 
         :param raw: Raw response dict.
@@ -273,7 +276,7 @@ class JavaStatusPlayer:
     uuid: str
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> JavaStatusPlayer:
+    def build(cls, raw: Dict[str, Any]) -> Self:
         """Build `JavaStatusPlayer` from raw response dict.
 
         :param raw: Raw response dict.
@@ -302,7 +305,7 @@ class JavaStatusVersion(StatusVersion):
     """Class for storing Java version info."""
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> JavaStatusVersion:
+    def build(cls, raw: Dict[str, Any]) -> Self:
         """Build `JavaStatusVersion` from raw response dict.
 
         :param raw: Raw response dict.
@@ -360,14 +363,6 @@ class JavaStatusResponse(NewJavaStatusResponse):
     def __init__(self, raw):
         return self.build(raw)
 
-    @classmethod
-    def build(cls, raw: Dict[str, Any]) -> JavaStatusResponse:
-        """This just overwrite returned type for type checker.
-
-        For more details see docstring of `NewJavaStatusResponse.build`.
-        """
-        return super().build(raw)  # type: ignore
-
 
 class BedrockStatusResponse(NewBedrockStatusResponse):
     class Version(BedrockStatusVersion):
@@ -422,11 +417,3 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
         self.latency = latency
         self.map_name = map_
         self.gamemode = gamemode
-
-    @classmethod
-    def build(cls, decoded_data: List[Any], latency: float) -> BedrockStatusResponse:
-        """This just overwrite returned type for type checker.
-
-        For more details see docstring of `NewBedrockStatusResponse.build`.
-        """
-        return super().build(decoded_data, latency)  # type: ignore
