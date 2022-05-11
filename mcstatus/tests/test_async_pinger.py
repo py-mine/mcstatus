@@ -1,11 +1,11 @@
 import asyncio
+from unittest.mock import patch
 
 import pytest
 
 from mcstatus.address import Address
 from mcstatus.pinger import AsyncServerPinger
 from mcstatus.protocol.connection import Connection
-from mcstatus.status_response import JavaStatusResponse
 
 
 def async_decorator(f):
@@ -33,7 +33,7 @@ class TestAsyncServerPinger:
 
         assert self.pinger.connection.flush() == bytearray.fromhex("0F002C096C6F63616C686F737463DD01")
 
-    def test_read_status(self, monkeypatch):
+    def test_read_status(self):
         self.pinger.connection.receive(
             bytearray.fromhex(
                 "7200707B226465736372697074696F6E223A2241204D696E65637261667420536572766572222C22706C6179657273223A7B2"
@@ -42,18 +42,18 @@ class TestAsyncServerPinger:
             )
         )
 
-        def fake_build(cls, raw):
-            assert raw == {
-                "description": "A Minecraft Server",
-                "players": {"max": 20, "online": 0},
-                "version": {"name": "1.8-pre1", "protocol": 44},
-            }
+        with patch("mcstatus.status_response.JavaStatusResponse.build") as build:
+            mock = build.start()
+            async_decorator(self.pinger.read_status)()
+            mock.assert_called_once_with(
+                {
+                    "description": "A Minecraft Server",
+                    "players": {"max": 20, "online": 0},
+                    "version": {"name": "1.8-pre1", "protocol": 44},
+                }
+            )
 
-        monkeypatch.setattr(JavaStatusResponse, "build", fake_build)
-
-        async_decorator(self.pinger.read_status)()
         assert self.pinger.connection.flush() == bytearray.fromhex("0100")
-        monkeypatch.undo()
 
     def test_read_status_invalid_json(self):
         self.pinger.connection.receive(bytearray.fromhex("0300017B"))
