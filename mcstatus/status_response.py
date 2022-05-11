@@ -110,7 +110,7 @@ class MCStatusResponse(AbstractDataclass):
 class NewJavaStatusResponse(MCStatusResponse):
     """Class for storing JavaServer data from a status response.
 
-    :param icon: Icon of the server. Can be unset. BASE64 encoded.
+    :param icon: Base64 encoded icon of the server. Can be unset.
     """
 
     players: JavaStatusPlayers
