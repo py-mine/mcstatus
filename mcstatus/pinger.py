@@ -148,4 +148,4 @@ class AsyncServerPinger(ServerPinger):
 
 
 class PingResponse(JavaStatusResponse):
-    """Outdated intarface for `JavaStatusResponse`."""
+    """Outdated interface for `JavaStatusResponse`."""
