@@ -52,7 +52,6 @@ class MCServer(ABC):
         return self.address.port
 
     @classmethod
-    @abstractmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Mimics minecraft's server address field.
 
