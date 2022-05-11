@@ -324,10 +324,19 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
     :param icon: Icon of the server. Can be unset. BASE64 encoded.
     """
-    @deprecated(replacement="mcstatus.status_response.JavaStatusPlayers", date="2022-08")
+
     class Players(JavaStatusPlayers):
-        @deprecated(replacement="mcstatus.status_response.JavaStatusPlayer", date="2022-08")
+        """Deprecated class for `players` field.
+
+        Use `JavaStatusPlayers` instead.
+        """
+
         class Player(JavaStatusPlayer):
+            """Deprecated class for player in `list` field.
+
+            Use `JavaStatusPlayer` instead.
+            """
+
             @property
             @deprecated(replacement="uuid", date="2022-08")
             def id(self):
@@ -346,7 +355,8 @@ class JavaStatusResponse(NewJavaStatusResponse):
     def __init__(self, raw):
         return self.build(raw)
 
-    def build(self, raw: Dict[str, Any]) -> JavaStatusResponse:
+    @classmethod
+    def build(cls, raw: Dict[str, Any]) -> JavaStatusResponse:
         """This just overwrite returned type for type checker.
 
         For more details see docstring of `NewJavaStatusResponse.build`.
@@ -355,8 +365,12 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
 
 class BedrockStatusResponse(NewBedrockStatusResponse):
-    @deprecated(replacement="mcstatus.status_response.BedrockStatusVersion", date="2022-08")
     class Version(BedrockStatusVersion):
+        """Deprecated class for `version` field.
+
+        Use `BedrockStatusVersion` instead.
+        """
+
         @property
         @deprecated(replacement="name", date="2022-08")
         def version(self):
@@ -403,3 +417,11 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
         self.latency = latency
         self.map_name = map_
         self.gamemode = gamemode
+
+    @classmethod
+    def build(cls, decoded_data: List[Any], latency: float) -> BedrockStatusResponse:
+        """This just overwrite returned type for type checker.
+
+        For more details see docstring of `NewBedrockStatusResponse.build`.
+        """
+        return super().build(decoded_data, latency)  # type: ignore

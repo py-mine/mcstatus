@@ -5,7 +5,6 @@ import json
 import random
 
 from mcstatus.address import Address
-from mcstatus.utils import deprecated
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
 from mcstatus.status_response import JavaStatusResponse
 
@@ -148,6 +147,5 @@ class AsyncServerPinger(ServerPinger):
         return delta.total_seconds() * 1000
 
 
-@deprecated(replacement="mcstatus.status_response.JavaServerResponse", date="2022-08")
 class PingResponse(JavaStatusResponse):
     """Outdated intarface for `JavaStatusResponse`."""
