@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
+from mcstatus.utils import deprecated
+
 __all__ = [
     "STYLE_MAP",
     "AbstractDataclass",
@@ -105,7 +107,7 @@ class MCStatusResponse(AbstractDataclass):
 
 
 @dataclass
-class JavaStatusResponse(MCStatusResponse):
+class NewJavaStatusResponse(MCStatusResponse):
     """Class for storing JavaServer data from a status response.
 
     :param icon: Icon of the server. Can be unset. BASE64 encoded.
@@ -116,7 +118,7 @@ class JavaStatusResponse(MCStatusResponse):
     icon: Optional[str]
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> JavaStatusResponse:
+    def build(cls, raw: Dict[str, Any]) -> NewJavaStatusResponse:
         """Build JavaStatusResponse and check is it valid.
 
         :param raw: Raw response dict.
@@ -170,7 +172,7 @@ class JavaStatusResponse(MCStatusResponse):
 
 
 @dataclass
-class BedrockStatusResponse(MCStatusResponse):
+class NewBedrockStatusResponse(MCStatusResponse):
     """Class for storing BedrockServer data from a status response.
 
     :param map_name: Name of the map. Can be unset.
@@ -183,7 +185,7 @@ class BedrockStatusResponse(MCStatusResponse):
     gamemode: Optional[str]
 
     @classmethod
-    def build(cls, decoded_data: List[Any], latency: float) -> BedrockStatusResponse:
+    def build(cls, decoded_data: List[Any], latency: float) -> NewBedrockStatusResponse:
         """Build MCStatusResponse and check is it valid.
 
         :param decoded_data: Raw decoded response object.
@@ -315,3 +317,89 @@ class BedrockStatusVersion(StatusVersion):
     """
 
     brand: Optional[str]
+
+
+class JavaStatusResponse(NewJavaStatusResponse):
+    """Class for storing JavaServer data from a status response.
+
+    :param icon: Icon of the server. Can be unset. BASE64 encoded.
+    """
+    @deprecated(replacement="mcstatus.status_response.JavaStatusPlayers", date="2022-08")
+    class Players(JavaStatusPlayers):
+        @deprecated(replacement="mcstatus.status_response.JavaStatusPlayer", date="2022-08")
+        class Player(JavaStatusPlayer):
+            @property
+            @deprecated(replacement="uuid", date="2022-08")
+            def id(self):
+                return self.uuid
+
+            @deprecated(replacement="build", date="2022-08")
+            def __init__(self, raw):
+                return self.build(raw)
+
+        @property
+        @deprecated(replacement="list", date="2022-08")
+        def sample(self):
+            return self.list
+
+    @deprecated(replacement="build", date="2022-08")
+    def __init__(self, raw):
+        return self.build(raw)
+
+    def build(self, raw: Dict[str, Any]) -> JavaStatusResponse:
+        """This just overwrite returned type for type checker.
+
+        For more details see docstring of `NewJavaStatusResponse.build`.
+        """
+        return super().build(raw)  # type: ignore
+
+
+class BedrockStatusResponse(NewBedrockStatusResponse):
+    @deprecated(replacement="mcstatus.status_response.BedrockStatusVersion", date="2022-08")
+    class Version(BedrockStatusVersion):
+        @property
+        @deprecated(replacement="name", date="2022-08")
+        def version(self):
+            return self.name
+
+    @property
+    @deprecated(replacement="players.online", date="2022-08")
+    def players_online(self):
+        return self.players.online
+
+    @property
+    @deprecated(replacement="players.max", date="2022-08")
+    def players_max(self):
+        return self.players.max
+
+    @property
+    @deprecated(replacement="map_name", date="2022-08")
+    def map(self):
+        return self.map_name
+
+    @deprecated(replacement="build", date="2022-08")
+    def __init__(
+        self,
+        protocol: int,
+        brand: str,
+        version: str,
+        latency: float,
+        players_online: int,
+        players_max: int,
+        motd: str,
+        map_: Optional[str],
+        gamemode: Optional[str],
+    ) -> None:
+        self.players = BedrockStatusPlayers(
+            online=players_online,
+            max=players_max,
+        )
+        self.version = self.Version(
+            name=version,
+            protocol=protocol,
+            brand=brand,
+        )
+        self.motd = motd
+        self.latency = latency
+        self.map_name = map_
+        self.gamemode = gamemode
