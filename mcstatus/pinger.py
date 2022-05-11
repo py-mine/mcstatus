@@ -59,7 +59,7 @@ class ServerPinger:
 
         self.connection.write_buffer(packet)
 
-    def read_status(self) -> "JavaStatusResponse":
+    def read_status(self) -> JavaStatusResponse:
         request = Connection()
         request.write_varint(0)  # Request status
         self.connection.write_buffer(request)
@@ -109,7 +109,7 @@ class AsyncServerPinger(ServerPinger):
         super().__init__(connection, address=address, version=version, ping_token=ping_token)  # type: ignore[arg-type]
         self.connection: TCPAsyncSocketConnection
 
-    async def read_status(self) -> "JavaStatusResponse":
+    async def read_status(self) -> JavaStatusResponse:
         request = Connection()
         request.write_varint(0)  # Request status
         self.connection.write_buffer(request)
