@@ -86,7 +86,7 @@ class AbstractDataclass(ABC):
         """
         if cls is AbstractDataclass or cls.__bases__[0] is AbstractDataclass:
             raise NotImplementedError("Cannot instantiate abstract class.")
-        return super().__new__(cls, *args, **kwargs)
+        return super().__new__(cls)
 
 
 @dataclass
