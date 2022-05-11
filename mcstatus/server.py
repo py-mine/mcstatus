@@ -55,10 +55,6 @@ class MCServer(ABC):
     def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Mimics minecraft's server address field.
 
-        With Java servers, on top of just parsing the address, we also check the
-        DNS records for an SRV record that points to the server, which is the same
-        behavior as with minecraft's server address field for java.
-
         :param str address: The address of the Minecraft server, like `example.com:25565`.
         :param float timeout: The timeout in seconds before failing to connect.
         :return: The server object.
