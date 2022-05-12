@@ -333,16 +333,12 @@ class JavaStatusResponse(NewJavaStatusResponse):
     :param icon: Icon of the server. Can be unset. BASE64 encoded.
     """
 
-    @deprecated(
-        replacement="mcstatus.status_response.JavaStatusPlayers", date="2022-08", methods=("__init__", "online", "max")
-    )
     class Players(JavaStatusPlayers):
         """Deprecated class for `players` field.
 
         Use `JavaStatusPlayers` instead.
         """
 
-        @deprecated(replacement="mcstatus.status_response.JavaStatusPlayer", date="2022-08", methods=("__init__", "name"))
         class Player(JavaStatusPlayer):
             """Deprecated class for player in `list` field.
 
@@ -363,9 +359,6 @@ class JavaStatusResponse(NewJavaStatusResponse):
         def sample(self):
             return self.list
 
-    @deprecated(
-        replacement="mcstatus.status_response.JavaStatusVersion", date="2022-08", methods=("__init__", "name", "protocol")
-    )
     class Version(JavaStatusVersion):
         """Deprecated class for `version` field.
 
@@ -386,9 +379,6 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
 
 class BedrockStatusResponse(NewBedrockStatusResponse):
-    @deprecated(
-        replacement="mcstatus.status_response.BedrockStatusVersion", date="2022-08", methods=("__init__", "protocol", "brand")
-    )
     class Version(BedrockStatusVersion):
         """Deprecated class for `version` field.
 
