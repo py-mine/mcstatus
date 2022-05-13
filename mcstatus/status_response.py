@@ -352,14 +352,14 @@ class JavaStatusResponse(NewJavaStatusResponse):
                 return self.uuid
 
             @overload
-            def __init__(self, raw: Dict[str, Any]) -> Self:
+            def __init__(self, raw: Dict[str, Any]) -> None:
                 ...
 
             @overload
             def __init__(self, name: str, uuid: int) -> None:
                 ...
 
-            def __init__(self, *args, **kwargs) -> Optional[Self]:
+            def __init__(self, *args, **kwargs) -> None:
                 try:
                     bound = Signature(
                         parameters=[Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=Dict[str, Any])]
@@ -372,19 +372,20 @@ class JavaStatusResponse(NewJavaStatusResponse):
                         display_name="JavaStatusResponse.Players.Player",
                     )()
 
-                    return self.build(bound.arguments["raw"])
+                    # build and copy instance from `built` method
+                    super().__init__(**self.build(bound.arguments["raw"]).__dict__)
                 except TypeError:
                     super().__init__(*args, **kwargs)
 
         @overload
-        def __init__(self, raw: Dict[str, Any]) -> Self:
+        def __init__(self, raw: Dict[str, Any]) -> None:
             ...
 
         @overload
         def __init__(self, online: int, max: int, list: List[JavaStatusPlayer]) -> None:
             ...
 
-        def __init__(self, *args, **kwargs) -> Optional[Self]:
+        def __init__(self, *args, **kwargs) -> None:
             try:
                 bound = Signature(
                     parameters=[Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=Dict[str, Any])]
@@ -397,8 +398,8 @@ class JavaStatusResponse(NewJavaStatusResponse):
                     display_name="JavaStatusResponse.Players",
                 )()
 
-                instance = self.build(bound.arguments["raw"])
-                instance.list = [
+                instance = self.build(bound.arguments["raw"]).__dict__
+                instance["list"] = [
                     self.Player(
                         name=player.name,
                         uuid=player.uuid,
@@ -406,7 +407,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
                     for player in bound.arguments["sample"]
                 ]
 
-                return instance
+                super().__init__(**instance)
             except TypeError:
                 super().__init__(*args, **kwargs)
 
@@ -422,14 +423,14 @@ class JavaStatusResponse(NewJavaStatusResponse):
         """
 
         @overload
-        def __init__(self, raw: Dict[str, Any]) -> Self:
+        def __init__(self, raw: Dict[str, Any]) -> None:
             ...
 
         @overload
         def __init__(self, name: str, protocol: int) -> None:
             ...
 
-        def __init__(self, *args, **kwargs) -> Optional[Self]:
+        def __init__(self, *args, **kwargs) -> None:
             try:
                 bound = Signature(
                     parameters=[
@@ -444,7 +445,8 @@ class JavaStatusResponse(NewJavaStatusResponse):
                     display_name="JavaStatusResponse.Version",
                 )()
 
-                return self.build(bound.arguments["raw"])
+                # build and copy instance from `built` method
+                super().__init__(**self.build(bound.arguments["raw"]).__dict__)
             except TypeError:
                 super().__init__(*args, **kwargs)
 
@@ -452,7 +454,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
     version: Version
 
     @overload
-    def __init__(self, raw: Dict[str, Any]) -> Self:
+    def __init__(self, raw: Dict[str, Any]) -> None:
         ...
 
     @overload
@@ -466,7 +468,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
     ) -> None:
         ...
 
-    def __init__(self, *args, **kwargs) -> Optional[Self]:
+    def __init__(self, *args, **kwargs) -> None:
         try:
             bound = Signature(
                 parameters=[
@@ -476,17 +478,17 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
             deprecated(lambda: None, replacement="build", date="2022-08", display_name="JavaStatusResponse.__init__")()
 
-            instance = self.build(bound.arguments["raw"])
-            instance.players = self.Players(
-                online=instance.players.online,
-                max=instance.players.max,
-                list=instance.players.list,
+            instance = self.build(bound.arguments["raw"]).__dict__
+            instance["players"] = self.Players(
+                online=instance["players"].online,
+                max=instance["players"].max,
+                list=instance["players"].list,
             )
-            instance.version = self.Version(
-                name=instance.version.name,
-                protocol=instance.version.protocol,
+            instance["version"] = self.Version(
+                name=instance["version"].name,
+                protocol=instance["version"].protocol,
             )
-            return instance
+            super().__init__(**instance)
         except TypeError:
             super().__init__(*args, **kwargs)
             # re-def fields to support the old interface
