@@ -544,7 +544,6 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
                     display_name="BedrockStatusResponse.Version",
                 )()
                 super().__init__(
-                    self,
                     name=bound.arguments["version"],
                     protocol=bound.arguments["protocol"],
                     brand=bound.arguments["brand"],
