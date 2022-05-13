@@ -537,12 +537,21 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
                         Parameter("version", Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
                     ]
                 ).bind(*args, **kwargs)
+
+                if (
+                    not isinstance(bound.arguments["protocol"], int)
+                    or not isinstance(bound.arguments["brand"], str)  # noqa: W503 # black incompatible
+                    or not isinstance(bound.arguments["version"], str)  # noqa: W503 # black incompatible
+                ):
+                    raise TypeError("Invalid arguments. Not correct types.")
+
                 deprecated(
                     lambda: None,
                     replacement="mcstatus.status_response.BedrockStatusVersion",
                     date="2022-08",
                     display_name="BedrockStatusResponse.Version",
                 )()
+
                 super().__init__(
                     name=bound.arguments["version"],
                     protocol=bound.arguments["protocol"],
