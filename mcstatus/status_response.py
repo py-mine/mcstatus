@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from inspect import Parameter, Signature
@@ -353,61 +352,50 @@ class JavaStatusResponse(NewJavaStatusResponse):
                 return self.uuid
 
             @overload
-            def __init__(self, raw: Dict[str, Any]) -> Self:  # type: ignore[return-type]
+            def __init__(self, raw: Dict[str, Any]) -> Self:
                 ...
 
             @overload
             def __init__(self, name: str, uuid: int) -> None:
                 ...
 
-            def __init__(self, *args, **kwargs) -> Optional[Self]:  # type: ignore[return-type]
+            def __init__(self, *args, **kwargs) -> Optional[Self]:
                 try:
                     bound = Signature(
                         parameters=[Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=Dict[str, Any])]
                     ).bind(*args, **kwargs)
-                    # duplicate code from `deprecated` decorator
-                    warnings.simplefilter("always", DeprecationWarning)
-                    warnings.warn(
-                        "'JavaStatusResponse.Players.__init__' changed their signature and support to old will be "
-                        "removed on 2022-08, use 'build' instead.",
-                        category=DeprecationWarning,
-                    )
-                    warnings.simplefilter("default", DeprecationWarning)
+
+                    deprecated(
+                        lambda: None,
+                        replacement="mcstatus.status_response.JavaStatusPlayer",
+                        date="2022-08",
+                        display_name="JavaStatusResponse.Players.Player",
+                    )()
 
                     return self.build(bound.arguments["raw"])
                 except TypeError:
-                    try:
-                        Signature(
-                            parameters=[
-                                Parameter("name", Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
-                                Parameter("uuid", Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
-                            ]
-                        ).bind(*args, **kwargs)
-                        super().__init__(*args, **kwargs)
-                    except TypeError:
-                        raise TypeError("Invalid arguments. This function is overloaded, see source code.")
+                    super().__init__(*args, **kwargs)
 
         @overload
-        def __init__(self, raw: Dict[str, Any]) -> Self:  # type: ignore[return-type]
+        def __init__(self, raw: Dict[str, Any]) -> Self:
             ...
 
         @overload
         def __init__(self, online: int, max: int, list: List[JavaStatusPlayer]) -> None:
             ...
 
-        def __init__(self, *args, **kwargs) -> Optional[Self]:  # type: ignore[return-type]
+        def __init__(self, *args, **kwargs) -> Optional[Self]:
             try:
                 bound = Signature(
                     parameters=[Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=Dict[str, Any])]
                 ).bind(*args, **kwargs)
-                # duplicate code from `deprecated` decorator
-                warnings.simplefilter("always", DeprecationWarning)
-                warnings.warn(
-                    "'JavaStatusResponse.Players.__init__' changed their signature and support to old will be "
-                    "removed on 2022-08, use 'build' instead.",
-                    category=DeprecationWarning,
-                )
-                warnings.simplefilter("default", DeprecationWarning)
+
+                deprecated(
+                    lambda: None,
+                    replacement="mcstatus.status_response.JavaStatusPlayers",
+                    date="2022-08",
+                    display_name="JavaStatusResponse.Players",
+                )()
 
                 instance = self.build(bound.arguments["raw"])
                 instance.list = [
@@ -420,17 +408,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
                 return instance
             except TypeError:
-                try:
-                    Signature(
-                        parameters=[
-                            Parameter("online", Parameter.POSITIONAL_OR_KEYWORD, annotation=int),
-                            Parameter("max", Parameter.POSITIONAL_OR_KEYWORD, annotation=int),
-                            Parameter("list", Parameter.POSITIONAL_OR_KEYWORD, annotation=List[JavaStatusPlayer]),
-                        ]
-                    ).bind(*args, **kwargs)
-                    super().__init__(*args, **kwargs)
-                except TypeError:
-                    raise TypeError("Invalid arguments. This function is overloaded, see source code.")
+                super().__init__(*args, **kwargs)
 
         @property
         @deprecated(replacement="list", date="2022-08")
@@ -444,47 +422,37 @@ class JavaStatusResponse(NewJavaStatusResponse):
         """
 
         @overload
-        def __init__(self, raw: Dict[str, Any]) -> Self:  # type: ignore[return-type]
+        def __init__(self, raw: Dict[str, Any]) -> Self:
             ...
 
         @overload
         def __init__(self, name: str, protocol: int) -> None:
             ...
 
-        def __init__(self, *args, **kwargs) -> Optional[Self]:  # type: ignore[return-type]
+        def __init__(self, *args, **kwargs) -> Optional[Self]:
             try:
                 bound = Signature(
                     parameters=[
                         Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=Dict[str, Any]),
                     ]
                 ).bind(*args, **kwargs)
-                # duplicate code from `deprecated` decorator
-                warnings.simplefilter("always", DeprecationWarning)
-                warnings.warn(
-                    "'JavaStatusResponse.Players.__init__' changed their signature and support to old will be "
-                    "removed on 2022-08, use 'build' instead.",
-                    category=DeprecationWarning,
-                )
-                warnings.simplefilter("default", DeprecationWarning)
+
+                deprecated(
+                    lambda: None,
+                    replacement="mcstatus.status_response.JavaStatusVersion",
+                    date="2022-08",
+                    display_name="JavaStatusResponse.Version",
+                )()
 
                 return self.build(bound.arguments["raw"])
             except TypeError:
-                try:
-                    Signature(
-                        parameters=[
-                            Parameter("name", Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
-                            Parameter("protocol", Parameter.POSITIONAL_OR_KEYWORD, annotation=int),
-                        ]
-                    ).bind(*args, **kwargs)
-                    super().__init__(*args, **kwargs)
-                except TypeError:
-                    raise TypeError("Invalid arguments. This function is overloaded, see source code.")
+                super().__init__(*args, **kwargs)
 
     players: Players
     version: Version
 
     @overload
-    def __init__(self, raw: Dict[str, Any]) -> Self:  # type: ignore[return-type]
+    def __init__(self, raw: Dict[str, Any]) -> Self:
         ...
 
     @overload
@@ -498,21 +466,15 @@ class JavaStatusResponse(NewJavaStatusResponse):
     ) -> None:
         ...
 
-    def __init__(self, *args, **kwargs) -> Optional[Self]:  # type: ignore[return-type]
+    def __init__(self, *args, **kwargs) -> Optional[Self]:
         try:
             bound = Signature(
                 parameters=[
                     Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=Dict[str, Any]),
                 ]
             ).bind(*args, **kwargs)
-            # duplicate code from `deprecated` decorator
-            warnings.simplefilter("always", DeprecationWarning)
-            warnings.warn(
-                "'JavaStatusResponse.__init__' changed their signature and support to old will be "
-                "removed on 2022-08, use 'build' instead.",
-                category=DeprecationWarning,
-            )
-            warnings.simplefilter("default", DeprecationWarning)
+
+            deprecated(lambda: None, replacement="build", date="2022-08", display_name="JavaStatusResponse.__init__")()
 
             instance = self.build(bound.arguments["raw"])
             instance.players = self.Players(
@@ -526,29 +488,17 @@ class JavaStatusResponse(NewJavaStatusResponse):
             )
             return instance
         except TypeError:
-            try:
-                Signature(
-                    parameters=[
-                        Parameter("players", Parameter.POSITIONAL_OR_KEYWORD, annotation=JavaStatusPlayers),
-                        Parameter("version", Parameter.POSITIONAL_OR_KEYWORD, annotation=JavaStatusVersion),
-                        Parameter("motd", Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
-                        Parameter("latency", Parameter.POSITIONAL_OR_KEYWORD, annotation=float),
-                        Parameter("icon", Parameter.POSITIONAL_OR_KEYWORD, annotation=Optional[str]),
-                    ]
-                ).bind(*args, **kwargs)
-                super().__init__(*args, **kwargs)
-                # re-def fields to support the old interface
-                self.players = self.Players(
-                    online=self.players.online,
-                    max=self.players.max,
-                    list=self.players.list,
-                )
-                self.version = self.Version(
-                    name=self.version.name,
-                    protocol=self.version.protocol,
-                )
-            except TypeError:
-                raise TypeError("Invalid arguments. This function is overloaded, see source code.")
+            super().__init__(*args, **kwargs)
+            # re-def fields to support the old interface
+            self.players = self.Players(
+                online=self.players.online,
+                max=self.players.max,
+                list=self.players.list,
+            )
+            self.version = self.Version(
+                name=self.version.name,
+                protocol=self.version.protocol,
+            )
 
     @property
     @deprecated(replacement="motd", date="2022-08")
@@ -585,24 +535,20 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
                         Parameter("version", Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
                     ]
                 ).bind(*args, **kwargs)
-                deprecated(self.__init__, date="2022-08")(
+                deprecated(
+                    lambda: None,
+                    replacement="mcstatus.status_response.BedrockStatusVersion",
+                    date="2022-08",
+                    display_name="BedrockStatusResponse.Version",
+                )()
+                super().__init__(
                     self,
                     name=bound.arguments["version"],
                     protocol=bound.arguments["protocol"],
                     brand=bound.arguments["brand"],
                 )
             except TypeError:
-                try:
-                    Signature(
-                        parameters=[
-                            Parameter("name", Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
-                            Parameter("protocol", Parameter.POSITIONAL_OR_KEYWORD, annotation=int),
-                            Parameter("brand", Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
-                        ]
-                    ).bind(*args, **kwargs)
-                    super().__init__(*args, **kwargs)
-                except TypeError:
-                    raise TypeError("Invalid arguments. This function is overloaded, see source code.")
+                super().__init__(*args, **kwargs)
 
     @property
     @deprecated(replacement="players.online", date="2022-08")
@@ -661,8 +607,8 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
                     Parameter("gamemode", Parameter.POSITIONAL_OR_KEYWORD, annotation=Optional[str]),
                 ]
             ).bind(*args, **kwargs)
-            deprecated(self.__init__, replacement="build", date="2022-08")(
-                self,
+            deprecated(lambda: None, replacement="build", date="2022-08", display_name="BedrockStatusResponse.__init__")()
+            super().__init__(
                 players=BedrockStatusPlayers(bound.arguments["players_online"], bound.arguments["players_max"]),
                 version=self.Version(
                     name=bound.arguments["version"],
@@ -675,18 +621,6 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
                 gamemode=bound.arguments["gamemode"],
             )
         except TypeError:
-            # FIXME This breaks on the second call, but I don't know how to fix it
-            # also if I try run `print(args)` it breaks
-            Signature(
-                parameters=[
-                    Parameter("players", Parameter.POSITIONAL_OR_KEYWORD, annotation=BedrockStatusPlayers),
-                    Parameter("version", Parameter.POSITIONAL_OR_KEYWORD, annotation=BedrockStatusVersion),
-                    Parameter("motd", Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
-                    Parameter("latency", Parameter.POSITIONAL_OR_KEYWORD, annotation=float),
-                    Parameter("map_name", Parameter.POSITIONAL_OR_KEYWORD, annotation=Optional[str]),
-                    Parameter("gamemode", Parameter.POSITIONAL_OR_KEYWORD, annotation=Optional[str]),
-                ]
-            ).bind(*args, **kwargs)
             super().__init__(*args, **kwargs)
             # re-def version field to support the old interface
             self.version = self.Version(
