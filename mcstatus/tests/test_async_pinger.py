@@ -42,8 +42,7 @@ class TestAsyncServerPinger:
             )
         )
 
-        with patch("mcstatus.status_response.JavaStatusResponse.build") as build:
-            mock = build.start()
+        with patch("mcstatus.status_response.JavaStatusResponse.build") as mock:
             async_decorator(self.pinger.read_status)()
             mock.assert_called_once_with(
                 {
