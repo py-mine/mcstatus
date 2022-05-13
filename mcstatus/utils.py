@@ -80,6 +80,7 @@ def deprecated(
     version: Optional[str] = None,
     date: Optional[str] = None,
     msg: Optional[str] = None,
+    display_name: Optional[str] = None,
 ) -> Callable[P, R]:
     ...
 
@@ -93,6 +94,7 @@ def deprecated(
     date: Optional[str] = None,
     msg: Optional[str] = None,
     methods: Iterable[str],
+    display_name: Optional[str] = None,
 ) -> Type[T]:
     ...
 
@@ -106,6 +108,7 @@ def deprecated(
     date: Optional[str] = None,
     msg: Optional[str] = None,
     methods: Optional[Iterable[str]] = None,
+    display_name: Optional[str] = None,
 ) -> DeprecatedReturn:
     ...
 
@@ -118,6 +121,7 @@ def deprecated(
     date: Optional[str] = None,
     msg: Optional[str] = None,
     methods: Optional[Iterable[str]] = None,
+    display_name: Optional[str] = None,
 ) -> Callable:
     if date is not None and version is not None:
         raise ValueError("Expected removal timeframe can either be a date, or a version, not both.")
@@ -142,7 +146,7 @@ def deprecated(
 
     def decorate(obj: Union[Callable[P, R], Type[T]]) -> Union[Callable[P, R], Type[T]]:
         # Construct and send the warning message
-        name = getattr(obj, "__qualname__", obj.__name__)
+        name = getattr(obj, "__qualname__", obj.__name__) if display_name is None else display_name
         warn_message = f"'{name}' is deprecated and is expected to be removed"
         if version is not None:
             warn_message += f" in {version}"
