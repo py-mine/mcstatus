@@ -11,7 +11,6 @@ if TYPE_CHECKING:
 from mcstatus.utils import deprecated
 
 __all__ = [
-    "STYLE_MAP",
     "AbstractDataclass",
     "MCStatusResponse",
     "JavaStatusResponse",
