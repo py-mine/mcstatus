@@ -445,7 +445,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
                     display_name="JavaStatusResponse.Version",
                 )()
 
-                # build and copy instance from `built` method
+                # build and copy instance from `build` method
                 super().__init__(**self.build(bound.arguments["raw"]).__dict__)
             except TypeError:
                 super().__init__(*args, **kwargs)
