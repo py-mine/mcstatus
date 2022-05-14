@@ -284,7 +284,7 @@ flake8 = "*"
 
 [[package]]
 name = "flake8-tidy-imports"
-version = "4.7.0"
+version = "4.8.0"
 description = "A flake8 plugin that helps you write tidier imports."
 category = "dev"
 optional = false
@@ -544,7 +544,7 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyright"
-version = "1.1.245"
+version = "1.1.246"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
@@ -876,7 +876,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4"
-content-hash = "a5bd87da898bcc4a933241dbe96b2c08a373bf32a59521713baf9c35d2e804a3"
+content-hash = "2371a9c9b2c2429b20e7639aaa863a21d17b1ca43f77ebcc4a4facfe52a79a52"
 
 [metadata.files]
 asyncio-dgram = [
@@ -1098,8 +1098,8 @@ flake8-polyfill = [
     {file = "flake8_polyfill-1.0.2-py2.py3-none-any.whl", hash = "sha256:12be6a34ee3ab795b19ca73505e7b55826d5f6ad7230d31b18e106400169b9e9"},
 ]
 flake8-tidy-imports = [
-    {file = "flake8-tidy-imports-4.7.0.tar.gz", hash = "sha256:afb7d5eff1042aac0e636013b9168a245b3cff15f5ad5d191fdb4b704fcfcb34"},
-    {file = "flake8_tidy_imports-4.7.0-py3-none-any.whl", hash = "sha256:223d360081f08d52ee85a341d27d565a61ebf2c4a032ac4c3298f47e168e02e8"},
+    {file = "flake8-tidy-imports-4.8.0.tar.gz", hash = "sha256:df44f9c841b5dfb3a7a1f0da8546b319d772c2a816a1afefcce43e167a593d83"},
+    {file = "flake8_tidy_imports-4.8.0-py3-none-any.whl", hash = "sha256:25bd9799358edefa0e010ce2c587b093c3aba942e96aeaa99b6d0500ae1bf09c"},
 ]
 identify = [
     {file = "identify-2.4.10-py2.py3-none-any.whl", hash = "sha256:7d10baf6ba6f1912a0a49f4c1c2c49fa1718765c3a37d72d13b07779567c5b85"},
@@ -1194,8 +1194,8 @@ pyparsing = [
     {file = "pyparsing-3.0.7.tar.gz", hash = "sha256:18ee9022775d270c55187733956460083db60b37d0d0fb357445f3094eed3eea"},
 ]
 pyright = [
-    {file = "pyright-1.1.245-py3-none-any.whl", hash = "sha256:1edfb44ea6318e4648e4d522d1d164774dd487e27cb954d202cbf7e9cf28d597"},
-    {file = "pyright-1.1.245.tar.gz", hash = "sha256:cbbd743f9de2b96b35a03b9b8f2d2b046f292c9967468b9a38132319954ddbf2"},
+    {file = "pyright-1.1.246-py3-none-any.whl", hash = "sha256:2ccb43792e03a1af1da406b7dcf12212d4671b6b14cda3a0492e2b40e252b24f"},
+    {file = "pyright-1.1.246.tar.gz", hash = "sha256:3ac37f74588f4dab35da48398727f79ebc90c703ad0230f95c006ef158d63d30"},
 ]
 pytest = [
     {file = "pytest-7.1.2-py3-none-any.whl", hash = "sha256:13d0e3ccfc2b6e26be000cb6568c832ba67ba32e719443bfe725814d3c42433c"},
