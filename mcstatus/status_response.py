@@ -354,7 +354,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
             @property
             @deprecated(replacement="uuid", date="2022-08")
-            def id(self):
+            def id(self) -> str:
                 return self.uuid
 
             @overload
@@ -417,7 +417,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
         @property
         @deprecated(replacement="list", date="2022-08")
-        def sample(self):
+        def sample(self) -> Optional[List]:
             if len(self.list) == 0:
                 return None
             return self.list
@@ -503,7 +503,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
     @property
     @deprecated(replacement="motd", date="2022-08")
-    def description(self):
+    def description(self) -> str:
         return self.motd
 
 
@@ -539,7 +539,7 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
 
         @property
         @deprecated(replacement="name", date="2022-08")
-        def version(self):
+        def version(self) -> str:
             return self.name
 
         @overload
@@ -580,17 +580,17 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
 
     @property
     @deprecated(replacement="players.online", date="2022-08")
-    def players_online(self):
+    def players_online(self) -> int:
         return self.players.online
 
     @property
     @deprecated(replacement="players.max", date="2022-08")
-    def players_max(self):
+    def players_max(self) -> int:
         return self.players.max
 
     @property
     @deprecated(replacement="map_name", date="2022-08")
-    def map(self):
+    def map(self) -> Optional[str]:
         return self.map_name
 
     @overload
