@@ -414,6 +414,8 @@ class JavaStatusResponse(NewJavaStatusResponse):
         @property
         @deprecated(replacement="list", date="2022-08")
         def sample(self):
+            if len(self.list) == 0:
+                return None
             return self.list
 
     class Version(JavaStatusVersion):
