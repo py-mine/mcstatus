@@ -147,5 +147,4 @@ class AsyncServerPinger(ServerPinger):
         return delta.total_seconds() * 1000
 
 
-class PingResponse(JavaStatusResponse):
-    """Outdated interface for `JavaStatusResponse`."""
+PingResponse = JavaStatusResponse
