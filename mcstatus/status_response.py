@@ -538,11 +538,11 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
                     ]
                 ).bind(*args, **kwargs)
 
-                if (
-                    not isinstance(bound.arguments["protocol"], int)
-                    or not isinstance(bound.arguments["brand"], str)  # noqa: W503 # black incompatible
-                    or not isinstance(bound.arguments["version"], str)  # noqa: W503 # black incompatible
-                ):
+                if any([
+                    not isinstance(bound.arguments["protocol"], int),
+                    not isinstance(bound.arguments["brand"], str),
+                    not isinstance(bound.arguments["version"], str),
+                ]):
                     raise TypeError("Invalid arguments. Not correct types.")
 
                 deprecated(
