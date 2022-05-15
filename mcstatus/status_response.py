@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from inspect import Parameter, Signature
 from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING, Tuple, Union, overload
 
@@ -306,6 +306,24 @@ class BedrockStatusVersion(StatusVersion):
     brand: str
 
 
+def custom_eq(self, other) -> bool:
+    """Custom equality function for outdated subclasses."""
+    return all(
+        [
+            isinstance(self, other.__class__),
+            (
+                (
+                    (getattr(self, self_field.name) == getattr(other, other_field.name))
+                    if self_field.compare and other_field.compare
+                    else True
+                )
+                for self_field in fields(self)
+                for other_field in fields(other)
+            ),
+        ]
+    )
+
+
 _OLD_JAVA_INIT_SIGNATURE = Signature(
     parameters=[
         Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=Dict[str, Any]),
@@ -361,6 +379,9 @@ class JavaStatusResponse(NewJavaStatusResponse):
                 except TypeError:
                     super().__init__(*args, **kwargs)
 
+            def __eq__(self, other):
+                return custom_eq(self, other)
+
         @overload
         def __init__(self, raw: Dict[str, Any]) -> None:
             ...
@@ -393,6 +414,9 @@ class JavaStatusResponse(NewJavaStatusResponse):
                 super().__init__(**instance)
             except TypeError:
                 super().__init__(*args, **kwargs)
+
+        def __eq__(self, other):
+            return custom_eq(self, other)
 
         @property
         @deprecated(replacement="list", date="2022-08")
@@ -431,6 +455,9 @@ class JavaStatusResponse(NewJavaStatusResponse):
                 super().__init__(**self.build(bound.arguments["raw"]).__dict__)
             except TypeError:
                 super().__init__(*args, **kwargs)
+
+        def __eq__(self, other):
+            return custom_eq(self, other)
 
     players: Players
     version: Version
@@ -556,6 +583,9 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
                 )
             except TypeError:
                 super().__init__(*args, **kwargs)
+
+        def __eq__(self, other):
+            return custom_eq(self, other)
 
     @property
     @deprecated(replacement="players.online", date="2022-08")
