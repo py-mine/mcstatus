@@ -408,7 +408,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
                         name=player.name,
                         uuid=player.uuid,
                     )
-                    for player in bound.arguments["sample"]
+                    for player in instance["list"]
                 ]
 
                 super().__init__(**instance)
