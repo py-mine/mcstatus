@@ -359,7 +359,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
                 ...
 
             @overload
-            def __init__(self, name: str, uuid: int) -> None:
+            def __init__(self, name: str, uuid: str) -> None:
                 ...
 
             def __init__(self, *args, **kwargs) -> None:
