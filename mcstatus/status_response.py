@@ -69,27 +69,7 @@ def _validate_data(raw: Dict[str, Any], who: str, required: Iterable[Tuple[str, 
 
 
 @dataclass
-class AbstractDataclass(ABC):
-    """Abstract base class for all dataclasses.
-
-    We can't use just `ABC` because we need raise TypeError if we try to
-    instantiate an abstract dataclass. Class which inherit from `ABC` raises
-    it only if it has abstract methods.
-    """
-
-    def __new__(cls, *args, **kwargs):
-        """Check if someone tries to instantiate an abstract class.
-
-        :raises NotImplementedError: If someone tries to instantiate an abstract class.
-        :return: The new instance of child abstract class.
-        """
-        if cls is AbstractDataclass or cls.__bases__[0] is AbstractDataclass:
-            raise NotImplementedError("Cannot instantiate abstract class.")
-        return super().__new__(cls)
-
-
-@dataclass
-class MCStatusResponse(AbstractDataclass):
+class MCStatusResponse(ABC):
     """Class for storing shared data from a status response.
 
     :param motd: Message Of The Day. Also known as `Description`.
@@ -227,7 +207,7 @@ class NewBedrockStatusResponse(MCStatusResponse):
 
 
 @dataclass
-class StatusPlayers(AbstractDataclass):
+class StatusPlayers(ABC):
     """Class for storing players info, like current online."""
 
     online: int
@@ -288,7 +268,7 @@ class JavaStatusPlayer:
 
 
 @dataclass
-class StatusVersion(AbstractDataclass):
+class StatusVersion(ABC):
     """Class for storing version info.
 
     :param name: Version name. Example `1.18.0`.
