@@ -306,7 +306,7 @@ class BedrockStatusVersion(StatusVersion):
     brand: str
 
 
-old_java_init_signature = Signature(
+_OLD_JAVA_INIT_SIGNATURE = Signature(
     parameters=[
         Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=Dict[str, Any]),
     ]
@@ -347,7 +347,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
             def __init__(self, *args, **kwargs) -> None:
                 try:
                     # have the same signature
-                    bound = old_java_init_signature.bind(*args, **kwargs)
+                    bound = _OLD_JAVA_INIT_SIGNATURE.bind(*args, **kwargs)
 
                     deprecated(
                         lambda: None,
@@ -372,7 +372,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
         def __init__(self, *args, **kwargs) -> None:
             try:
                 # have the same signature
-                bound = old_java_init_signature.bind(*args, **kwargs)
+                bound = _OLD_JAVA_INIT_SIGNATURE.bind(*args, **kwargs)
 
                 deprecated(
                     lambda: None,
@@ -418,7 +418,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
         def __init__(self, *args, **kwargs) -> None:
             try:
                 # have the same signature
-                bound = old_java_init_signature.bind(*args, **kwargs)
+                bound = _OLD_JAVA_INIT_SIGNATURE.bind(*args, **kwargs)
 
                 deprecated(
                     lambda: None,
@@ -452,7 +452,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
     def __init__(self, *args, **kwargs) -> None:
         try:
-            bound = old_java_init_signature.bind(*args, **kwargs)
+            bound = _OLD_JAVA_INIT_SIGNATURE.bind(*args, **kwargs)
 
             deprecated(lambda: None, replacement="build", date="2022-08", display_name="JavaStatusResponse.__init__")()
 
@@ -486,7 +486,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
         return self.motd
 
 
-old_bedrock_init_signature = Signature(
+_OLD_BEDROCK_INIT_SIGNATURE = Signature(
     parameters=[
         Parameter("protocol", Parameter.POSITIONAL_OR_KEYWORD, annotation=int),
         Parameter("brand", Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
@@ -500,7 +500,7 @@ old_bedrock_init_signature = Signature(
     ]
 )
 
-old_bedrock_version_init_signature = Signature(
+_OLD_BEDROCK_VERSION_INIT_SIGNATURE = Signature(
     parameters=[
         Parameter("protocol", Parameter.POSITIONAL_OR_KEYWORD, annotation=int),
         Parameter("brand", Parameter.POSITIONAL_OR_KEYWORD, annotation=str),
@@ -531,7 +531,7 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
 
         def __init__(self, *args, **kwargs) -> None:
             try:
-                bound = old_bedrock_version_init_signature.bind(*args, **kwargs)
+                bound = _OLD_BEDROCK_VERSION_INIT_SIGNATURE.bind(*args, **kwargs)
 
                 if any(
                     [
@@ -601,7 +601,7 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
 
     def __init__(self, *args, **kwargs) -> None:
         try:
-            bound = old_bedrock_init_signature.bind(*args, **kwargs)
+            bound = _OLD_BEDROCK_INIT_SIGNATURE.bind(*args, **kwargs)
             deprecated(lambda: None, replacement="build", date="2022-08", display_name="BedrockStatusResponse.__init__")()
             super().__init__(
                 players=BedrockStatusPlayers(bound.arguments["players_online"], bound.arguments["players_max"]),
