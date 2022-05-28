@@ -56,6 +56,27 @@ class TestBedrockStatusResponse:
     def test_values(self, build, field, value):
         assert getattr(build, field) == value
 
+    @mark.parametrize("field,pop_index", [("map_name", 7), ("gamemode", 7), ("gamemode", 8)])
+    def test_optional_parameters_is_none(self, field, pop_index):
+        parameters = [
+            "MCPE",
+            "§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r",
+            "422",
+            "1.18.100500",
+            "1",
+            "69",
+            "3767071975391053022",
+            "map name here",
+            "Default",
+        ]
+        parameters.pop(pop_index)
+        # remove all variables after `pop_index`
+        if len(parameters) - 1 == pop_index:
+            parameters.pop(pop_index)
+
+        build = BedrockStatusResponse.build(parameters, 123.0)
+        assert getattr(build, field) is None
+
 
 class TestBedrockStatusPlayers:
     @mark.parametrize("field", ["online", "max"])
