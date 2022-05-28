@@ -191,7 +191,7 @@ class TestDeprecatedJavaStatusResponseVersion:
     @mark.filterwarnings("ignore::DeprecationWarning")
     def test_deprecated_object_same_as_new(self, build):
         """If we forgot overwrite `__eq__` method in child class, it will fail."""
-        assert build == JavaStatusVersion(name="foo", protocol=44)
+        assert build == JavaStatusVersion(name="1.8-pre1", protocol=44)
 
     def test_repr_return_correct_class(self, build):
         """If we forgot overwrite `__repr__` method in child class,

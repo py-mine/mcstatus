@@ -308,20 +308,17 @@ class BedrockStatusVersion(BaseStatusVersion):
 
 def custom_eq(self, other) -> bool:
     """Custom equality function for outdated subclasses."""
-    return all(
-        [
-            isinstance(self, other.__class__),
-            (
-                (
-                    (getattr(self, self_field.name) == getattr(other, other_field.name))
-                    if self_field.compare and other_field.compare
-                    else True
-                )
-                for self_field in fields(self)
-                for other_field in fields(other)
-            ),
-        ]
+    to_check = list(
+        (
+            (getattr(self, self_field.name) == getattr(other, other_field.name))
+            if self_field.compare and other_field.compare and (self_field.name == other_field.name)
+            else True
+        )
+        for self_field in fields(self)
+        for other_field in fields(other)
     )
+    to_check.append(isinstance(self, other.__class__))
+    return all(to_check)
 
 
 _OLD_JAVA_INIT_SIGNATURE = Signature(
