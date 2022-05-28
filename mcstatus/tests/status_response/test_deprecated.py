@@ -1,6 +1,6 @@
 # TODO: Delete this file, after 2022-08
 
-from warnings import catch_warnings, simplefilter
+from warnings import catch_warnings
 
 from pytest import deprecated_call, fixture, mark
 
@@ -18,8 +18,7 @@ from mcstatus.status_response import (
 class TestDeprecatedJavaStatusResponse:
     @fixture(scope="class")
     def build(self) -> JavaStatusResponse:
-        with catch_warnings():
-            simplefilter("ignore")
+        with catch_warnings(record=True):
             return JavaStatusResponse(
                 {
                     "players": {"max": 20, "online": 0},
@@ -73,8 +72,7 @@ class TestDeprecatedJavaStatusResponse:
 class TestDeprecatedJavaStatusResponsePlayers:
     @fixture(scope="class")
     def build(self) -> JavaStatusResponse.Players:
-        with catch_warnings():
-            simplefilter("ignore")
+        with catch_warnings(record=True):
             return JavaStatusResponse.Players(
                 {
                     "max": 20,
@@ -138,8 +136,7 @@ class TestDeprecatedJavaStatusResponsePlayers:
 class TestDeprecatedJavaStatusResponsePlayer:
     @fixture(scope="class")
     def build(self) -> JavaStatusResponse.Players.Player:
-        with catch_warnings():
-            simplefilter("ignore")
+        with catch_warnings(record=True):
             return JavaStatusResponse.Players.Player({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
 
     def test_id_field_raise_warning(self, build):
@@ -180,8 +177,7 @@ class TestDeprecatedJavaStatusResponsePlayer:
 class TestDeprecatedJavaStatusResponseVersion:
     @fixture(scope="class")
     def build(self) -> JavaStatusResponse.Version:
-        with catch_warnings():
-            simplefilter("ignore")
+        with catch_warnings(record=True):
             return JavaStatusResponse.Version({"name": "1.8-pre1", "protocol": 44})
 
     def test_init_old_signature_raise_warning(self):
@@ -211,8 +207,7 @@ class TestDeprecatedJavaStatusResponseVersion:
 class TestDeprecatedBedrockStatusResponse:
     @fixture(scope="class")
     def build(self) -> BedrockStatusResponse:
-        with catch_warnings():
-            simplefilter("ignore")
+        with catch_warnings(record=True):
             return BedrockStatusResponse(
                 protocol=422,
                 brand="MCPE",
@@ -276,8 +271,7 @@ class TestDeprecatedBedrockStatusResponse:
 class TestDeprecatedBedrockStatusResponseVersion:
     @fixture(scope="class")
     def build(self) -> BedrockStatusResponse.Version:
-        with catch_warnings():
-            simplefilter("ignore")
+        with catch_warnings(record=True):
             return BedrockStatusResponse.Version(protocol=422, brand="MCPE", version="1.18.100500")
 
     def test_version_field_raise_warning(self, build):
@@ -329,8 +323,7 @@ class TestDeprecatedBedrockStatusResponseVersionPositionalArguments:
         if request:
             return BedrockStatusResponse.Version("1.18.100500", 422, "MCPE")
         else:
-            with catch_warnings():
-                simplefilter("ignore")
+            with catch_warnings(record=True):
                 return BedrockStatusResponse.Version(422, "MCPE", "1.18.100500")
 
     @mark.filterwarnings("ignore::DeprecationWarning")
