@@ -382,6 +382,9 @@ class JavaStatusResponse(NewJavaStatusResponse):
             def __eq__(self, other):
                 return custom_eq(self, other)
 
+            def __repr__(self):
+                return super().__repr__().replace("JavaStatusResponse.Players.Player", "JavaStatusPlayer")
+
         @overload
         def __init__(self, raw: Dict[str, Any]) -> None:
             ...
@@ -417,6 +420,9 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
         def __eq__(self, other):
             return custom_eq(self, other)
+
+        def __repr__(self):
+            return super().__repr__().replace("JavaStatusResponse.Players", "JavaStatusPlayers")
 
         @property
         @deprecated(replacement="list", date="2022-08")
@@ -458,6 +464,9 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
         def __eq__(self, other):
             return custom_eq(self, other)
+
+        def __repr__(self):
+            return super().__repr__().replace("JavaStatusResponse.Version", "JavaStatusVersion")
 
     players: Players
     version: Version
@@ -586,6 +595,9 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
 
         def __eq__(self, other):
             return custom_eq(self, other)
+
+        def __repr__(self):
+            return super().__repr__().replace("BedrockStatusResponse.Version", "BedrockStatusVersion")
 
     @property
     @deprecated(replacement="players.online", date="2022-08")
