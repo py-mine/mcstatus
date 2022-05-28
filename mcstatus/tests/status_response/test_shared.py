@@ -1,6 +1,6 @@
 from pytest import mark, raises
 
-from mcstatus.status_response import MCStatusResponse, _validate_data
+from mcstatus.status_response import BaseStatusResponse, _validate_data
 
 
 class TestValidateDataFunction:
@@ -45,4 +45,4 @@ class TestValidateDataFunction:
 class TestMCStatusResponse:
     def test_raises_not_implemented_error_on_build(self):
         with raises(NotImplementedError):
-            MCStatusResponse.build({"foo": "bar"})
+            BaseStatusResponse.build({"foo": "bar"})

@@ -16,7 +16,7 @@ from mcstatus.protocol.connection import (
     UDPSocketConnection,
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
-from mcstatus.status_response import BedrockStatusResponse, JavaStatusResponse, MCStatusResponse
+from mcstatus.status_response import BaseStatusResponse, BedrockStatusResponse, JavaStatusResponse
 from mcstatus.utils import deprecated, retry
 
 if TYPE_CHECKING:
@@ -64,21 +64,21 @@ class MCServer(ABC):
 
     @classmethod
     @abstractmethod
-    def status(cls, **kwargs) -> MCStatusResponse:
+    def status(cls, **kwargs) -> BaseStatusResponse:
         """Checks the status of a Minecraft server via the ping protocol.
 
         :param type **kwargs: Passed to a `ServerPinger` instance or to a `BedrockServerStatus` if it is a Bedrock server.
-        :return: Status information in a `MCStatusResponse` instance.
+        :return: Status information in a `BaseStatusResponse` instance.
         """
         raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 
     @classmethod
     @abstractmethod
-    async def async_status(cls, **kwargs) -> MCStatusResponse:
+    async def async_status(cls, **kwargs) -> BaseStatusResponse:
         """Asynchronously checks the status of a Minecraft server via the ping protocol.
 
         :param type **kwargs: Passed to a `AsyncServerPinger` instance or to a `BedrockServerStatus` if it is a Bedrock server.
-        :return: Status information in a `MCStatusResponse` instance.
+        :return: Status information in a `BaseStatusResponse` instance.
         """
         raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 

@@ -11,14 +11,14 @@ if TYPE_CHECKING:
 from mcstatus.utils import deprecated
 
 __all__ = [
-    "MCStatusResponse",
+    "BaseStatusResponse",
     "JavaStatusResponse",
     "BedrockStatusResponse",
-    "StatusPlayers",
+    "BaseStatusPlayers",
     "JavaStatusPlayers",
     "BedrockStatusPlayers",
     "JavaStatusPlayer",
-    "StatusVersion",
+    "BaseStatusVersion",
     "JavaStatusVersion",
     "BedrockStatusVersion",
 ]
@@ -69,32 +69,32 @@ def _validate_data(raw: Dict[str, Any], who: str, required: Iterable[Tuple[str, 
 
 
 @dataclass
-class MCStatusResponse(ABC):
+class BaseStatusResponse(ABC):
     """Class for storing shared data from a status response.
 
     :param motd: Message Of The Day. Also known as `Description`.
     :param latency: Latency between a server and the client (you). In milliseconds.
     """
 
-    players: StatusPlayers
-    version: StatusVersion
+    players: BaseStatusPlayers
+    version: BaseStatusVersion
     motd: str
     latency: float
 
     @classmethod
     @abstractmethod
     def build(cls, *args, **kwargs) -> Self:
-        """Build MCStatusResponse and check is it valid.
+        """Build BaseStatusResponse and check is it valid.
 
         :param args: Arguments in specific realisation.
         :param kwargs: Keyword arguments in specific realisation.
-        :return: `MCStatusResponse` object.
+        :return: `BaseStatusResponse` object.
         """
         raise NotImplementedError("You can't use abstract methods.")
 
 
 @dataclass
-class NewJavaStatusResponse(MCStatusResponse):
+class NewJavaStatusResponse(BaseStatusResponse):
     """Class for storing JavaServer data from a status response.
 
     :param icon: Base64 encoded icon of the server. Can be unset.
@@ -159,7 +159,7 @@ class NewJavaStatusResponse(MCStatusResponse):
 
 
 @dataclass
-class NewBedrockStatusResponse(MCStatusResponse):
+class NewBedrockStatusResponse(BaseStatusResponse):
     """Class for storing BedrockServer data from a status response.
 
     :param map_name: Name of the map. Can be unset.
@@ -173,7 +173,7 @@ class NewBedrockStatusResponse(MCStatusResponse):
 
     @classmethod
     def build(cls, decoded_data: List[Any], latency: float) -> Self:
-        """Build MCStatusResponse and check is it valid.
+        """Build BaseStatusResponse and check is it valid.
 
         :param decoded_data: Raw decoded response object.
         :param latency: Latency of the request.
@@ -207,7 +207,7 @@ class NewBedrockStatusResponse(MCStatusResponse):
 
 
 @dataclass
-class StatusPlayers(ABC):
+class BaseStatusPlayers(ABC):
     """Class for storing players info, like current online."""
 
     online: int
@@ -215,8 +215,8 @@ class StatusPlayers(ABC):
 
 
 @dataclass
-class JavaStatusPlayers(StatusPlayers):
-    """Class which extends a `StatusPlayers` class with list of players.
+class JavaStatusPlayers(BaseStatusPlayers):
+    """Class which extends a `BaseStatusPlayers` class with list of players.
 
     :param players: List of players. Can be empty even if online > 0.
     """
@@ -243,7 +243,7 @@ class JavaStatusPlayers(StatusPlayers):
 
 
 @dataclass
-class BedrockStatusPlayers(StatusPlayers):
+class BedrockStatusPlayers(BaseStatusPlayers):
     """Class which represents `BedrockStatusResponse` players field."""
 
 
@@ -268,7 +268,7 @@ class JavaStatusPlayer:
 
 
 @dataclass
-class StatusVersion(ABC):
+class BaseStatusVersion(ABC):
     """Class for storing version info.
 
     :param name: Version name. Example `1.18.0`.
@@ -280,7 +280,7 @@ class StatusVersion(ABC):
 
 
 @dataclass
-class JavaStatusVersion(StatusVersion):
+class JavaStatusVersion(BaseStatusVersion):
     """Class for storing Java version info."""
 
     @classmethod
@@ -297,7 +297,7 @@ class JavaStatusVersion(StatusVersion):
 
 
 @dataclass
-class BedrockStatusVersion(StatusVersion):
+class BedrockStatusVersion(BaseStatusVersion):
     """Class for storing Bedrock version info.
 
     :param brand: Like `MCPE` or another.
