@@ -4,18 +4,9 @@ from mcstatus.status_response import BaseStatusResponse, _validate_data
 
 
 class TestValidateDataFunction:
-    @mark.parametrize(
-        "raw",
-        [
-            {"foo": "bar"},
-            {"foo": "bar", "bar": "foo"},
-            {},
-            {"foo": 123, "bar": 1.4, "baz": True},
-            {"abc": object},
-        ],
-    )
-    @mark.parametrize("required_key", ["foo", "bar", "baz", "abc"])
-    @mark.parametrize("required_type", [str, int, float, bool, object])
+    @mark.parametrize("raw", [{"foo": "bar"}, {"foo": 123, "bar": 1.4, "baz": True}])
+    @mark.parametrize("required_key", ["foo", "bar", "baz"])
+    @mark.parametrize("required_type", [str, int, object])
     def test_invalid_data(self, raw, required_key, required_type):
         if required_key in raw and isinstance(raw[required_key], required_type):
             return
