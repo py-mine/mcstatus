@@ -68,7 +68,7 @@ class TestJavaStatusResponse:
     @mark.parametrize(
         "field,value",
         [
-            ("players", JavaStatusPlayers(0, 20, [])),
+            ("players", JavaStatusPlayers(0, 20, None)),
             ("version", JavaStatusVersion("1.8-pre1", 44)),
             ("motd", "A Minecraft Server"),
             ("latency", None),
@@ -251,7 +251,7 @@ class TestJavaStatusPlayers:
         [
             ("max", int),
             ("online", int),
-            ("list", list),
+            ("sample", list),
         ],
     )
     def test_types(self, build, field, expected_type):
@@ -263,7 +263,7 @@ class TestJavaStatusPlayers:
             ("max", 20),
             ("online", 0),
             (
-                "list",
+                "sample",
                 [
                     JavaStatusPlayer("foo", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"),
                     JavaStatusPlayer("bar", "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"),
@@ -277,11 +277,11 @@ class TestJavaStatusPlayers:
 
     def test_no_sample(self):
         response = JavaStatusPlayers.build({"max": 20, "online": 0})
-        assert response.list == []
+        assert response.sample is None
 
     def test_empty_sample(self):
         response = JavaStatusPlayers.build({"max": 20, "online": 0, "sample": []})
-        assert response.list == []
+        assert response.sample is None
 
 
 class TestJavaStatusPlayer:

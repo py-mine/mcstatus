@@ -216,12 +216,12 @@ class BaseStatusPlayers(ABC):
 
 @dataclass
 class JavaStatusPlayers(BaseStatusPlayers):
-    """Class which extends a `BaseStatusPlayers` class with list of players.
+    """Class which extends a `BaseStatusPlayers` class with sample of players.
 
-    :param players: List of players. Can be empty even if online > 0.
+    :param players: List of players. None if `sample` in raw == [], or when it is not present.
     """
 
-    list: List[JavaStatusPlayer]
+    sample: Optional[List[JavaStatusPlayer]]
 
     @classmethod
     def build(cls, raw: Dict[str, Any]) -> Self:
@@ -235,10 +235,14 @@ class JavaStatusPlayers(BaseStatusPlayers):
         _validate_data(raw, "players", [("online", int), ("max", int)])
         if "sample" in raw:
             _validate_data(raw, "players", [("sample", list)])
+
+        sample = [JavaStatusPlayer.build(player) for player in raw.get("sample", [])]
+        if len(sample) == 0:
+            sample = None
         return cls(
             online=raw["online"],
             max=raw["max"],
-            list=[JavaStatusPlayer.build(player) for player in raw["sample"]] if "sample" in raw else [],
+            sample=sample,
         )
 
 
@@ -341,7 +345,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
         """
 
         class Player(JavaStatusPlayer):
-            """Deprecated class for player in `list` field.
+            """Deprecated class for player in `sample` field.
 
             Use `JavaStatusPlayer` instead.
             """
@@ -387,7 +391,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
             ...  # pragma: no cover
 
         @overload
-        def __init__(self, online: int, max: int, list: List[JavaStatusPlayer]) -> None:
+        def __init__(self, online: int, max: int, sample: Optional[List[JavaStatusPlayer]]) -> None:
             ...  # pragma: no cover
 
         def __init__(self, *args, **kwargs) -> None:
@@ -403,13 +407,14 @@ class JavaStatusResponse(NewJavaStatusResponse):
                 )()
 
                 instance = self.build(bound.arguments["raw"]).__dict__
-                instance["list"] = [
-                    self.Player(
-                        name=player.name,
-                        uuid=player.uuid,
-                    )
-                    for player in instance["list"]
-                ]
+                if instance["sample"] is not None:
+                    instance["sample"] = [
+                        self.Player(
+                            name=player.name,
+                            uuid=player.uuid,
+                        )
+                        for player in instance["sample"]
+                    ]
 
                 super().__init__(**instance)
             except TypeError:
@@ -420,13 +425,6 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
         def __repr__(self):
             return super().__repr__().replace("JavaStatusResponse.Players", "JavaStatusPlayers")
-
-        @property
-        @deprecated(replacement="list", date="2022-08")
-        def sample(self) -> Optional[List]:
-            if len(self.list) == 0:
-                return None
-            return self.list
 
     class Version(JavaStatusVersion):
         """Deprecated class for `version` field.
@@ -493,7 +491,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
             instance["players"] = self.Players(
                 online=instance["players"].online,
                 max=instance["players"].max,
-                list=instance["players"].list,
+                sample=instance["players"].sample,
             )
             instance["version"] = self.Version(
                 name=instance["version"].name,
@@ -506,7 +504,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
             self.players = self.Players(
                 online=self.players.online,
                 max=self.players.max,
-                list=self.players.list,
+                sample=self.players.sample,
             )
             self.version = self.Version(
                 name=self.version.name,

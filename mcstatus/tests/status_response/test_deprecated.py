@@ -46,7 +46,7 @@ class TestDeprecatedJavaStatusResponse:
     @mark.filterwarnings("error")
     def test_init_new_signature_not_raise_warning(self):
         JavaStatusResponse(
-            players=JavaStatusPlayers(max=20, online=0, list=[]),
+            players=JavaStatusPlayers(max=20, online=0, sample=[]),
             version=JavaStatusVersion(name="1.8-pre1", protocol=44),
             motd="A Minecraft Server",
             latency=123.0,
@@ -85,21 +85,17 @@ class TestDeprecatedJavaStatusResponsePlayers:
                 }
             )
 
-    def test_sample_field_raise_warning(self, build):
-        with deprecated_call():
-            build.sample
-
     def test_init_old_signature_raise_warning(self):
         with deprecated_call():
             JavaStatusResponse.Players({"max": 20, "online": 0})
 
     @mark.filterwarnings("error")
     def test_init_new_signature_not_raise_warning(self):
-        JavaStatusResponse.Players(max=20, online=0, list=[])
+        JavaStatusResponse.Players(max=20, online=0, sample=[])
 
     def test_deprecated_object_same_as_new(self):
         """If we forgot overwrite `__eq__` method in child class, it will fail."""
-        assert JavaStatusResponse.Players(max=20, online=0, list=[]) == JavaStatusPlayers(max=20, online=0, list=[])
+        assert JavaStatusResponse.Players(max=20, online=0, sample=[]) == JavaStatusPlayers(max=20, online=0, sample=[])
 
     def test_repr_return_correct_class(self, build):
         """If we forgot overwrite `__repr__` method in child class,
@@ -108,29 +104,11 @@ class TestDeprecatedJavaStatusResponsePlayers:
         """
         assert repr(build).startswith("JavaStatusPlayers")
 
-    @mark.parametrize("field", ["Player", "sample"])
-    def test_deprecated_fields_in(self, field):
-        assert hasattr(JavaStatusResponse.Players, field)
+    def test_deprecated_player_class_in(self):
+        assert hasattr(JavaStatusResponse.Players, "Player")
 
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_sample_field_have_correct_value(self, build):
-        assert build.sample == [
-            JavaStatusResponse.Players.Player("foo", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"),
-            JavaStatusResponse.Players.Player("bar", "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"),
-            JavaStatusResponse.Players.Player("baz", "40e8d003-8872-412d-b09a-4431a5afcbd4"),
-        ]
-
-    def test_list_have_correct_class(self, build):
-        assert type(build.list[0]) is JavaStatusResponse.Players.Player
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_sample_return_the_same_as_list(self, build):
-        assert build.sample == build.list
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_sample_return_none_if_list_empty(self):
-        build = JavaStatusResponse.Players({"max": 20, "online": 0})
-        assert build.sample is None
+    def test_sample_have_correct_class(self, build):
+        assert type(build.sample[0]) is JavaStatusResponse.Players.Player
 
 
 class TestDeprecatedJavaStatusResponsePlayer:
