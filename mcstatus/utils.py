@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     P2 = ParamSpec("P2")
 else:
     Protocol = object
+    P = []
 
 T = TypeVar("T")
 R = TypeVar("R")
@@ -174,6 +175,7 @@ def deprecated(
             return obj
 
         # Regular function deprecation
+        obj = cast(Callable[P, R], obj)
         if methods is not None:
             raise ValueError("Methods can only be specified when decorating a class, not a function")
         return decorate_func(obj, warn_message)
