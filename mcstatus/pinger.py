@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 import json
 import random
+import re
 from typing import List, Optional, Union, cast
 
 from mcstatus.address import Address
@@ -34,6 +35,8 @@ STYLE_MAP = {
     "obfuscated": "k",
     "reset": "r",
 }
+
+DESCRIPTION_COLORS_RE = re.compile(r"[\xA7|&][0-9A-FK-OR]", re.IGNORECASE)
 
 
 class ServerPinger:
@@ -220,9 +223,19 @@ class PingResponse:
                 raise ValueError(f"Invalid version object (expected 'protocol' to be int, was {type(raw['protocol'])})")
             self.protocol = raw["protocol"]
 
+    class Description(str):
+        """Extension of string class with support for obtaining server's description in different ways."""
+
+        def clean(self) -> str:
+            """Get description without color markers (&7, &a, §1 etc.).
+
+            :return: Clean description, without colors.
+            """
+            return DESCRIPTION_COLORS_RE.sub("", self)
+
     players: Players
     version: Version
-    description: str
+    description: Description
     favicon: Optional[str]
     latency: float = 0
 
@@ -245,9 +258,9 @@ class PingResponse:
         self.favicon = cast(Optional[str], raw.get("favicon"))
 
     @staticmethod
-    def _parse_description(raw_description: Union[dict, list, str]) -> str:
+    def _parse_description(raw_description: Union[dict, list, str]) -> Description:
         if isinstance(raw_description, str):
-            return raw_description
+            return PingResponse.Description(raw_description)
 
         if isinstance(raw_description, dict):
             entries = raw_description.get("extra", [])
@@ -270,4 +283,4 @@ class PingResponse:
                         pass  # ignoring these key errors strips out html color codes
             description += entry.get("text", "")
 
-        return description + end
+        return PingResponse.Description(description + end)

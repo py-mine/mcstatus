@@ -9,6 +9,7 @@ from typing import Optional
 import asyncio_dgram
 
 from mcstatus.address import Address
+from mcstatus.pinger import PingResponse
 
 
 class BedrockServerStatus:
@@ -96,6 +97,6 @@ class BedrockStatusResponse:
         self.latency = latency
         self.players_online = players_online
         self.players_max = players_max
-        self.motd = motd
+        self.motd = PingResponse.Description(motd)
         self.map = map_
         self.gamemode = gamemode
