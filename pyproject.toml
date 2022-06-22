@@ -21,6 +21,7 @@ classifiers = [
     "Topic :: Games/Entertainment",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Monitoring",
+    "Typing :: Typed",
 ]
 packages = [
     { include = "mcstatus" },
