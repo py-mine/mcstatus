@@ -218,7 +218,7 @@ class BaseStatusPlayers(ABC):
 class JavaStatusPlayers(BaseStatusPlayers):
     """Class which extends a `BaseStatusPlayers` class with sample of players.
 
-    :param players: List of players. None if `sample` in raw == [], or when it is not present.
+    :param sample: List of players or `None` if the sample is missing in the response.
     """
 
     sample: Optional[List[JavaStatusPlayer]]
@@ -233,12 +233,10 @@ class JavaStatusPlayers(BaseStatusPlayers):
         :return: `JavaStatusPlayers` object.
         """
         _validate_data(raw, "players", [("online", int), ("max", int)])
+        sample = None
         if "sample" in raw:
             _validate_data(raw, "players", [("sample", list)])
-
-        sample = [JavaStatusPlayer.build(player) for player in raw.get("sample", [])]
-        if len(sample) == 0:
-            sample = None
+            sample = [JavaStatusPlayer.build(player) for player in raw["sample"]]
         return cls(
             online=raw["online"],
             max=raw["max"],
