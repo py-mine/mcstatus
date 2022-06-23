@@ -28,9 +28,11 @@ STYLE_MAP = {
         "black": "0",
     },
     "bold": "l",
+    "strikethrough": "m",
     "italic": "o",
     "underlined": "n",
     "obfuscated": "k",
+    "reset": "r",
 }
 
 
