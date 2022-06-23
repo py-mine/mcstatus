@@ -170,7 +170,8 @@ class TestPingResponse:
             }
         )
         assert out == (
-            " ===============§f §lC§lr§le§la§lt§li§lv§le§lF§lu§ln ===============§f \n"
+            " §m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§f §lC§lr§le§la§lt§li§lv§le§lF§lu§ln"
+            " §m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§f \n"
             " §lThe server has been updated to §l1.17.1"
         )
 

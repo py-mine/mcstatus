@@ -10,6 +10,7 @@ from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, T
 
 STYLE_MAP = {
     "bold": "l",
+    "strikethrough": "m",
     "italic": "o",
     "underlined": "n",
     "obfuscated": "k",
@@ -31,6 +32,7 @@ STYLE_MAP = {
         "dark_gray": "8",
         "black": "0",
     },
+    "reset": "r",
 }
 
 
