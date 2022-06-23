@@ -3,10 +3,12 @@ from __future__ import annotations
 import datetime
 import json
 import random
-from typing import List, Optional, Union, cast
+from typing import List, Optional, cast
 
 from mcstatus.address import Address
+from mcstatus.motd import Motd
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
+from mcstatus.utils import deprecated
 
 STYLE_MAP = {
     "color": {
@@ -222,9 +224,14 @@ class PingResponse:
 
     players: Players
     version: Version
-    description: str
+    motd: Motd
     favicon: Optional[str]
     latency: float = 0
+
+    @property
+    @deprecated(replacement="motd field")  # TODO add date
+    def description(self) -> str:
+        return self.motd.minecraft
 
     def __init__(self, raw: dict[str, object]):
         self.raw = raw
@@ -240,34 +247,6 @@ class PingResponse:
 
         if "description" not in raw:
             raise ValueError("Invalid status object (no 'description' value)")
-        self.description = self._parse_description(cast("dict[str, object]", raw["description"]))
+        self.motd = Motd.parse(cast("dict[str, object]", raw["description"]))
 
         self.favicon = cast(Optional[str], raw.get("favicon"))
-
-    @staticmethod
-    def _parse_description(raw_description: Union[dict, list, str]) -> str:
-        if isinstance(raw_description, str):
-            return raw_description
-
-        if isinstance(raw_description, dict):
-            entries = raw_description.get("extra", [])
-            end = raw_description["text"]
-        else:
-            entries = raw_description
-            end = ""
-
-        description = ""
-
-        for entry in entries:
-            for style_key, style_val in STYLE_MAP.items():
-                if entry.get(style_key):
-                    try:
-                        if isinstance(style_val, dict):
-                            style_val = style_val[entry[style_key]]
-
-                        description += f"§{style_val}"
-                    except KeyError:
-                        pass  # ignoring these key errors strips out html color codes
-            description += entry.get("text", "")
-
-        return description + end
