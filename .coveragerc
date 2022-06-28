@@ -1,0 +1,4 @@
+[report]
+exclude_lines =
+    pragma: nocover
+    if TYPE_CHECKING:
