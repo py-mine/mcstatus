@@ -578,7 +578,10 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
     def close(self) -> None:
         "Close self.writer."
         if self.writer is not None:  # If initialized
-            self.writer.close()
+            try:
+                self.writer.close()
+            except RuntimeError:  # There is a case where event loop is closed
+                pass
 
     def __del__(self) -> None:
         "Close self."
