@@ -236,7 +236,7 @@ class BaseReadSync(ABC):
             result |= (part & 0x7F) << (7 * i)
             if not part & 0x80:
                 return signed_int32(result).value
-        raise IOError("received varint is too big!")
+        raise IOError("Received varint is too big!")
 
     def read_varlong(self) -> int:
         """Read varlong from self and return it.
@@ -248,7 +248,7 @@ class BaseReadSync(ABC):
             result |= (part & 0x7F) << (7 * i)
             if not part & 0x80:
                 return signed_int64(result).value
-        raise IOError("received varlong is too big!")
+        raise IOError("Received varlong is too big!")
 
     def read_utf(self) -> str:
         "Read up to 32767 bytes by reading a varint, then decode bytes as utf8."
@@ -322,7 +322,7 @@ class BaseReadAsync(ABC):
             result |= (part & 0x7F) << 7 * i
             if not part & 0x80:
                 return signed_int32(result).value
-        raise IOError("received a varint that was too big!")
+        raise IOError("Received a varint that was too big!")
 
     async def read_varlong(self) -> int:
         """Read varlong from self and return it.
@@ -334,7 +334,7 @@ class BaseReadAsync(ABC):
             result |= (part & 0x7F) << (7 * i)
             if not part & 0x80:
                 return signed_int64(result).value
-        raise IOError("received varlong is too big!")
+        raise IOError("Received varlong is too big!")
 
     async def read_utf(self) -> str:
         "Read up to 32767 bytes by reading a varint, then decode bytes as utf8."
@@ -505,7 +505,7 @@ class TCPSocketConnection(SocketConnection):
         if isinstance(data, Connection):
             data = bytearray(data.flush())
         elif isinstance(data, str):
-            data = bytearray(data, 'utf-8')
+            data = bytearray(data, "utf-8")
         self.socket.send(data)
 
 
@@ -540,7 +540,7 @@ class UDPSocketConnection(SocketConnection):
         if isinstance(data, Connection):
             data = bytearray(data.flush())
         elif isinstance(data, str):
-            data = bytearray(data, 'utf-8')
+            data = bytearray(data, "utf-8")
         self.socket.sendto(data, self.addr)
 
 
@@ -572,7 +572,7 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         if isinstance(data, Connection):
             data = bytearray(data.flush())
         elif isinstance(data, str):
-            data = bytearray(data, 'utf-8')
+            data = bytearray(data, "utf-8")
         self.writer.write(data)
 
     def close(self) -> None:
@@ -614,7 +614,7 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         if isinstance(data, Connection):
             data = bytearray(data.flush())
         elif isinstance(data, str):
-            data = bytearray(data, 'utf-8')
+            data = bytearray(data, "utf-8")
         await self.stream.send(data)
 
     def close(self) -> None:
