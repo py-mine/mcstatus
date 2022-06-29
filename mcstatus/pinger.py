@@ -9,10 +9,6 @@ from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
 
 STYLE_MAP = {
-    "bold": "l",
-    "italic": "o",
-    "underlined": "n",
-    "obfuscated": "k",
     "color": {
         "dark_red": "4",
         "red": "c",
@@ -31,6 +27,12 @@ STYLE_MAP = {
         "dark_gray": "8",
         "black": "0",
     },
+    "bold": "l",
+    "strikethrough": "m",
+    "italic": "o",
+    "underlined": "n",
+    "obfuscated": "k",
+    "reset": "r",
 }
 
 
