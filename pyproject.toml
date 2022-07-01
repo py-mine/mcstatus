@@ -52,7 +52,7 @@ pytest-cov = "^3.0.0"
 tox = "^3.25.1"
 tox-poetry = "^0.4.1"
 twine = "^4.0.1"
-typing-extensions = "^4.2.0"
+typing-extensions = "^4.3.0"
 
 [tool.poetry.scripts]
 mcstatus = 'mcstatus.__main__:cli'
