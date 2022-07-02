@@ -277,7 +277,7 @@ class TCPAsyncSocketConnection(AsyncReadConnection):
     def __init__(self):
         super().__init__()
 
-    async def connect(self, addr: Address, timeout: float = 3):
+    async def connect(self, addr: Address, timeout: float = 3) -> None:
         self.timeout = timeout
         conn = asyncio.open_connection(addr[0], addr[1])
         self.reader, self.writer = await asyncio.wait_for(conn, timeout=self.timeout)
@@ -309,7 +309,7 @@ class UDPAsyncSocketConnection(AsyncReadConnection):
     def __init__(self):
         super().__init__()
 
-    async def connect(self, addr: Address, timeout: float = 3):
+    async def connect(self, addr: Address, timeout: float = 3) -> None:
         self.timeout = timeout
         conn = asyncio_dgram.connect((addr[0], addr[1]))
         self.stream = await asyncio.wait_for(conn, timeout=self.timeout)
