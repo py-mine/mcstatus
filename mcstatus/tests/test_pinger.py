@@ -276,7 +276,7 @@ class TestPingResponse:
 class TestPingResponsePlayers:
     def test_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players("foo")
+            PingResponse.Players("foo")  # type: ignore # (Intentionally incorrect type)
 
     def test_max_missing(self):
         with pytest.raises(ValueError):
@@ -324,7 +324,7 @@ class TestPingResponsePlayers:
 class TestPingResponsePlayersPlayer:
     def test_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players.Player("foo")
+            PingResponse.Players.Player("foo")  # type: ignore # (Intentionally incorrect type)
 
     def test_name_missing(self):
         with pytest.raises(ValueError):
@@ -352,7 +352,7 @@ class TestPingResponsePlayersPlayer:
 class TestPingResponseVersion:
     def test_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Version("foo")
+            PingResponse.Version("foo")  # type: ignore # (Intentionally incorrect type)
 
     def test_protocol_missing(self):
         with pytest.raises(ValueError):

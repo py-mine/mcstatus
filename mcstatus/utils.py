@@ -20,7 +20,7 @@ R = TypeVar("R")
 R2 = TypeVar("R2")
 
 
-def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> Callable:
+def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     Decorator that re-runs given function tries times if error occurs.
 
@@ -33,20 +33,28 @@ def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> 
     a different exception, this will only raise the last one!).
     """
 
-    def decorate(func: Callable) -> Callable:
+    def decorate(func: Callable[P, R]) -> Callable[P, R]:
         @wraps(func)
-        async def async_wrapper(*args, tries: int = tries, **kwargs):
+        async def async_wrapper(
+            *args: P.args,
+            tries: int = tries,  # type: ignore # (No support for adding kw-only args)
+            **kwargs: P.kwargs,
+        ) -> R:
             last_exc: BaseException
             for _ in range(tries):
                 try:
-                    return await func(*args, **kwargs)
+                    return await func(*args, **kwargs)  # type: ignore # (We know func is awaitable here)
                 except exceptions as exc:
                     last_exc = exc
             else:
                 raise last_exc  # type: ignore # (This won't actually be unbound)
 
         @wraps(func)
-        def sync_wrapper(*args, tries: int = tries, **kwargs):
+        def sync_wrapper(
+            *args: P.args,
+            tries: int = tries,  # type: ignore # (No support for adding kw-only args)
+            **kwargs: P.kwargs,
+        ) -> R:
             last_exc: BaseException
             for _ in range(tries):
                 try:
@@ -56,9 +64,11 @@ def retry(tries: int, exceptions: Tuple[Type[BaseException]] = (Exception,)) -> 
             else:
                 raise last_exc  # type: ignore # (This won't actually be unbound)
 
+        # We cast here since pythons typing doesn't support adding keyword-only arguments to signature
+        # (Support for this was a rejected idea https://peps.python.org/pep-0612/#concatenating-keyword-parameters)
         if asyncio.iscoroutinefunction(func):
-            return async_wrapper
-        return sync_wrapper
+            return cast("Callable[P, R]", async_wrapper)
+        return cast("Callable[P, R]", sync_wrapper)
 
     return decorate
 
