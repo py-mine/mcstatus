@@ -12,7 +12,7 @@ server: JavaServer = None  # type: ignore[assignment]  # This will be set with c
 
 @click.group(context_settings=dict(help_option_names=["-h", "--help"]))
 @click.argument("address")
-def cli(address):
+def cli(address: str) -> None:
     """
     mcstatus provides an easy way to query Minecraft servers for
     any information they can expose. It provides three modes of
@@ -47,7 +47,7 @@ def cli(address):
 
 
 @cli.command(short_help="prints server latency")
-def ping():
+def ping() -> None:
     """
     Ping server for latency.
     """
@@ -55,7 +55,7 @@ def ping():
 
 
 @cli.command(short_help="basic server information")
-def status():
+def status() -> None:
     """
     Prints server status. Supported by all Minecraft
     servers that are version 1.7 or higher.
@@ -72,7 +72,7 @@ def status():
 
 
 @cli.command(short_help="all available server information in json")
-def json():
+def json() -> None:
     """
     Prints server status and query in json. Supported by all Minecraft
     servers that are version 1.7 or higher.
@@ -106,7 +106,7 @@ def json():
 
 
 @cli.command(short_help="detailed server information")
-def query():
+def query() -> None:
     """
     Prints detailed server information. Must be enabled in
     servers' server.properties file.

@@ -3,16 +3,13 @@ from __future__ import annotations
 import datetime
 import json
 import random
+from typing import Optional
 
 from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
 from mcstatus.status_response import JavaStatusResponse
 
 STYLE_MAP = {
-    "bold": "l",
-    "italic": "o",
-    "underlined": "n",
-    "obfuscated": "k",
     "color": {
         "dark_red": "4",
         "red": "c",
@@ -31,6 +28,12 @@ STYLE_MAP = {
         "dark_gray": "8",
         "black": "0",
     },
+    "bold": "l",
+    "strikethrough": "m",
+    "italic": "o",
+    "underlined": "n",
+    "obfuscated": "k",
+    "reset": "r",
 }
 
 
@@ -40,7 +43,7 @@ class ServerPinger:
         connection: TCPSocketConnection,
         address: Address,
         version: int = 47,
-        ping_token=None,
+        ping_token: Optional[int] = None,
     ):
         if ping_token is None:
             ping_token = random.randint(0, (1 << 63) - 1)
@@ -103,7 +106,7 @@ class AsyncServerPinger(ServerPinger):
         connection: TCPAsyncSocketConnection,
         address: Address,
         version: int = 47,
-        ping_token=None,
+        ping_token: Optional[int] = None,
     ):
         # We do this to inform python about self.connection type (it's async)
         super().__init__(connection, address=address, version=version, ping_token=ping_token)  # type: ignore[arg-type]

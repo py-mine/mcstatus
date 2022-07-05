@@ -132,7 +132,8 @@ class TestJavaStatusResponse:
                 "text": "",
             }
         ) == (
-            " ===============§f §lC§lr§le§la§lt§li§lv§le§lF§lu§ln ===============§f \n"
+            " §m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§f §lC§lr§le§la§lt§li§lv§le§lF§lu§ln"
+            " §m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§f \n"
             " §lThe server has been updated to §l1.17.1"
         )
 
@@ -157,31 +158,16 @@ class TestJavaStatusResponse:
                     ],
                     "text": ".",
                 },
-                {
-                    # We don't care in which order the style prefixes are, allow any
-                    "§l§o§7foo§6bar.",
-                    "§l§7§ofoo§6bar.",
-                    "§o§l§7foo§6bar.",
-                    "§o§7§lfoo§6bar.",
-                    "§7§o§lfoo§6bar.",
-                    "§7§l§ofoo§6bar.",
-                },
+                "§7§l§ofoo§6bar.",
             ),
             (
                 [{"bold": True, "italic": True, "color": "gray", "text": "foo"}, {"color": "gold", "text": "bar"}],
-                {
-                    "§l§o§7foo§6bar",
-                    "§l§7§ofoo§6bar",
-                    "§o§l§7foo§6bar",
-                    "§o§7§lfoo§6bar",
-                    "§7§o§lfoo§6bar",
-                    "§7§l§ofoo§6bar",
-                },
+                "§7§l§ofoo§6bar",
             ),
         ],
     )
     def test_parse_description_in(self, input_value, expected_output):
-        assert JavaStatusResponse._parse_description(input_value) in expected_output
+        assert JavaStatusResponse._parse_description(input_value) == expected_output
 
     def test_icon_missing(self):
         response = JavaStatusResponse.build(
@@ -281,7 +267,7 @@ class TestJavaStatusPlayers:
 
     def test_empty_sample(self):
         response = JavaStatusPlayers.build({"max": 20, "online": 0, "sample": []})
-        assert response.sample is None
+        assert response.sample == []
 
 
 class TestJavaStatusPlayer:

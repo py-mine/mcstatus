@@ -24,10 +24,6 @@ __all__ = [
 ]
 
 STYLE_MAP = {
-    "bold": "l",
-    "italic": "o",
-    "underlined": "n",
-    "obfuscated": "k",
     "color": {
         "dark_red": "4",
         "red": "c",
@@ -46,6 +42,12 @@ STYLE_MAP = {
         "dark_gray": "8",
         "black": "0",
     },
+    "bold": "l",
+    "strikethrough": "m",
+    "italic": "o",
+    "underlined": "n",
+    "obfuscated": "k",
+    "reset": "r",
 }
 
 
@@ -105,7 +107,7 @@ class NewJavaStatusResponse(BaseStatusResponse):
     icon: Optional[str]
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> Self:
+    def build(cls, raw: Dict[str, Any]) -> Self:  # TODO: Consider using a TypedDict here, to avoid all `Any`
         """Build JavaStatusResponse and check is it valid.
 
         :param raw: Raw response dict.
@@ -308,7 +310,7 @@ class BedrockStatusVersion(BaseStatusVersion):
     brand: str
 
 
-def custom_eq(self, other) -> bool:
+def custom_eq(self: Any, other: Any) -> bool:  # noqa: ANN401 # actually will work with any dataclass
     """Custom equality function for outdated subclasses."""
     to_check = list(
         (
@@ -378,7 +380,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
                 except TypeError:
                     super().__init__(*args, **kwargs)
 
-            def __eq__(self, other):
+            def __eq__(self, other: Self) -> bool:
                 return custom_eq(self, other)
 
             def __repr__(self):
@@ -418,7 +420,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
             except TypeError:
                 super().__init__(*args, **kwargs)
 
-        def __eq__(self, other):
+        def __eq__(self, other: Self) -> bool:
             return custom_eq(self, other)
 
         def __repr__(self):
@@ -455,7 +457,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
             except TypeError:
                 super().__init__(*args, **kwargs)
 
-        def __eq__(self, other):
+        def __eq__(self, other: Self) -> bool:
             return custom_eq(self, other)
 
         def __repr__(self):
@@ -586,7 +588,7 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
             except TypeError:
                 super().__init__(*args, **kwargs)
 
-        def __eq__(self, other):
+        def __eq__(self, other: Self) -> bool:
             return custom_eq(self, other)
 
         def __repr__(self):
