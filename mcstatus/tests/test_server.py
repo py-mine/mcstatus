@@ -147,8 +147,11 @@ class TestJavaServer:
         self.socket.remaining = Mock()
         self.socket.remaining.side_effect = [15, 208]
 
-        with patch("mcstatus.server.UDPSocketConnection") as connection:
+        with patch("mcstatus.server.UDPSocketConnection") as connection, patch.object(
+            self.server.address, "resolve_ip"
+        ) as resolve_ip:
             connection.return_value = self.socket
+            resolve_ip.return_value = "127.0.0.1"
             info = self.server.query()
 
         conn_bytes = self.socket.flush()
@@ -171,7 +174,8 @@ class TestJavaServer:
             connection.return_value = None
             with patch("mcstatus.server.ServerQuerier") as querier:
                 querier.side_effect = [Exception, Exception, Exception]
-                with pytest.raises(Exception):
+                with pytest.raises(Exception), patch.object(self.server.address, "resolve_ip") as resolve_ip:
+                    resolve_ip.return_value = "127.0.0.1"
                     self.server.query()
                 assert querier.call_count == 3
 
