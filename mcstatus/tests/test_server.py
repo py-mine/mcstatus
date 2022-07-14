@@ -82,6 +82,12 @@ class TestAsyncJavaServer:
         latency = await minecraft_server.async_ping(ping_token=29704774, version=47)
         assert latency >= 0
 
+    @pytest.mark.asyncio
+    async def test_async_lookup_constructor(self):
+        s = await JavaServer.async_lookup("example.org:25565")
+        assert s.address.host == "example.org"
+        assert s.address.port == 25565
+
 
 class TestJavaServer:
     def setup_method(self):
@@ -184,11 +190,5 @@ class TestJavaServer:
 
     def test_lookup_constructor(self):
         s = JavaServer.lookup("example.org:25565")
-        assert s.address.host == "example.org"
-        assert s.address.port == 25565
-
-    @pytest.mark.asyncio
-    async def test_async_lookup_constructor(self):
-        s = await JavaServer.async_lookup("example.org:25565")
         assert s.address.host == "example.org"
         assert s.address.port == 25565
