@@ -57,7 +57,7 @@ class MCServer(ABC):
         :param str address: The address of the Minecraft server, like `example.com:19132`
         :param float timeout: The timeout in seconds before failing to connect.
         """
-        addr = Address.parse_address(address, default_port=None)
+        addr = Address.parse_address(address, default_port=19132)
         return cls(addr.host, addr.port, timeout=timeout)
 
 
