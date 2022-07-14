@@ -90,9 +90,9 @@ class TestAsyncJavaServer:
 
     @pytest.mark.asyncio
     async def test_async_lookup_constructor(self):
-        s = await JavaServer.async_lookup("example.org:25565")
+        s = await JavaServer.async_lookup("example.org:3333")
         assert s.address.host == "example.org"
-        assert s.address.port == 25565
+        assert s.address.port == 3333
 
 
 class TestJavaServer:
@@ -198,6 +198,6 @@ class TestJavaServer:
                 assert querier.call_count == 3
 
     def test_lookup_constructor(self):
-        s = JavaServer.lookup("example.org:25565")
+        s = JavaServer.lookup("example.org:4444")
         assert s.address.host == "example.org"
-        assert s.address.port == 25565
+        assert s.address.port == 4444
