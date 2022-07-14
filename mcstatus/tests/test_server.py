@@ -59,6 +59,12 @@ async def create_mock_packet_server(event_loop):
 
 
 class TestBedrockServer:
+    def setup_method(self):
+        self.server = BedrockServer("localhost")
+
+    def test_default_port(self):
+        assert self.server.address.port == 19132
+
     def test_lookup_constructor(self):
         s = BedrockServer.lookup("example.org")
         assert s.address.host == "example.org"
@@ -92,7 +98,10 @@ class TestAsyncJavaServer:
 class TestJavaServer:
     def setup_method(self):
         self.socket = Connection()
-        self.server = JavaServer("localhost", port=25565)
+        self.server = JavaServer("localhost")
+
+    def test_default_port(self):
+        assert self.server.address.port == 25565
 
     def test_ping(self):
         self.socket.receive(bytearray.fromhex("09010000000001C54246"))

@@ -36,9 +36,11 @@ class MCServer(ABC):
     :param float timeout: The timeout in seconds before failing to connect.
     """
 
-    default_port: Optional[int] = None
+    default_port: int
 
-    def __init__(self, host: str, port: int, timeout: float = 3):
+    def __init__(self, host: str, port: Optional[int] = None, timeout: float = 3):
+        if port is None:
+            port = self.default_port
         self.address = Address(host, port)
         self.timeout = timeout
 
@@ -67,10 +69,6 @@ class JavaServer(MCServer):
     """Base class for a Minecraft Java Edition server."""
 
     default_port: int = 25565
-
-    def __init__(self, host: str, port: int = default_port, timeout: float = 3):
-        """Override init to add a default port for java servers of 25565."""
-        super().__init__(host, port, timeout=timeout)
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
@@ -215,10 +213,6 @@ class BedrockServer(MCServer):
     """Base class for a Minecraft Bedrock Edition server."""
 
     default_port: int = 19132
-
-    def __init__(self, host: str, port: int = default_port, timeout: float = 3):
-        """Override init to add a default port for bedrock servers of 19132."""
-        super().__init__(host, port, timeout=timeout)
 
     @retry(tries=3)
     def status(self, **kwargs) -> BedrockStatusResponse:
