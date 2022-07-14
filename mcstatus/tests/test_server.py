@@ -6,7 +6,7 @@ import pytest
 import pytest_asyncio
 
 from mcstatus.protocol.connection import Connection
-from mcstatus.server import JavaServer
+from mcstatus.server import BedrockServer, JavaServer
 
 
 class MockProtocolFactory(asyncio.Protocol):
@@ -58,6 +58,19 @@ async def create_mock_packet_server(event_loop):
         await server.wait_closed()
 
 
+class TestBedrockServer:
+    def setup_method(self):
+        self.server = BedrockServer("localhost")
+
+    def test_default_port(self):
+        assert self.server.address.port == 19132
+
+    def test_lookup_constructor(self):
+        s = BedrockServer.lookup("example.org")
+        assert s.address.host == "example.org"
+        assert s.address.port == 19132
+
+
 class TestAsyncJavaServer:
     @pytest.mark.skipif(
         sys.platform.startswith("win"),
@@ -75,11 +88,20 @@ class TestAsyncJavaServer:
         latency = await minecraft_server.async_ping(ping_token=29704774, version=47)
         assert latency >= 0
 
+    @pytest.mark.asyncio
+    async def test_async_lookup_constructor(self):
+        s = await JavaServer.async_lookup("example.org:3333")
+        assert s.address.host == "example.org"
+        assert s.address.port == 3333
+
 
 class TestJavaServer:
     def setup_method(self):
         self.socket = Connection()
-        self.server = JavaServer("localhost", port=25565)
+        self.server = JavaServer("localhost")
+
+    def test_default_port(self):
+        assert self.server.address.port == 25565
 
     def test_ping(self):
         self.socket.receive(bytearray.fromhex("09010000000001C54246"))
@@ -180,12 +202,6 @@ class TestJavaServer:
                 assert querier.call_count == 3
 
     def test_lookup_constructor(self):
-        s = JavaServer.lookup("example.org:25565")
+        s = JavaServer.lookup("example.org:4444")
         assert s.address.host == "example.org"
-        assert s.address.port == 25565
-
-    @pytest.mark.asyncio
-    async def test_async_lookup_constructor(self):
-        s = await JavaServer.async_lookup("example.org:25565")
-        assert s.address.host == "example.org"
-        assert s.address.port == 25565
+        assert s.address.port == 4444
