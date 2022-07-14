@@ -36,11 +36,11 @@ class MCServer(ABC):
     :param float timeout: The timeout in seconds before failing to connect.
     """
 
-    default_port: int
+    DEFAULT_PORT: int
 
     def __init__(self, host: str, port: Optional[int] = None, timeout: float = 3):
         if port is None:
-            port = self.default_port
+            port = self.DEFAULT_PORT
         self.address = Address(host, port)
         self.timeout = timeout
 
@@ -61,14 +61,14 @@ class MCServer(ABC):
         :param str address: The address of the Minecraft server, like `example.com:19132`
         :param float timeout: The timeout in seconds before failing to connect.
         """
-        addr = Address.parse_address(address, default_port=cls.default_port)
+        addr = Address.parse_address(address, default_port=cls.DEFAULT_PORT)
         return cls(addr.host, addr.port, timeout=timeout)
 
 
 class JavaServer(MCServer):
     """Base class for a Minecraft Java Edition server."""
 
-    default_port: int = 25565
+    DEFAULT_PORT: int = 25565
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
@@ -82,7 +82,7 @@ class JavaServer(MCServer):
         :param str address: The address of the Minecraft server, like `example.com:25565`.
         :param float timeout: The timeout in seconds before failing to connect.
         """
-        addr = minecraft_srv_address_lookup(address, default_port=cls.default_port, lifetime=timeout)
+        addr = minecraft_srv_address_lookup(address, default_port=cls.DEFAULT_PORT, lifetime=timeout)
         return cls(addr.host, addr.port, timeout=timeout)
 
     @classmethod
@@ -91,7 +91,7 @@ class JavaServer(MCServer):
 
         For more details, check the docstring of the synchronous lookup function.
         """
-        addr = await async_minecraft_srv_address_lookup(address, default_port=cls.default_port, lifetime=timeout)
+        addr = await async_minecraft_srv_address_lookup(address, default_port=cls.DEFAULT_PORT, lifetime=timeout)
         return cls(addr.host, addr.port, timeout=timeout)
 
     def ping(self, **kwargs) -> float:
@@ -212,7 +212,7 @@ class JavaServer(MCServer):
 class BedrockServer(MCServer):
     """Base class for a Minecraft Bedrock Edition server."""
 
-    default_port: int = 19132
+    DEFAULT_PORT: int = 19132
 
     @retry(tries=3)
     def status(self, **kwargs) -> BedrockStatusResponse:
