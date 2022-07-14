@@ -68,7 +68,7 @@ class MCServer(ABC):
 class JavaServer(MCServer):
     """Base class for a Minecraft Java Edition server."""
 
-    DEFAULT_PORT: int = 25565
+    DEFAULT_PORT = 25565
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
@@ -212,7 +212,7 @@ class JavaServer(MCServer):
 class BedrockServer(MCServer):
     """Base class for a Minecraft Bedrock Edition server."""
 
-    DEFAULT_PORT: int = 19132
+    DEFAULT_PORT = 19132
 
     @retry(tries=3)
     def status(self, **kwargs) -> BedrockStatusResponse:
