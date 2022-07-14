@@ -6,7 +6,7 @@ import pytest
 import pytest_asyncio
 
 from mcstatus.protocol.connection import Connection
-from mcstatus.server import JavaServer
+from mcstatus.server import BedrockServer, JavaServer
 
 
 class MockProtocolFactory(asyncio.Protocol):
@@ -56,6 +56,13 @@ async def create_mock_packet_server(event_loop):
     for server in servers:
         server.close()
         await server.wait_closed()
+
+
+class TestBedrockServer:
+    def test_lookup_constructor(self):
+        s = BedrockServer.lookup("example.org")
+        assert s.address.host == "example.org"
+        assert s.address.port == 19132
 
 
 class TestAsyncJavaServer:
