@@ -41,7 +41,7 @@ class MCServer(ABC):
     def __init__(self, host: str, port: Optional[int] = None, timeout: float = 3.0) -> None:
         if port is None:
             port = self.DEFAULT_PORT
-            self.address = Address(host, port)
+        self.address = Address(host, port)
         self.timeout = timeout
 
     @property
