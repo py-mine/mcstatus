@@ -166,7 +166,7 @@ class TestJavaServer:
             )
         )
         
-        with unittest.mock.patch(self.socket, "remaining") as mocked:
+        with patch(self.socket, "remaining") as self.socket.remaining:
             self.socket.remaining.side_effect = [15, 208]
 
             with patch("mcstatus.server.UDPSocketConnection") as connection, patch.object(
