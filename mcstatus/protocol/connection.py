@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 
     BytesConvertable = Union[SupportsIndex, Iterable[SupportsIndex]]
 
+
 def ip_type(address: Union[int, str]) -> Optional[int]:
     "Returns what version of IP a given address is."
     try:
@@ -471,7 +472,7 @@ class SocketConnection(BaseSyncConnection):
     def __init__(self) -> None:
         "Set socket to none"
         # These will only be None until connect is called, ignore the None type assignment
-        self.socket: socket.socket = None # type: ignore[assignment]
+        self.socket: socket.socket = None  # type: ignore[assignment]
 
     def close(self) -> None:
         "Close self."
@@ -553,8 +554,8 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
 
     def __init__(self) -> None:
         # These will only be None until connect is called, ignore the None type assignment
-        self.reader: asyncio.StreamReader = None # type: ignore[assignment]
-        self.writer: asyncio.StreamWriter = None # type: ignore[assignment]
+        self.reader: asyncio.StreamReader = None  # type: ignore[assignment]
+        self.writer: asyncio.StreamWriter = None  # type: ignore[assignment]
         self.timeout: float = 3.0
 
     async def connect(self, addr: Address, timeout: float = 3.0) -> None:
@@ -567,8 +568,7 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         "Read up to length bytes from self.reader."
         result = bytearray()
         while len(result) < length:
-            new = await asyncio.wait_for(self.reader.read(length - len(result)),
-                                         timeout=self.timeout)
+            new = await asyncio.wait_for(self.reader.read(length - len(result)), timeout=self.timeout)
             if len(new) == 0:
                 raise IOError("Socket did not respond with any information!")
             result.extend(new)
@@ -601,7 +601,7 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
 
     def __init__(self) -> None:
         # This will only be None until connect is called, ignore the None type assignment
-        self.stream: asyncio_dgram.aio.DatagramClient = None # type: ignore[assignment]
+        self.stream: asyncio_dgram.aio.DatagramClient = None  # type: ignore[assignment]
         self.timeout: float = 0.0
 
     async def connect(self, addr: Address, timeout: float = 3.0) -> None:
