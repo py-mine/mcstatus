@@ -552,10 +552,10 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         self.reader: asyncio.StreamReader = None
         self.writer: asyncio.StreamWriter = None
 
-    async def connect(self, addr: tuple[str, int], timeout: float = 3.0) -> None:
+    async def connect(self, addr: Address, timeout: float = 3.0) -> None:
         "Use asyncio to open a connection to addr (host, port)."
         conn = asyncio.open_connection(addr[0], addr[1])
-        self.reader, self.writer = await asyncio.wait_for(conn, timeout=timeout)
+        self.reader, self.writer = await asyncio.wait_for(conn, timeout=self.timeout)
 
     async def read(self, length: int) -> bytearray:
         "Read up to length bytes from self.reader."
@@ -596,7 +596,7 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         self.stream: asyncio_dgram.aio.DatagramClient = None
         self.timeout: float = 0.0
 
-    async def connect(self, addr: tuple, timeout: float = 3.0) -> None:
+    async def connect(self, addr: Address, timeout: float = 3.0) -> None:
         "Connect to addr (host, port)"
         self.timeout = timeout
         conn = asyncio_dgram.connect((addr[0], addr[1]))

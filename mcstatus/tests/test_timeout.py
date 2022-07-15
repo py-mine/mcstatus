@@ -24,7 +24,7 @@ class TestAsyncSocketConnection:
 
     def test_tcp_socket_read(self):
         try:
-            from asyncio.exceptions import TimeoutError
+            from asyncio.exceptions import TimeoutError  # type: ignore # (Import for older versions)
         except ImportError:
             from asyncio import TimeoutError
 

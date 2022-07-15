@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from abc import ABC
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 import dns.resolver
 
@@ -36,8 +36,12 @@ class MCServer(ABC):
     :param int timeout: The timeout in seconds before failing to connect.
     """
 
-    def __init__(self, host: str, port: int, timeout: float = 3.0):
-        self.address = Address(host, port)
+    DEFAULT_PORT: int
+
+    def __init__(self, host: str, port: Optional[int] = None, timeout: float = 3.0) -> None:
+        if port is None:
+            port = self.DEFAULT_PORT
+            self.address = Address(host, port)
         self.timeout = timeout
 
     @property
@@ -57,16 +61,14 @@ class MCServer(ABC):
         :param str address: The address of the Minecraft server, like `example.com:19132`
         :param float timeout: The timeout in seconds before failing to connect.
         """
-        addr = Address.parse_address(address, default_port=None)
+        addr = Address.parse_address(address, default_port=cls.DEFAULT_PORT)
         return cls(addr.host, addr.port, timeout=timeout)
 
 
 class JavaServer(MCServer):
     """Base class for a Minecraft Java Edition server."""
 
-    def __init__(self, host: str, port: int = 25565, timeout: float = 3.0):
-        """Override init to add a default port for java servers of 25565."""
-        super().__init__(host, port, timeout=timeout)
+    DEFAULT_PORT = 25565
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3.0) -> Self:
@@ -80,7 +82,7 @@ class JavaServer(MCServer):
         :param str address: The address of the Minecraft server, like `example.com:25565`.
         :param float timeout: The timeout in seconds before failing to connect.
         """
-        addr = minecraft_srv_address_lookup(address, default_port=25565, lifetime=timeout)
+        addr = minecraft_srv_address_lookup(address, default_port=cls.DEFAULT_PORT, lifetime=timeout)
         return cls(addr.host, addr.port, timeout=timeout)
 
     @classmethod
@@ -89,7 +91,7 @@ class JavaServer(MCServer):
 
         For more details, check the docstring of the synchronous lookup function.
         """
-        addr = await async_minecraft_srv_address_lookup(address, default_port=25565, lifetime=timeout)
+        addr = await async_minecraft_srv_address_lookup(address, default_port=cls.DEFAULT_PORT, lifetime=timeout)
         return cls(addr.host, addr.port, timeout=timeout)
 
     def ping(self, **kwargs) -> float:
@@ -210,9 +212,7 @@ class JavaServer(MCServer):
 class BedrockServer(MCServer):
     """Base class for a Minecraft Bedrock Edition server."""
 
-    def __init__(self, host: str, port: int = 19132, timeout: float = 3.0):
-        """Override init to add a default port for bedrock servers of 19132."""
-        super().__init__(host, port, timeout=timeout)
+    DEFAULT_PORT = 19132
 
     @retry(tries=3)
     def status(self, **kwargs) -> BedrockStatusResponse:
