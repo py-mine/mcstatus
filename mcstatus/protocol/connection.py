@@ -468,7 +468,8 @@ class SocketConnection(BaseSyncConnection):
 
     def __init__(self) -> None:
         "Set socket to none"
-        self.socket: socket.socket = None
+        # These will only be None until connect is called, ignore the None type assignment
+        self.socket: socket.socket = None # type: ignore[assignment]
 
     def close(self) -> None:
         "Close self."
@@ -549,8 +550,9 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
     __slots__ = ("reader", "writer")
 
     def __init__(self) -> None:
-        self.reader: asyncio.StreamReader = None
-        self.writer: asyncio.StreamWriter = None
+        # These will only be None until connect is called, ignore the None type assignment
+        self.reader: asyncio.StreamReader = None # type: ignore[assignment]
+        self.writer: asyncio.StreamWriter = None # type: ignore[assignment]
 
     async def connect(self, addr: Address, timeout: float = 3.0) -> None:
         "Use asyncio to open a connection to addr (host, port)."
@@ -561,7 +563,7 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         "Read up to length bytes from self.reader."
         result = bytearray()
         while len(result) < length:
-            new = await self.reader.read(length - len(result))
+            new = asyncio.wait_for(self.reader.read(length - len(result)), timeout=self.timeout)
             if len(new) == 0:
                 raise IOError("Socket did not respond with any information!")
             result.extend(new)
@@ -593,7 +595,8 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
     __slots__ = ("stream", "timeout")
 
     def __init__(self) -> None:
-        self.stream: asyncio_dgram.aio.DatagramClient = None
+        # This will only be None until connect is called, ignore the None type assignment
+        self.stream: asyncio_dgram.aio.DatagramClient = None # type: ignore[assignment]
         self.timeout: float = 0.0
 
     async def connect(self, addr: Address, timeout: float = 3.0) -> None:

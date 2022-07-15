@@ -165,31 +165,31 @@ class TestJavaServer:
                 "746576650000"
             )
         )
+        
+        with unittest.mock.patch(self.socket, "remaining") as mocked:
+            self.socket.remaining.side_effect = [15, 208]
 
-        self.socket.remaining = Mock()
-        self.socket.remaining.side_effect = [15, 208]
+            with patch("mcstatus.server.UDPSocketConnection") as connection, patch.object(
+                self.server.address, "resolve_ip"
+            ) as resolve_ip:
+                connection.return_value = self.socket
+                resolve_ip.return_value = "127.0.0.1"
+                info = self.server.query()
 
-        with patch("mcstatus.server.UDPSocketConnection") as connection, patch.object(
-            self.server.address, "resolve_ip"
-        ) as resolve_ip:
-            connection.return_value = self.socket
-            resolve_ip.return_value = "127.0.0.1"
-            info = self.server.query()
-
-        conn_bytes = self.socket.flush()
-        assert conn_bytes[:3] == bytearray.fromhex("FEFD09")
-        assert info.raw == {
-            "hostname": "A Minecraft Server",
-            "gametype": "SMP",
-            "game_id": "MINECRAFT",
-            "version": "1.8",
-            "plugins": "",
-            "map": "world",
-            "numplayers": "3",
-            "maxplayers": "20",
-            "hostport": "25565",
-            "hostip": "192.168.56.1",
-        }
+            conn_bytes = self.socket.flush()
+            assert conn_bytes[:3] == bytearray.fromhex("FEFD09")
+            assert info.raw == {
+                "hostname": "A Minecraft Server",
+                "gametype": "SMP",
+                "game_id": "MINECRAFT",
+                "version": "1.8",
+                "plugins": "",
+                "map": "world",
+                "numplayers": "3",
+                "maxplayers": "20",
+                "hostport": "25565",
+                "hostip": "192.168.56.1",
+            }
 
     def test_query_retry(self):
         with patch("mcstatus.server.UDPSocketConnection") as connection:
