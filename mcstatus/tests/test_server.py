@@ -166,7 +166,7 @@ class TestJavaServer:
             )
         )
 
-        with patch(self.socket, "remaining") as mocked:
+        with patch("mcstatus.protocol.connection.Connection.remaining") as mocked:
             self.socket.remaining.side_effect = [15, 208]
 
             with patch("mcstatus.server.UDPSocketConnection") as connection, patch.object(
