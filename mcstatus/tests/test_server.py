@@ -1,6 +1,6 @@
 import asyncio
 import sys
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 import pytest_asyncio
@@ -166,7 +166,7 @@ class TestJavaServer:
             )
         )
 
-        with patch("mcstatus.protocol.connection.Connection.remaining") as mocked:
+        with patch("mcstatus.protocol.connection.Connection.remaining"):
             self.socket.remaining.side_effect = [15, 208]
 
             with patch("mcstatus.server.UDPSocketConnection") as connection, patch.object(
