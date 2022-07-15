@@ -33,12 +33,12 @@ class MCServer(ABC):
 
     :param str host: The host/ip of the minecraft server.
     :param int port: The port that the server is on.
-    :param int timeout: The timeout in seconds before failing to connect.
+    :param float timeout: The timeout in seconds before failing to connect.
     """
 
     DEFAULT_PORT: int
 
-    def __init__(self, host: str, port: Optional[int] = None, timeout: float = 3.0) -> None:
+    def __init__(self, host: str, port: Optional[int] = None, timeout: float = 3) -> None:
         if port is None:
             port = self.DEFAULT_PORT
         self.address = Address(host, port)
@@ -55,7 +55,7 @@ class MCServer(ABC):
         return self.address.port
 
     @classmethod
-    def lookup(cls, address: str, timeout: float = 3.0) -> Self:
+    def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Mimics minecraft's server address field.
 
         :param str address: The address of the Minecraft server, like `example.com:19132`
@@ -66,12 +66,12 @@ class MCServer(ABC):
 
 
 class JavaServer(MCServer):
-    """Base class for a Minecraft Java Edition server."""
+    "Base class for a Minecraft Java Edition server."
 
     DEFAULT_PORT = 25565
 
     @classmethod
-    def lookup(cls, address: str, timeout: float = 3.0) -> Self:
+    def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Mimics minecraft's server address field.
 
         With Java servers, on top of just parsing the address, we also check the
@@ -86,7 +86,7 @@ class JavaServer(MCServer):
         return cls(addr.host, addr.port, timeout=timeout)
 
     @classmethod
-    async def async_lookup(cls, address: str, timeout: float = 3.0) -> Self:
+    async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
         """Asynchronous alternative to lookup
 
         For more details, check the docstring of the synchronous lookup function.
@@ -242,7 +242,7 @@ class MinecraftServer(JavaServer):
     This class is kept purely for backwards compatibility reasons and will be removed eventually.
     """
 
-    def __init__(self, host: str, port: int = 25565, timeout: float = 3.0):
+    def __init__(self, host: str, port: int = 25565, timeout: float = 3):
         super().__init__(host, port=port, timeout=timeout)
 
 
@@ -253,5 +253,5 @@ class MinecraftBedrockServer(BedrockServer):
     This class is kept purely for backwards compatibility reasons and will be removed eventually.
     """
 
-    def __init__(self, host: str, port: int = 19132, timeout: float = 3.0):
+    def __init__(self, host: str, port: int = 19132, timeout: float = 3):
         super().__init__(host, port=port, timeout=timeout)
