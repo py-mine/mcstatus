@@ -14,11 +14,13 @@ from ipaddress import ip_address
 from typing import Iterable, Optional, TYPE_CHECKING, Union
 
 import asyncio_dgram
-from typing_extensions import SupportsIndex
+
+from mcstatus.address import Address
 
 if TYPE_CHECKING:
-    BytesConvertable = Union[SupportsIndex, Iterable[SupportsIndex]]
+    from typing_extensions import SupportsIndex  # Python 3.7 doesn't support this yet.
 
+    BytesConvertable = Union[SupportsIndex, Iterable[SupportsIndex]]
 
 def ip_type(address: Union[int, str]) -> Optional[int]:
     "Returns what version of IP a given address is."
@@ -547,15 +549,17 @@ class UDPSocketConnection(SocketConnection):
 
 class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
     "Asynchronous TCP connection to addr. Default timeout is 3 seconds."
-    __slots__ = ("reader", "writer")
+    __slots__ = ("reader", "writer", "timeout")
 
     def __init__(self) -> None:
         # These will only be None until connect is called, ignore the None type assignment
         self.reader: asyncio.StreamReader = None # type: ignore[assignment]
         self.writer: asyncio.StreamWriter = None # type: ignore[assignment]
+        self.timeout: float = 3.0
 
     async def connect(self, addr: Address, timeout: float = 3.0) -> None:
         "Use asyncio to open a connection to addr (host, port)."
+        self.timeout = timeout
         conn = asyncio.open_connection(addr[0], addr[1])
         self.reader, self.writer = await asyncio.wait_for(conn, timeout=self.timeout)
 
@@ -563,7 +567,8 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         "Read up to length bytes from self.reader."
         result = bytearray()
         while len(result) < length:
-            new = asyncio.wait_for(self.reader.read(length - len(result)), timeout=self.timeout)
+            new = await asyncio.wait_for(self.reader.read(length - len(result)),
+                                         timeout=self.timeout)
             if len(new) == 0:
                 raise IOError("Socket did not respond with any information!")
             result.extend(new)
