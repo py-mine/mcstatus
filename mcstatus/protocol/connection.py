@@ -1,5 +1,3 @@
-"TCP and UDP Connections, both asynchronous and not."
-
 from __future__ import annotations
 
 import asyncio
@@ -24,7 +22,7 @@ if TYPE_CHECKING:
 
 
 def ip_type(address: Union[int, str]) -> Optional[int]:
-    "Returns what version of IP a given address is."
+    """Returns what version of IP a given address is."""
     try:
         return ip_address(address).version
     except ValueError:
@@ -33,7 +31,7 @@ def ip_type(address: Union[int, str]) -> Optional[int]:
 
 class BaseWriteSync(ABC):
     "Base synchronous write class"
-    __slots__: tuple = tuple()
+    __slots__ = tuple()
 
     @abstractmethod
     def write(self, data: Union["Connection", str, bytearray, bytes]) -> None:
@@ -50,9 +48,12 @@ class BaseWriteSync(ABC):
         return struct.pack(">" + format_, data)
 
     def write_varint(self, value: int) -> None:
-        """Write varint with value value to self.
+        """
+        Write varint with value value to self.
+        
         Max: 2 ** 31 - 1, Min: -(2 ** 31).
-        Raises ValueError if varint is too big."""
+        Raises ValueError if varint is out of range.
+        """
         remaining = unsigned_int32(value).value
         for _ in range(5):
             if not remaining & -0x80:  # remaining & ~0x7F == 0:
