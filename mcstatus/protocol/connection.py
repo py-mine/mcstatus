@@ -394,7 +394,7 @@ class BaseReadAsync(ABC):
 
 
 class BaseConnection:
-    "Base connection class, implements flush, receive, and remaining."
+    "Base Connection class. Implements flush, receive, and remaining."
     __slots__ = ()
 
     def __repr__(self) -> str:
@@ -525,10 +525,10 @@ class TCPSocketConnection(SocketConnection):
 
 
 class UDPSocketConnection(SocketConnection):
-    "UDP Connection to address. Default timeout is 3 seconds."
+    "UDP Connection class"
     __slots__ = ("addr",)
 
-    def __init__(self, addr: tuple[str, int], timeout: float = 3):
+    def __init__(self, addr: Address, timeout: float = 3):
         """Set self.addr to address, set self.socket to new socket,
         AF_INET if IPv4, AF_INET6 otherwise."""
         super().__init__()
@@ -560,17 +560,17 @@ class UDPSocketConnection(SocketConnection):
 
 
 class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
-    "Asynchronous TCP connection to addr. Default timeout is 3 seconds."
+    "Asynchronous TCP Connection class"
     __slots__ = ("reader", "writer", "timeout")
 
     def __init__(self) -> None:
         # These will only be None until connect is called, ignore the None type assignment
         self.reader: asyncio.StreamReader = None  # type: ignore[assignment]
         self.writer: asyncio.StreamWriter = None  # type: ignore[assignment]
-        self.timeout: float = 3
+        self.timeout: float = 0
 
     async def connect(self, addr: Address, timeout: float = 3) -> None:
-        "Use asyncio to open a connection to addr (host, port)."
+        "Use asyncio to open a connection to address. Timeout is in seconds."
         self.timeout = timeout
         conn = asyncio.open_connection(addr[0], addr[1])
         self.reader, self.writer = await asyncio.wait_for(conn, timeout=self.timeout)
@@ -607,7 +607,7 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
 
 
 class UDPAsyncSocketConnection(BaseAsyncConnection):
-    "Asynchronous UDP connection to address. Default timeout is 3 seconds."
+    "Asynchronous UDP Connection class"
     __slots__ = ("stream", "timeout")
 
     def __init__(self) -> None:
@@ -616,7 +616,7 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         self.timeout: float = 0.0
 
     async def connect(self, addr: Address, timeout: float = 3) -> None:
-        "Connect to addr (host, port)"
+        "Connect to address. Timeout is in seconds."
         self.timeout = timeout
         conn = asyncio_dgram.connect((addr[0], addr[1]))
         self.stream = await asyncio.wait_for(conn, timeout=self.timeout)
