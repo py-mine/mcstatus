@@ -52,8 +52,8 @@ class BaseWriteSync(ABC):
         """
         Write varint with value value to self.
 
-        Max: 2 ** 31 - 1, Min: -(2 ** 31).
-        Raises ValueError if varint is out of range.
+        :param value: Max 2 ** 31 - 1, min -(2 ** 31).
+        :raises ValueError: If value is out of range.
         """
         remaining = unsigned_int32(value).value
         for _ in range(5):
@@ -70,8 +70,8 @@ class BaseWriteSync(ABC):
         """
         Write varlong with value value to self.
 
-        Max: 2 ** 63 - 1, Min: -(2 ** 63).
-        Raises ValueError if varlong out of range.
+        :param value: Max 2 ** 63 - 1, min -(2 ** 63).
+        :raises ValueError: If value is out of range.
         """
         remaining = unsigned_int64(value).value
         for _ in range(10):
@@ -149,8 +149,8 @@ class BaseWriteAsync(ABC):
         """
         Write varint with value value to self.
 
-        Max: 2 ** 31 - 1, Min: -(2 ** 31).
-        Raises ValueError if varint is out of range.
+        :param value: Max 2 ** 31 - 1, min -(2 ** 31).
+        :raises ValueError: If value is out of range.
         """
         remaining = unsigned_int32(value).value
         for _ in range(5):
@@ -167,8 +167,8 @@ class BaseWriteAsync(ABC):
         """
         Write varlong with value value to self.
 
-        Max: 2 ** 63 - 1, Min: -(2 ** 63).
-        Raises ValueError if varlong out of range.
+        :param value: Max 2 ** 63 - 1, min -(2 ** 63).
+        :raises ValueError: If value is out of range.
         """
         remaining = unsigned_int64(value).value
         for _ in range(10):
@@ -244,8 +244,8 @@ class BaseReadSync(ABC):
 
     def read_varint(self) -> int:
         """Read varint from self and return it.
-        Max: 2 ** 31 - 1, Min: -(2 ** 31)
-        Raises IOError when varint received is too big."""
+        :param value: Max 2 ** 31 - 1, min -(2 ** 31)
+        :raises IOError: If varint received is out of range."""
         result = 0
         for i in range(5):
             part = self.read(1)[0]
@@ -256,8 +256,8 @@ class BaseReadSync(ABC):
 
     def read_varlong(self) -> int:
         """Read varlong from self and return it.
-        Max: 2 ** 63 - 1, Min: -(2 ** 63).
-        Raises IOError when varint received is too big."""
+        :param value: Max 2 ** 63 - 1, min -(2 ** 63).
+        :raises IOError: If varint received is out of range."""
         result = 0
         for i in range(10):
             part = self.read(1)[0]
@@ -331,8 +331,8 @@ class BaseReadAsync(ABC):
 
     async def read_varint(self) -> int:
         """Read varint from self and return it.
-        Max: 2 ** 31 - 1, Min: -(2 ** 31)
-        Raises IOError when varint received is too big."""
+        :param value: Max 2 ** 31 - 1, min -(2 ** 31)
+        :raises IOError: If varint received is out of range."""
         result = 0
         for i in range(5):
             part = (await self.read(1))[0]
@@ -343,8 +343,8 @@ class BaseReadAsync(ABC):
 
     async def read_varlong(self) -> int:
         """Read varlong from self and return it.
-        Max: 2 ** 63 - 1, Min: -(2 ** 63).
-        Raises IOError when varint received is too big."""
+        :param value: Max 2 ** 63 - 1, min -(2 ** 63).
+        :raises IOError: If varint received is out of range."""
         result = 0
         for i in range(10):
             part = (await self.read(1))[0]
@@ -495,13 +495,13 @@ class SocketConnection(BaseSyncConnection):
         self.socket: socket.socket = None  # type: ignore[assignment]
 
     def close(self) -> None:
-        """Close self."""
+        """Close self.socket."""
         if self.socket is not None:  # If initialized
             self.socket.shutdown(socket.SHUT_RDWR)
             self.socket.close()
 
     def __del__(self) -> None:
-        """Shutdown and Close self.socket."""
+        """Close self.socket."""
         self.close()
 
 
@@ -640,7 +640,6 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
 
     async def read(self, length: int) -> bytearray:
         """Read from stream. Length does nothing."""
-        # pylint: disable=unused-variable
         data, remote_addr = await asyncio.wait_for(self.stream.recv(), timeout=self.timeout)
         return bytearray(data)
 
