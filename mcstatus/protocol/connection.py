@@ -95,7 +95,7 @@ class BaseWriteSync(ABC):
         self.write(bytearray.fromhex("00"))
 
     def write_short(self, value: int) -> None:
-        """Write 2 bytes for value -32768 - 32767"""
+        """Write 2 bytes for value -32768 - 32767."""
         self.write(self._pack("h", value))
 
     def write_ushort(self, value: int) -> None:
@@ -192,7 +192,7 @@ class BaseWriteAsync(ABC):
         await self.write(bytearray.fromhex("00"))
 
     async def write_short(self, value: int) -> None:
-        """Write 2 bytes for value -32768 - 32767"""
+        """Write 2 bytes for value -32768 - 32767."""
         await self.write(self._pack("h", value))
 
     async def write_ushort(self, value: int) -> None:
