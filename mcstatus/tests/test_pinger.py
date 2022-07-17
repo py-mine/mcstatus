@@ -375,3 +375,8 @@ class TestPingResponseVersion:
 
         assert players.name == "foo"
         assert players.protocol == 5
+
+
+class TestPingResponseDescription:
+    def test_clean_description(self):
+        assert PingResponse.Description("&1&2§3abc").clean() == "abc"
