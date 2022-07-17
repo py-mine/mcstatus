@@ -41,7 +41,7 @@ class BaseWriteSync(ABC):
 
     def __repr__(self) -> str:
         """Return representation of self."""
-        return f"<{self.__class__.__name__} Object>" ""
+        return f"<{self.__class__.__name__} Object>"
 
     @staticmethod
     def _pack(format_: str, data: int) -> bytes:
@@ -119,8 +119,7 @@ class BaseWriteSync(ABC):
         self.write(self._pack("Q", value))
 
     def write_buffer(self, buffer: "Connection") -> None:
-        """Flush buffer, then write a varint of the length of the buffer's
-        data, then write buffer data."""
+        """Flush buffer, then write a varint of the length of the buffer's data, then write buffer data."""
         data = buffer.flush()
         self.write_varint(len(data))
         self.write(data)
@@ -138,7 +137,7 @@ class BaseWriteAsync(ABC):
 
     def __repr__(self) -> str:
         """Return representation of self."""
-        return f"<{self.__class__.__name__} Object>" ""
+        return f"<{self.__class__.__name__} Object>"
 
     @staticmethod
     def _pack(format_: str, data: int) -> bytes:
@@ -235,7 +234,7 @@ class BaseReadSync(ABC):
 
     def __repr__(self) -> str:
         """Return representation of self."""
-        return f"<{self.__class__.__name__} Object>" ""
+        return f"<{self.__class__.__name__} Object>"
 
     @staticmethod
     def _unpack(format_: str, data: bytes) -> int:
@@ -243,9 +242,12 @@ class BaseReadSync(ABC):
         return struct.unpack(">" + format_, bytes(data))[0]
 
     def read_varint(self) -> int:
-        """Read varint from self and return it.
+        """
+        Read varint from self and return it.
+        
         :param value: Max 2 ** 31 - 1, min -(2 ** 31)
-        :raises IOError: If varint received is out of range."""
+        :raises IOError: If varint received is out of range.
+        """
         result = 0
         for i in range(5):
             part = self.read(1)[0]
@@ -255,9 +257,12 @@ class BaseReadSync(ABC):
         raise IOError("Received varint is too big!")
 
     def read_varlong(self) -> int:
-        """Read varlong from self and return it.
+        """
+        Read varlong from self and return it.
+        
         :param value: Max 2 ** 63 - 1, min -(2 ** 63).
-        :raises IOError: If varint received is out of range."""
+        :raises IOError: If varint received is out of range.
+        """
         result = 0
         for i in range(10):
             part = self.read(1)[0]
@@ -322,7 +327,7 @@ class BaseReadAsync(ABC):
 
     def __repr__(self) -> str:
         """Return representation of self."""
-        return f"<{self.__class__.__name__} Object>" ""
+        return f"<{self.__class__.__name__} Object>"
 
     @staticmethod
     def _unpack(format_: str, data: bytes) -> int:
@@ -330,9 +335,12 @@ class BaseReadAsync(ABC):
         return struct.unpack(">" + format_, bytes(data))[0]
 
     async def read_varint(self) -> int:
-        """Read varint from self and return it.
+        """
+        Read varint from self and return it.
+        
         :param value: Max 2 ** 31 - 1, min -(2 ** 31)
-        :raises IOError: If varint received is out of range."""
+        :raises IOError: If varint received is out of range.
+        """
         result = 0
         for i in range(5):
             part = (await self.read(1))[0]
@@ -342,9 +350,12 @@ class BaseReadAsync(ABC):
         raise IOError("Received a varint that was too big!")
 
     async def read_varlong(self) -> int:
-        """Read varlong from self and return it.
+        """
+        Read varlong from self and return it.
+        
         :param value: Max 2 ** 63 - 1, min -(2 ** 63).
-        :raises IOError: If varint received is out of range."""
+        :raises IOError: If varint received is out of range.
+        """
         result = 0
         for i in range(10):
             part = (await self.read(1))[0]
@@ -404,7 +415,7 @@ class BaseConnection:
 
     def __repr__(self) -> str:
         """Return representation of self."""
-        return f"<{self.__class__.__name__} Object>" ""
+        return f"<{self.__class__.__name__} Object>"
 
     def flush(self) -> bytearray:
         """Raise TypeError, unsupported."""
@@ -506,7 +517,7 @@ class SocketConnection(BaseSyncConnection):
 
 
 class TCPSocketConnection(SocketConnection):
-    "tCP Connection to address. Timeout defaults to 3 seconds." ""
+    """TCP Connection to address. Timeout defaults to 3 seconds."""
     __slots__ = ()
 
     def __init__(self, addr: tuple[Optional[str], int], timeout: float = 3):
@@ -540,8 +551,7 @@ class UDPSocketConnection(SocketConnection):
     __slots__ = ("addr",)
 
     def __init__(self, addr: Address, timeout: float = 3):
-        """Set self.addr to address, set self.socket to new socket,
-        AF_INET if IPv4, AF_INET6 otherwise."""
+        """Set self.addr to address, set self.socket to new socket, AF_INET if IPv4, AF_INET6 otherwise."""
         super().__init__()
         self.addr = addr
         self.socket = socket.socket(
@@ -626,7 +636,7 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
     def __init__(self) -> None:
         # This will only be None until connect is called, ignore the None type assignment
         self.stream: asyncio_dgram.aio.DatagramClient = None  # type: ignore[assignment]
-        self.timeout: float = 0.0
+        self.timeout: float = None  # type: ignore[assignment]
 
     async def connect(self, addr: Address, timeout: float = 3) -> None:
         """Connect to address. Timeout is in seconds."""

@@ -38,7 +38,7 @@ class MCServer(ABC):
 
     DEFAULT_PORT: int
 
-    def __init__(self, host: str, port: Optional[int] = None, timeout: float = 3) -> None:
+    def __init__(self, host: str, port: Optional[int] = None, timeout: float = 3):
         if port is None:
             port = self.DEFAULT_PORT
         self.address = Address(host, port)
@@ -66,7 +66,7 @@ class MCServer(ABC):
 
 
 class JavaServer(MCServer):
-    "Base class for a Minecraft Java Edition server."
+    """Base class for a Minecraft Java Edition server."""
 
     DEFAULT_PORT = 25565
 
