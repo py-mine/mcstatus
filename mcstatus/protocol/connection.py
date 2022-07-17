@@ -244,7 +244,7 @@ class BaseReadSync(ABC):
     def read_varint(self) -> int:
         """
         Read varint from self and return it.
-        
+
         :param value: Max 2 ** 31 - 1, min -(2 ** 31)
         :raises IOError: If varint received is out of range.
         """
@@ -259,7 +259,7 @@ class BaseReadSync(ABC):
     def read_varlong(self) -> int:
         """
         Read varlong from self and return it.
-        
+
         :param value: Max 2 ** 63 - 1, min -(2 ** 63).
         :raises IOError: If varint received is out of range.
         """
@@ -337,7 +337,7 @@ class BaseReadAsync(ABC):
     async def read_varint(self) -> int:
         """
         Read varint from self and return it.
-        
+
         :param value: Max 2 ** 31 - 1, min -(2 ** 31)
         :raises IOError: If varint received is out of range.
         """
@@ -352,7 +352,7 @@ class BaseReadAsync(ABC):
     async def read_varlong(self) -> int:
         """
         Read varlong from self and return it.
-        
+
         :param value: Max 2 ** 63 - 1, min -(2 ** 63).
         :raises IOError: If varint received is out of range.
         """
@@ -518,6 +518,7 @@ class SocketConnection(BaseSyncConnection):
 
 class TCPSocketConnection(SocketConnection):
     """TCP Connection to address. Timeout defaults to 3 seconds."""
+
     __slots__ = ()
 
     def __init__(self, addr: tuple[Optional[str], int], timeout: float = 3):
