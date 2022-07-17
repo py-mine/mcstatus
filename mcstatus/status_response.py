@@ -357,11 +357,11 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
             @overload
             def __init__(self, raw: Dict[str, Any]) -> None:
-                ...  # pragma: no cover
+                ...
 
             @overload
             def __init__(self, name: str, uuid: str) -> None:
-                ...  # pragma: no cover
+                ...
 
             def __init__(self, *args, **kwargs) -> None:
                 try:
@@ -388,11 +388,11 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
         @overload
         def __init__(self, raw: Dict[str, Any]) -> None:
-            ...  # pragma: no cover
+            ...
 
         @overload
         def __init__(self, online: int, max: int, sample: Optional[List[JavaStatusPlayer]]) -> None:
-            ...  # pragma: no cover
+            ...
 
         def __init__(self, *args, **kwargs) -> None:
             try:
@@ -434,11 +434,11 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
         @overload
         def __init__(self, raw: Dict[str, Any]) -> None:
-            ...  # pragma: no cover
+            ...
 
         @overload
         def __init__(self, name: str, protocol: int) -> None:
-            ...  # pragma: no cover
+            ...
 
         def __init__(self, *args, **kwargs) -> None:
             try:
@@ -468,7 +468,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
 
     @overload
     def __init__(self, raw: Dict[str, Any]) -> None:
-        ...  # pragma: no cover
+        ...
 
     @overload
     def __init__(
@@ -479,7 +479,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
         latency: float,
         icon: Optional[str],
     ) -> None:
-        ...  # pragma: no cover
+        ...
 
     def __init__(self, *args, **kwargs) -> None:
         try:
@@ -554,11 +554,11 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
 
         @overload
         def __init__(self, protocol: int, brand: str, version: str) -> None:
-            ...  # pragma: no cover
+            ...
 
         @overload
         def __init__(self, name: str, protocol: int, brand: str) -> None:
-            ...  # pragma: no cover
+            ...
 
         def __init__(self, *args, **kwargs) -> None:
             try:
@@ -622,7 +622,7 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
         map_: Optional[str],
         gamemode: Optional[str],
     ) -> None:
-        ...  # pragma: no cover
+        ...
 
     @overload
     def __init__(
@@ -634,7 +634,7 @@ class BedrockStatusResponse(NewBedrockStatusResponse):
         map_name: Optional[str],
         gamemode: Optional[str],
     ) -> None:
-        ...  # pragma: no cover
+        ...
 
     def __init__(self, *args, **kwargs) -> None:
         try:
