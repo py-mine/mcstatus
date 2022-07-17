@@ -1,4 +1,5 @@
 import asyncio
+import typing
 from unittest.mock import patch
 
 import pytest
@@ -8,9 +9,15 @@ from mcstatus.protocol.connection import TCPAsyncSocketConnection
 
 
 class FakeAsyncStream(asyncio.StreamReader):
-    async def read(self, n: int) -> bytes:
-        await asyncio.sleep(delay=2)
-        return bytes([0] * n)
+    async def read(self, *args, **kwargs) -> typing.NoReturn:
+        await asyncio.sleep(2)
+        raise NotImplementedError(
+            "This override of read method isn't intended for actual use!\n"
+            " - If you're writing a new test, did you forget to mock it?\n"
+            " - If you're seeing this in an existing test, this method got called without the test expecting it, "
+            "this probably means you changed something in the code leading to this call, but you haven't updated "
+            "the tests to mock this function."
+        )
 
 
 async def fake_asyncio_asyncio_open_connection(hostname: str, port: int):
