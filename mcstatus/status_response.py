@@ -5,7 +5,7 @@ from dataclasses import dataclass, fields
 from inspect import Parameter, Signature
 from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING, Tuple, Union, overload
 
-if TYPE_CHECKING:  # pragma: no cover
+if TYPE_CHECKING:
     from typing_extensions import Self
 
 from mcstatus.utils import deprecated
