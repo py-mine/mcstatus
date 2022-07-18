@@ -1,7 +1,7 @@
 import pytest
 
-from mcstatus.tests.test_async_pinger import async_decorator
 from mcstatus.utils import retry
+from tests.test_async_pinger import async_decorator
 
 
 def test_sync_success():

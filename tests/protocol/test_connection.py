@@ -205,7 +205,7 @@ class TestConnection:
         assert self.connection.flush() == bytearray.fromhex("027FAA")
 
 
-class TCPSocketConnectionTest:
+class TestTCPSocketConnection:
     def setup_method(self):
         self.test_addr = Address("localhost", 1234)
 
@@ -217,15 +217,15 @@ class TCPSocketConnectionTest:
             self.connection = TCPSocketConnection(self.test_addr)
 
     def test_flush(self):
-        with pytest.raises(TypeError):
+        with pytest.raises(NotImplementedError):
             self.connection.flush()
 
     def test_receive(self):
-        with pytest.raises(TypeError):
+        with pytest.raises(NotImplementedError):
             self.connection.receive("")  # type: ignore # This is desired to produce TypeError
 
     def test_remaining(self):
-        with pytest.raises(TypeError):
+        with pytest.raises(NotImplementedError):
             self.connection.remaining()
 
     def test_read(self):
@@ -245,7 +245,7 @@ class TCPSocketConnectionTest:
         self.connection.socket.send.assert_called_once_with(bytearray.fromhex("7FAA"))  # type: ignore[attr-defined]
 
 
-class UDPSocketConnectionTest:
+class TestUDPSocketConnection:
     def setup_method(self):
         self.test_addr = Address("localhost", 1234)
 
@@ -257,11 +257,11 @@ class UDPSocketConnectionTest:
             self.connection = UDPSocketConnection(self.test_addr)
 
     def test_flush(self):
-        with pytest.raises(TypeError):
+        with pytest.raises(NotImplementedError):
             self.connection.flush()
 
     def test_receive(self):
-        with pytest.raises(TypeError):
+        with pytest.raises(NotImplementedError):
             self.connection.receive("")  # type: ignore # This is desired to produce TypeError
 
     def test_remaining(self):
