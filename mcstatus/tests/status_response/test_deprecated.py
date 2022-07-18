@@ -2,6 +2,7 @@
 
 from warnings import catch_warnings
 
+from _pytest.fixtures import SubRequest
 from pytest import deprecated_call, fixture, mark
 
 from mcstatus.status_response import (
@@ -293,12 +294,12 @@ class TestDeprecatedBedrockStatusResponseVersionPositionalArguments:
     """As you noticed, the old signature have different positional arguments, so `__init__` should also check types."""
 
     @fixture(scope="class", params=[True, False])
-    def build(self, request: bool) -> BedrockStatusResponse.Version:
+    def build(self, request: SubRequest) -> BedrockStatusResponse.Version:
         """Build `BedrockStatusResponse.Version` and cache it.
 
         :param request: If True, build with new signature. Else - old.
         """
-        if request:
+        if request.param:
             return BedrockStatusResponse.Version("1.18.100500", 422, "MCPE")
         else:
             with catch_warnings(record=True):
