@@ -1,4 +1,5 @@
 import asyncio
+from unittest.mock import patch
 
 import pytest
 
@@ -40,13 +41,17 @@ class TestAsyncServerPinger:
                 "70726F746F636F6C223A34347D7D"
             )
         )
-        status = async_decorator(self.pinger.read_status)()
 
-        assert status.raw == {
-            "description": "A Minecraft Server",
-            "players": {"max": 20, "online": 0},
-            "version": {"name": "1.8-pre1", "protocol": 44},
-        }
+        with patch("mcstatus.status_response.JavaStatusResponse.build") as mock:
+            async_decorator(self.pinger.read_status)()
+            mock.assert_called_once_with(
+                {
+                    "description": "A Minecraft Server",
+                    "players": {"max": 20, "online": 0},
+                    "version": {"name": "1.8-pre1", "protocol": 44},
+                }
+            )
+
         assert self.pinger.connection.flush() == bytearray.fromhex("0100")
 
     def test_read_status_invalid_json(self):
