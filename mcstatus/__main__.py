@@ -67,7 +67,7 @@ def status() -> None:
         player_sample = "No players online"
 
     click.echo(f"version: v{response.version.name} (protocol {response.version.protocol})")
-    click.echo(f'description: "{response.description}"')
+    click.echo(f'description: "{response.motd.minecraft}"')
     click.echo(f"players: {response.players.online}/{response.players.max} {player_sample}")
 
 
@@ -88,7 +88,7 @@ def json() -> None:
         status_res = server.status(tries=1)
         data["version"] = status_res.version.name
         data["protocol"] = status_res.version.protocol
-        data["motd"] = status_res.description
+        data["motd"] = status_res.motd.minecraft
         data["player_count"] = status_res.players.online
         data["player_max"] = status_res.players.max
         data["players"] = []

@@ -104,7 +104,7 @@ class TestPingResponse:
             }
         )
 
-        assert response.description == "A Minecraft Server"
+        assert response.motd.minecraft == "A Minecraft Server"
 
     def test_description_missing(self):
         with pytest.raises(ValueError):
@@ -114,86 +114,6 @@ class TestPingResponse:
                     "version": {"name": "1.8-pre1", "protocol": 44},
                 }
             )
-
-    def test_parse_description_strips_html_color_codes(self):
-        out = PingResponse._parse_description(
-            {
-                "extra": [
-                    {"text": " "},
-                    {"strikethrough": True, "color": "#b3eeff", "text": "="},
-                    {"strikethrough": True, "color": "#b9ecff", "text": "="},
-                    {"strikethrough": True, "color": "#c0eaff", "text": "="},
-                    {"strikethrough": True, "color": "#c7e8ff", "text": "="},
-                    {"strikethrough": True, "color": "#cee6ff", "text": "="},
-                    {"strikethrough": True, "color": "#d5e4ff", "text": "="},
-                    {"strikethrough": True, "color": "#dce2ff", "text": "="},
-                    {"strikethrough": True, "color": "#e3e0ff", "text": "="},
-                    {"strikethrough": True, "color": "#eadeff", "text": "="},
-                    {"strikethrough": True, "color": "#f1dcff", "text": "="},
-                    {"strikethrough": True, "color": "#f8daff", "text": "="},
-                    {"strikethrough": True, "color": "#ffd9ff", "text": "="},
-                    {"strikethrough": True, "color": "#f4dcff", "text": "="},
-                    {"strikethrough": True, "color": "#f9daff", "text": "="},
-                    {"strikethrough": True, "color": "#ffd9ff", "text": "="},
-                    {"color": "white", "text": " "},
-                    {"bold": True, "color": "#66ff99", "text": "C"},
-                    {"bold": True, "color": "#75f5a2", "text": "r"},
-                    {"bold": True, "color": "#84ebab", "text": "e"},
-                    {"bold": True, "color": "#93e2b4", "text": "a"},
-                    {"bold": True, "color": "#a3d8bd", "text": "t"},
-                    {"bold": True, "color": "#b2cfc6", "text": "i"},
-                    {"bold": True, "color": "#c1c5cf", "text": "v"},
-                    {"bold": True, "color": "#d1bbd8", "text": "e"},
-                    {"bold": True, "color": "#e0b2e1", "text": "F"},
-                    {"bold": True, "color": "#efa8ea", "text": "u"},
-                    {"bold": True, "color": "#ff9ff4", "text": "n "},
-                    {"strikethrough": True, "color": "#b3eeff", "text": "="},
-                    {"strikethrough": True, "color": "#b9ecff", "text": "="},
-                    {"strikethrough": True, "color": "#c0eaff", "text": "="},
-                    {"strikethrough": True, "color": "#c7e8ff", "text": "="},
-                    {"strikethrough": True, "color": "#cee6ff", "text": "="},
-                    {"strikethrough": True, "color": "#d5e4ff", "text": "="},
-                    {"strikethrough": True, "color": "#dce2ff", "text": "="},
-                    {"strikethrough": True, "color": "#e3e0ff", "text": "="},
-                    {"strikethrough": True, "color": "#eadeff", "text": "="},
-                    {"strikethrough": True, "color": "#f1dcff", "text": "="},
-                    {"strikethrough": True, "color": "#f8daff", "text": "="},
-                    {"strikethrough": True, "color": "#ffd9ff", "text": "="},
-                    {"strikethrough": True, "color": "#f4dcff", "text": "="},
-                    {"strikethrough": True, "color": "#f9daff", "text": "="},
-                    {"strikethrough": True, "color": "#ffd9ff", "text": "="},
-                    {"color": "white", "text": " \n "},
-                    {"bold": True, "color": "#E5E5E5", "text": "The server has been updated to "},
-                    {"bold": True, "color": "#97ABFF", "text": "1.17.1"},
-                ],
-                "text": "",
-            }
-        )
-        assert out == (
-            " §m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§f §lC§lr§le§la§lt§li§lv§le§lF§lu§ln"
-            " §m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§f \n"
-            " §lThe server has been updated to §l1.17.1"
-        )
-
-    def test_parse_description(self):
-        out = PingResponse._parse_description("test §2description")
-        assert out == "test §2description"
-
-        out = PingResponse._parse_description({"text": "§8§lfoo"})
-        assert out == "§8§lfoo"
-
-        out = PingResponse._parse_description(
-            {
-                "extra": [{"bold": True, "italic": True, "color": "gray", "text": "foo"}, {"color": "gold", "text": "bar"}],
-                "text": ".",
-            }
-        )
-        assert out == "§7§l§ofoo§6bar."
-
-        out = PingResponse._parse_description(
-            [{"bold": True, "italic": True, "color": "gray", "text": "foo"}, {"color": "gold", "text": "bar"}]
-        )
-        assert out == "§7§l§ofoo§6bar"
 
     def test_version(self):
         response = PingResponse(
