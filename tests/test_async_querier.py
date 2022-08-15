@@ -1,6 +1,6 @@
 from mcstatus.protocol.connection import Connection
 from mcstatus.querier import AsyncServerQuerier
-from mcstatus.tests.test_async_pinger import async_decorator
+from tests.test_async_pinger import async_decorator
 
 
 class FakeUDPAsyncConnection(Connection):

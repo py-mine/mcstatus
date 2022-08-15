@@ -60,7 +60,7 @@ mcstatus = 'mcstatus.__main__:cli'
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "--strict-markers --doctest-modules --cov=mcstatus --cov-append --cov-branch --cov-report=term-missing -vvv --no-cov-on-fail --asyncio-mode=strict"
-testpaths = ["mcstatus/tests"]
+testpaths = ["tests"]
 
 [tool.poetry-dynamic-versioning]
 bump = true

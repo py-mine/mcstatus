@@ -205,7 +205,7 @@ class TestConnection:
         assert self.connection.flush() == bytearray.fromhex("027FAA")
 
 
-class TCPSocketConnectionTest:
+class TestTCPSocketConnection:
     def setup_method(self):
         self.test_addr = Address("localhost", 1234)
 
@@ -245,7 +245,7 @@ class TCPSocketConnectionTest:
         self.connection.socket.send.assert_called_once_with(bytearray.fromhex("7FAA"))  # type: ignore[attr-defined]
 
 
-class UDPSocketConnectionTest:
+class TestUDPSocketConnection:
     def setup_method(self):
         self.test_addr = Address("localhost", 1234)
 
