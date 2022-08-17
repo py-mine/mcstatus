@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime
 import json
 import random
-from typing import List, Optional, Union, cast
+from typing import Optional, Union, cast
 
 from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
@@ -175,7 +175,7 @@ class PingResponse:
 
         online: int
         max: int
-        sample: Optional[List["PingResponse.Players.Player"]]
+        sample: Optional[list["PingResponse.Players.Player"]]
 
         def __init__(self, raw: dict[str, object]):
             if not isinstance(raw, dict):

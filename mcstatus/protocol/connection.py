@@ -4,12 +4,13 @@ import asyncio
 import socket
 import struct
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from ctypes import c_int32 as signed_int32
 from ctypes import c_int64 as signed_int64
 from ctypes import c_uint32 as unsigned_int32
 from ctypes import c_uint64 as unsigned_int64
 from ipaddress import ip_address
-from typing import Iterable, Optional, TYPE_CHECKING, Union
+from typing import Optional, TYPE_CHECKING, Union
 
 import asyncio_dgram
 

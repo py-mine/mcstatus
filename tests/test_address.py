@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import ipaddress
+from collections.abc import Awaitable, Callable
 from pathlib import Path
-from typing import Awaitable, Callable, TypeVar
+from typing import TypeVar
 from unittest.mock import MagicMock, Mock, patch
 
 import dns.resolver
