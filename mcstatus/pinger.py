@@ -3,11 +3,14 @@ from __future__ import annotations
 import datetime
 import json
 import random
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
 from mcstatus.status_response import JavaStatusResponse
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 STYLE_MAP = {
     "color": {
@@ -150,4 +153,4 @@ class AsyncServerPinger(ServerPinger):
         return delta.total_seconds() * 1000
 
 
-PingResponse = JavaStatusResponse
+PingResponse: TypeAlias = JavaStatusResponse

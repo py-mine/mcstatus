@@ -8,7 +8,7 @@ from time import perf_counter
 import asyncio_dgram
 
 from mcstatus.address import Address
-from mcstatus.status_response import BedrockStatusResponse
+from mcstatus.status_response import BedrockStatusResponse as BedrockStatusResponse  # noqa: I250
 
 
 class BedrockServerStatus:
