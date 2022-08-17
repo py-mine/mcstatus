@@ -62,7 +62,7 @@ def status() -> None:
     """
     response = server.status()
     if response.players.sample is not None:
-        player_sample = str([f"{player.name} ({player.uuid})" for player in response.players.sample])
+        player_sample = str([f"{player.name} ({player.id})" for player in response.players.sample])
     else:
         player_sample = "No players online"
 
@@ -93,7 +93,7 @@ def json() -> None:
         data["player_max"] = status_res.players.max
         data["players"] = []
         if status_res.players.sample is not None:
-            data["players"] = [{"name": player.name, "id": player.uuid} for player in status_res.players.sample]
+            data["players"] = [{"name": player.name, "id": player.id} for player in status_res.players.sample]
 
         query_res = server.query(tries=1)  # type: ignore[call-arg] # tries is supported with retry decorator
         data["host_ip"] = query_res.raw["hostip"]

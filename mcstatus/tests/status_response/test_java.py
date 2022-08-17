@@ -305,7 +305,7 @@ class TestJavaStatusPlayer:
         "field,expected_type",
         [
             ("name", str),
-            ("uuid", str),
+            ("id", str),
         ],
     )
     def test_types(self, build, field, expected_type):
@@ -313,10 +313,13 @@ class TestJavaStatusPlayer:
 
     @mark.parametrize(
         "field,value",
-        [("name", "foo"), ("uuid", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")],
+        [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")],
     )
     def test_fields(self, build, field, value):
         assert getattr(build, field) == value
+
+    def test_id_field_same_as_uuid(self, build):
+        assert build.id == build.uuid
 
 
 class TestJavaStatusVersion:

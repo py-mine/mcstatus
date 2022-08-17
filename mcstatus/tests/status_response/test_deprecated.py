@@ -118,21 +118,17 @@ class TestDeprecatedJavaStatusResponsePlayer:
         with catch_warnings(record=True):
             return JavaStatusResponse.Players.Player({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
 
-    def test_id_field_raise_warning(self, build):
-        with deprecated_call():
-            build.id
-
     def test_init_old_signature_raise_warning(self):
         with deprecated_call():
             JavaStatusResponse.Players.Player({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
 
     @mark.filterwarnings("error")
     def test_init_new_signature_not_raise_warning(self):
-        JavaStatusResponse.Players.Player(name="foo", uuid="0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")
+        JavaStatusResponse.Players.Player(name="foo", id="0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")
 
     def test_deprecated_object_same_as_new(self, build):
         """If we forgot overwrite `__eq__` method in child class, it will fail."""
-        assert build == JavaStatusPlayer(name="foo", uuid="0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")
+        assert build == JavaStatusPlayer(name="foo", id="0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")
 
     def test_repr_return_correct_class(self, build):
         """If we forgot overwrite `__repr__` method in child class,
@@ -141,16 +137,9 @@ class TestDeprecatedJavaStatusResponsePlayer:
         """
         assert repr(build).startswith("JavaStatusPlayer")
 
-    def test_id_field_in(self):
-        assert hasattr(JavaStatusResponse.Players.Player, "id")
-
     @mark.filterwarnings("ignore::DeprecationWarning")
     def test_deprecated_fields_values(self, build):
         assert build.id == "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_id_field_same_as_uuid(self, build):
-        assert build.id == build.uuid
 
 
 class TestDeprecatedJavaStatusResponseVersion:

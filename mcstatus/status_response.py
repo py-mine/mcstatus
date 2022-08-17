@@ -256,19 +256,27 @@ class JavaStatusPlayer:
     """Class for storing player info. Only for Java."""
 
     name: str
-    uuid: str
+    id: str
+
+    @property
+    def uuid(self) -> str:
+        """Alias to the `id` field.
+
+        :return: UUID of the player.
+        """
+        return self.id
 
     @classmethod
     def build(cls, raw: Dict[str, Any]) -> Self:
         """Build `JavaStatusPlayer` from raw response dict.
 
         :param raw: Raw response dict.
-        :raise ValueError: If the required keys (name, uuid) are not present.
-        :raise TypeError: If the required keys (name - str, uuid - str) are not of the specified type.
+        :raise ValueError: If the required keys (name, id) are not present.
+        :raise TypeError: If the required keys (name - str, id - str) are not of the specified type.
         :return: `JavaStatusPlayer` object.
         """
         _validate_data(raw, "player", [("name", str), ("id", str)])
-        return cls(name=raw["name"], uuid=raw["id"])
+        return cls(name=raw["name"], id=raw["id"])
 
 
 @dataclass
@@ -350,17 +358,12 @@ class JavaStatusResponse(NewJavaStatusResponse):
             Use `JavaStatusPlayer` instead.
             """
 
-            @property
-            @deprecated(replacement="uuid", date="2022-08")
-            def id(self) -> str:
-                return self.uuid
-
             @overload
             def __init__(self, raw: Dict[str, Any]) -> None:
                 ...
 
             @overload
-            def __init__(self, name: str, uuid: str) -> None:
+            def __init__(self, name: str, id: str) -> None:
                 ...
 
             def __init__(self, *args, **kwargs) -> None:
@@ -411,7 +414,7 @@ class JavaStatusResponse(NewJavaStatusResponse):
                     instance["sample"] = [
                         self.Player(
                             name=player.name,
-                            uuid=player.uuid,
+                            id=player.id,
                         )
                         for player in instance["sample"]
                     ]
