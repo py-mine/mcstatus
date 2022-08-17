@@ -168,7 +168,7 @@ def deprecated(
 
         # If we're deprecating class, deprecate it's methods and return the class
         if inspect.isclass(obj):
-            obj = cast(type[T], obj)
+            obj = cast("type[T]", obj)
 
             if methods is None:
                 raise ValueError("When deprecating a class, you need to specify 'methods' which will get the notice")
@@ -180,7 +180,7 @@ def deprecated(
             return obj
 
         # Regular function deprecation
-        obj = cast(Callable[P, R], obj)
+        obj = cast("Callable[P, R]", obj)
         if methods is not None:
             raise ValueError("Methods can only be specified when decorating a class, not a function")
         return decorate_func(obj, warn_message)
