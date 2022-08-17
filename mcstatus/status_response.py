@@ -96,7 +96,7 @@ class BaseStatusResponse(ABC):
 
 
 @dataclass
-class NewJavaStatusResponse(BaseStatusResponse):
+class __JavaStatusResponse(BaseStatusResponse):
     """Class for storing JavaServer data from a status response.
 
     :param icon: Base64 encoded icon of the server. Can be unset.
@@ -161,7 +161,7 @@ class NewJavaStatusResponse(BaseStatusResponse):
 
 
 @dataclass
-class NewBedrockStatusResponse(BaseStatusResponse):
+class __BedrockStatusResponse(BaseStatusResponse):
     """Class for storing BedrockServer data from a status response.
 
     :param map_name: Name of the map. Can be unset.
@@ -340,7 +340,7 @@ _OLD_JAVA_INIT_SIGNATURE = Signature(
 )
 
 
-class JavaStatusResponse(NewJavaStatusResponse):
+class JavaStatusResponse(__JavaStatusResponse):
     """Class for storing JavaServer data from a status response.
 
     :param icon: Icon of the server. Can be unset. BASE64 encoded.
@@ -543,7 +543,7 @@ _OLD_BEDROCK_VERSION_INIT_SIGNATURE = Signature(
 )
 
 
-class BedrockStatusResponse(NewBedrockStatusResponse):
+class BedrockStatusResponse(__BedrockStatusResponse):
     class Version(BedrockStatusVersion):
         """Deprecated class for `version` field.
 
