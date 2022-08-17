@@ -341,9 +341,9 @@ _OLD_JAVA_INIT_SIGNATURE = Signature(
 
 
 class JavaStatusResponse(__JavaStatusResponse):
-    """Class for storing JavaServer data from a status response.
+    """Class for implementing deprecation logic.
 
-    :param icon: Icon of the server. Can be unset. BASE64 encoded.
+    Please see `__JavaStatusResponse` for actual logic.
     """
 
     class Players(JavaStatusPlayers):
@@ -544,6 +544,11 @@ _OLD_BEDROCK_VERSION_INIT_SIGNATURE = Signature(
 
 
 class BedrockStatusResponse(__BedrockStatusResponse):
+    """Class for implementing deprecation logic.
+
+    Please see `__JavaStatusResponse` for actual logic.
+    """
+
     class Version(BedrockStatusVersion):
         """Deprecated class for `version` field.
 
