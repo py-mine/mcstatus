@@ -37,15 +37,15 @@ dnspython = "2.2.1"
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"
 coverage = "^6.4"
-flake8 = "^4.0.1"
+flake8 = "^5.0.4"
 flake8-annotations = "^2.9.0"
 flake8-bugbear = "^22.7.1"
-flake8-isort = "^4.1.1"
+flake8-isort = "^4.2.0"
 flake8-tidy-imports = "^4.8.0"
 isort = "^5.10.1"
-pep8-naming = "^0.13.0"
+pep8-naming = "^0.13.1"
 pre-commit = "^2.20.0"
-pyright = "^1.1.258"
+pyright = "^1.1.261"
 pytest = "^7.1.2"
 pytest-asyncio = "^0.19.0"
 pytest-cov = "^3.0.0"
@@ -60,7 +60,7 @@ mcstatus = 'mcstatus.__main__:cli'
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "--strict-markers --doctest-modules --cov=mcstatus --cov-append --cov-branch --cov-report=term-missing -vvv --no-cov-on-fail --asyncio-mode=strict"
-testpaths = ["mcstatus/tests"]
+testpaths = ["tests"]
 
 [tool.poetry-dynamic-versioning]
 bump = true

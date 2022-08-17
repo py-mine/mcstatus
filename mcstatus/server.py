@@ -17,13 +17,13 @@ from mcstatus.protocol.connection import (
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
 from mcstatus.status_response import BaseStatusResponse, BedrockStatusResponse, JavaStatusResponse
-from mcstatus.utils import deprecated, retry
+from mcstatus.utils import retry
 
 if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = ["MCServer", "JavaServer", "BedrockServer", "MinecraftServer", "MinecraftBedrockServer"]
+__all__ = ["MCServer", "JavaServer", "BedrockServer"]
 
 
 class MCServer(ABC):
@@ -44,16 +44,6 @@ class MCServer(ABC):
             port = self.DEFAULT_PORT
         self.address = Address(host, port)
         self.timeout = timeout
-
-    @property
-    @deprecated(replacement="address.host", date="2022-08")
-    def host(self) -> str:
-        return self.address.host
-
-    @property
-    @deprecated(replacement="address.port", date="2022-08")
-    def port(self) -> int:
-        return self.address.port
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
@@ -261,25 +251,3 @@ class BedrockServer(MCServer):
         :rtype: BedrockStatusResponse
         """
         return await BedrockServerStatus(self.address, self.timeout, **kwargs).read_status_async()
-
-
-@deprecated(replacement="JavaServer", date="2022-08", methods=("__init__",))
-class MinecraftServer(JavaServer):
-    """This is a deprecated version of the base class for a Java Minecraft Server.
-
-    This class is kept purely for backwards compatibility reasons and will be removed eventually.
-    """
-
-    def __init__(self, host: str, port: int = 25565, timeout: float = 3):
-        super().__init__(host, port=port, timeout=timeout)
-
-
-@deprecated(replacement="BedrockServer", date="2022-08", methods=("__init__",))
-class MinecraftBedrockServer(BedrockServer):
-    """This is a deprecated version of the base class for a Bedrock Minecraft Server.
-
-    This class is kept purely for backwards compatibility reasons and will be removed eventually.
-    """
-
-    def __init__(self, host: str, port: int = 19132, timeout: float = 3):
-        super().__init__(host, port=port, timeout=timeout)
