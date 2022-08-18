@@ -16,13 +16,13 @@ from mcstatus.protocol.connection import (
     UDPSocketConnection,
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
-from mcstatus.utils import retry
+from mcstatus.utils import deprecated, retry
 
 if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = ["JavaServer", "BedrockServer"]
+__all__ = ["JavaServer", "AsyncJavaServer", "BedrockServer", "AsyncBedrockServer"]
 
 
 class MCServer(ABC):
@@ -67,21 +67,12 @@ class JavaServer(MCServer):
         With Java servers, on top of just parsing the address, we also check the
         DNS records for an SRV record that points to the server, which is the same
         behavior as with minecraft's server address field for java. This DNS record
-        resolution is happening synchronously (see async_lookup).
+        resolution is happening synchronously (see `AsyncJavaServer.lookup`).
 
         :param str address: The address of the Minecraft server, like `example.com:25565`.
         :param float timeout: The timeout in seconds before failing to connect.
         """
         addr = minecraft_srv_address_lookup(address, default_port=cls.DEFAULT_PORT, lifetime=timeout)
-        return cls(addr.host, addr.port, timeout=timeout)
-
-    @classmethod
-    async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Asynchronous alternative to lookup
-
-        For more details, check the docstring of the synchronous lookup function.
-        """
-        addr = await async_minecraft_srv_address_lookup(address, default_port=cls.DEFAULT_PORT, lifetime=timeout)
         return cls(addr.host, addr.port, timeout=timeout)
 
     def ping(self, **kwargs) -> float:
@@ -100,24 +91,6 @@ class JavaServer(MCServer):
         pinger.handshake()
         return pinger.test_ping()
 
-    async def async_ping(self, **kwargs) -> float:
-        """Asynchronously checks the latency between a Minecraft Java Edition server and the client (you).
-
-        :param type **kwargs: Passed to a `AsyncServerPinger` instance.
-        :return: The latency between the Minecraft Server and you.
-        """
-
-        connection = TCPAsyncSocketConnection()
-        await connection.connect(self.address, self.timeout)
-        return await self._retry_async_ping(connection, **kwargs)
-
-    @retry(tries=3)
-    async def _retry_async_ping(self, connection: TCPAsyncSocketConnection, **kwargs) -> float:
-        pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
-        pinger.handshake()
-        ping = await pinger.test_ping()
-        return ping
-
     def status(self, **kwargs) -> PingResponse:
         """Checks the status of a Minecraft Java Edition server via the ping protocol.
 
@@ -134,25 +107,6 @@ class JavaServer(MCServer):
         pinger.handshake()
         result = pinger.read_status()
         result.latency = pinger.test_ping()
-        return result
-
-    async def async_status(self, **kwargs) -> PingResponse:
-        """Asynchronously checks the status of a Minecraft Java Edition server via the ping protocol.
-
-        :param type **kwargs: Passed to a `AsyncServerPinger` instance.
-        :return: Status information in a `PingResponse` instance.
-        """
-
-        connection = TCPAsyncSocketConnection()
-        await connection.connect(self.address, self.timeout)
-        return await self._retry_async_status(connection, **kwargs)
-
-    @retry(tries=3)
-    async def _retry_async_status(self, connection: TCPAsyncSocketConnection, **kwargs) -> PingResponse:
-        pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
-        pinger.handshake()
-        result = await pinger.read_status()
-        result.latency = await pinger.test_ping()
         return result
 
     def query(self) -> QueryResponse:
@@ -176,7 +130,72 @@ class JavaServer(MCServer):
         querier.handshake()
         return querier.read_query()
 
+    @classmethod
+    @deprecated(replacement="AsyncJavaServer.lookup", date="2023-02")
+    async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
+        return await AsyncJavaServer.lookup(address, timeout)
+
+    @deprecated(replacement="AsyncJavaServer.ping", date="2023-02")
+    async def async_ping(self, **kwargs) -> float:
+        return await AsyncJavaServer(self.address.host, self.address.port, self.timeout).ping(**kwargs)
+
+    @deprecated(replacement="AsyncJavaServer.status", date="2023-02")
+    async def async_status(self, **kwargs) -> PingResponse:
+        return await AsyncJavaServer(self.address.host, self.address.port, self.timeout).status(**kwargs)
+
+    @deprecated(replacement="AsyncJavaServer.query", date="2023-02")
     async def async_query(self) -> QueryResponse:
+        return await AsyncJavaServer(self.address.host, self.address.port, self.timeout).query()
+
+
+class AsyncJavaServer(JavaServer):
+    @classmethod
+    async def lookup(cls, address: str, timeout: float = 3) -> Self:
+        """Asynchronous alternative to lookup
+
+        For more details, check the docstring of the synchronous lookup function.
+        """
+        addr = await async_minecraft_srv_address_lookup(address, default_port=cls.DEFAULT_PORT, lifetime=timeout)
+        return cls(addr.host, addr.port, timeout=timeout)
+
+    async def ping(self, **kwargs) -> float:
+        """Asynchronously checks the latency between a Minecraft Java Edition server and the client (you).
+
+        :param type **kwargs: Passed to a `AsyncServerPinger` instance.
+        :return: The latency between the Minecraft Server and you.
+        """
+
+        connection = TCPAsyncSocketConnection()
+        await connection.connect(self.address, self.timeout)
+        return await self._retry_ping(connection, **kwargs)
+
+    @retry(tries=3)
+    async def _retry_ping(self, connection: TCPAsyncSocketConnection, **kwargs) -> float:
+        pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
+        pinger.handshake()
+        ping = await pinger.test_ping()
+        return ping
+
+    async def status(self, **kwargs) -> PingResponse:
+        """Asynchronously checks the status of a Minecraft Java Edition server via the ping protocol.
+
+        :param type **kwargs: Passed to a `AsyncServerPinger` instance.
+        :return: Status information in a `PingResponse` instance.
+        """
+
+        connection = TCPAsyncSocketConnection()
+        await connection.connect(self.address, self.timeout)
+        return await self._retry_status(connection, **kwargs)
+
+    @retry(tries=3)
+    async def _retry_status(self, connection: TCPAsyncSocketConnection, **kwargs) -> PingResponse:
+        pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
+        pinger.handshake()
+        result = await pinger.read_status()
+        result.latency = await pinger.test_ping()
+        return result
+
+    async def query(self) -> QueryResponse:
         """Asynchronously checks the status of a Minecraft Java Edition server via the query protocol."""
         # TODO: WARNING: This try-except for NXDOMAIN is only done because
         # of failing tests on mac-os, which for some reason can't resolve 'localhost'
@@ -188,10 +207,10 @@ class JavaServer(MCServer):
             warnings.warn(f"Resolving IP for {self.address.host} failed with NXDOMAIN")
             ip = self.address.host
 
-        return await self._retry_async_query(Address(ip, self.address.port))
+        return await self._retry_query(Address(ip, self.address.port))
 
     @retry(tries=3)
-    async def _retry_async_query(self, address: Address) -> QueryResponse:
+    async def _retry_query(self, address: Address) -> QueryResponse:
         connection = UDPAsyncSocketConnection()
         await connection.connect(address, self.timeout)
         querier = AsyncServerQuerier(connection)
@@ -214,8 +233,14 @@ class BedrockServer(MCServer):
         """
         return BedrockServerStatus(self.address, self.timeout, **kwargs).read_status()
 
-    @retry(tries=3)
+    @deprecated(replacement="AsyncBedrockServer.status", date="2023-02")
     async def async_status(self, **kwargs) -> BedrockStatusResponse:
+        return await AsyncBedrockServer(self.address.host, self.address.port, self.timeout).status(**kwargs)
+
+
+class AsyncBedrockServer(BedrockServer):
+    @retry(tries=3)
+    async def status(self, **kwargs) -> BedrockStatusResponse:
         """Asynchronously checks the status of a Minecraft Bedrock Edition server.
 
         :param type **kwargs: Passed to a `BedrockServerStatus` instance.

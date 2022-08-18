@@ -1,11 +1,12 @@
 import asyncio
+import sys
 from unittest.mock import patch
 
 import pytest
 import pytest_asyncio
 
 from mcstatus.protocol.connection import Connection
-from mcstatus.server import BedrockServer, JavaServer
+from mcstatus.server import AsyncJavaServer, BedrockServer, JavaServer
 
 
 class MockProtocolFactory(asyncio.Protocol):
@@ -78,14 +79,14 @@ class TestAsyncJavaServer:
             data_expected_to_receive=bytearray.fromhex("09010000000001C54246"),
             data_to_respond_with=bytearray.fromhex("0F002F096C6F63616C686F737463DD0109010000000001C54246"),
         )
-        minecraft_server = JavaServer("localhost", port=unused_tcp_port)
+        minecraft_server = AsyncJavaServer("localhost", port=unused_tcp_port)
 
-        latency = await minecraft_server.async_ping(ping_token=29704774, version=47)
+        latency = await minecraft_server.ping(ping_token=29704774, version=47)
         assert latency >= 0
 
     @pytest.mark.asyncio
     async def test_async_lookup_constructor(self):
-        s = await JavaServer.async_lookup("example.org:3333")
+        s = await AsyncJavaServer.lookup("example.org:3333")
         assert s.address.host == "example.org"
         assert s.address.port == 3333
 
@@ -200,3 +201,39 @@ class TestJavaServer:
         s = JavaServer.lookup("example.org:4444")
         assert s.address.host == "example.org"
         assert s.address.port == 4444
+
+
+class TestDeprecations:
+    @pytest.mark.asyncio
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock was introduced in Python 3.8")
+    @pytest.mark.parametrize(
+        "method,to_mock",
+        [
+            (JavaServer.async_lookup, "mcstatus.AsyncJavaServer.lookup"),
+            (JavaServer.async_ping, "mcstatus.AsyncJavaServer.ping"),
+            (JavaServer.async_status, "mcstatus.AsyncJavaServer.status"),
+            (JavaServer.async_query, "mcstatus.AsyncJavaServer.query"),
+        ],
+    )
+    async def test_deprecations_raise_warning(self, method, to_mock):
+        server = JavaServer("my_server.net")
+        with patch(to_mock), pytest.deprecated_call():
+            await method(server)
+
+    @pytest.mark.asyncio
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock was introduced in Python 3.8")
+    @pytest.mark.parametrize(
+        "method,expecting_to_call",
+        [
+            (JavaServer.async_lookup, "mcstatus.AsyncJavaServer.lookup"),
+            (JavaServer.async_ping, "mcstatus.AsyncJavaServer.ping"),
+            (JavaServer.async_status, "mcstatus.AsyncJavaServer.status"),
+            (JavaServer.async_query, "mcstatus.AsyncJavaServer.query"),
+        ],
+    )
+    async def test_deprecations_call_expected_methods(self, method, expecting_to_call):
+        server = JavaServer("my_server.net")
+        with patch(expecting_to_call) as mocked:
+            await method(server)
+        mocked.assert_called_once()
