@@ -31,7 +31,6 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.7,<4"
 asyncio-dgram = "2.1.2"
-click = ">=7.1.2,<9"
 dnspython = "2.2.1"
 
 [tool.poetry.dev-dependencies]
@@ -55,7 +54,7 @@ twine = "^4.0.1"
 typing-extensions = "^4.3.0"
 
 [tool.poetry.scripts]
-mcstatus = 'mcstatus.__main__:cli'
+mcstatus = 'mcstatus.__main__:main'
 
 [tool.pytest.ini_options]
 minversion = "6.0"
