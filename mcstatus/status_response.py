@@ -546,7 +546,7 @@ _OLD_BEDROCK_VERSION_INIT_SIGNATURE = Signature(
 class BedrockStatusResponse(__BedrockStatusResponse):
     """Class for implementing deprecation logic.
 
-    Please see `__JavaStatusResponse` for actual logic.
+    Please see `__BedrockStatusResponse` for actual logic.
     """
 
     class Version(BedrockStatusVersion):
