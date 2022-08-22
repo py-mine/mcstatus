@@ -513,7 +513,10 @@ class SocketConnection(BaseSyncConnection):
 
     def __del__(self) -> None:
         """Close self.socket."""
-        self.close()
+        try:
+            self.close()
+        except OSError:  # Probably, the socket was already closed by the OS
+            pass
 
 
 class TCPSocketConnection(SocketConnection):
