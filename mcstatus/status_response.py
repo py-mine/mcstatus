@@ -370,7 +370,9 @@ class JavaStatusResponse(__JavaStatusResponse):
                 try:
                     # have the same signature
                     bound = _OLD_JAVA_INIT_SIGNATURE.bind(*args, **kwargs)
-
+                except TypeError:
+                    super().__init__(*args, **kwargs)
+                else:
                     deprecated(
                         lambda: None,
                         replacement="mcstatus.status_response.JavaStatusPlayer",
@@ -380,8 +382,6 @@ class JavaStatusResponse(__JavaStatusResponse):
 
                     # build and copy instance from `build` method
                     super().__init__(**self.build(bound.arguments["raw"]).__dict__)
-                except TypeError:
-                    super().__init__(*args, **kwargs)
 
             def __eq__(self, other: Self) -> bool:
                 return _custom_eq(self, other)
@@ -401,7 +401,9 @@ class JavaStatusResponse(__JavaStatusResponse):
             try:
                 # have the same signature
                 bound = _OLD_JAVA_INIT_SIGNATURE.bind(*args, **kwargs)
-
+            except TypeError:
+                super().__init__(*args, **kwargs)
+            else:
                 deprecated(
                     lambda: None,
                     replacement="mcstatus.status_response.JavaStatusPlayers",
@@ -420,8 +422,6 @@ class JavaStatusResponse(__JavaStatusResponse):
                     ]
 
                 super().__init__(**instance)
-            except TypeError:
-                super().__init__(*args, **kwargs)
 
         def __eq__(self, other: Self) -> bool:
             return _custom_eq(self, other)
@@ -447,7 +447,9 @@ class JavaStatusResponse(__JavaStatusResponse):
             try:
                 # have the same signature
                 bound = _OLD_JAVA_INIT_SIGNATURE.bind(*args, **kwargs)
-
+            except TypeError:
+                super().__init__(*args, **kwargs)
+            else:
                 deprecated(
                     lambda: None,
                     replacement="mcstatus.status_response.JavaStatusVersion",
@@ -457,8 +459,6 @@ class JavaStatusResponse(__JavaStatusResponse):
 
                 # build and copy instance from `build` method
                 super().__init__(**self.build(bound.arguments["raw"]).__dict__)
-            except TypeError:
-                super().__init__(*args, **kwargs)
 
         def __eq__(self, other: Self) -> bool:
             return _custom_eq(self, other)
@@ -487,8 +487,21 @@ class JavaStatusResponse(__JavaStatusResponse):
 
     def __init__(self, *args, **kwargs) -> None:
         try:
+            # have the same signature
             bound = _OLD_JAVA_INIT_SIGNATURE.bind(*args, **kwargs)
-
+        except TypeError:
+            super().__init__(*args, **kwargs)
+            # re-def fields to support the old interface
+            self.players = self.Players(
+                online=self.players.online,
+                max=self.players.max,
+                sample=self.players.sample,
+            )
+            self.version = self.Version(
+                name=self.version.name,
+                protocol=self.version.protocol,
+            )
+        else:
             deprecated(lambda: None, replacement="build", date="2022-08", display_name="JavaStatusResponse.__init__")()
 
             self._raw = bound.arguments["raw"]
@@ -503,18 +516,6 @@ class JavaStatusResponse(__JavaStatusResponse):
                 protocol=instance["version"].protocol,
             )
             super().__init__(**instance)
-        except TypeError:
-            super().__init__(*args, **kwargs)
-            # re-def fields to support the old interface
-            self.players = self.Players(
-                online=self.players.online,
-                max=self.players.max,
-                sample=self.players.sample,
-            )
-            self.version = self.Version(
-                name=self.version.name,
-                protocol=self.version.protocol,
-            )
 
     @property
     @deprecated(replacement="motd", date="2022-08")
@@ -588,8 +589,11 @@ class BedrockStatusResponse(__BedrockStatusResponse):
 
         def __init__(self, *args, **kwargs) -> None:
             try:
+                # have the same signature
                 bound = _OLD_BEDROCK_VERSION_INIT_SIGNATURE.bind(*args, **kwargs)
-
+            except TypeError:
+                super().__init__(*args, **kwargs)
+            else:
                 if any(
                     [
                         not isinstance(bound.arguments["protocol"], int),
@@ -611,8 +615,6 @@ class BedrockStatusResponse(__BedrockStatusResponse):
                     protocol=bound.arguments["protocol"],
                     brand=bound.arguments["brand"],
                 )
-            except TypeError:
-                super().__init__(*args, **kwargs)
 
         def __eq__(self, other: Self) -> bool:
             return _custom_eq(self, other)
@@ -664,7 +666,17 @@ class BedrockStatusResponse(__BedrockStatusResponse):
 
     def __init__(self, *args, **kwargs) -> None:
         try:
+            # have the same signature
             bound = _OLD_BEDROCK_INIT_SIGNATURE.bind(*args, **kwargs)
+        except TypeError:
+            super().__init__(*args, **kwargs)
+            # re-def version field to support the old interface
+            self.version = self.Version(
+                name=self.version.name,
+                protocol=self.version.protocol,
+                brand=self.version.brand,
+            )
+        else:
             deprecated(lambda: None, replacement="build", date="2022-08", display_name="BedrockStatusResponse.__init__")()
             super().__init__(
                 players=BedrockStatusPlayers(bound.arguments["players_online"], bound.arguments["players_max"]),
@@ -677,12 +689,4 @@ class BedrockStatusResponse(__BedrockStatusResponse):
                 latency=bound.arguments["latency"],
                 map_name=bound.arguments["map_"],
                 gamemode=bound.arguments["gamemode"],
-            )
-        except TypeError:
-            super().__init__(*args, **kwargs)
-            # re-def version field to support the old interface
-            self.version = self.Version(
-                name=self.version.name,
-                protocol=self.version.protocol,
-                brand=self.version.brand,
             )
