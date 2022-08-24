@@ -591,9 +591,7 @@ class BedrockStatusResponse(__BedrockStatusResponse):
             try:
                 # have the same signature
                 bound = _OLD_BEDROCK_VERSION_INIT_SIGNATURE.bind(*args, **kwargs)
-            except TypeError:
-                super().__init__(*args, **kwargs)
-            else:
+
                 if any(
                     [
                         not isinstance(bound.arguments["protocol"], int),
@@ -602,7 +600,9 @@ class BedrockStatusResponse(__BedrockStatusResponse):
                     ]
                 ):
                     raise TypeError("Invalid arguments. Not correct types.")
-
+            except TypeError:
+                super().__init__(*args, **kwargs)
+            else:
                 deprecated(
                     lambda: None,
                     replacement="mcstatus.status_response.BedrockStatusVersion",
