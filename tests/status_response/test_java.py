@@ -1,7 +1,7 @@
 from pytest import fixture, mark, raises
 
 from mcstatus.status_response import JavaStatusPlayer, JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
-from mcstatus.tests.status_response import does_not_raise
+from tests.status_response import does_not_raise
 
 
 class TestJavaStatusResponse:
