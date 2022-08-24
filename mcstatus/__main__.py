@@ -47,7 +47,7 @@ def json(server: JavaServer) -> None:
         data["host_port"] = query_res.raw["hostport"]
         data["map"] = query_res.map
         data["plugins"] = query_res.software.plugins
-    except Exceptione:  # TODO: Check what this actually excepts
+    except Exception:  # TODO: Check what this actually excepts
         pass
     print(json_dumps(data))
 
