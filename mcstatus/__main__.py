@@ -1,82 +1,29 @@
 from __future__ import annotations
 
+import argparse
 import socket
 from json import dumps as json_dumps
 
-import click
-
 from mcstatus import JavaServer
 
-server: JavaServer = None  # type: ignore[assignment]  # This will be set with cli function
+
+def ping(server: JavaServer) -> None:
+    print(f"{server.ping()}ms")
 
 
-@click.group(context_settings=dict(help_option_names=["-h", "--help"]))
-@click.argument("address")
-def cli(address: str) -> None:
-    """
-    mcstatus provides an easy way to query Minecraft servers for
-    any information they can expose. It provides three modes of
-    access: query, status, and ping.
-
-    Examples:
-
-    \b
-    $ mcstatus example.org ping
-    21.120ms
-
-    \b
-    $ mcstatus example.org:1234 ping
-    159.903ms
-
-    \b
-    $ mcstatus example.org status
-    version: v1.8.8 (protocol 47)
-    description: "A Minecraft Server"
-    players: 1/20 ['Dinnerbone (61699b2e-d327-4a01-9f1e-0ea8c3f06bc6)']
-
-    \b
-    $ mcstatus example.org query
-    host: 93.148.216.34:25565
-    software: v1.8.8 vanilla
-    plugins: []
-    motd: "A Minecraft Server"
-    players: 1/20 ['Dinnerbone (61699b2e-d327-4a01-9f1e-0ea8c3f06bc6)']
-    """
-    global server
-    server = JavaServer.lookup(address)
-
-
-@cli.command(short_help="prints server latency")
-def ping() -> None:
-    """
-    Ping server for latency.
-    """
-    click.echo(f"{server.ping()}ms")
-
-
-@cli.command(short_help="basic server information")
-def status() -> None:
-    """
-    Prints server status. Supported by all Minecraft
-    servers that are version 1.7 or higher.
-    """
+def status(server: JavaServer) -> None:
     response = server.status()
     if response.players.sample is not None:
         player_sample = str([f"{player.name} ({player.id})" for player in response.players.sample])
     else:
         player_sample = "No players online"
 
-    click.echo(f"version: v{response.version.name} (protocol {response.version.protocol})")
-    click.echo(f'motd: "{response.motd}"')
-    click.echo(f"players: {response.players.online}/{response.players.max} {player_sample}")
+    print(f"version: v{response.version.name} (protocol {response.version.protocol})")
+    print(f'motd: "{response.motd}"')
+    print(f"players: {response.players.online}/{response.players.max} {player_sample}")
 
 
-@cli.command(short_help="all available server information in json")
-def json() -> None:
-    """
-    Prints server status and query in json. Supported by all Minecraft
-    servers that are version 1.7 or higher.
-    """
+def json(server: JavaServer) -> None:
     data = {}
     data["online"] = False
     # Build data with responses and quit on exception
@@ -102,15 +49,10 @@ def json() -> None:
         data["plugins"] = query_res.software.plugins
     except Exception:  # TODO: Check what this actually excepts
         pass
-    click.echo(json_dumps(data))
+    print(json_dumps(data))
 
 
-@cli.command(short_help="detailed server information")
-def query() -> None:
-    """
-    Prints detailed server information. Must be enabled in
-    servers' server.properties file.
-    """
+def query(server: JavaServer) -> None:
     try:
         response = server.query()
     except socket.timeout:
@@ -120,13 +62,43 @@ def query() -> None:
             " and that the necessary port (same as server-port unless query-port is set) is open in any firewall(s)."
             "\nSee https://wiki.vg/Query for further information."
         )
-        raise click.Abort()
-    click.echo(f"host: {response.raw['hostip']}:{response.raw['hostport']}")
-    click.echo(f"software: v{response.software.version} {response.software.brand}")
-    click.echo(f"plugins: {response.software.plugins}")
-    click.echo(f'motd: "{response.motd}"')
-    click.echo(f"players: {response.players.online}/{response.players.max} {response.players.names}")
+        return
+    print(f"host: {response.raw['hostip']}:{response.raw['hostport']}")
+    print(f"software: v{response.software.version} {response.software.brand}")
+    print(f"plugins: {response.software.plugins}")
+    print(f'motd: "{response.motd}"')
+    print(f"players: {response.players.online}/{response.players.max} {response.players.names}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="""
+        mcstatus provides an easy way to query Minecraft servers for
+        any information they can expose. It provides three modes of
+        access: query, status, ping and json.
+        """
+    )
+
+    parser.add_argument("address", help="The address of the server.")
+
+    subparsers = parser.add_subparsers()
+    subparsers.add_parser("ping", help="Ping server for latency.").set_defaults(func=ping)
+    subparsers.add_parser(
+        "status", help="Prints server status. Supported by all Minecraft servers that are version 1.7 or higher."
+    ).set_defaults(func=status)
+    subparsers.add_parser(
+        "query", help="Prints detailed server information. Must be enabled in servers' server.properties file."
+    ).set_defaults(func=query)
+    subparsers.add_parser(
+        "json",
+        help="Prints server status and query in json. Supported by all Minecraft servers that are version 1.7 or higher.",
+    ).set_defaults(func=json)
+
+    args = parser.parse_args()
+    server = JavaServer.lookup(args.address)
+
+    args.func(server)
 
 
 if __name__ == "__main__":
-    cli()  # type: ignore[call-arg]
+    main()
