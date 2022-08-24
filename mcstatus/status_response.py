@@ -318,7 +318,7 @@ class BedrockStatusVersion(BaseStatusVersion):
     brand: str
 
 
-def custom_eq(self: Any, other: Any) -> bool:  # noqa: ANN401 # actually will work with any dataclass
+def _custom_eq(self: Any, other: Any) -> bool:  # noqa: ANN401 # actually will work with any dataclass
     """Custom equality function for outdated subclasses."""
     to_check = list(
         (
@@ -384,7 +384,7 @@ class JavaStatusResponse(__JavaStatusResponse):
                     super().__init__(*args, **kwargs)
 
             def __eq__(self, other: Self) -> bool:
-                return custom_eq(self, other)
+                return _custom_eq(self, other)
 
             def __repr__(self):
                 return super().__repr__().replace("JavaStatusResponse.Players.Player", "JavaStatusPlayer")
@@ -424,7 +424,7 @@ class JavaStatusResponse(__JavaStatusResponse):
                 super().__init__(*args, **kwargs)
 
         def __eq__(self, other: Self) -> bool:
-            return custom_eq(self, other)
+            return _custom_eq(self, other)
 
         def __repr__(self):
             return super().__repr__().replace("JavaStatusResponse.Players", "JavaStatusPlayers")
@@ -461,7 +461,7 @@ class JavaStatusResponse(__JavaStatusResponse):
                 super().__init__(*args, **kwargs)
 
         def __eq__(self, other: Self) -> bool:
-            return custom_eq(self, other)
+            return _custom_eq(self, other)
 
         def __repr__(self):
             return super().__repr__().replace("JavaStatusResponse.Version", "JavaStatusVersion")
@@ -615,7 +615,7 @@ class BedrockStatusResponse(__BedrockStatusResponse):
                 super().__init__(*args, **kwargs)
 
         def __eq__(self, other: Self) -> bool:
-            return custom_eq(self, other)
+            return _custom_eq(self, other)
 
         def __repr__(self):
             return super().__repr__().replace("BedrockStatusResponse.Version", "BedrockStatusVersion")
