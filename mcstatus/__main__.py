@@ -29,8 +29,6 @@ def json(server: JavaServer) -> None:
     # Build data with responses and quit on exception
     try:
 
-        # client is first expected to request status and then ping -- https://github.com/py-mine/mcstatus/issues/174#issuecomment-1041004712
-        # otherwise, bungeecord servers will not respond with a ping
         status_res = server.status(tries=1)
         data["version"] = status_res.version.name
         data["protocol"] = status_res.version.protocol
@@ -41,8 +39,6 @@ def json(server: JavaServer) -> None:
         if status_res.players.sample is not None:
             data["players"] = [{"name": player.name, "id": player.id} for player in status_res.players.sample]
 
-        #ping_res = server.ping() # status calls test_ping(), a 2nd ping is not needed.
-        #data["ping"] = ping_res
         data["ping"] = status_res.latency
         data["online"] = True
 
@@ -51,8 +47,7 @@ def json(server: JavaServer) -> None:
         data["host_port"] = query_res.raw["hostport"]
         data["map"] = query_res.map
         data["plugins"] = query_res.software.plugins
-    except Exception as e:  # TODO: Check what this actually excepts
-        #print(e)
+    except Exceptione:  # TODO: Check what this actually excepts
         pass
     print(json_dumps(data))
 
