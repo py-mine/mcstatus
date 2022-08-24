@@ -144,7 +144,7 @@ class JavaServer(MCServer):
         """Checks the status of a Minecraft Java Edition server via the ping protocol.
 
         :param type **kwargs: Passed to a `ServerPinger` instance.
-        :return: Status information in a `PingResponse` instance.
+        :return: Status information in a `JavaStatusResponse` instance.
         """
 
         connection = TCPSocketConnection(self.address, self.timeout)
@@ -162,7 +162,7 @@ class JavaServer(MCServer):
         """Asynchronously checks the status of a Minecraft Java Edition server via the ping protocol.
 
         :param type **kwargs: Passed to a `AsyncServerPinger` instance.
-        :return: Status information in a `PingResponse` instance.
+        :return: Status information in a `JavaStatusResponse` instance.
         """
 
         connection = TCPAsyncSocketConnection()
@@ -237,7 +237,7 @@ class BedrockServer(MCServer):
         """Checks the status of a Minecraft Bedrock Edition server.
 
         :param type **kwargs: Passed to a `BedrockServerStatus` instance.
-        :return: Status information in a `BedrockServerResponse` instance.
+        :return: Status information in a `BedrockStatusResponse` instance.
         :rtype: BedrockStatusResponse
         """
         return BedrockServerStatus(self.address, self.timeout, **kwargs).read_status()
@@ -247,7 +247,7 @@ class BedrockServer(MCServer):
         """Asynchronously checks the status of a Minecraft Bedrock Edition server.
 
         :param type **kwargs: Passed to a `BedrockServerStatus` instance.
-        :return: Status information in a `BedrockServerResponse` instance.
+        :return: Status information in a `BedrockStatusResponse` instance.
         :rtype: BedrockStatusResponse
         """
         return await BedrockServerStatus(self.address, self.timeout, **kwargs).read_status_async()
