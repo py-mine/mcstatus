@@ -468,6 +468,7 @@ class JavaStatusResponse(__JavaStatusResponse):
 
     players: Players
     version: Version
+    _raw: Optional[Dict[str, Any]] = None
 
     @overload
     def __init__(self, raw: Dict[str, Any]) -> None:
@@ -490,6 +491,7 @@ class JavaStatusResponse(__JavaStatusResponse):
 
             deprecated(lambda: None, replacement="build", date="2022-08", display_name="JavaStatusResponse.__init__")()
 
+            self._raw = bound.arguments["raw"]
             instance = self.build(bound.arguments["raw"]).__dict__
             instance["players"] = self.Players(
                 online=instance["players"].online,
@@ -518,6 +520,22 @@ class JavaStatusResponse(__JavaStatusResponse):
     @deprecated(replacement="motd", date="2022-08")
     def description(self) -> str:
         return self.motd
+
+    @property
+    @deprecated(date="2022-08")
+    def raw(self) -> Dict[str, Any]:
+        if self._raw is not None:
+            return self._raw
+
+        raw = {
+            "players": {"max": self.players.max, "online": self.players.online},
+            "version": {"name": self.version.name, "protocol": self.version.protocol},
+            "description": self.motd,
+        }
+        if self.icon is not None:
+            raw["favicon"] = self.icon
+
+        return raw
 
 
 _OLD_BEDROCK_INIT_SIGNATURE = Signature(

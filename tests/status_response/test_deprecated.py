@@ -29,9 +29,10 @@ class TestDeprecatedJavaStatusResponse:
                 }
             )
 
-    def test_description_field_raise_warning(self, build):
+    @mark.parametrize("field", ["description", "raw"])
+    def test_deprecated_fields_raise_warning(self, build, field):
         with deprecated_call():
-            build.description
+            getattr(build, field)
 
     def test_init_old_signature_raise_warning(self):
         with deprecated_call():
@@ -54,20 +55,65 @@ class TestDeprecatedJavaStatusResponse:
             icon="data:image/png;base64,foo",
         )
 
-    def test_deprecated_description_field_in(self):
-        assert hasattr(JavaStatusResponse, "description")
+    @mark.parametrize("field", ["description", "raw"])
+    def test_deprecated_fields_in(self, field):
+        assert hasattr(JavaStatusResponse, field)
 
     @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_description_field_have_correct_value(self, build):
-        assert build.description == "A Minecraft Server"
+    @mark.parametrize(
+        "field,value",
+        [
+            ("description", "A Minecraft Server"),
+            (
+                "raw",
+                {
+                    "players": {"max": 20, "online": 0},
+                    "version": {"name": "1.8-pre1", "protocol": 44},
+                    "description": "A Minecraft Server",
+                    "favicon": "data:image/png;base64,foo",
+                },
+            ),
+        ],
+    )
+    def test_deprecated_fields_have_correct_value(self, build, field, value):
+        assert getattr(build, field) == value
 
     @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_description_have_correct_type(self, build):
-        assert isinstance(build.description, str)
+    @mark.parametrize("field,value", [("description", str), ("raw", dict)])
+    def test_deprecated_fields_have_correct_type(self, build, field, value):
+        assert isinstance(getattr(build, field), value)
 
     @mark.parametrize("field,type_class", [("players", JavaStatusResponse.Players), ("version", JavaStatusResponse.Version)])
     def test_deprecated_fields_have_correct_class(self, build, field, type_class):
         assert type(getattr(build, field)) is type_class
+
+    @mark.filterwarnings("ignore::DeprecationWarning")
+    def test_raw_field_give_correct_value_with_new_signature(self):
+        assert JavaStatusResponse(
+            players=JavaStatusPlayers(max=20, online=0, sample=[]),
+            version=JavaStatusVersion(name="1.8-pre1", protocol=44),
+            motd="A Minecraft Server",
+            latency=123.0,
+            icon="data:image/png;base64,foo",
+        ).raw == {
+            "players": {"max": 20, "online": 0},
+            "version": {"name": "1.8-pre1", "protocol": 44},
+            "description": "A Minecraft Server",
+            "favicon": "data:image/png;base64,foo",
+        }
+
+    @mark.filterwarnings("ignore::DeprecationWarning")
+    def test_raw_field_dont_give_favicon_if_is_none(self):
+        assert (
+            "favicon"
+            not in JavaStatusResponse(
+                players=JavaStatusPlayers(max=20, online=0, sample=[]),
+                version=JavaStatusVersion(name="1.8-pre1", protocol=44),
+                motd="A Minecraft Server",
+                latency=123.0,
+                icon=None,
+            ).raw
+        )
 
 
 class TestDeprecatedJavaStatusResponsePlayers:
