@@ -874,7 +874,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4"
-content-hash = "24074d72e3e309399ed35b665574f33cc9491da0b48bccbd3ff0c832392ea442"
+content-hash = "cfdf40695103ec6db7e3641740a91515c16e4436a6d9faef3190aa6c202c7414"
 
 [metadata.files]
 asyncio-dgram = [
