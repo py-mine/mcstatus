@@ -31,21 +31,20 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.7,<4"
 asyncio-dgram = "2.1.2"
-click = ">=7.1.2,<9"
 dnspython = "2.2.1"
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"
 coverage = "^6.4"
 flake8 = "^5.0.4"
-flake8-annotations = "^2.9.0"
+flake8-annotations = "^2.9.1"
 flake8-bugbear = "^22.7.1"
 flake8-isort = "^4.2.0"
 flake8-tidy-imports = "^4.8.0"
 flake8-pep585 = {version = "^0.1.5", python = ">=3.9"}
 flake8-future-annotations = "^0.0.5"
 isort = "^5.10.1"
-pep8-naming = "^0.13.1"
+pep8-naming = "^0.13.2"
 pre-commit = "^2.20.0"
 pyright = "^1.1.261"
 pytest = "^7.1.2"
@@ -57,7 +56,7 @@ twine = "^4.0.1"
 typing-extensions = "^4.3.0"
 
 [tool.poetry.scripts]
-mcstatus = 'mcstatus.__main__:cli'
+mcstatus = 'mcstatus.__main__:main'
 
 [tool.pytest.ini_options]
 minversion = "6.0"
