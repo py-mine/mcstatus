@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import ipaddress
 from pathlib import Path
-from typing import NamedTuple, Optional, TYPE_CHECKING, Tuple, Union
+from typing import NamedTuple, Optional, TYPE_CHECKING, Union
 from urllib.parse import urlparse
 
 import dns.resolver
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 __all__ = ("Address", "minecraft_srv_address_lookup", "async_minecraft_srv_address_lookup")
 
 
-def _valid_urlparse(address: str) -> Tuple[str, Optional[int]]:
+def _valid_urlparse(address: str) -> tuple[str, Optional[int]]:
     """Parses a string address like 127.0.0.1:25565 into host and port parts
 
     If the address doesn't have a specified port, None will be returned instead.
@@ -70,7 +70,7 @@ class Address(_AddressBase):
             raise ValueError(f"Port must be within the allowed range (0-2^16), got {port!r}")
 
     @classmethod
-    def from_tuple(cls, tup: Tuple[str, int]) -> Self:
+    def from_tuple(cls, tup: tuple[str, int]) -> Self:
         """Construct the class from a regular tuple of (host, port), commonly used for addresses."""
         return cls(host=tup[0], port=tup[1])
 
