@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 import re
 import struct
-from typing import Dict, List, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union
 
 from mcstatus.protocol.connection import Connection, UDPAsyncSocketConnection, UDPSocketConnection
 
@@ -94,10 +94,10 @@ class QueryResponse:
     class Players:
         online: int
         max: int
-        names: List[str]
+        names: list[str]
 
         # TODO: It's a bit weird that we accept str for number parameters, just to convert them in init
-        def __init__(self, online: Union[str, int], max: Union[str, int], names: List[str]):
+        def __init__(self, online: Union[str, int], max: Union[str, int], names: list[str]):
             self.online = int(online)
             self.max = int(max)
             self.names = names
@@ -105,7 +105,7 @@ class QueryResponse:
     class Software:
         version: str
         brand: str
-        plugins: List[str]
+        plugins: list[str]
 
         def __init__(self, version: str, plugins: str):
             self.version = version
@@ -124,7 +124,7 @@ class QueryResponse:
     players: Players
     software: Software
 
-    def __init__(self, raw: Dict[str, str], players: List[str]):
+    def __init__(self, raw: dict[str, str], players: list[str]):
         try:
             self.raw = raw
             self.motd = raw["hostname"]

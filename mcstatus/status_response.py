@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from dataclasses import dataclass, fields
 from inspect import Parameter, Signature
-from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING, Tuple, Union, overload
+from typing import Any, Optional, TYPE_CHECKING, Union, overload
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -51,7 +52,7 @@ STYLE_MAP = {
 }
 
 
-def _validate_data(raw: Dict[str, Any], who: str, required: Iterable[Tuple[str, type]]) -> None:
+def _validate_data(raw: dict[str, Any], who: str, required: Iterable[tuple[str, type]]) -> None:
     """Ensure that all required keys are present, and have the specified type.
 
     :param raw: The raw dict answer to check.
@@ -107,7 +108,7 @@ class __JavaStatusResponse(BaseStatusResponse):
     icon: Optional[str]
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> Self:  # TODO: Consider using a TypedDict here, to avoid all `Any`
+    def build(cls, raw: dict[str, Any]) -> Self:  # TODO: Consider using a Typeddict here, to avoid all `Any`
         """Build JavaStatusResponse and check is it valid.
 
         :param raw: Raw response dict.
@@ -174,7 +175,7 @@ class __BedrockStatusResponse(BaseStatusResponse):
     gamemode: Optional[str]
 
     @classmethod
-    def build(cls, decoded_data: List[Any], latency: float) -> Self:
+    def build(cls, decoded_data: list[Any], latency: float) -> Self:
         """Build BaseStatusResponse and check is it valid.
 
         :param decoded_data: Raw decoded response object.
@@ -220,13 +221,13 @@ class BaseStatusPlayers(ABC):
 class JavaStatusPlayers(BaseStatusPlayers):
     """Class which extends a `BaseStatusPlayers` class with sample of players.
 
-    :param sample: List of players or `None` if the sample is missing in the response.
+    :param sample: list of players or `None` if the sample is missing in the response.
     """
 
-    sample: Optional[List[JavaStatusPlayer]]
+    sample: Optional[list[JavaStatusPlayer]]
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> Self:
+    def build(cls, raw: dict[str, Any]) -> Self:
         """Build `JavaStatusPlayers` from raw response dict.
 
         :param raw: Raw response dict.
@@ -267,7 +268,7 @@ class JavaStatusPlayer:
         return self.id
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> Self:
+    def build(cls, raw: dict[str, Any]) -> Self:
         """Build `JavaStatusPlayer` from raw response dict.
 
         :param raw: Raw response dict.
@@ -296,7 +297,7 @@ class JavaStatusVersion(BaseStatusVersion):
     """Class for storing Java version info."""
 
     @classmethod
-    def build(cls, raw: Dict[str, Any]) -> Self:
+    def build(cls, raw: dict[str, Any]) -> Self:
         """Build `JavaStatusVersion` from raw response dict.
 
         :param raw: Raw response dict.
@@ -335,7 +336,7 @@ def _custom_eq(self: Any, other: Any) -> bool:  # noqa: ANN401 # actually will w
 
 _OLD_JAVA_INIT_SIGNATURE = Signature(
     parameters=[
-        Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=Dict[str, Any]),
+        Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=dict[str, Any]),
     ]
 )
 
@@ -359,7 +360,7 @@ class JavaStatusResponse(__JavaStatusResponse):
             """
 
             @overload
-            def __init__(self, raw: Dict[str, Any]) -> None:
+            def __init__(self, raw: dict[str, Any]) -> None:
                 ...
 
             @overload
@@ -390,11 +391,11 @@ class JavaStatusResponse(__JavaStatusResponse):
                 return super().__repr__().replace("JavaStatusResponse.Players.Player", "JavaStatusPlayer")
 
         @overload
-        def __init__(self, raw: Dict[str, Any]) -> None:
+        def __init__(self, raw: dict[str, Any]) -> None:
             ...
 
         @overload
-        def __init__(self, online: int, max: int, sample: Optional[List[JavaStatusPlayer]]) -> None:
+        def __init__(self, online: int, max: int, sample: Optional[list[JavaStatusPlayer]]) -> None:
             ...
 
         def __init__(self, *args, **kwargs) -> None:
@@ -436,7 +437,7 @@ class JavaStatusResponse(__JavaStatusResponse):
         """
 
         @overload
-        def __init__(self, raw: Dict[str, Any]) -> None:
+        def __init__(self, raw: dict[str, Any]) -> None:
             ...
 
         @overload
@@ -468,10 +469,10 @@ class JavaStatusResponse(__JavaStatusResponse):
 
     players: Players
     version: Version
-    _raw: Optional[Dict[str, Any]] = None
+    _raw: Optional[dict[str, Any]] = None
 
     @overload
-    def __init__(self, raw: Dict[str, Any]) -> None:
+    def __init__(self, raw: dict[str, Any]) -> None:
         ...
 
     @overload
@@ -524,7 +525,7 @@ class JavaStatusResponse(__JavaStatusResponse):
 
     @property
     @deprecated(date="2022-08")
-    def raw(self) -> Dict[str, Any]:
+    def raw(self) -> dict[str, Any]:
         if self._raw is not None:
             return self._raw
 
