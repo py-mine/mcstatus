@@ -72,11 +72,12 @@ def query(server: JavaServer) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
+        "mcstatus",
         description="""
         mcstatus provides an easy way to query Minecraft servers for
         any information they can expose. It provides three modes of
         access: query, status, ping and json.
-        """
+        """,
     )
 
     parser.add_argument("address", help="The address of the server.")
