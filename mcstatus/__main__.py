@@ -28,9 +28,6 @@ def json(server: JavaServer) -> None:
     data["online"] = False
     # Build data with responses and quit on exception
     try:
-        ping_res = server.ping()
-        data["online"] = True
-        data["ping"] = ping_res
 
         status_res = server.status(tries=1)
         data["version"] = status_res.version.name
@@ -41,6 +38,9 @@ def json(server: JavaServer) -> None:
         data["players"] = []
         if status_res.players.sample is not None:
             data["players"] = [{"name": player.name, "id": player.id} for player in status_res.players.sample]
+
+        data["ping"] = status_res.latency
+        data["online"] = True
 
         query_res = server.query(tries=1)  # type: ignore[call-arg] # tries is supported with retry decorator
         data["host_ip"] = query_res.raw["hostip"]
