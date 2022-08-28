@@ -8,8 +8,6 @@ from typing import Any, Optional, TYPE_CHECKING, Union, overload
 
 if TYPE_CHECKING:
     from typing_extensions import Self
-else:  # we use it in code, not in type-hints. in type-hints we use only just `dict`
-    from typing import Dict  # noqa: PEA001
 
 from mcstatus.utils import deprecated
 
@@ -338,7 +336,7 @@ def _custom_eq(self: Any, other: Any) -> bool:  # noqa: ANN401 # actually will w
 
 _OLD_JAVA_INIT_SIGNATURE = Signature(
     parameters=[
-        Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=Dict[str, Any]),  # type: ignore # undefined `Dict`
+        Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation="dict[str, Any]"),
     ]
 )
 
