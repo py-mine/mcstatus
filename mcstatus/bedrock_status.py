@@ -4,7 +4,6 @@ import asyncio
 import socket
 import struct
 from time import perf_counter
-from typing import Optional
 
 import asyncio_dgram
 
@@ -89,8 +88,8 @@ class BedrockStatusResponse:
         players_online: int,
         players_max: int,
         motd: str,
-        map_: Optional[str],
-        gamemode: Optional[str],
+        map_: str | None,
+        gamemode: str | None,
     ):
         self.version = self.Version(protocol, brand, version)
         self.latency = latency
