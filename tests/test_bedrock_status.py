@@ -2,7 +2,7 @@ from mcstatus.bedrock_status import BedrockServerStatus
 from mcstatus.status_response import BedrockStatusResponse
 
 
-def test_bedrock_response_have_expected_type():
+def test_bedrock_response_is_expected_type():
     data = (
         b"\x1c\x00\x00\x00\x00\x00\x00\x00\x004GT\x00\xb8\x83D\xde\x00\xff\xff\x00\xfe\xfe\xfe\xfe\xfd\xfd\xfd\xfd"
         b"\x124Vx\x00wMCPE;\xc2\xa7r\xc2\xa74G\xc2\xa7r\xc2\xa76a\xc2\xa7r\xc2\xa7ey\xc2\xa7r\xc2\xa72B\xc2\xa7r\xc2"
