@@ -1,11 +1,11 @@
 import asyncio
-from unittest.mock import patch
 
 import pytest
 
 from mcstatus.address import Address
 from mcstatus.pinger import AsyncServerPinger
 from mcstatus.protocol.connection import Connection
+from mcstatus.status_response import JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
 
 
 def async_decorator(f):
@@ -41,16 +41,15 @@ class TestAsyncServerPinger:
                 "70726F746F636F6C223A34347D7D"
             )
         )
+        status = async_decorator(self.pinger.read_status)()
 
-        with patch("mcstatus.status_response.JavaStatusResponse.build") as mock:
-            async_decorator(self.pinger.read_status)()
-            mock.assert_called_once_with(
-                {
-                    "description": "A Minecraft Server",
-                    "players": {"max": 20, "online": 0},
-                    "version": {"name": "1.8-pre1", "protocol": 44},
-                }
-            )
+        assert status == JavaStatusResponse(
+            players=JavaStatusPlayers(online=0, max=20, sample=None),
+            version=JavaStatusVersion(name="1.8-pre1", protocol=44),
+            motd="A Minecraft Server",
+            latency=status.latency,
+            icon=None,
+        )
 
         assert self.pinger.connection.flush() == bytearray.fromhex("0100")
 
