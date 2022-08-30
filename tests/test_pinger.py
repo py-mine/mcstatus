@@ -33,7 +33,7 @@ class TestServerPinger:
             players=JavaStatusPlayers(online=0, max=20, sample=None),
             version=JavaStatusVersion(name="1.8-pre1", protocol=44),
             motd="A Minecraft Server",
-            latency=None,  # type: ignore[assignment]
+            latency=status.latency,
             icon=None,
         )
 
