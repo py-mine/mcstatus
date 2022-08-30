@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import warnings
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Optional, TYPE_CHECKING
 
 import dns.resolver
@@ -16,21 +16,21 @@ from mcstatus.protocol.connection import (
     UDPSocketConnection,
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
-from mcstatus.status_response import BaseStatusResponse, BedrockStatusResponse, JavaStatusResponse
+from mcstatus.status_response import BedrockStatusResponse, JavaStatusResponse
 from mcstatus.utils import retry
 
 if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = ["MCServer", "JavaServer", "BedrockServer"]
+__all__ = ["JavaServer", "BedrockServer"]
 
 
 class MCServer(ABC):
     """Base abstract class for a general minecraft server.
 
     This class only contains the basic logic shared across both java and bedrock versions,
-    it doesn't include any version specific settings, and it can't be used to make any requests.
+    it doesn't include any version specific settings and it can't be used to make any requests.
 
     :param str host: The host/ip of the minecraft server.
     :param int port: The port that the server is on.
@@ -49,32 +49,11 @@ class MCServer(ABC):
     def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Mimics minecraft's server address field.
 
-        :param str address: The address of the Minecraft server, like `example.com:25565`.
+        :param str address: The address of the Minecraft server, like `example.com:19132`
         :param float timeout: The timeout in seconds before failing to connect.
-        :return: The server object.
         """
         addr = Address.parse_address(address, default_port=cls.DEFAULT_PORT)
         return cls(addr.host, addr.port, timeout=timeout)
-
-    @classmethod
-    @abstractmethod
-    def status(cls, **kwargs) -> BaseStatusResponse:
-        """Checks the status of a Minecraft server via the ping protocol.
-
-        :param type **kwargs: Passed to a `ServerPinger` instance or to a `BedrockServerStatus` if it is a Bedrock server.
-        :return: Status information in a `BaseStatusResponse` instance.
-        """
-        raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
-
-    @classmethod
-    @abstractmethod
-    async def async_status(cls, **kwargs) -> BaseStatusResponse:
-        """Asynchronously checks the status of a Minecraft server via the ping protocol.
-
-        :param type **kwargs: Passed to a `AsyncServerPinger` instance or to a `BedrockServerStatus` if it is a Bedrock server.
-        :return: Status information in a `BaseStatusResponse` instance.
-        """
-        raise NotImplementedError("You can't use abstract methods. Use a child class instead.")
 
 
 class JavaServer(MCServer):
@@ -225,12 +204,6 @@ class BedrockServer(MCServer):
     """Base class for a Minecraft Bedrock Edition server."""
 
     DEFAULT_PORT = 19132
-
-    @classmethod
-    def lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Parse `address` parameter and return initialized object."""
-        parsed_address = Address.parse_address(address, default_port=19132)
-        return cls(parsed_address.host, parsed_address.port, timeout=timeout)
 
     @retry(tries=3)
     def status(self, **kwargs) -> BedrockStatusResponse:
