@@ -3,10 +3,53 @@ from __future__ import annotations
 import datetime
 import json
 import random
-from typing import Optional, Union, cast
+from typing import Optional, TYPE_CHECKING, Union
 
 from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
+
+if TYPE_CHECKING:
+    from typing_extensions import NotRequired, Required, TypeAlias, TypedDict
+
+    class RawResponsePlayer(TypedDict):
+        name: str
+        id: str
+
+    class RawResponsePlayers(TypedDict):
+        online: int
+        max: int
+        sample: NotRequired[list[RawResponsePlayer]]
+
+    class RawResponseVersion(TypedDict):
+        name: str
+        protocol: int
+
+    class RawResponseDescriptionWhenDict(TypedDict, total=False):
+        text: Required[str]
+        extra: list[RawResponseDescriptionWhenDict]
+
+        color: str
+        bold: bool
+        strikethrough: bool
+        italic: bool
+        underlined: bool
+        obfuscated: bool
+
+    RawResponseDescription: TypeAlias = Union[RawResponseDescriptionWhenDict, list[RawResponseDescriptionWhenDict], str]
+
+    class RawResponse(TypedDict):
+        description: RawResponseDescription
+        players: RawResponsePlayers
+        version: RawResponseVersion
+        favicon: NotRequired[str]
+
+else:
+    RawResponsePlayer = dict
+    RawResponsePlayers = dict
+    RawResponseVersion = dict
+    RawResponseDescriptionWhenDict = dict
+    RawResponse = dict
+
 
 STYLE_MAP = {
     "color": {
@@ -157,7 +200,7 @@ class PingResponse:
             name: str
             id: str
 
-            def __init__(self, raw: dict[str, object]):
+            def __init__(self, raw: RawResponsePlayer):
                 if not isinstance(raw, dict):
                     raise ValueError(f"Invalid player object (expected dict, found {type(raw)}")
 
@@ -177,7 +220,7 @@ class PingResponse:
         max: int
         sample: Optional[list["PingResponse.Players.Player"]]
 
-        def __init__(self, raw: dict[str, object]):
+        def __init__(self, raw: RawResponsePlayers):
             if not isinstance(raw, dict):
                 raise ValueError(f"Invalid players object (expected dict, found {type(raw)}")
 
@@ -204,7 +247,7 @@ class PingResponse:
         name: str
         protocol: int
 
-        def __init__(self, raw: dict[str, object]):
+        def __init__(self, raw: RawResponseVersion):
             if not isinstance(raw, dict):
                 raise ValueError(f"Invalid version object (expected dict, found {type(raw)})")
 
@@ -226,26 +269,25 @@ class PingResponse:
     favicon: Optional[str]
     latency: float = 0
 
-    def __init__(self, raw: dict[str, object]):
+    def __init__(self, raw: RawResponse):
         self.raw = raw
 
-        # TODO: Consider using a TypedDict here, to avoid all of the type casts
         if "players" not in raw:
             raise ValueError("Invalid status object (no 'players' value)")
-        self.players = PingResponse.Players(cast("dict[str, object]", raw["players"]))
+        self.players = PingResponse.Players(raw["players"])
 
         if "version" not in raw:
             raise ValueError("Invalid status object (no 'version' value)")
-        self.version = PingResponse.Version(cast("dict[str, object]", raw["version"]))
+        self.version = PingResponse.Version(raw["version"])
 
         if "description" not in raw:
             raise ValueError("Invalid status object (no 'description' value)")
-        self.description = self._parse_description(cast("dict[str, object]", raw["description"]))
+        self.description = self._parse_description(raw["description"])
 
-        self.favicon = cast(Optional[str], raw.get("favicon"))
+        self.favicon = raw.get("favicon")
 
     @staticmethod
-    def _parse_description(raw_description: Union[dict, list, str]) -> str:
+    def _parse_description(raw_description: RawResponseDescription) -> str:
         if isinstance(raw_description, str):
             return raw_description
 

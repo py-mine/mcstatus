@@ -109,7 +109,7 @@ class TestPingResponse:
     def test_description_missing(self):
         with pytest.raises(ValueError):
             PingResponse(
-                {
+                {  # type: ignore
                     "players": {"max": 20, "online": 0},
                     "version": {"name": "1.8-pre1", "protocol": 44},
                 }
@@ -211,7 +211,7 @@ class TestPingResponse:
     def test_version_missing(self):
         with pytest.raises(ValueError):
             PingResponse(
-                {
+                {  # type: ignore
                     "description": "A Minecraft Server",
                     "players": {"max": 20, "online": 0},
                 }
@@ -223,7 +223,7 @@ class TestPingResponse:
                 {
                     "description": "A Minecraft Server",
                     "players": {"max": 20, "online": 0},
-                    "version": "foo",
+                    "version": "foo",  # type: ignore
                 }
             )
 
@@ -243,7 +243,7 @@ class TestPingResponse:
     def test_players_missing(self):
         with pytest.raises(ValueError):
             PingResponse(
-                {
+                {  # type: ignore
                     "description": "A Minecraft Server",
                     "version": {"name": "1.8-pre1", "protocol": 44},
                 }
@@ -280,19 +280,19 @@ class TestPingResponsePlayers:
 
     def test_max_missing(self):
         with pytest.raises(ValueError):
-            PingResponse.Players({"online": 5})
+            PingResponse.Players({"online": 5})  # type: ignore
 
     def test_max_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players({"max": "foo", "online": 5})
+            PingResponse.Players({"max": "foo", "online": 5})  # type: ignore
 
     def test_online_missing(self):
         with pytest.raises(ValueError):
-            PingResponse.Players({"max": 20})
+            PingResponse.Players({"max": 20})  # type: ignore
 
     def test_online_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players({"max": 20, "online": "foo"})
+            PingResponse.Players({"max": 20, "online": "foo"})  # type: ignore
 
     def test_valid(self):
         players = PingResponse.Players({"max": 20, "online": 5})
@@ -314,7 +314,7 @@ class TestPingResponsePlayers:
 
     def test_sample_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players({"max": 20, "online": 1, "sample": "foo"})
+            PingResponse.Players({"max": 20, "online": 1, "sample": "foo"})  # type: ignore
 
     def test_sample_missing(self):
         players = PingResponse.Players({"max": 20, "online": 1})
@@ -328,19 +328,19 @@ class TestPingResponsePlayersPlayer:
 
     def test_name_missing(self):
         with pytest.raises(ValueError):
-            PingResponse.Players.Player({"id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
+            PingResponse.Players.Player({"id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})  # type: ignore
 
     def test_name_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players.Player({"name": {}, "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
+            PingResponse.Players.Player({"name": {}, "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})  # type: ignore
 
     def test_id_missing(self):
         with pytest.raises(ValueError):
-            PingResponse.Players.Player({"name": "Dinnerbone"})
+            PingResponse.Players.Player({"name": "Dinnerbone"})  # type: ignore
 
     def test_id_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Players.Player({"name": "Dinnerbone", "id": {}})
+            PingResponse.Players.Player({"name": "Dinnerbone", "id": {}})  # type: ignore
 
     def test_valid(self):
         player = PingResponse.Players.Player({"name": "Dinnerbone", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"})
@@ -356,19 +356,19 @@ class TestPingResponseVersion:
 
     def test_protocol_missing(self):
         with pytest.raises(ValueError):
-            PingResponse.Version({"name": "foo"})
+            PingResponse.Version({"name": "foo"})  # type: ignore
 
     def test_protocol_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Version({"name": "foo", "protocol": "bar"})
+            PingResponse.Version({"name": "foo", "protocol": "bar"})  # type: ignore
 
     def test_name_missing(self):
         with pytest.raises(ValueError):
-            PingResponse.Version({"protocol": 5})
+            PingResponse.Version({"protocol": 5})  # type: ignore
 
     def test_name_invalid(self):
         with pytest.raises(ValueError):
-            PingResponse.Version({"name": {}, "protocol": 5})
+            PingResponse.Version({"name": {}, "protocol": 5})  # type: ignore
 
     def test_valid(self):
         players = PingResponse.Version({"name": "foo", "protocol": 5})
