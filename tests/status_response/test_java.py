@@ -90,7 +90,7 @@ class TestJavaStatusResponse:
         assert getattr(build, field) == value
 
     def test_parse_description_strips_html_color_codes(self):
-        assert JavaStatusResponse._parse_description(
+        assert JavaStatusResponse._parse_motd(
             {
                 "extra": [
                     {"text": " "},
@@ -156,7 +156,7 @@ class TestJavaStatusResponse:
         ],
     )
     def test_parse_description_full_match(self, input_value, expected_output):
-        assert JavaStatusResponse._parse_description(input_value) == expected_output
+        assert JavaStatusResponse._parse_motd(input_value) == expected_output
 
     @mark.parametrize(
         "input_value,expected_output",
@@ -178,7 +178,7 @@ class TestJavaStatusResponse:
         ],
     )
     def test_parse_description_in(self, input_value, expected_output):
-        assert JavaStatusResponse._parse_description(input_value) == expected_output
+        assert JavaStatusResponse._parse_motd(input_value) == expected_output
 
     def test_icon_missing(self):
         response = JavaStatusResponse.build(

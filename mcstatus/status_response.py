@@ -161,27 +161,27 @@ class __JavaStatusResponse(BaseStatusResponse):
         return cls(
             players=JavaStatusPlayers.build(raw["players"]),
             version=JavaStatusVersion.build(raw["version"]),
-            motd=cls._parse_description(raw["description"]),
+            motd=cls._parse_motd(raw["description"]),
             icon=raw.get("favicon"),
             # This will be set later.
             latency=None,  # type: ignore[assignment]
         )
 
     @staticmethod
-    def _parse_description(raw_description: RawJavaResponseMotd) -> str:
-        """Parse description from raw response.
+    def _parse_motd(raw_motd: RawJavaResponseMotd) -> str:
+        """Parse MOTD from raw response.
 
-        :param raw_description: Raw description.
-        :return: Parsed description.
+        :param raw_motd: Raw MOTD.
+        :return: Parsed MOTD.
         """
-        if isinstance(raw_description, str):
-            return raw_description
+        if isinstance(raw_motd, str):
+            return raw_motd
 
-        if isinstance(raw_description, dict):
-            entries = raw_description.get("extra", [])
-            end = raw_description["text"]
+        if isinstance(raw_motd, dict):
+            entries = raw_motd.get("extra", [])
+            end = raw_motd["text"]
         else:
-            entries = raw_description
+            entries = raw_motd
             end = ""
 
         description = ""
