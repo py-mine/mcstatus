@@ -9,22 +9,22 @@ from typing import Any, Optional, TYPE_CHECKING, Union, overload
 if TYPE_CHECKING:
     from typing_extensions import NotRequired, Required, Self, TypeAlias, TypedDict
 
-    class RawResponsePlayer(TypedDict):
+    class RawJavaResponsePlayer(TypedDict):
         name: str
         id: str
 
-    class RawResponsePlayers(TypedDict):
+    class RawJavaResponsePlayers(TypedDict):
         online: int
         max: int
-        sample: NotRequired[list[RawResponsePlayer]]
+        sample: NotRequired[list[RawJavaResponsePlayer]]
 
-    class RawResponseVersion(TypedDict):
+    class RawJavaResponseVersion(TypedDict):
         name: str
         protocol: int
 
-    class RawResponseDescriptionWhenDict(TypedDict, total=False):
+    class RawJavaResponseMotdWhenDict(TypedDict, total=False):
         text: Required[str]
-        extra: list[RawResponseDescriptionWhenDict]
+        extra: list[RawJavaResponseMotdWhenDict]
 
         color: str
         bold: bool
@@ -33,20 +33,20 @@ if TYPE_CHECKING:
         underlined: bool
         obfuscated: bool
 
-    RawResponseDescription: TypeAlias = Union[RawResponseDescriptionWhenDict, list[RawResponseDescriptionWhenDict], str]
+    RawJavaResponseMotd: TypeAlias = Union[RawJavaResponseMotdWhenDict, list[RawJavaResponseMotdWhenDict], str]
 
-    class RawResponse(TypedDict):
-        description: RawResponseDescription
-        players: RawResponsePlayers
-        version: RawResponseVersion
+    class RawJavaResponse(TypedDict):
+        description: RawJavaResponseMotd
+        players: RawJavaResponsePlayers
+        version: RawJavaResponseVersion
         favicon: NotRequired[str]
 
 else:
-    RawResponsePlayer = dict
-    RawResponsePlayers = dict
-    RawResponseVersion = dict
-    RawResponseDescriptionWhenDict = dict
-    RawResponse = dict
+    RawJavaResponsePlayer = dict
+    RawJavaResponsePlayers = dict
+    RawJavaResponseVersion = dict
+    RawJavaResponseMotdWhenDict = dict
+    RawJavaResponse = dict
 
 from mcstatus.utils import deprecated
 
@@ -148,7 +148,7 @@ class __JavaStatusResponse(BaseStatusResponse):
     icon: Optional[str]
 
     @classmethod
-    def build(cls, raw: RawResponse) -> Self:
+    def build(cls, raw: RawJavaResponse) -> Self:
         """Build JavaStatusResponse and check is it valid.
 
         :param raw: Raw response dict.
@@ -168,7 +168,7 @@ class __JavaStatusResponse(BaseStatusResponse):
         )
 
     @staticmethod
-    def _parse_description(raw_description: RawResponseDescription) -> str:
+    def _parse_description(raw_description: RawJavaResponseMotd) -> str:
         """Parse description from raw response.
 
         :param raw_description: Raw description.
@@ -267,7 +267,7 @@ class JavaStatusPlayers(BaseStatusPlayers):
     sample: Optional[list[JavaStatusPlayer]]
 
     @classmethod
-    def build(cls, raw: RawResponsePlayers) -> Self:
+    def build(cls, raw: RawJavaResponsePlayers) -> Self:
         """Build `JavaStatusPlayers` from raw response dict.
 
         :param raw: Raw response dict.
@@ -308,7 +308,7 @@ class JavaStatusPlayer:
         return self.id
 
     @classmethod
-    def build(cls, raw: RawResponsePlayer) -> Self:
+    def build(cls, raw: RawJavaResponsePlayer) -> Self:
         """Build `JavaStatusPlayer` from raw response dict.
 
         :param raw: Raw response dict.
@@ -337,7 +337,7 @@ class JavaStatusVersion(BaseStatusVersion):
     """Class for storing Java version info."""
 
     @classmethod
-    def build(cls, raw: RawResponseVersion) -> Self:
+    def build(cls, raw: RawJavaResponseVersion) -> Self:
         """Build `JavaStatusVersion` from raw response dict.
 
         :param raw: Raw response dict.
@@ -376,7 +376,7 @@ def _custom_eq(self: Any, other: Any) -> bool:  # noqa: ANN401 # actually will w
 
 _OLD_JAVA_INIT_SIGNATURE = Signature(
     parameters=[
-        Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=RawResponse),
+        Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=RawJavaResponse),
     ]
 )
 
@@ -400,7 +400,7 @@ class JavaStatusResponse(__JavaStatusResponse):
             """
 
             @overload
-            def __init__(self, raw: RawResponsePlayer) -> None:
+            def __init__(self, raw: RawJavaResponsePlayer) -> None:
                 ...
 
             @overload
@@ -431,7 +431,7 @@ class JavaStatusResponse(__JavaStatusResponse):
                 return super().__repr__().replace("JavaStatusResponse.Players.Player", "JavaStatusPlayer")
 
         @overload
-        def __init__(self, raw: RawResponsePlayers) -> None:
+        def __init__(self, raw: RawJavaResponsePlayers) -> None:
             ...
 
         @overload
@@ -477,7 +477,7 @@ class JavaStatusResponse(__JavaStatusResponse):
         """
 
         @overload
-        def __init__(self, raw: RawResponseVersion) -> None:
+        def __init__(self, raw: RawJavaResponseVersion) -> None:
             ...
 
         @overload
@@ -509,10 +509,10 @@ class JavaStatusResponse(__JavaStatusResponse):
 
     players: Players
     version: Version
-    _raw: Optional[RawResponse] = None
+    _raw: Optional[RawJavaResponse] = None
 
     @overload
-    def __init__(self, raw: RawResponse) -> None:
+    def __init__(self, raw: RawJavaResponse) -> None:
         ...
 
     @overload
@@ -565,11 +565,11 @@ class JavaStatusResponse(__JavaStatusResponse):
 
     @property
     @deprecated(date="2022-08")
-    def raw(self) -> RawResponse:
+    def raw(self) -> RawJavaResponse:
         if self._raw is not None:
             return self._raw
 
-        raw: RawResponse = {
+        raw: RawJavaResponse = {
             "players": {"max": self.players.max, "online": self.players.online},
             "version": {"name": self.version.name, "protocol": self.version.protocol},
             "description": self.motd,
