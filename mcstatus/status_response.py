@@ -7,7 +7,46 @@ from inspect import Parameter, Signature
 from typing import Any, Optional, TYPE_CHECKING, Union, overload
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing_extensions import NotRequired, Required, Self, TypeAlias, TypedDict
+
+    class RawResponsePlayer(TypedDict):
+        name: str
+        id: str
+
+    class RawResponsePlayers(TypedDict):
+        online: int
+        max: int
+        sample: NotRequired[list[RawResponsePlayer]]
+
+    class RawResponseVersion(TypedDict):
+        name: str
+        protocol: int
+
+    class RawResponseDescriptionWhenDict(TypedDict, total=False):
+        text: Required[str]
+        extra: list[RawResponseDescriptionWhenDict]
+
+        color: str
+        bold: bool
+        strikethrough: bool
+        italic: bool
+        underlined: bool
+        obfuscated: bool
+
+    RawResponseDescription: TypeAlias = Union[RawResponseDescriptionWhenDict, list[RawResponseDescriptionWhenDict], str]
+
+    class RawResponse(TypedDict):
+        description: RawResponseDescription
+        players: RawResponsePlayers
+        version: RawResponseVersion
+        favicon: NotRequired[str]
+
+else:
+    RawResponsePlayer = dict
+    RawResponsePlayers = dict
+    RawResponseVersion = dict
+    RawResponseDescriptionWhenDict = dict
+    RawResponse = dict
 
 from mcstatus.utils import deprecated
 
@@ -52,7 +91,8 @@ STYLE_MAP = {
 }
 
 
-def _validate_data(raw: dict[str, Any], who: str, required: Iterable[tuple[str, type]]) -> None:
+# such union in `raw` field because `TypedDict` is incompatible with just dict
+def _validate_data(raw: Union[dict[str, Any], TypedDict], who: str, required: Iterable[tuple[str, type]]) -> None:
     """Ensure that all required keys are present, and have the specified type.
 
     :param raw: The raw dict answer to check.
@@ -108,7 +148,7 @@ class __JavaStatusResponse(BaseStatusResponse):
     icon: Optional[str]
 
     @classmethod
-    def build(cls, raw: dict[str, Any]) -> Self:  # TODO: Consider using a Typeddict here, to avoid all `Any`
+    def build(cls, raw: RawResponse) -> Self:
         """Build JavaStatusResponse and check is it valid.
 
         :param raw: Raw response dict.
@@ -128,7 +168,7 @@ class __JavaStatusResponse(BaseStatusResponse):
         )
 
     @staticmethod
-    def _parse_description(raw_description: Union[dict, list, str]) -> str:
+    def _parse_description(raw_description: RawResponseDescription) -> str:
         """Parse description from raw response.
 
         :param raw_description: Raw description.
@@ -227,7 +267,7 @@ class JavaStatusPlayers(BaseStatusPlayers):
     sample: Optional[list[JavaStatusPlayer]]
 
     @classmethod
-    def build(cls, raw: dict[str, Any]) -> Self:
+    def build(cls, raw: RawResponsePlayers) -> Self:
         """Build `JavaStatusPlayers` from raw response dict.
 
         :param raw: Raw response dict.
@@ -268,7 +308,7 @@ class JavaStatusPlayer:
         return self.id
 
     @classmethod
-    def build(cls, raw: dict[str, Any]) -> Self:
+    def build(cls, raw: RawResponsePlayer) -> Self:
         """Build `JavaStatusPlayer` from raw response dict.
 
         :param raw: Raw response dict.
@@ -297,7 +337,7 @@ class JavaStatusVersion(BaseStatusVersion):
     """Class for storing Java version info."""
 
     @classmethod
-    def build(cls, raw: dict[str, Any]) -> Self:
+    def build(cls, raw: RawResponseVersion) -> Self:
         """Build `JavaStatusVersion` from raw response dict.
 
         :param raw: Raw response dict.
@@ -336,7 +376,7 @@ def _custom_eq(self: Any, other: Any) -> bool:  # noqa: ANN401 # actually will w
 
 _OLD_JAVA_INIT_SIGNATURE = Signature(
     parameters=[
-        Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation="dict[str, Any]"),
+        Parameter("raw", Parameter.POSITIONAL_OR_KEYWORD, annotation=RawResponse),
     ]
 )
 
@@ -360,7 +400,7 @@ class JavaStatusResponse(__JavaStatusResponse):
             """
 
             @overload
-            def __init__(self, raw: dict[str, Any]) -> None:
+            def __init__(self, raw: RawResponsePlayer) -> None:
                 ...
 
             @overload
@@ -391,7 +431,7 @@ class JavaStatusResponse(__JavaStatusResponse):
                 return super().__repr__().replace("JavaStatusResponse.Players.Player", "JavaStatusPlayer")
 
         @overload
-        def __init__(self, raw: dict[str, Any]) -> None:
+        def __init__(self, raw: RawResponsePlayers) -> None:
             ...
 
         @overload
@@ -437,7 +477,7 @@ class JavaStatusResponse(__JavaStatusResponse):
         """
 
         @overload
-        def __init__(self, raw: dict[str, Any]) -> None:
+        def __init__(self, raw: RawResponseVersion) -> None:
             ...
 
         @overload
@@ -469,10 +509,10 @@ class JavaStatusResponse(__JavaStatusResponse):
 
     players: Players
     version: Version
-    _raw: Optional[dict[str, Any]] = None
+    _raw: Optional[RawResponse] = None
 
     @overload
-    def __init__(self, raw: dict[str, Any]) -> None:
+    def __init__(self, raw: RawResponse) -> None:
         ...
 
     @overload
@@ -525,11 +565,11 @@ class JavaStatusResponse(__JavaStatusResponse):
 
     @property
     @deprecated(date="2022-08")
-    def raw(self) -> dict[str, Any]:
+    def raw(self) -> RawResponse:
         if self._raw is not None:
             return self._raw
 
-        raw = {
+        raw: RawResponse = {
             "players": {"max": self.players.max, "online": self.players.online},
             "version": {"name": self.version.name, "protocol": self.version.protocol},
             "description": self.motd,

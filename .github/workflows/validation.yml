@@ -57,7 +57,10 @@ jobs:
       - name: Install dependencies using poetry
         if: steps.python_cache.outputs.cache-hit != 'true'
         run: |
-          pip install poetry
+          # NOTE: installing poetry 1.1.15 explicitly is a temporary fix
+          # for https://github.com/py-mine/mcstatus/runs/8120416778?check_suite_focus=true#step:6:152,
+          # It seems like poetry 1.2.0 has changed some core logic causing pip to fail installation
+          pip install poetry==1.1.15
           poetry install
 
       # Cache pre-commit environment
@@ -77,7 +80,7 @@ jobs:
         run: export PIP_USER=0; SKIP=black,isort,flake8,pyright pre-commit run --all-files
 
       - name: Run black formatter check
-        run: black --check .
+        run: black --check --diff .
 
       - name: Run isort import formatter check
         run: isort --check .

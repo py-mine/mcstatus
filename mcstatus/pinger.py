@@ -12,6 +12,7 @@ from mcstatus.status_response import JavaStatusResponse
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias
 
+
 STYLE_MAP = {
     "color": {
         "dark_red": "4",

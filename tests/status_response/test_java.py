@@ -1,6 +1,15 @@
 from pytest import fixture, mark, raises
 
-from mcstatus.status_response import JavaStatusPlayer, JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
+from mcstatus.status_response import (
+    JavaStatusPlayer,
+    JavaStatusPlayers,
+    JavaStatusResponse,
+    JavaStatusVersion,
+    RawResponse,
+    RawResponsePlayer,
+    RawResponsePlayers,
+    RawResponseVersion,
+)
 from tests.status_response import does_not_raise
 
 
@@ -18,7 +27,7 @@ class TestJavaStatusResponse:
 
     @mark.parametrize("exclude_field", ["players", "version", "description"])
     def test_invalid_validating(self, exclude_field):
-        raw = {
+        raw: RawResponse = {
             "players": {"max": 20, "online": 0},
             "version": {"name": "1.8-pre1", "protocol": 44},
             "description": "A Minecraft Server",
@@ -37,13 +46,15 @@ class TestJavaStatusResponse:
     )
     @mark.parametrize("field_value", ["foo", 123, 1.4, True, None, [], {}])
     def test_invalid_types(self, field, field_value, expected_type):
-        raw = {
-            "players": {"max": 20, "online": 0},
-            "version": {"name": "1.8-pre1", "protocol": 44},
-            "description": "A Minecraft Server",
-            "favicon": "data:image/png;base64,foo",
-            field: field_value,
-        }
+        raw = RawResponse(
+            **{
+                "players": {"max": 20, "online": 0},
+                "version": {"name": "1.8-pre1", "protocol": 44},
+                "description": "A Minecraft Server",
+                "favicon": "data:image/png;base64,foo",
+                field: field_value,
+            }
+        )
 
         if isinstance(field_value, expected_type) or field == "favicon":
             my_raises = does_not_raise()
@@ -199,7 +210,7 @@ class TestJavaStatusPlayers:
     @mark.parametrize("exclude_field", ["max", "online"])
     def test_invalid_validating(self, exclude_field):
         with raises(ValueError):
-            raw = {"max": 20, "online": 0}
+            raw: RawResponsePlayers = {"max": 20, "online": 0}
             raw.pop(exclude_field)
             JavaStatusPlayers.build(raw)
 
@@ -213,16 +224,18 @@ class TestJavaStatusPlayers:
     )
     @mark.parametrize("field_value", ["foo", 123, 1.4, True, None, [], {}])
     def test_invalid_types(self, field, field_value, expected_type):
-        raw = {
-            "max": 20,
-            "online": 0,
-            "sample": [
-                {"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"},
-                {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"},
-                {"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4"},
-            ],
-            field: field_value,
-        }
+        raw = RawResponsePlayers(
+            **{
+                "max": 20,
+                "online": 0,
+                "sample": [
+                    {"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"},
+                    {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"},
+                    {"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4"},
+                ],
+                field: field_value,
+            }
+        )
 
         if isinstance(field_value, expected_type):
             my_raises = does_not_raise()
@@ -277,7 +290,7 @@ class TestJavaStatusPlayer:
 
     @mark.parametrize("exclude_field", ["name", "id"])
     def test_invalid_validating(self, exclude_field):
-        raw = {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"}
+        raw: RawResponsePlayer = {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"}
         raw.pop(exclude_field)
         with raises(ValueError):
             JavaStatusPlayer.build(raw)
@@ -291,7 +304,7 @@ class TestJavaStatusPlayer:
     )
     @mark.parametrize("field_value", ["foo", 123, 1.4, True, None, [], {}])
     def test_invalid_types(self, field, field_value, expected_type):
-        raw = {"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4", field: field_value}
+        raw = RawResponsePlayer(**{"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4", field: field_value})
 
         if isinstance(field_value, expected_type):
             my_raises = does_not_raise()
@@ -329,7 +342,7 @@ class TestJavaStatusVersion:
 
     @mark.parametrize("exclude_field", ["name", "protocol"])
     def test_invalid_validating(self, exclude_field):
-        raw = {"name": "1.8-pre1", "protocol": 44}
+        raw: RawResponseVersion = {"name": "1.8-pre1", "protocol": 44}
         raw.pop(exclude_field)
         with raises(ValueError):
             JavaStatusVersion.build(raw)
@@ -343,7 +356,7 @@ class TestJavaStatusVersion:
     )
     @mark.parametrize("field_value", ["foo", 123, 1.4, True, None, [], {}])
     def test_invalid_types(self, field, field_value, expected_type):
-        raw = {"name": "1.8-pre1", "protocol": 44, field: field_value}
+        raw = RawResponseVersion(**{"name": "1.8-pre1", "protocol": 44, field: field_value})
 
         if isinstance(field_value, expected_type):
             my_raises = does_not_raise()
