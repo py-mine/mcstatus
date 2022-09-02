@@ -263,21 +263,6 @@ flake8 = "*"
 setuptools = "*"
 
 [[package]]
-name = "flake8-isort"
-version = "4.2.0"
-description = "flake8 plugin that integrates isort ."
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-flake8 = ">=3.2.1,<6"
-isort = ">=4.3.5,<6"
-
-[package.extras]
-test = ["pytest-cov"]
-
-[[package]]
 name = "flake8-pep585"
 version = "0.1.5.1"
 description = "flake8 plugin to enforce new-style type hints (PEP 585)"
@@ -882,7 +867,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4"
-content-hash = "c8490cb56c36ff105207d0c739858413a6863e5f7ea3db383ac1a398a8a8cc5e"
+content-hash = "453529b981a65fbdda78de9c6dc28c62b1511994b01364035ee4d73fdaf24680"
 
 [metadata.files]
 asyncio-dgram = [
@@ -1119,10 +1104,6 @@ flake8-bugbear = [
 flake8-future-annotations = [
     {file = "flake8-future-annotations-0.0.5.tar.gz", hash = "sha256:da84011070c0d0f623a9c12bd738bea58bc65a3bf5eec20637020069310f8d84"},
     {file = "flake8_future_annotations-0.0.5-py3-none-any.whl", hash = "sha256:28fc9ae9e5ece5c211b810d856d984f33c0290933f24ae570731a0751c4917c6"},
-]
-flake8-isort = [
-    {file = "flake8-isort-4.2.0.tar.gz", hash = "sha256:26571500cd54976bbc0cf1006ffbcd1a68dd102f816b7a1051b219616ba9fee0"},
-    {file = "flake8_isort-4.2.0-py3-none-any.whl", hash = "sha256:5b87630fb3719bf4c1833fd11e0d9534f43efdeba524863e15d8f14a7ef6adbf"},
 ]
 flake8-pep585 = [
     {file = "flake8-pep585-0.1.5.1.tar.gz", hash = "sha256:07e6fef6e7b02d5c2b363a6c7008b7aad0db1489c57b4c2629d4b04ed295cec8"},
