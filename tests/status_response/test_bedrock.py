@@ -26,10 +26,6 @@ def build():
 
 
 class TestBedrockStatusResponse:
-    @mark.parametrize("field", ["players", "version", "motd", "latency", "map_name", "gamemode"])
-    def test_have_field(self, field, build):
-        assert hasattr(build, field)
-
     @mark.parametrize(
         "field,type_",
         [
@@ -79,10 +75,6 @@ class TestBedrockStatusResponse:
 
 
 class TestBedrockStatusPlayers:
-    @mark.parametrize("field", ["online", "max"])
-    def test_have_field(self, field, build):
-        assert hasattr(build.players, field)
-
     @mark.parametrize("field,type_", [("online", int), ("max", int)])
     def test_types(self, build, field, type_):
         assert isinstance(getattr(build.players, field), type_)
@@ -93,10 +85,6 @@ class TestBedrockStatusPlayers:
 
 
 class TestBedrockStatusVersion:
-    @mark.parametrize("field", ["name", "protocol", "brand"])
-    def test_have_field(self, field, build):
-        assert hasattr(build.version, field)
-
     @mark.parametrize("field,type_", [("name", str), ("protocol", int), ("brand", str)])
     def test_types(self, build, field, type_):
         assert isinstance(getattr(build.version, field), type_)

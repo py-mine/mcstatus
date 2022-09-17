@@ -25,8 +25,8 @@ class TestValidateDataFunction:
         else:
             assert exc.match(f"'{required_key}' to be {required_type}, was {type(raw[required_key])}")
 
-    @mark.parametrize("who", ["status", "server", "player", "just"])
-    def test_who_parameter(self, who):
+    def test_who_parameter(self):
+        who = str(object())
         with raises(ValueError) as exc:
             _validate_data({"foo": "bar"}, who, [("not exist", object)])
 

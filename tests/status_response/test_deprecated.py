@@ -34,7 +34,7 @@ class TestDeprecatedJavaStatusResponse:
         with deprecated_call():
             getattr(build, field)
 
-    def test_init_old_signature_raise_warning(self):
+    def test_init_old_signature_raises_warning(self):
         with deprecated_call():
             JavaStatusResponse(
                 {
@@ -46,7 +46,7 @@ class TestDeprecatedJavaStatusResponse:
             )
 
     @mark.filterwarnings("error")
-    def test_init_new_signature_not_raise_warning(self):
+    def test_init_new_signature_does_not_raise_warning(self):
         JavaStatusResponse(
             players=JavaStatusPlayers(max=20, online=0, sample=[]),
             version=JavaStatusVersion(name="1.8-pre1", protocol=44),
@@ -54,10 +54,6 @@ class TestDeprecatedJavaStatusResponse:
             latency=123.0,
             icon="data:image/png;base64,foo",
         )
-
-    @mark.parametrize("field", ["description", "raw"])
-    def test_deprecated_fields_in(self, field):
-        assert hasattr(JavaStatusResponse, field)
 
     @mark.filterwarnings("ignore::DeprecationWarning")
     @mark.parametrize(
@@ -79,12 +75,26 @@ class TestDeprecatedJavaStatusResponse:
         assert getattr(build, field) == value
 
     @mark.filterwarnings("ignore::DeprecationWarning")
-    @mark.parametrize("field,value", [("description", str), ("raw", dict)])
-    def test_deprecated_fields_have_correct_type(self, build, field, value):
-        assert isinstance(getattr(build, field), value)
+    @mark.parametrize(
+        "field,value",
+        [
+            ("description", "A Minecraft Server"),
+            (
+                "raw",
+                {
+                    "players": {"max": 20, "online": 0},
+                    "version": {"name": "1.8-pre1", "protocol": 44},
+                    "description": "A Minecraft Server",
+                    "favicon": "data:image/png;base64,foo",
+                },
+            ),
+        ],
+    )
+    def test_deprecated_fields_have_correct_values(self, build, field, value):
+        assert getattr(build, field) == value
 
     @mark.parametrize("field,type_class", [("players", JavaStatusResponse.Players), ("version", JavaStatusResponse.Version)])
-    def test_deprecated_fields_have_correct_class(self, build, field, type_class):
+    def test_deprecated_nested_classes_are_used(self, build, field, type_class):
         assert type(getattr(build, field)) is type_class
 
     @mark.filterwarnings("ignore::DeprecationWarning")
@@ -103,7 +113,7 @@ class TestDeprecatedJavaStatusResponse:
         }
 
     @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_raw_field_dont_give_favicon_if_is_none(self):
+    def test_raw_field_doesnt_give_favicon_if_is_none(self):
         assert (
             "favicon"
             not in JavaStatusResponse(
@@ -132,19 +142,19 @@ class TestDeprecatedJavaStatusResponsePlayers:
                 }
             )
 
-    def test_init_old_signature_raise_warning(self):
+    def test_init_old_signature_raises_warning(self):
         with deprecated_call():
             JavaStatusResponse.Players({"max": 20, "online": 0})
 
     @mark.filterwarnings("error")
-    def test_init_new_signature_not_raise_warning(self):
+    def test_init_new_signature_does_not_raise_warning(self):
         JavaStatusResponse.Players(max=20, online=0, sample=[])
 
-    def test_deprecated_object_same_as_new(self):
+    def test_deprecated_object_can_be_compaired_to_new(self):
         """If we forgot overwrite `__eq__` method in child class, it will fail."""
         assert JavaStatusResponse.Players(max=20, online=0, sample=[]) == JavaStatusPlayers(max=20, online=0, sample=[])
 
-    def test_repr_return_correct_class(self, build):
+    def test_repr_returns_correct_class(self, build):
         """If we forgot overwrite `__repr__` method in child class,
 
         it will output `JavaStatusResponse.Players(...)` instead of `JavaStatusPlayers(...)`.
@@ -164,28 +174,24 @@ class TestDeprecatedJavaStatusResponsePlayer:
         with catch_warnings(record=True):
             return JavaStatusResponse.Players.Player({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
 
-    def test_init_old_signature_raise_warning(self):
+    def test_init_old_signature_raises_warning(self):
         with deprecated_call():
             JavaStatusResponse.Players.Player({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
 
     @mark.filterwarnings("error")
-    def test_init_new_signature_not_raise_warning(self):
+    def test_init_new_signature_does_not_raise_warning(self):
         JavaStatusResponse.Players.Player(name="foo", id="0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")
 
-    def test_deprecated_object_same_as_new(self, build):
+    def test_deprecated_object_can_be_compaired_to_new(self, build):
         """If we forgot overwrite `__eq__` method in child class, it will fail."""
         assert build == JavaStatusPlayer(name="foo", id="0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")
 
-    def test_repr_return_correct_class(self, build):
+    def test_repr_returns_correct_class(self, build):
         """If we forgot overwrite `__repr__` method in child class,
 
         it will output `JavaStatusResponse.Players.Player(...)` instead of `JavaStatusPlayer(...)`.
         """
         assert repr(build).startswith("JavaStatusPlayer")
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_deprecated_fields_values(self, build):
-        assert build.id == "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"
 
 
 class TestDeprecatedJavaStatusResponseVersion:
@@ -194,20 +200,20 @@ class TestDeprecatedJavaStatusResponseVersion:
         with catch_warnings(record=True):
             return JavaStatusResponse.Version({"name": "1.8-pre1", "protocol": 44})
 
-    def test_init_old_signature_raise_warning(self):
+    def test_init_old_signature_raises_warning(self):
         with deprecated_call():
             JavaStatusResponse.Version({"name": "1.8-pre1", "protocol": 44})
 
     @mark.filterwarnings("error")
-    def test_init_new_signature_not_raise_warning(self):
+    def test_init_new_signature_does_not_raise_warning(self):
         JavaStatusResponse.Version(name="1.8-pre1", protocol=44)
 
     @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_deprecated_object_same_as_new(self, build):
+    def test_deprecated_object_can_be_compaired_to_new(self, build):
         """If we forgot overwrite `__eq__` method in child class, it will fail."""
         assert build == JavaStatusVersion(name="1.8-pre1", protocol=44)
 
-    def test_repr_return_correct_class(self, build):
+    def test_repr_returns_correct_class(self, build):
         """If we forgot overwrite `__repr__` method in child class,
 
         it will output `JavaStatusResponse.Version(...)` instead of `JavaStatusVersion(...)`.
@@ -239,7 +245,7 @@ class TestDeprecatedBedrockStatusResponse:
         with deprecated_call():
             getattr(build, field)
 
-    def test_init_old_signature_raise_warning(self):
+    def test_init_old_signature_raises_warning(self):
         with deprecated_call():
             BedrockStatusResponse(
                 protocol=422,
@@ -254,7 +260,7 @@ class TestDeprecatedBedrockStatusResponse:
             )
 
     @mark.filterwarnings("error")
-    def test_init_new_signature_not_raise_warning(self):
+    def test_init_new_signature_does_not_raise_warning(self):
         BedrockStatusResponse(
             players=BedrockStatusPlayers(max=20, online=0),
             version=BedrockStatusVersion(name="1.18.100500", protocol=422, brand="MCPE"),
@@ -264,19 +270,10 @@ class TestDeprecatedBedrockStatusResponse:
             gamemode="Default",
         )
 
-    @mark.parametrize("field", ["players_online", "players_max", "map"])
-    def test_deprecated_fields_in(self, field):
-        assert hasattr(BedrockStatusResponse, field)
-
     @mark.filterwarnings("ignore::DeprecationWarning")
     @mark.parametrize("field,value", [("players_online", 1), ("players_max", 69), ("map", "map name here")])
     def test_deprecated_fields_have_correct_value(self, build, field, value):
         assert getattr(build, field) == value
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    @mark.parametrize("field,value", [("players_online", int), ("players_max", int), ("map", str)])
-    def test_deprecated_fields_have_correct_type(self, build, field, value):
-        assert isinstance(getattr(build, field), value)
 
     def test_version_field_have_correct_class(self, build):
         assert type(build.version) is BedrockStatusResponse.Version
@@ -292,32 +289,24 @@ class TestDeprecatedBedrockStatusResponseVersion:
         with deprecated_call():
             build.version
 
-    def test_init_old_signature_raise_warning(self):
+    def test_init_old_signature_raises_warning(self):
         with deprecated_call():
             BedrockStatusResponse.Version(protocol=422, brand="MCPE", version="1.18.100500")
 
     @mark.filterwarnings("error")
-    def test_init_new_signature_not_raise_warning(self):
+    def test_init_new_signature_does_not_raise_warning(self):
         BedrockStatusResponse.Version(name="1.18.100500", protocol=422, brand="MCPE")
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_version_field_in(self, build):
-        assert hasattr(build, "version")
 
     @mark.filterwarnings("ignore::DeprecationWarning")
     def test_version_field_have_correct_value(self, build):
         assert build.version == "1.18.100500"
 
     @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_version_field_have_correct_type(self, build):
-        assert isinstance(build.version, str)
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_deprecated_object_same_as_new(self, build):
+    def test_deprecated_object_can_be_compaired_to_new(self, build):
         """If we forgot overwrite `__eq__` method in child class, it will fail."""
         assert build == BedrockStatusVersion(name="1.18.100500", protocol=422, brand="MCPE")
 
-    def test_repr_return_correct_class(self, build):
+    def test_repr_returns_correct_class(self, build):
         """If we forgot overwrite `__repr__` method in child class,
 
         it will output `BedrockStatusResponse.Version(...)` instead of `BedrockStatusVersion(...)`.

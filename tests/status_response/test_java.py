@@ -36,45 +36,25 @@ class TestJavaStatusResponse:
         with raises(ValueError):
             JavaStatusResponse.build(raw)
 
-    @mark.parametrize(
-        "field,expected_type",
-        [
-            # players and version will be checked in their own tests
-            ("description", str),
-            ("favicon", str),
-        ],
-    )
-    @mark.parametrize("field_value", ["foo", 123, 1.4, True, None, [], {}])
-    def test_invalid_types(self, field, field_value, expected_type):
+    @mark.parametrize("field", ["description", "favicon"])
+    def test_invalid_types(self, field):
         raw = RawJavaResponse(
             **{
                 "players": {"max": 20, "online": 0},
                 "version": {"name": "1.8-pre1", "protocol": 44},
                 "description": "A Minecraft Server",
                 "favicon": "data:image/png;base64,foo",
-                field: field_value,
+                field: object(),
             }
         )
 
-        if isinstance(field_value, expected_type) or field == "favicon":
+        if field == "favicon":
             my_raises = does_not_raise()
         else:
             my_raises = raises(TypeError)
 
         with my_raises:
             JavaStatusResponse.build(raw)
-
-    @mark.parametrize(
-        "field,expected_type",
-        [
-            ("players", JavaStatusPlayers),
-            ("version", JavaStatusVersion),
-            ("motd", str),
-            ("icon", str),
-        ],
-    )
-    def test_types(self, build, field, expected_type):
-        assert isinstance(getattr(build, field), expected_type)
 
     @mark.parametrize(
         "field,value",
@@ -86,7 +66,7 @@ class TestJavaStatusResponse:
             ("icon", "data:image/png;base64,foo"),
         ],
     )
-    def test_fields(self, build, field, value):
+    def test_fields_have_correct_values(self, build, field, value):
         assert getattr(build, field) == value
 
     def test_parse_description_strips_html_color_codes(self):
@@ -148,15 +128,8 @@ class TestJavaStatusResponse:
             " §lThe server has been updated to §l1.17.1"
         )
 
-    @mark.parametrize(
-        "input_value,expected_output",
-        [
-            ("test §2description", "test §2description"),
-            ("§8§lfoo", "§8§lfoo"),
-        ],
-    )
-    def test_parse_description_full_match(self, input_value, expected_output):
-        assert JavaStatusResponse._parse_motd(input_value) == expected_output
+    def test_parse_description_with_string(self):
+        assert JavaStatusResponse._parse_motd("test §2description") == "test §2description"
 
     @mark.parametrize(
         "input_value,expected_output",
@@ -177,10 +150,10 @@ class TestJavaStatusResponse:
             ),
         ],
     )
-    def test_parse_description_in(self, input_value, expected_output):
+    def test_parse_description_with_dict_and_list(self, input_value, expected_output):
         assert JavaStatusResponse._parse_motd(input_value) == expected_output
 
-    def test_icon_missing(self):
+    def test_icon_is_none_if_favicon_was_not_specified(self):
         response = JavaStatusResponse.build(
             {
                 "description": "A Minecraft Server",
@@ -214,47 +187,21 @@ class TestJavaStatusPlayers:
             raw.pop(exclude_field)
             JavaStatusPlayers.build(raw)
 
-    @mark.parametrize(
-        "field,expected_type",
-        [
-            ("max", int),
-            ("online", int),
-            ("sample", list),
-        ],
-    )
-    @mark.parametrize("field_value", ["foo", 123, 1.4, True, None, [], {}])
-    def test_invalid_types(self, field, field_value, expected_type):
-        raw = RawJavaResponsePlayers(
-            **{
-                "max": 20,
-                "online": 0,
-                "sample": [
-                    {"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"},
-                    {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"},
-                    {"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4"},
-                ],
-                field: field_value,
-            }
-        )
-
-        if isinstance(field_value, expected_type):
-            my_raises = does_not_raise()
-        else:
-            my_raises = raises(TypeError)
-
-        with my_raises:
-            JavaStatusPlayers.build(raw)
-
-    @mark.parametrize(
-        "field,expected_type",
-        [
-            ("max", int),
-            ("online", int),
-            ("sample", list),
-        ],
-    )
-    def test_types(self, build, field, expected_type):
-        assert isinstance(getattr(build, field), expected_type)
+    @mark.parametrize("field", ["max", "online", "sample"])
+    def test_invalid_types(self, field):
+        with raises(TypeError):
+            JavaStatusPlayers.build(
+                **{
+                    "max": 20,
+                    "online": 0,
+                    "sample": [
+                        {"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"},
+                        {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"},
+                        {"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4"},
+                    ],
+                    field: object(),
+                }
+            )
 
     @mark.parametrize(
         "field,value",
@@ -271,16 +218,14 @@ class TestJavaStatusPlayers:
             ),
         ],
     )
-    def test_fields(self, build, field, value):
+    def test_fields_have_correct_values(self, build, field, value):
         assert getattr(build, field) == value
 
-    def test_no_sample(self):
-        response = JavaStatusPlayers.build({"max": 20, "online": 0})
-        assert response.sample is None
+    def test_sample_is_none_if_it_was_not_specified(self):
+        assert JavaStatusPlayers.build({"max": 20, "online": 0}).sample is None
 
     def test_empty_sample(self):
-        response = JavaStatusPlayers.build({"max": 20, "online": 0, "sample": []})
-        assert response.sample == []
+        assert JavaStatusPlayers.build({"max": 20, "online": 0, "sample": []}).sample == []
 
 
 class TestJavaStatusPlayer:
@@ -295,32 +240,12 @@ class TestJavaStatusPlayer:
         with raises(ValueError):
             JavaStatusPlayer.build(raw)
 
-    @mark.parametrize(
-        "field,expected_type",
-        [
-            ("name", str),
-            ("id", str),
-        ],
-    )
-    @mark.parametrize("field_value", ["foo", 123, 1.4, True, None, [], {}])
-    def test_invalid_types(self, field, field_value, expected_type):
-        raw = RawJavaResponsePlayer(**{"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4", field: field_value})
+    @mark.parametrize("field", ["name", "id"])
+    def test_invalid_types(self, field):
+        with raises(TypeError):
+            JavaStatusPlayer.build(**{"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4", field: object()})
 
-        if isinstance(field_value, expected_type):
-            my_raises = does_not_raise()
-        else:
-            my_raises = raises(TypeError)
-
-        with my_raises:
-            JavaStatusPlayer.build(raw)
-
-    @mark.parametrize(
-        "field,expected_type",
-        [
-            ("name", str),
-            ("id", str),
-        ],
-    )
+    @mark.parametrize("field,expected_type", [("name", str), ("id", str)])
     def test_types(self, build, field, expected_type):
         assert isinstance(getattr(build, field), expected_type)
 
@@ -328,11 +253,15 @@ class TestJavaStatusPlayer:
         "field,value",
         [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")],
     )
-    def test_fields(self, build, field, value):
+    def test_fields_have_correct_values(self, build, field, value):
         assert getattr(build, field) == value
 
-    def test_id_field_same_as_uuid(self, build):
-        assert build.id == build.uuid
+    def test_id_field_the_same_as_uuid(self):
+        build = JavaStatusPlayer.build({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
+        assert build.id is build.uuid
+
+        build.id = unique = object()  # type: ignore[assignment]
+        assert unique is build.uuid
 
 
 class TestJavaStatusVersion:
@@ -347,24 +276,10 @@ class TestJavaStatusVersion:
         with raises(ValueError):
             JavaStatusVersion.build(raw)
 
-    @mark.parametrize(
-        "field,expected_type",
-        [
-            ("name", str),
-            ("protocol", int),
-        ],
-    )
-    @mark.parametrize("field_value", ["foo", 123, 1.4, True, None, [], {}])
-    def test_invalid_types(self, field, field_value, expected_type):
-        raw = RawJavaResponseVersion(**{"name": "1.8-pre1", "protocol": 44, field: field_value})
-
-        if isinstance(field_value, expected_type):
-            my_raises = does_not_raise()
-        else:
-            my_raises = raises(TypeError)
-
-        with my_raises:
-            JavaStatusVersion.build(raw)
+    @mark.parametrize("field", ["name", "protocol"])
+    def test_invalid_types(self, field):
+        with raises(TypeError):
+            JavaStatusVersion.build(**{"name": "1.8-pre1", "protocol": 44, field: object()})
 
     @mark.parametrize(
         "field,expected_type",
@@ -380,5 +295,5 @@ class TestJavaStatusVersion:
         "field,value",
         [("name", "1.8-pre1"), ("protocol", 44)],
     )
-    def test_fields(self, build, field, value):
+    def test_fields_have_correct_values(self, build, field, value):
         assert getattr(build, field) == value
