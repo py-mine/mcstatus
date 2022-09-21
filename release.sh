@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-poetry install
+poetry install --with release
 poetry run tox --recreate
 
 rm -rf dist/
