@@ -11,19 +11,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  # Make sure pip caches dependencies and installs as user
-  PIP_NO_CACHE_DIR: false
-  PIP_USER: 1
-
-  # Make sure poetry won't use virtual environments
-  POETRY_VIRTUALENVS_CREATE: false
-
-  # Specify paths here, so we know exactly where things are for caching
-  PYTHONUSERBASE: ${{ github.workspace }}/.cache/py-user-base
-  POETRY_CACHE_DIR: ${{ github.workspace }}/.cache/py-user-base
-  TOXDIR: ${{ github.workspace }}/.tox
-
 jobs:
   tox-test:
     runs-on: ${{ matrix.platform }}
@@ -37,41 +24,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Python setup
-        id: python
-        uses: actions/setup-python@v2
+      - name: Install Python Dependencies
+        uses: HassanAbouelela/actions/setup-python@setup-python_v1.3.1
+        id: setup_python
         with:
-          python-version: ${{ matrix.python-version }}
-
-      # Cache python dependencies so that unless we change them,
-      # we won't need to reinstall them with each workflow run.
-      # The key is a composite of multiple values, which when changed
-      # the cache won't be restored in order to make updating possible
-      - name: Python dependency caching
-        uses: actions/cache@v2
-        id: python_cache
-        with:
-          path: |
-            ${{ env.PYTHONUSERBASE }}
-            ${{ env.TOXDIR }}
-          key: "python-1-${{ runner.os }}-${{ env.PYTHONUSERBASE }}-\
-                ${{ env.TOXDIR }}-${{ steps.python.outputs.python-version }}-\
-                ${{ hashFiles('./pyproject.toml', './poetry.lock') }}"
+          dev: false
+          python_version: "${{ matrix.python-version }}"
 
       # In case the dependencies weren't restored, install them
-      - name: Install dependencies using poetry
-        if: steps.python_cache.outputs.cache-hit != 'true'
-        run: |
-          # NOTE: installing poetry 1.1.15 explicitly is a temporary fix
-          # for https://github.com/py-mine/mcstatus/runs/8120416778?check_suite_focus=true#step:6:152,
-          # It seems like poetry 1.2.0 has changed some core logic causing pip to fail installation
-          pip install poetry==1.1.15
-          pip install tox
-          pip install tox-poetry
-          pip install tox-gh-actions
+      - name: Install tox dependencies
+        if: steps.setup_python.outputs.cache-hit != 'true'
+        run: poetry run pip install tox tox-poetry tox-gh-actions
 
       - name: Test with tox
-        run: python -m tox
+        run: poetry run tox
         env:
           PIP_USER: 0  # We want tox to use it's environments, not user installs
 
