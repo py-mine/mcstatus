@@ -62,6 +62,7 @@ optional = true
 
 [tool.poetry.group.release.dependencies]
 twine = "^4.0.1"
+poetry-dynamic-versioning = "^0.19.0"
 
 [tool.poetry.group.workflow-tox]
 optional = true
