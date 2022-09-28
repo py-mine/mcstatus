@@ -1,6 +1,7 @@
 from pytest import fixture, mark
 
 from mcstatus.status_response import BedrockStatusPlayers, BedrockStatusResponse, BedrockStatusVersion
+from tests.status_response import BaseStatusResponseTest
 
 
 @fixture(scope="module")
@@ -25,32 +26,22 @@ def build():
     )
 
 
-class TestBedrockStatusResponse:
-    @mark.parametrize(
-        "field,type_",
-        [
-            ("players", BedrockStatusPlayers),
-            ("version", BedrockStatusVersion),
-            ("motd", str),
-            ("latency", float),
-            ("map_name", str),
-            ("gamemode", str),
-        ],
-    )
-    def test_types(self, build, field, type_):
-        assert isinstance(getattr(build, field), type_)
+@BaseStatusResponseTest.construct
+class TestBedrockStatusResponse(BaseStatusResponseTest):
+    EXPECTED_VALUES = [
+        ("motd", "§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r"),
+        ("latency", 123.0),
+        ("map_name", "map name here"),
+        ("gamemode", "Default"),
+    ]
+    EXPECTED_TYPES = [
+        ("players", BedrockStatusPlayers),
+        ("version", BedrockStatusVersion),
+    ]
 
-    @mark.parametrize(
-        "field,value",
-        [
-            ("motd", "§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r"),
-            ("latency", 123.0),
-            ("map_name", "map name here"),
-            ("gamemode", "Default"),
-        ],
-    )
-    def test_values(self, build, field, value):
-        assert getattr(build, field) == value
+    @fixture(scope="class")
+    def build(self, build):
+        return build
 
     @mark.parametrize("field,pop_index", [("map_name", 7), ("gamemode", 7), ("gamemode", 8)])
     def test_optional_parameters_is_none(self, field, pop_index):
@@ -74,21 +65,19 @@ class TestBedrockStatusResponse:
         assert getattr(build, field) is None
 
 
-class TestBedrockStatusPlayers:
-    @mark.parametrize("field,type_", [("online", int), ("max", int)])
-    def test_types(self, build, field, type_):
-        assert isinstance(getattr(build.players, field), type_)
+@BaseStatusResponseTest.construct
+class TestBedrockStatusPlayers(BaseStatusResponseTest):
+    EXPECTED_VALUES = [("online", 1), ("max", 69)]
 
-    @mark.parametrize("field,value", [("online", 1), ("max", 69)])
-    def test_values(self, build, field, value):
-        assert getattr(build.players, field) == value
+    @fixture(scope="class")
+    def build(self, build):
+        return build.players
 
 
-class TestBedrockStatusVersion:
-    @mark.parametrize("field,type_", [("name", str), ("protocol", int), ("brand", str)])
-    def test_types(self, build, field, type_):
-        assert isinstance(getattr(build.version, field), type_)
+@BaseStatusResponseTest.construct
+class TestBedrockStatusVersion(BaseStatusResponseTest):
+    EXPECTED_VALUES = [("name", "1.18.100500"), ("protocol", 422), ("brand", "MCPE")]
 
-    @mark.parametrize("field,value", [("name", "1.18.100500"), ("protocol", 422), ("brand", "MCPE")])
-    def test_values(self, build, field, value):
-        assert getattr(build.version, field) == value
+    @fixture(scope="class")
+    def build(self, build):
+        return build.version

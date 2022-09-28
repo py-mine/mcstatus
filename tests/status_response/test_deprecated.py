@@ -3,7 +3,7 @@
 from warnings import catch_warnings
 
 from _pytest.fixtures import SubRequest
-from pytest import deprecated_call, fixture, mark
+from pytest import fixture, mark
 
 from mcstatus.status_response import (
     BedrockStatusPlayers,
@@ -14,9 +14,43 @@ from mcstatus.status_response import (
     JavaStatusResponse,
     JavaStatusVersion,
 )
+from tests.status_response import BaseStatusResponseTest
 
 
-class TestDeprecatedJavaStatusResponse:
+@BaseStatusResponseTest.construct
+class TestDeprecatedJavaStatusResponse(BaseStatusResponseTest):
+    pytestmark = mark.filterwarnings("ignore::DeprecationWarning")
+
+    EXPECTED_VALUES = [
+        ("description", "A Minecraft Server"),
+        (
+            "raw",
+            {
+                "players": {"max": 20, "online": 0},
+                "version": {"name": "1.8-pre1", "protocol": 44},
+                "description": "A Minecraft Server",
+                "favicon": "data:image/png;base64,foo",
+            },
+        ),
+    ]
+    DEPRECATED_FIELDS = ["description", "raw"]
+    DEPRECATED_OLD_INIT_PASSED_ARGS = (
+        {
+            "players": {"max": 20, "online": 0},
+            "version": {"name": "1.8-pre1", "protocol": 44},
+            "description": "A Minecraft Server",
+            "favicon": "data:image/png;base64,foo",
+        },
+    )
+    DEPRECATED_NEW_INIT_PASSED_ARGS = {
+        "players": JavaStatusPlayers(max=20, online=0, sample=[]),
+        "version": JavaStatusVersion(name="1.8-pre1", protocol=44),
+        "motd": "A Minecraft Server",
+        "latency": 123.0,
+        "icon": "data:image/png;base64,foo",
+    }
+    DEPRECATED_NESTED_CLASSES_USED = [("players", JavaStatusResponse.Players), ("version", JavaStatusResponse.Version)]
+
     @fixture(scope="class")
     def build(self) -> JavaStatusResponse:
         with catch_warnings(record=True):
@@ -29,75 +63,6 @@ class TestDeprecatedJavaStatusResponse:
                 }
             )
 
-    @mark.parametrize("field", ["description", "raw"])
-    def test_deprecated_fields_raise_warning(self, build, field):
-        with deprecated_call():
-            getattr(build, field)
-
-    def test_init_old_signature_raises_warning(self):
-        with deprecated_call():
-            JavaStatusResponse(
-                {
-                    "players": {"max": 20, "online": 0},
-                    "version": {"name": "1.8-pre1", "protocol": 44},
-                    "description": "A Minecraft Server",
-                    "favicon": "data:image/png;base64,foo",
-                }
-            )
-
-    @mark.filterwarnings("error")
-    def test_init_new_signature_does_not_raise_warning(self):
-        JavaStatusResponse(
-            players=JavaStatusPlayers(max=20, online=0, sample=[]),
-            version=JavaStatusVersion(name="1.8-pre1", protocol=44),
-            motd="A Minecraft Server",
-            latency=123.0,
-            icon="data:image/png;base64,foo",
-        )
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    @mark.parametrize(
-        "field,value",
-        [
-            ("description", "A Minecraft Server"),
-            (
-                "raw",
-                {
-                    "players": {"max": 20, "online": 0},
-                    "version": {"name": "1.8-pre1", "protocol": 44},
-                    "description": "A Minecraft Server",
-                    "favicon": "data:image/png;base64,foo",
-                },
-            ),
-        ],
-    )
-    def test_deprecated_fields_have_correct_value(self, build, field, value):
-        assert getattr(build, field) == value
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    @mark.parametrize(
-        "field,value",
-        [
-            ("description", "A Minecraft Server"),
-            (
-                "raw",
-                {
-                    "players": {"max": 20, "online": 0},
-                    "version": {"name": "1.8-pre1", "protocol": 44},
-                    "description": "A Minecraft Server",
-                    "favicon": "data:image/png;base64,foo",
-                },
-            ),
-        ],
-    )
-    def test_deprecated_fields_have_correct_values(self, build, field, value):
-        assert getattr(build, field) == value
-
-    @mark.parametrize("field,type_class", [("players", JavaStatusResponse.Players), ("version", JavaStatusResponse.Version)])
-    def test_deprecated_nested_classes_are_used(self, build, field, type_class):
-        assert type(getattr(build, field)) is type_class
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
     def test_raw_field_give_correct_value_with_new_signature(self):
         assert JavaStatusResponse(
             players=JavaStatusPlayers(max=20, online=0, sample=[]),
@@ -112,7 +77,6 @@ class TestDeprecatedJavaStatusResponse:
             "favicon": "data:image/png;base64,foo",
         }
 
-    @mark.filterwarnings("ignore::DeprecationWarning")
     def test_raw_field_doesnt_give_favicon_if_is_none(self):
         assert (
             "favicon"
@@ -126,7 +90,36 @@ class TestDeprecatedJavaStatusResponse:
         )
 
 
-class TestDeprecatedJavaStatusResponsePlayers:
+@BaseStatusResponseTest.construct
+class TestDeprecatedJavaStatusResponsePlayers(BaseStatusResponseTest):
+    pytestmark = mark.filterwarnings("ignore::DeprecationWarning")
+
+    EXPECTED_VALUES = [
+        ("max", 20),
+        ("online", 0),
+        (
+            "sample",
+            [
+                JavaStatusPlayer(name="foo", id="0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"),
+                JavaStatusPlayer(name="bar", id="61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"),
+                JavaStatusPlayer(name="baz", id="40e8d003-8872-412d-b09a-4431a5afcbd4"),
+            ],
+        ),
+    ]
+    DEPRECATED_OLD_INIT_PASSED_ARGS = ({"max": 20, "online": 0},)
+    DEPRECATED_NEW_INIT_PASSED_ARGS = {"max": 20, "online": 0, "sample": []}
+    # `DEPRECATED_NEW_INIT_PASSED_ARGS` has the same value, as we need. so why not reuse it?
+    DEPRECATED_OBJECT_CAN_BE_COMPARED_TO_NEW_ONE = JavaStatusPlayers, {
+        "max": 20,
+        "online": 0,
+        "sample": [
+            JavaStatusPlayer(name="foo", id="0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"),
+            JavaStatusPlayer(name="bar", id="61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"),
+            JavaStatusPlayer(name="baz", id="40e8d003-8872-412d-b09a-4431a5afcbd4"),
+        ],
+    }
+    DEPRECATED_CLASS_REPR_MUST_START_WITH = "JavaStatusPlayers"
+
     @fixture(scope="class")
     def build(self) -> JavaStatusResponse.Players:
         with catch_warnings(record=True):
@@ -142,89 +135,74 @@ class TestDeprecatedJavaStatusResponsePlayers:
                 }
             )
 
-    def test_init_old_signature_raises_warning(self):
-        with deprecated_call():
-            JavaStatusResponse.Players({"max": 20, "online": 0})
-
-    @mark.filterwarnings("error")
-    def test_init_new_signature_does_not_raise_warning(self):
-        JavaStatusResponse.Players(max=20, online=0, sample=[])
-
-    def test_deprecated_object_can_be_compaired_to_new(self):
-        """If we forgot overwrite `__eq__` method in child class, it will fail."""
-        assert JavaStatusResponse.Players(max=20, online=0, sample=[]) == JavaStatusPlayers(max=20, online=0, sample=[])
-
-    def test_repr_returns_correct_class(self, build):
-        """If we forgot overwrite `__repr__` method in child class,
-
-        it will output `JavaStatusResponse.Players(...)` instead of `JavaStatusPlayers(...)`.
-        """
-        assert repr(build).startswith("JavaStatusPlayers")
-
-    def test_deprecated_player_class_in(self):
-        assert hasattr(JavaStatusResponse.Players, "Player")
-
     def test_sample_have_correct_class(self, build):
         assert type(build.sample[0]) is JavaStatusResponse.Players.Player
 
 
-class TestDeprecatedJavaStatusResponsePlayer:
+@BaseStatusResponseTest.construct
+class TestDeprecatedJavaStatusResponsePlayer(BaseStatusResponseTest):
+    pytestmark = mark.filterwarnings("ignore::DeprecationWarning")
+
+    EXPECTED_VALUES = [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")]
+    DEPRECATED_OLD_INIT_PASSED_ARGS = ({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"},)
+    DEPRECATED_NEW_INIT_PASSED_ARGS = {"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"}
+    # `DEPRECATED_NEW_INIT_PASSED_ARGS` has the same value, as we need. so why not reuse it?
+    DEPRECATED_OBJECT_CAN_BE_COMPARED_TO_NEW_ONE = JavaStatusPlayer, DEPRECATED_NEW_INIT_PASSED_ARGS
+    DEPRECATED_CLASS_REPR_MUST_START_WITH = "JavaStatusPlayer"
+
     @fixture(scope="class")
     def build(self) -> JavaStatusResponse.Players.Player:
         with catch_warnings(record=True):
             return JavaStatusResponse.Players.Player({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
 
-    def test_init_old_signature_raises_warning(self):
-        with deprecated_call():
-            JavaStatusResponse.Players.Player({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
 
-    @mark.filterwarnings("error")
-    def test_init_new_signature_does_not_raise_warning(self):
-        JavaStatusResponse.Players.Player(name="foo", id="0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")
+@BaseStatusResponseTest.construct
+class TestDeprecatedJavaStatusResponseVersion(BaseStatusResponseTest):
+    pytestmark = mark.filterwarnings("ignore::DeprecationWarning")
 
-    def test_deprecated_object_can_be_compaired_to_new(self, build):
-        """If we forgot overwrite `__eq__` method in child class, it will fail."""
-        assert build == JavaStatusPlayer(name="foo", id="0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")
+    EXPECTED_VALUES = [("name", "1.8-pre1"), ("protocol", 44)]
+    DEPRECATED_OLD_INIT_PASSED_ARGS = ({"name": "1.8-pre1", "protocol": 44},)
+    DEPRECATED_NEW_INIT_PASSED_ARGS = {"name": "1.8-pre1", "protocol": 44}
+    # `DEPRECATED_NEW_INIT_PASSED_ARGS` has the same value, as we need. so why not reuse it?
+    DEPRECATED_OBJECT_CAN_BE_COMPARED_TO_NEW_ONE = JavaStatusVersion, DEPRECATED_NEW_INIT_PASSED_ARGS
+    DEPRECATED_CLASS_REPR_MUST_START_WITH = "JavaStatusVersion"
 
-    def test_repr_returns_correct_class(self, build):
-        """If we forgot overwrite `__repr__` method in child class,
-
-        it will output `JavaStatusResponse.Players.Player(...)` instead of `JavaStatusPlayer(...)`.
-        """
-        assert repr(build).startswith("JavaStatusPlayer")
-
-
-class TestDeprecatedJavaStatusResponseVersion:
     @fixture(scope="class")
     def build(self) -> JavaStatusResponse.Version:
         with catch_warnings(record=True):
             return JavaStatusResponse.Version({"name": "1.8-pre1", "protocol": 44})
 
-    def test_init_old_signature_raises_warning(self):
-        with deprecated_call():
-            JavaStatusResponse.Version({"name": "1.8-pre1", "protocol": 44})
-
-    @mark.filterwarnings("error")
-    def test_init_new_signature_does_not_raise_warning(self):
-        JavaStatusResponse.Version(name="1.8-pre1", protocol=44)
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_deprecated_object_can_be_compaired_to_new(self, build):
-        """If we forgot overwrite `__eq__` method in child class, it will fail."""
-        assert build == JavaStatusVersion(name="1.8-pre1", protocol=44)
-
-    def test_repr_returns_correct_class(self, build):
-        """If we forgot overwrite `__repr__` method in child class,
-
-        it will output `JavaStatusResponse.Version(...)` instead of `JavaStatusVersion(...)`.
-        """
-        assert repr(build).startswith("JavaStatusVersion")
-
 
 # bedrock time
 
 
-class TestDeprecatedBedrockStatusResponse:
+@BaseStatusResponseTest.construct
+class TestDeprecatedBedrockStatusResponse(BaseStatusResponseTest):
+    pytestmark = mark.filterwarnings("ignore::DeprecationWarning")
+
+    EXPECTED_VALUES = [("players_online", 1), ("players_max", 69), ("map", "map name here")]
+    DEPRECATED_FIELDS = ["players_online", "players_max", "map"]
+    DEPRECATED_OLD_INIT_PASSED_ARGS = {
+        "protocol": 422,
+        "brand": "MCPE",
+        "version": "1.18.100500",
+        "latency": 123.0,
+        "players_online": 1,
+        "players_max": 69,
+        "motd": "§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r",
+        "map_": "map name here",
+        "gamemode": "Default",
+    }
+    DEPRECATED_NEW_INIT_PASSED_ARGS = {
+        "players": BedrockStatusPlayers(max=20, online=0),
+        "version": BedrockStatusVersion(name="1.18.100500", protocol=422, brand="MCPE"),
+        "motd": "§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r",
+        "latency": 123.0,
+        "map_name": "map name here",
+        "gamemode": "Default",
+    }
+    DEPRECATED_NESTED_CLASSES_USED = [("version", BedrockStatusResponse.Version)]
+
     @fixture(scope="class")
     def build(self) -> BedrockStatusResponse:
         with catch_warnings(record=True):
@@ -240,82 +218,32 @@ class TestDeprecatedBedrockStatusResponse:
                 gamemode="Default",
             )
 
-    @mark.parametrize("field", ["players_online", "players_max", "map"])
-    def test_deprecated_fields_raise_warning(self, build, field):
-        with deprecated_call():
-            getattr(build, field)
 
-    def test_init_old_signature_raises_warning(self):
-        with deprecated_call():
-            BedrockStatusResponse(
-                protocol=422,
-                brand="MCPE",
-                version="1.18.100500",
-                latency=123.0,
-                players_online=1,
-                players_max=69,
-                motd="§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r",
-                map_="map name here",
-                gamemode="Default",
-            )
+@BaseStatusResponseTest.construct
+class TestDeprecatedBedrockStatusResponseVersion(BaseStatusResponseTest):
+    pytestmark = mark.filterwarnings("ignore::DeprecationWarning")
 
-    @mark.filterwarnings("error")
-    def test_init_new_signature_does_not_raise_warning(self):
-        BedrockStatusResponse(
-            players=BedrockStatusPlayers(max=20, online=0),
-            version=BedrockStatusVersion(name="1.18.100500", protocol=422, brand="MCPE"),
-            motd="§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r",
-            latency=123.0,
-            map_name="map name here",
-            gamemode="Default",
-        )
+    EXPECTED_VALUES = [("version", "1.18.100500"), ("protocol", 422), ("brand", "MCPE")]
+    DEPRECATED_FIELDS = ["version"]
+    DEPRECATED_OLD_INIT_PASSED_ARGS = {"protocol": 422, "brand": "MCPE", "version": "1.18.100500"}
+    DEPRECATED_NEW_INIT_PASSED_ARGS = {"name": "1.18.100500", "protocol": 422, "brand": "MCPE"}
+    # `DEPRECATED_NEW_INIT_PASSED_ARGS` has the same value, as we need. so why not reuse it?
+    DEPRECATED_OBJECT_CAN_BE_COMPARED_TO_NEW_ONE = (BedrockStatusVersion, DEPRECATED_NEW_INIT_PASSED_ARGS)
+    DEPRECATED_CLASS_REPR_MUST_START_WITH = "BedrockStatusVersion"
 
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    @mark.parametrize("field,value", [("players_online", 1), ("players_max", 69), ("map", "map name here")])
-    def test_deprecated_fields_have_correct_value(self, build, field, value):
-        assert getattr(build, field) == value
-
-    def test_version_field_have_correct_class(self, build):
-        assert type(build.version) is BedrockStatusResponse.Version
-
-
-class TestDeprecatedBedrockStatusResponseVersion:
     @fixture(scope="class")
     def build(self) -> BedrockStatusResponse.Version:
         with catch_warnings(record=True):
             return BedrockStatusResponse.Version(protocol=422, brand="MCPE", version="1.18.100500")
 
-    def test_version_field_raise_warning(self, build):
-        with deprecated_call():
-            build.version
 
-    def test_init_old_signature_raises_warning(self):
-        with deprecated_call():
-            BedrockStatusResponse.Version(protocol=422, brand="MCPE", version="1.18.100500")
-
-    @mark.filterwarnings("error")
-    def test_init_new_signature_does_not_raise_warning(self):
-        BedrockStatusResponse.Version(name="1.18.100500", protocol=422, brand="MCPE")
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_version_field_have_correct_value(self, build):
-        assert build.version == "1.18.100500"
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    def test_deprecated_object_can_be_compaired_to_new(self, build):
-        """If we forgot overwrite `__eq__` method in child class, it will fail."""
-        assert build == BedrockStatusVersion(name="1.18.100500", protocol=422, brand="MCPE")
-
-    def test_repr_returns_correct_class(self, build):
-        """If we forgot overwrite `__repr__` method in child class,
-
-        it will output `BedrockStatusResponse.Version(...)` instead of `BedrockStatusVersion(...)`.
-        """
-        assert repr(build).startswith("BedrockStatusVersion")
-
-
-class TestDeprecatedBedrockStatusResponseVersionPositionalArguments:
+@BaseStatusResponseTest.construct
+class TestDeprecatedBedrockStatusResponseVersionPositionalArguments(BaseStatusResponseTest):
     """As you noticed, the old signature have different positional arguments, so `__init__` should also check types."""
+
+    pytestmark = mark.filterwarnings("ignore::DeprecationWarning")
+
+    EXPECTED_VALUES = [("version", "1.18.100500"), ("protocol", 422), ("brand", "MCPE")]
 
     @fixture(scope="class", params=[True, False])
     def build(self, request: SubRequest) -> BedrockStatusResponse.Version:
@@ -328,8 +256,3 @@ class TestDeprecatedBedrockStatusResponseVersionPositionalArguments:
         else:
             with catch_warnings(record=True):
                 return BedrockStatusResponse.Version(422, "MCPE", "1.18.100500")
-
-    @mark.filterwarnings("ignore::DeprecationWarning")
-    @mark.parametrize("field,expected", [("version", "1.18.100500"), ("protocol", 422), ("brand", "MCPE")])
-    def test_old_expected_in_fields(self, build, field, expected):
-        assert getattr(build, field) == expected

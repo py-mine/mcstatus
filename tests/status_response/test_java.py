@@ -1,19 +1,31 @@
-from pytest import fixture, mark, raises
+from pytest import fixture, mark
 
-from mcstatus.status_response import (
-    JavaStatusPlayer,
-    JavaStatusPlayers,
-    JavaStatusResponse,
-    JavaStatusVersion,
-    RawJavaResponse,
-    RawJavaResponsePlayer,
-    RawJavaResponsePlayers,
-    RawJavaResponseVersion,
-)
-from tests.status_response import does_not_raise
+from mcstatus.status_response import JavaStatusPlayer, JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
+from tests.status_response import BaseStatusResponseTest
 
 
-class TestJavaStatusResponse:
+@BaseStatusResponseTest.construct
+class TestJavaStatusResponse(BaseStatusResponseTest):
+    EXPECTED_VALUES = [
+        ("players", JavaStatusPlayers(0, 20, None)),
+        ("version", JavaStatusVersion("1.8-pre1", 44)),
+        ("motd", "A Minecraft Server"),
+        ("latency", None),
+        ("icon", "data:image/png;base64,foo"),
+    ]
+    BUILD_METHOD_VALIDATION = (
+        ["players", "version", "description"],
+        [],
+        {
+            "players": {"max": 20, "online": 0},
+            "version": {"name": "1.8-pre1", "protocol": 44},
+            "description": "A Minecraft Server",
+            "favicon": "data:image/png;base64,foo",
+        },
+    )
+    # `BUILD_METHOD_VALIDATION[2]` has the same value, as we need. so why not reuse it?
+    OPTIONAL_FIELDS = [("favicon", "icon")], BUILD_METHOD_VALIDATION[2]
+
     @fixture(scope="class")
     def build(self):
         return JavaStatusResponse.build(
@@ -24,50 +36,6 @@ class TestJavaStatusResponse:
                 "favicon": "data:image/png;base64,foo",
             }
         )
-
-    @mark.parametrize("exclude_field", ["players", "version", "description"])
-    def test_invalid_validating(self, exclude_field):
-        raw: RawJavaResponse = {
-            "players": {"max": 20, "online": 0},
-            "version": {"name": "1.8-pre1", "protocol": 44},
-            "description": "A Minecraft Server",
-        }
-        raw.pop(exclude_field)
-        with raises(ValueError):
-            JavaStatusResponse.build(raw)
-
-    @mark.parametrize("field", ["description", "favicon"])
-    def test_invalid_types(self, field):
-        raw = RawJavaResponse(
-            **{
-                "players": {"max": 20, "online": 0},
-                "version": {"name": "1.8-pre1", "protocol": 44},
-                "description": "A Minecraft Server",
-                "favicon": "data:image/png;base64,foo",
-                field: object(),
-            }
-        )
-
-        if field == "favicon":
-            my_raises = does_not_raise()
-        else:
-            my_raises = raises(TypeError)
-
-        with my_raises:
-            JavaStatusResponse.build(raw)
-
-    @mark.parametrize(
-        "field,value",
-        [
-            ("players", JavaStatusPlayers(0, 20, None)),
-            ("version", JavaStatusVersion("1.8-pre1", 44)),
-            ("motd", "A Minecraft Server"),
-            ("latency", None),
-            ("icon", "data:image/png;base64,foo"),
-        ],
-    )
-    def test_fields_have_correct_values(self, build, field, value):
-        assert getattr(build, field) == value
 
     def test_parse_description_strips_html_color_codes(self):
         assert JavaStatusResponse._parse_motd(
@@ -153,19 +121,37 @@ class TestJavaStatusResponse:
     def test_parse_description_with_dict_and_list(self, input_value, expected_output):
         assert JavaStatusResponse._parse_motd(input_value) == expected_output
 
-    def test_icon_is_none_if_favicon_was_not_specified(self):
-        response = JavaStatusResponse.build(
-            {
-                "description": "A Minecraft Server",
-                "players": {"max": 20, "online": 0},
-                "version": {"name": "1.8-pre1", "protocol": 44},
-            }
-        )
 
-        assert response.icon is None
+@BaseStatusResponseTest.construct
+class TestJavaStatusPlayers(BaseStatusResponseTest):
+    EXPECTED_VALUES = [
+        ("max", 20),
+        ("online", 0),
+        (
+            "sample",
+            [
+                JavaStatusPlayer("foo", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"),
+                JavaStatusPlayer("bar", "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"),
+                JavaStatusPlayer("baz", "40e8d003-8872-412d-b09a-4431a5afcbd4"),
+            ],
+        ),
+    ]
+    BUILD_METHOD_VALIDATION = (
+        ["max", "online"],
+        ["sample"],
+        {
+            "max": 20,
+            "online": 0,
+            "sample": [
+                {"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"},
+                {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"},
+                {"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4"},
+            ],
+        },
+    )
+    # `BUILD_METHOD_VALIDATION[2]` has the same value, as we need. so why not reuse it?
+    OPTIONAL_FIELDS = [("sample", "sample")], BUILD_METHOD_VALIDATION[2]
 
-
-class TestJavaStatusPlayers:
     @fixture(scope="class")
     def build(self):
         return JavaStatusPlayers.build(
@@ -180,81 +166,18 @@ class TestJavaStatusPlayers:
             }
         )
 
-    @mark.parametrize("exclude_field", ["max", "online"])
-    def test_invalid_validating(self, exclude_field):
-        with raises(ValueError):
-            raw: RawJavaResponsePlayers = {"max": 20, "online": 0}
-            raw.pop(exclude_field)
-            JavaStatusPlayers.build(raw)
-
-    @mark.parametrize("field", ["max", "online", "sample"])
-    def test_invalid_types(self, field):
-        with raises(TypeError):
-            JavaStatusPlayers.build(
-                **{
-                    "max": 20,
-                    "online": 0,
-                    "sample": [
-                        {"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"},
-                        {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"},
-                        {"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4"},
-                    ],
-                    field: object(),
-                }
-            )
-
-    @mark.parametrize(
-        "field,value",
-        [
-            ("max", 20),
-            ("online", 0),
-            (
-                "sample",
-                [
-                    JavaStatusPlayer("foo", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"),
-                    JavaStatusPlayer("bar", "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"),
-                    JavaStatusPlayer("baz", "40e8d003-8872-412d-b09a-4431a5afcbd4"),
-                ],
-            ),
-        ],
-    )
-    def test_fields_have_correct_values(self, build, field, value):
-        assert getattr(build, field) == value
-
-    def test_sample_is_none_if_it_was_not_specified(self):
-        assert JavaStatusPlayers.build({"max": 20, "online": 0}).sample is None
-
-    def test_empty_sample(self):
+    def test_empty_sample_turns_into_empty_list(self):
         assert JavaStatusPlayers.build({"max": 20, "online": 0, "sample": []}).sample == []
 
 
-class TestJavaStatusPlayer:
+@BaseStatusResponseTest.construct
+class TestJavaStatusPlayer(BaseStatusResponseTest):
+    EXPECTED_VALUES = [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")]
+    BUILD_METHOD_VALIDATION = ["name", "id"], [], {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"}
+
     @fixture(scope="class")
     def build(self):
         return JavaStatusPlayer.build({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
-
-    @mark.parametrize("exclude_field", ["name", "id"])
-    def test_invalid_validating(self, exclude_field):
-        raw: RawJavaResponsePlayer = {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"}
-        raw.pop(exclude_field)
-        with raises(ValueError):
-            JavaStatusPlayer.build(raw)
-
-    @mark.parametrize("field", ["name", "id"])
-    def test_invalid_types(self, field):
-        with raises(TypeError):
-            JavaStatusPlayer.build(**{"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4", field: object()})
-
-    @mark.parametrize("field,expected_type", [("name", str), ("id", str)])
-    def test_types(self, build, field, expected_type):
-        assert isinstance(getattr(build, field), expected_type)
-
-    @mark.parametrize(
-        "field,value",
-        [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")],
-    )
-    def test_fields_have_correct_values(self, build, field, value):
-        assert getattr(build, field) == value
 
     def test_id_field_the_same_as_uuid(self):
         build = JavaStatusPlayer.build({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
@@ -264,36 +187,11 @@ class TestJavaStatusPlayer:
         assert unique is build.uuid
 
 
-class TestJavaStatusVersion:
+@BaseStatusResponseTest.construct
+class TestJavaStatusVersion(BaseStatusResponseTest):
+    EXPECTED_VALUES = [("name", "1.8-pre1"), ("protocol", 44)]
+    BUILD_METHOD_VALIDATION = ["name", "protocol"], [], {"name": "1.8-pre1", "protocol": 44}
+
     @fixture(scope="class")
     def build(self):
         return JavaStatusVersion.build({"name": "1.8-pre1", "protocol": 44})
-
-    @mark.parametrize("exclude_field", ["name", "protocol"])
-    def test_invalid_validating(self, exclude_field):
-        raw: RawJavaResponseVersion = {"name": "1.8-pre1", "protocol": 44}
-        raw.pop(exclude_field)
-        with raises(ValueError):
-            JavaStatusVersion.build(raw)
-
-    @mark.parametrize("field", ["name", "protocol"])
-    def test_invalid_types(self, field):
-        with raises(TypeError):
-            JavaStatusVersion.build(**{"name": "1.8-pre1", "protocol": 44, field: object()})
-
-    @mark.parametrize(
-        "field,expected_type",
-        [
-            ("name", str),
-            ("protocol", int),
-        ],
-    )
-    def test_types(self, build, field, expected_type):
-        assert isinstance(getattr(build, field), expected_type)
-
-    @mark.parametrize(
-        "field,value",
-        [("name", "1.8-pre1"), ("protocol", 44)],
-    )
-    def test_fields_have_correct_values(self, build, field, value):
-        assert getattr(build, field) == value
