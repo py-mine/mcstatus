@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from dataclasses import dataclass, fields
 from inspect import Parameter, Signature
-from typing import Any, Optional, TYPE_CHECKING, Union, overload
+from typing import Any, Mapping, Optional, TYPE_CHECKING, Union, overload
 
 if TYPE_CHECKING:
     from typing_extensions import NotRequired, Required, Self, TypeAlias, TypedDict
@@ -91,8 +91,7 @@ STYLE_MAP = {
 }
 
 
-# such union in `raw` field because `TypedDict` is incompatible with just dict
-def _validate_data(raw: Union[dict[str, Any], TypedDict], who: str, required: Iterable[tuple[str, type]]) -> None:
+def _validate_data(raw: Mapping[str, Any], who: str, required: Iterable[tuple[str, type]]) -> None:
     """Ensure that all required keys are present, and have the specified type.
 
     :param raw: The raw dict answer to check.
