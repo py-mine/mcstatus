@@ -19,7 +19,7 @@ def status(server: JavaServer) -> None:
         player_sample = "No players online"
 
     print(f"version: v{response.version.name} (protocol {response.version.protocol})")
-    print(f'motd: "{response.motd}"')
+    print(f'description: "{response.description}"')
     print(f"players: {response.players.online}/{response.players.max} {player_sample}")
 
 
@@ -32,7 +32,7 @@ def json(server: JavaServer) -> None:
         status_res = server.status(tries=1)
         data["version"] = status_res.version.name
         data["protocol"] = status_res.version.protocol
-        data["motd"] = status_res.motd
+        data["motd"] = status_res.description
         data["player_count"] = status_res.players.online
         data["player_max"] = status_res.players.max
         data["players"] = []

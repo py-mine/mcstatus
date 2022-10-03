@@ -47,7 +47,6 @@ class TestAsyncServerPinger:
             "players": {"max": 20, "online": 0},
             "version": {"name": "1.8-pre1", "protocol": 44},
         }
-
         assert self.pinger.connection.flush() == bytearray.fromhex("0100")
 
     def test_read_status_invalid_json(self):
