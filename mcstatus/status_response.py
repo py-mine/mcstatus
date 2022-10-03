@@ -141,6 +141,7 @@ class JavaStatusResponse(BaseStatusResponse):
     :param icon: Base64 encoded icon of the server. Can be unset.
     """
 
+    raw: RawJavaResponse
     players: JavaStatusPlayers
     version: JavaStatusVersion
     icon: Optional[str]
@@ -157,6 +158,7 @@ class JavaStatusResponse(BaseStatusResponse):
         """
         _validate_data(raw, "status", [("players", dict), ("version", dict), ("description", str)])
         return cls(
+            raw=raw,
             players=JavaStatusPlayers.build(raw["players"]),
             version=JavaStatusVersion.build(raw["version"]),
             motd=cls._parse_motd(raw["description"]),
@@ -202,19 +204,6 @@ class JavaStatusResponse(BaseStatusResponse):
     @deprecated(replacement="motd", date="2022-08")
     def description(self) -> str:
         return self.motd
-
-    @property
-    @deprecated(date="2022-08")
-    def raw(self) -> RawJavaResponse:
-        raw: RawJavaResponse = {
-            "players": {"max": self.players.max, "online": self.players.online},
-            "version": {"name": self.version.name, "protocol": self.version.protocol},
-            "description": self.motd,
-        }
-        if self.icon is not None:
-            raw["favicon"] = self.icon
-
-        return raw
 
 
 @dataclass

@@ -5,7 +5,6 @@ import pytest
 from mcstatus.address import Address
 from mcstatus.pinger import AsyncServerPinger
 from mcstatus.protocol.connection import Connection
-from mcstatus.status_response import JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
 
 
 def async_decorator(f):
@@ -43,13 +42,11 @@ class TestAsyncServerPinger:
         )
         status = async_decorator(self.pinger.read_status)()
 
-        assert status == JavaStatusResponse(
-            players=JavaStatusPlayers(online=0, max=20, sample=None),
-            version=JavaStatusVersion(name="1.8-pre1", protocol=44),
-            motd="A Minecraft Server",
-            latency=status.latency,
-            icon=None,
-        )
+        assert status.raw == {
+            "description": "A Minecraft Server",
+            "players": {"max": 20, "online": 0},
+            "version": {"name": "1.8-pre1", "protocol": 44},
+        }
 
         assert self.pinger.connection.flush() == bytearray.fromhex("0100")
 
