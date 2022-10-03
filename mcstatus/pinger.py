@@ -154,4 +154,5 @@ class AsyncServerPinger(ServerPinger):
         return delta.total_seconds() * 1000
 
 
+# TODO Remove this deprecation after 2022-08
 PingResponse: TypeAlias = JavaStatusResponse

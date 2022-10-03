@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import abc
-from typing import Any, Optional, TypeVar, Union, cast
+from typing import Any, Optional, TypeVar, cast
 
 import pytest
 
@@ -22,23 +22,6 @@ class BaseStatusResponseTest(abc.ABC):
     # second item in tuple is an additional items to test their types,
     # but they aren't required. third item in tuple is a raw answer dict
     BUILD_METHOD_VALIDATION: Optional[tuple[list[str], list[str], dict]] = None
-
-    # TODO Delete attributes for deprecations tests after 2022-08
-    # note: for deprecations tests you should set
-    # pytestmark = pytest.mark.filterwarnings("ignore::DeprecationWarning")
-    DEPRECATED_FIELDS: Optional[list[str]] = None
-    # tuple will be unpacked with `*` and dict with `**`
-    DEPRECATED_OLD_INIT_PASSED_ARGS: Optional[Union[tuple, dict]] = None
-    DEPRECATED_NEW_INIT_PASSED_ARGS: Optional[Union[tuple, dict]] = None
-    # very same to `EXPECTED_TYPES` but this is much stricter than `EXPECTED_TYPES`
-    DEPRECATED_NESTED_CLASSES_USED: Optional[list[tuple[str, type]]] = None
-    # is nested classes types can be accessed with built object?
-    # default - copy values from `DEPRECATED_NESTED_CLASSES_USED`
-    DEPRECATED_NESTED_CLASSES_ARE_IN_BUILD: Optional[list[type]] = None
-    # first element is new object type, and second element is kwargs passed to the object
-    DEPRECATED_OBJECT_CAN_BE_COMPARED_TO_NEW_ONE: Optional[tuple[type, dict]] = None
-    # we don't need Iterable here, so better to use just None
-    DEPRECATED_CLASS_REPR_MUST_START_WITH: Optional[str] = None
 
     def _validate(self) -> None:
         """Perform checks to validate the class."""
@@ -101,45 +84,6 @@ class BaseStatusResponseTest(abc.ABC):
         with pytest.raises(TypeError):
             type(build).build(raw)
 
-    # TODO Delete these implementations for deprecations after 2022-08
-
-    def test_deprecated_fields_raise_warning(self, build, field):
-        with pytest.deprecated_call():
-            getattr(build, field)
-
-    def test_init_old_signature_raises_warning(self, build):
-        with pytest.deprecated_call():
-            # cant make it in one line, because of syntax error
-            if isinstance(self.DEPRECATED_OLD_INIT_PASSED_ARGS, tuple):
-                type(build)(*self.DEPRECATED_OLD_INIT_PASSED_ARGS)
-            else:
-                type(build)(**self.DEPRECATED_OLD_INIT_PASSED_ARGS)
-
-    def test_init_new_signature_does_not_raise_warning(self, build):
-        # cant make it in one line, because of syntax error
-        if isinstance(tuple, type(self.DEPRECATED_NEW_INIT_PASSED_ARGS)):
-            type(build)(*self.DEPRECATED_NEW_INIT_PASSED_ARGS)
-        else:
-            type(build)(**self.DEPRECATED_NEW_INIT_PASSED_ARGS)
-
-    def test_deprecated_nested_classes_used(self, build, field, type_):
-        assert type(getattr(build, field)) is type_
-
-    def test_nested_classes_are_in_build(self, build, class_):
-        assert getattr(build, class_.__name__) is class_
-
-    def test_deprecated_object_can_be_compared_to_new_one(self, build):
-        """If we forgot overwrite `__eq__` method in deprecated class, it will fail."""
-        new_class, new_kwargs = cast(tuple, self.DEPRECATED_OBJECT_CAN_BE_COMPARED_TO_NEW_ONE)
-        assert build == new_class(**new_kwargs)
-
-    def test_repr_returns_correct_class(self, build):
-        """If we forgot overwrite `__repr__` method in child class,
-
-        it will output `DeprecatedClass(...)` instead of `NewClass(...)`.
-        """
-        assert repr(build).startswith(cast(str, self.DEPRECATED_CLASS_REPR_MUST_START_WITH))
-
     def _dependency_table(self) -> dict[str, bool]:
         # a key in the dict must be a name of a test implementation.
         # and a value of the dict is a bool. if it's false - we
@@ -151,15 +95,6 @@ class BaseStatusResponseTest(abc.ABC):
             "test_optional_field_turns_into_none": self.OPTIONAL_FIELDS is not None,
             "test_value_validating": self.BUILD_METHOD_VALIDATION is not None,
             "test_type_validating": self.BUILD_METHOD_VALIDATION is not None,
-            # TODO Delete these implementations for deprecations after 2022-08
-            "test_deprecated_fields_raise_warning": self.DEPRECATED_FIELDS is not None,
-            "test_init_old_signature_raises_warning": self.DEPRECATED_OLD_INIT_PASSED_ARGS is not None,
-            "test_init_new_signature_does_not_raise_warning": self.DEPRECATED_NEW_INIT_PASSED_ARGS is not None,
-            "test_deprecated_nested_classes_used": self.DEPRECATED_NESTED_CLASSES_USED is not None,
-            "test_nested_classes_are_in_build": self.DEPRECATED_NESTED_CLASSES_USED is not None
-            or self.DEPRECATED_NESTED_CLASSES_ARE_IN_BUILD is not None,  # noqa: W503 # black
-            "test_deprecated_object_can_be_compared_to_new_one": self.DEPRECATED_OBJECT_CAN_BE_COMPARED_TO_NEW_ONE is not None,
-            "test_repr_returns_correct_class": self.DEPRECATED_CLASS_REPR_MUST_START_WITH is not None,
         }
 
     def _marks_table(self) -> dict[str, tuple[str, tuple[Any, ...]]]:
@@ -169,14 +104,6 @@ class BaseStatusResponseTest(abc.ABC):
             build_method_validation_args.extend(self.BUILD_METHOD_VALIDATION[1])
         else:
             build_method_validation_args = []
-
-        if self.DEPRECATED_NESTED_CLASSES_ARE_IN_BUILD is not None or self.DEPRECATED_NESTED_CLASSES_USED is not None:
-            if self.DEPRECATED_NESTED_CLASSES_ARE_IN_BUILD is None:
-                nested_classes_are_in_build_args = [type_ for field, type_ in cast(list, self.DEPRECATED_NESTED_CLASSES_USED)]
-            else:
-                nested_classes_are_in_build_args = self.DEPRECATED_NESTED_CLASSES_ARE_IN_BUILD
-        else:
-            nested_classes_are_in_build_args = []
 
         # a key in the dict must be a name of a test implementation.
         # and a value of the dict is a tuple, where first element is
@@ -195,11 +122,6 @@ class BaseStatusResponseTest(abc.ABC):
                 ("exclude_field", self.BUILD_METHOD_VALIDATION[0] if self.BUILD_METHOD_VALIDATION is not None else ()),
             ),
             "test_type_validating": ("parametrize", ("to_change_field", build_method_validation_args)),
-            # TODO Delete these implementations for deprecations after 2022-08
-            "test_deprecated_fields_raise_warning": ("parametrize", ("field", self.DEPRECATED_FIELDS)),
-            "test_init_new_signature_does_not_raise_warning": ("filterwarnings", ("error",)),
-            "test_deprecated_nested_classes_used": ("parametrize", ("field,type_", self.DEPRECATED_NESTED_CLASSES_USED)),
-            "test_nested_classes_are_in_build": ("parametrize", ("class_", nested_classes_are_in_build_args)),
         }
 
     @staticmethod
