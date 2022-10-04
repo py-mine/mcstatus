@@ -9,7 +9,7 @@ from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired, Required, TypeAlias, TypedDict
+    from typing_extensions import NotRequired, TypeAlias, TypedDict
 
     class RawResponsePlayer(TypedDict):
         name: str
@@ -25,7 +25,8 @@ if TYPE_CHECKING:
         protocol: int
 
     class RawResponseDescriptionWhenDict(TypedDict, total=False):
-        text: Required[str]
+        text: str  # only present if translation is set
+        translation: str  # same to the above field
         extra: list[RawResponseDescriptionWhenDict]
 
         color: str
@@ -293,7 +294,7 @@ class PingResponse:
 
         if isinstance(raw_description, dict):
             entries = raw_description.get("extra", [])
-            end = raw_description["text"]
+            end = raw_description.get("text", "")
         else:
             entries = raw_description
             end = ""
