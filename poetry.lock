@@ -263,6 +263,18 @@ flake8 = "*"
 setuptools = "*"
 
 [[package]]
+name = "flake8-new-union-types"
+version = "0.4.1"
+description = "Flake8 plugin to enforce the new Union and Optional annotation syntax defined in PEP 604"
+category = "dev"
+optional = false
+python-versions = ">=3.8,<4.0"
+
+[package.dependencies]
+attrs = ">=21.4.0"
+flake8 = ">=3.0.0"
+
+[[package]]
 name = "flake8-pep585"
 version = "0.1.5.1"
 description = "flake8 plugin to enforce new-style type hints (PEP 585)"
@@ -867,7 +879,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4"
-content-hash = "851c489550df108814e850128e939d363cbc4dd0b6ac858779a616cfd70f2e77"
+content-hash = "403ad3b42e5d9b70f41b64de74b5e04178129658d2924056a7a0ef3c872e1977"
 
 [metadata.files]
 asyncio-dgram = [
@@ -1104,6 +1116,10 @@ flake8-bugbear = [
 flake8-future-annotations = [
     {file = "flake8-future-annotations-0.0.5.tar.gz", hash = "sha256:da84011070c0d0f623a9c12bd738bea58bc65a3bf5eec20637020069310f8d84"},
     {file = "flake8_future_annotations-0.0.5-py3-none-any.whl", hash = "sha256:28fc9ae9e5ece5c211b810d856d984f33c0290933f24ae570731a0751c4917c6"},
+]
+flake8-new-union-types = [
+    {file = "flake8-new-union-types-0.4.1.tar.gz", hash = "sha256:0a9dd421099f2525f8be525977ff6632b13b68719a7b0807cf49028d4287b0aa"},
+    {file = "flake8_new_union_types-0.4.1-py3-none-any.whl", hash = "sha256:92737a2f598772d5aedd05b5450c5dd200e0f1acd42b3c1f95dbbe3211af2009"},
 ]
 flake8-pep585 = [
     {file = "flake8-pep585-0.1.5.1.tar.gz", hash = "sha256:07e6fef6e7b02d5c2b363a6c7008b7aad0db1489c57b4c2629d4b04ed295cec8"},

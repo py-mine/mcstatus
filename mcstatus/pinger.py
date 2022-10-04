@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime
 import json
 import random
-from typing import Optional, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
         underlined: bool
         obfuscated: bool
 
-    RawResponseDescription: TypeAlias = Union[RawResponseDescriptionWhenDict, list[RawResponseDescriptionWhenDict], str]
+    RawResponseDescription: TypeAlias = "RawResponseDescriptionWhenDict | list[RawResponseDescriptionWhenDict] | str"
 
     class RawResponse(TypedDict):
         description: RawResponseDescription
@@ -85,7 +85,7 @@ class ServerPinger:
         connection: TCPSocketConnection,
         address: Address,
         version: int = 47,
-        ping_token: Optional[int] = None,
+        ping_token: int | None = None,
     ):
         if ping_token is None:
             ping_token = random.randint(0, (1 << 63) - 1)
@@ -148,7 +148,7 @@ class AsyncServerPinger(ServerPinger):
         connection: TCPAsyncSocketConnection,
         address: Address,
         version: int = 47,
-        ping_token: Optional[int] = None,
+        ping_token: int | None = None,
     ):
         # We do this to inform python about self.connection type (it's async)
         super().__init__(connection, address=address, version=version, ping_token=ping_token)  # type: ignore[arg-type]
@@ -218,7 +218,7 @@ class PingResponse:
 
         online: int
         max: int
-        sample: Optional[list["PingResponse.Players.Player"]]
+        sample: list["PingResponse.Players.Player"] | None
 
         def __init__(self, raw: RawResponsePlayers):
             if not isinstance(raw, dict):
@@ -266,7 +266,7 @@ class PingResponse:
     players: Players
     version: Version
     description: str
-    favicon: Optional[str]
+    favicon: str | None
     latency: float = 0
 
     def __init__(self, raw: RawResponse):

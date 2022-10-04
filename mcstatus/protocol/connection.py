@@ -10,19 +10,19 @@ from ctypes import c_int64 as signed_int64
 from ctypes import c_uint32 as unsigned_int32
 from ctypes import c_uint64 as unsigned_int64
 from ipaddress import ip_address
-from typing import Optional, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 import asyncio_dgram
 
 from mcstatus.address import Address
 
 if TYPE_CHECKING:
-    from typing_extensions import SupportsIndex  # Python 3.7 doesn't support this yet.
+    from typing_extensions import SupportsIndex, TypeAlias
 
-    BytesConvertable = Union[SupportsIndex, Iterable[SupportsIndex]]
+    BytesConvertable: TypeAlias = "SupportsIndex | Iterable[SupportsIndex]"
 
 
-def ip_type(address: Union[int, str]) -> Optional[int]:
+def ip_type(address: int | str) -> int | None:
     """Returns what version of IP a given address is."""
     try:
         return ip_address(address).version
@@ -36,7 +36,7 @@ class BaseWriteSync(ABC):
     __slots__ = ()
 
     @abstractmethod
-    def write(self, data: Union["Connection", str, bytearray, bytes]) -> None:
+    def write(self, data: Connection | str | bytearray | bytes) -> None:
         """Write data to self."""
         ...
 
@@ -132,7 +132,7 @@ class BaseWriteAsync(ABC):
     __slots__ = ()
 
     @abstractmethod
-    async def write(self, data: Union["Connection", str, bytearray, bytes]) -> None:
+    async def write(self, data: Connection | str | bytearray | bytes) -> None:
         """Write data to self."""
         ...
 
@@ -422,7 +422,7 @@ class BaseConnection:
         """Raise TypeError, unsupported."""
         raise TypeError(f"{self.__class__.__name__} does not support flush()")
 
-    def receive(self, data: Union[BytesConvertable, bytearray]) -> None:
+    def receive(self, data: BytesConvertable | bytearray) -> None:
         """Raise TypeError, unsupported."""
         raise TypeError(f"{self.__class__.__name__} does not support receive()")
 
@@ -465,7 +465,7 @@ class Connection(BaseSyncConnection):
         self.received = self.received[length:]
         return result
 
-    def write(self, data: Union["Connection", str, bytearray, bytes]) -> None:
+    def write(self, data: Connection | str | bytearray | bytes) -> None:
         """Extend self.sent from data."""
         if isinstance(data, Connection):
             data = data.flush()
@@ -473,7 +473,7 @@ class Connection(BaseSyncConnection):
             data = bytearray(data, "utf-8")
         self.sent.extend(data)
 
-    def receive(self, data: Union[BytesConvertable, bytearray]) -> None:
+    def receive(self, data: BytesConvertable | bytearray) -> None:
         """Extend self.received with data."""
         if not isinstance(data, bytearray):
             data = bytearray(data)
@@ -525,7 +525,7 @@ class TCPSocketConnection(SocketConnection):
 
     __slots__ = ()
 
-    def __init__(self, addr: tuple[Optional[str], int], timeout: float = 3):
+    def __init__(self, addr: tuple[str | None, int], timeout: float = 3):
         """Create a connection to address with self.socket, set TCP NODELAY to True."""
         super().__init__()
         self.socket = socket.create_connection(addr, timeout=timeout)
@@ -541,7 +541,7 @@ class TCPSocketConnection(SocketConnection):
             result.extend(new)
         return result
 
-    def write(self, data: Union[Connection, str, bytes, bytearray]) -> None:
+    def write(self, data: Connection | str | bytes | bytearray) -> None:
         """Send data on self.socket."""
         if isinstance(data, Connection):
             data = bytearray(data.flush())
@@ -576,7 +576,7 @@ class UDPSocketConnection(SocketConnection):
             result.extend(self.socket.recvfrom(self.remaining())[0])
         return result
 
-    def write(self, data: Union[Connection, str, bytes, bytearray]) -> None:
+    def write(self, data: Connection | str | bytes | bytearray) -> None:
         """Use self.socket to send data to self.addr."""
         if isinstance(data, Connection):
             data = bytearray(data.flush())
@@ -612,7 +612,7 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
             result.extend(new)
         return result
 
-    def write(self, data: Union[Connection, str, bytes, bytearray]) -> None:
+    def write(self, data: Connection | str | bytes | bytearray) -> None:
         """Write data to self.writer."""
         if isinstance(data, Connection):
             data = bytearray(data.flush())
@@ -658,7 +658,7 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         data, remote_addr = await asyncio.wait_for(self.stream.recv(), timeout=self.timeout)
         return bytearray(data)
 
-    async def write(self, data: Union[Connection, str, bytes, bytearray]) -> None:
+    async def write(self, data: Connection | str | bytes | bytearray) -> None:
         """Send data with self.stream."""
         if isinstance(data, Connection):
             data = bytearray(data.flush())
