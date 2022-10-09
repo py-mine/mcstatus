@@ -80,7 +80,7 @@ class ServerPinger:
             raise IOError("Received invalid JSON")
         try:
             return JavaStatusResponse.build(raw)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             raise IOError(f"Received invalid status response: {e}")
 
     def test_ping(self) -> float:
