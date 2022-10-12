@@ -122,6 +122,14 @@ class BaseStatusResponse(ABC):
     motd: str
     latency: float
 
+    @property
+    def description(self) -> str:
+        """Alias to the `motd` field.
+
+        :return: Description of the server.
+        """
+        return self.motd
+
     @classmethod
     @abstractmethod
     def build(cls, *args, **kwargs) -> Self:
@@ -199,11 +207,6 @@ class JavaStatusResponse(BaseStatusResponse):
             description += entry.get("text", "")
 
         return description + end
-
-    @property
-    @deprecated(replacement="motd", date="2022-08")
-    def description(self) -> str:
-        return self.motd
 
 
 @dataclass

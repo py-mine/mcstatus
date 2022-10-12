@@ -65,6 +65,7 @@ Status methods (`JavaServer.status` and `BedrockServer`) return similar answer o
   - `protocol`: Version protocol. See [wiki](https://minecraft.fandom.com/wiki/Protocol_version).
   - (Bedrock only) `brand`: Version brand, like `MCPE` or something another.
 - `motd`: Message of the Day (or just description) of the server.
+- `description`: Alias to `motd`.
 - `latency`: Latency between a server and the client (you). In milliseconds.
 - (Java only) `icon`: Base64 encoded icon of the server.
 - (Bedrock only) `map_name`: Name of the map in the server.
