@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import abc
-from typing import Any, Optional, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 import pytest
 
@@ -10,18 +10,18 @@ _T = TypeVar("_T", bound="type[BaseStatusResponseTest]")
 
 
 class BaseStatusResponseTest(abc.ABC):
-    EXPECTED_VALUES: Optional[list[tuple[str, Any]]] = None
-    EXPECTED_TYPES: Optional[list[tuple[str, type]]] = None
-    ATTRIBUTES_IN: Optional[list[str]] = None
+    EXPECTED_VALUES: list[tuple[str, Any]] | None = None
+    EXPECTED_TYPES: list[tuple[str, type]] | None = None
+    ATTRIBUTES_IN: list[str] | None = None
     # if we don't specify item in raw answer, target field will be None
     # first element is a list with fields to remove, and attribute that
     # must be None. a dict is a raw answer to pass into `build` method
-    OPTIONAL_FIELDS: Optional[tuple[list[tuple[str, str]], dict]] = None
+    OPTIONAL_FIELDS: tuple[list[tuple[str, str]], dict] | None = None
     # there will be a ValueError, if we exclude the field from input
     # and a TypeError, if specify incorrect type
     # second item in tuple is an additional items to test their types,
     # but they aren't required. third item in tuple is a raw answer dict
-    BUILD_METHOD_VALIDATION: Optional[tuple[list[str], list[str], dict]] = None
+    BUILD_METHOD_VALIDATION: tuple[list[str], list[str], dict] | None = None
 
     def _validate(self) -> None:
         """Perform checks to validate the class."""

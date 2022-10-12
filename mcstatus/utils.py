@@ -5,7 +5,7 @@ import inspect
 import warnings
 from collections.abc import Callable, Iterable
 from functools import wraps
-from typing import Any, Optional, TYPE_CHECKING, TypeVar, Union, cast, overload
+from typing import Any, TYPE_CHECKING, TypeVar, cast, overload
 
 if TYPE_CHECKING:
     from typing_extensions import ParamSpec, Protocol
@@ -88,11 +88,11 @@ class DeprecatedReturn(Protocol):
 def deprecated(
     obj: Callable[P, R],
     *,
-    replacement: Optional[str] = None,
-    version: Optional[str] = None,
-    date: Optional[str] = None,
-    msg: Optional[str] = None,
-    display_name: Optional[str] = None,
+    replacement: str | None = None,
+    version: str | None = None,
+    date: str | None = None,
+    msg: str | None = None,
+    display_name: str | None = None,
 ) -> Callable[P, R]:
     ...
 
@@ -101,12 +101,12 @@ def deprecated(
 def deprecated(
     obj: type[T],
     *,
-    replacement: Optional[str] = None,
-    version: Optional[str] = None,
-    date: Optional[str] = None,
-    msg: Optional[str] = None,
+    replacement: str | None = None,
+    version: str | None = None,
+    date: str | None = None,
+    msg: str | None = None,
     methods: Iterable[str],
-    display_name: Optional[str] = None,
+    display_name: str | None = None,
 ) -> type[T]:
     ...
 
@@ -115,12 +115,12 @@ def deprecated(
 def deprecated(
     obj: None = None,
     *,
-    replacement: Optional[str] = None,
-    version: Optional[str] = None,
-    date: Optional[str] = None,
-    msg: Optional[str] = None,
-    methods: Optional[Iterable[str]] = None,
-    display_name: Optional[str] = None,
+    replacement: str | None = None,
+    version: str | None = None,
+    date: str | None = None,
+    msg: str | None = None,
+    methods: Iterable[str] | None = None,
+    display_name: str | None = None,
 ) -> DeprecatedReturn:
     ...
 
@@ -128,13 +128,13 @@ def deprecated(
 def deprecated(
     obj: Any = None,  # noqa: ANN401
     *,
-    replacement: Optional[str] = None,
-    version: Optional[str] = None,
-    date: Optional[str] = None,
-    msg: Optional[str] = None,
-    methods: Optional[Iterable[str]] = None,
-    display_name: Optional[str] = None,
-) -> Union[Callable, type[object]]:
+    replacement: str | None = None,
+    version: str | None = None,
+    date: str | None = None,
+    msg: str | None = None,
+    methods: Iterable[str] | None = None,
+    display_name: str | None = None,
+) -> Callable | type[object]:
     if date is not None and version is not None:
         raise ValueError("Expected removal timeframe can either be a date, or a version, not both.")
 
@@ -154,7 +154,7 @@ def deprecated(
     def decorate(obj: type[T]) -> type[T]:
         ...
 
-    def decorate(obj: Union[Callable[P, R], type[T]]) -> Union[Callable[P, R], type[T]]:
+    def decorate(obj: Callable[P, R] | type[T]) -> Callable[P, R] | type[T]:
         # Construct and send the warning message
         name = getattr(obj, "__qualname__", obj.__name__) if display_name is None else display_name
         warn_message = f"'{name}' is deprecated and is expected to be removed"

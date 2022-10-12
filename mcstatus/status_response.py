@@ -3,10 +3,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from typing import Any, Optional, TYPE_CHECKING, Union
+from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired, Required, Self, TypeAlias, TypedDict
+    from typing_extensions import NotRequired, Self, TypeAlias, TypedDict
 
     class RawJavaResponsePlayer(TypedDict):
         name: str
@@ -22,7 +22,8 @@ if TYPE_CHECKING:
         protocol: int
 
     class RawJavaResponseMotdWhenDict(TypedDict, total=False):
-        text: Required[str]
+        text: str  # only present if translation is set
+        translation: str  # same to the above field
         extra: list[RawJavaResponseMotdWhenDict]
 
         color: str
@@ -32,7 +33,7 @@ if TYPE_CHECKING:
         underlined: bool
         obfuscated: bool
 
-    RawJavaResponseMotd: TypeAlias = Union[RawJavaResponseMotdWhenDict, list[RawJavaResponseMotdWhenDict], str]
+    RawJavaResponseMotd: TypeAlias = RawJavaResponseMotdWhenDict | list[RawJavaResponseMotdWhenDict] | str
 
     class RawJavaResponse(TypedDict):
         description: RawJavaResponseMotd
@@ -152,7 +153,7 @@ class JavaStatusResponse(BaseStatusResponse):
     raw: RawJavaResponse
     players: JavaStatusPlayers
     version: JavaStatusVersion
-    icon: Optional[str]
+    icon: str | None
 
     @classmethod
     def build(cls, raw: RawJavaResponse) -> Self:
@@ -187,7 +188,7 @@ class JavaStatusResponse(BaseStatusResponse):
 
         if isinstance(raw_motd, dict):
             entries = raw_motd.get("extra", [])
-            end = raw_motd["text"]
+            end = raw_motd.get("text", "")
         else:
             entries = raw_motd
             end = ""
@@ -219,8 +220,8 @@ class BedrockStatusResponse(BaseStatusResponse):
 
     players: BedrockStatusPlayers
     version: BedrockStatusVersion
-    map_name: Optional[str]
-    gamemode: Optional[str]
+    map_name: str | None
+    gamemode: str | None
 
     @classmethod
     def build(cls, decoded_data: list[Any], latency: float) -> Self:
@@ -268,7 +269,7 @@ class BedrockStatusResponse(BaseStatusResponse):
 
     @property
     @deprecated(replacement="map_name", date="2022-08")
-    def map(self) -> Optional[str]:
+    def map(self) -> str | None:
         return self.map_name
 
 
@@ -287,7 +288,7 @@ class JavaStatusPlayers(BaseStatusPlayers):
     :param sample: list of players or `None` if the sample is missing in the response.
     """
 
-    sample: Optional[list[JavaStatusPlayer]]
+    sample: list[JavaStatusPlayer] | None
 
     @classmethod
     def build(cls, raw: RawJavaResponsePlayers) -> Self:

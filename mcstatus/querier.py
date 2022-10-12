@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 import re
 import struct
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from mcstatus.protocol.connection import Connection, UDPAsyncSocketConnection, UDPSocketConnection
 
@@ -97,7 +97,7 @@ class QueryResponse:
         names: list[str]
 
         # TODO: It's a bit weird that we accept str for number parameters, just to convert them in init
-        def __init__(self, online: Union[str, int], max: Union[str, int], names: list[str]):
+        def __init__(self, online: str | int, max: str | int, names: list[str]):
             self.online = int(online)
             self.max = int(max)
             self.names = names

@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from typing import Optional
-
 import dns.asyncresolver
 import dns.resolver
 from dns.rdatatype import RdataType
 
 
-def resolve_a_record(hostname: str, lifetime: Optional[float] = None) -> str:
+def resolve_a_record(hostname: str, lifetime: float | None = None) -> str:
     """Perform a DNS resolution for an A record to given hostname
 
     :param str hostname: The address to resolve for.
@@ -24,7 +22,7 @@ def resolve_a_record(hostname: str, lifetime: Optional[float] = None) -> str:
     return ip
 
 
-async def async_resolve_a_record(hostname: str, lifetime: Optional[float] = None) -> str:
+async def async_resolve_a_record(hostname: str, lifetime: float | None = None) -> str:
     """Asynchronous alternative to resolve_a_record.
 
     For more details, check the docstring of resolve_a_record function.
@@ -37,7 +35,7 @@ async def async_resolve_a_record(hostname: str, lifetime: Optional[float] = None
     return ip
 
 
-def resolve_srv_record(query_name: str, lifetime: Optional[float] = None) -> tuple[str, int]:
+def resolve_srv_record(query_name: str, lifetime: float | None = None) -> tuple[str, int]:
     """Perform a DNS resolution for SRV record pointing to the Java Server.
 
     :param str address: The address to resolve for.
@@ -55,7 +53,7 @@ def resolve_srv_record(query_name: str, lifetime: Optional[float] = None) -> tup
     return host, port
 
 
-async def async_resolve_srv_record(query_name: str, lifetime: Optional[float] = None) -> tuple[str, int]:
+async def async_resolve_srv_record(query_name: str, lifetime: float | None = None) -> tuple[str, int]:
     """Asynchronous alternative to resolve_srv_record.
 
     For more details, check the docstring of resolve_srv_record function.
@@ -69,7 +67,7 @@ async def async_resolve_srv_record(query_name: str, lifetime: Optional[float] = 
     return host, port
 
 
-def resolve_mc_srv(hostname: str, lifetime: Optional[float] = None) -> tuple[str, int]:
+def resolve_mc_srv(hostname: str, lifetime: float | None = None) -> tuple[str, int]:
     """Resolve SRV record for a minecraft server on given hostname.
 
     :param str address: The address, without port, on which an SRV record is present.
@@ -84,7 +82,7 @@ def resolve_mc_srv(hostname: str, lifetime: Optional[float] = None) -> tuple[str
     return resolve_srv_record("_minecraft._tcp." + hostname, lifetime=lifetime)
 
 
-async def async_resolve_mc_srv(hostname: str, lifetime: Optional[float] = None) -> tuple[str, int]:
+async def async_resolve_mc_srv(hostname: str, lifetime: float | None = None) -> tuple[str, int]:
     """Asynchronous alternative to resolve_mc_srv.
 
     For more details, check the docstring of resolve_mc_srv function.
