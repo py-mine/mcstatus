@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import ipaddress
 from pathlib import Path
-from typing import NamedTuple, Optional, TYPE_CHECKING, Union
+from typing import NamedTuple, TYPE_CHECKING
 from urllib.parse import urlparse
 
 import dns.resolver
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 __all__ = ("Address", "minecraft_srv_address_lookup", "async_minecraft_srv_address_lookup")
 
 
-def _valid_urlparse(address: str) -> tuple[str, Optional[int]]:
+def _valid_urlparse(address: str) -> tuple[str, int | None]:
     """Parses a string address like 127.0.0.1:25565 into host and port parts
 
     If the address doesn't have a specified port, None will be returned instead.
@@ -55,7 +55,7 @@ class Address(_AddressBase):
     def __init__(self, *a, **kw):
         # We don't call super's __init__, because NamedTuples handle everything
         # from __new__ and the passed self already has all of the parameters set.
-        self._cached_ip: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None
+        self._cached_ip: ipaddress.IPv4Address | ipaddress.IPv6Address | None = None
 
         # Make sure the address is valid
         self._ensure_validity(self.host, self.port)
@@ -75,7 +75,7 @@ class Address(_AddressBase):
         return cls(host=tup[0], port=tup[1])
 
     @classmethod
-    def from_path(cls, path: Path, *, default_port: Optional[int] = None) -> Self:
+    def from_path(cls, path: Path, *, default_port: int | None = None) -> Self:
         """Construct the class from a Path object.
 
         If path has a port specified, use it, if not fall back to default_port.
@@ -85,7 +85,7 @@ class Address(_AddressBase):
         return cls.parse_address(address, default_port=default_port)
 
     @classmethod
-    def parse_address(cls, address: str, *, default_port: Optional[int] = None) -> Self:
+    def parse_address(cls, address: str, *, default_port: int | None = None) -> Self:
         """Parses a string address like 127.0.0.1:25565 into host and port parts
 
         If the address has a port specified, use it, if not, fall back to default_port.
@@ -104,7 +104,7 @@ class Address(_AddressBase):
                 )
         return cls(host=hostname, port=port)
 
-    def resolve_ip(self, lifetime: Optional[float] = None) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
+    def resolve_ip(self, lifetime: float | None = None) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
         """Resolves a hostname's A record into an IP address.
 
         If the host is already an IP, this resolving is skipped
@@ -132,7 +132,7 @@ class Address(_AddressBase):
         self._cached_ip = ip
         return self._cached_ip
 
-    async def async_resolve_ip(self, lifetime: Optional[float] = None) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
+    async def async_resolve_ip(self, lifetime: float | None = None) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
         """Resolves a hostname's A record into an IP address.
 
         See the docstring for `resolve_ip` for further info. This function is purely
@@ -157,8 +157,8 @@ class Address(_AddressBase):
 def minecraft_srv_address_lookup(
     address: str,
     *,
-    default_port: Optional[int] = None,
-    lifetime: Optional[float] = None,
+    default_port: int | None = None,
+    lifetime: float | None = None,
 ) -> Address:
     """Parses the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port
 
@@ -202,8 +202,8 @@ def minecraft_srv_address_lookup(
 async def async_minecraft_srv_address_lookup(
     address: str,
     *,
-    default_port: Optional[int] = None,
-    lifetime: Optional[float] = None,
+    default_port: int | None = None,
+    lifetime: float | None = None,
 ) -> Address:
     """Parses the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port
 

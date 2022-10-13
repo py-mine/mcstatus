@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from abc import ABC
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import dns.resolver
 
@@ -38,7 +38,7 @@ class MCServer(ABC):
 
     DEFAULT_PORT: int
 
-    def __init__(self, host: str, port: Optional[int] = None, timeout: float = 3):
+    def __init__(self, host: str, port: int | None = None, timeout: float = 3):
         if port is None:
             port = self.DEFAULT_PORT
         self.address = Address(host, port)
