@@ -33,7 +33,18 @@ python = ">=3.7,<4"
 asyncio-dgram = "2.1.2"
 dnspython = "2.2.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^2.20.0"
+tox = "^3.26.0"
+tox-poetry = "^0.4.1"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.1.3"
+pytest-asyncio = "^0.19.0"
+pytest-cov = "^4.0.0"
+coverage = "^6.4"
+
+[tool.poetry.group.lint.dependencies]
 black = "^22.10.0"
 coverage = "^6.5"
 flake8 = "^5.0.4"
@@ -45,15 +56,21 @@ flake8-new-union-types = {version = "^0.4.1", python = ">=3.8"}
 flake8-future-annotations = "^1.0.0"
 isort = "^5.10.1"
 pep8-naming = "^0.13.2"
-pre-commit = "^2.20.0"
 pyright = "^1.1.275"
-pytest = "^7.1.3"
-pytest-asyncio = "^0.19.0"
-pytest-cov = "^4.0.0"
-tox = "^3.26.0"
-tox-poetry = "^0.4.1"
-twine = "^4.0.1"
 typing-extensions = "^4.4.0"
+
+[tool.poetry.group.release]
+optional = true
+
+[tool.poetry.group.release.dependencies]
+twine = "^4.0.1"
+poetry-dynamic-versioning = "^0.19.0"
+
+[tool.poetry.group.workflow-tox]
+optional = true
+
+[tool.poetry.group.workflow-tox.dependencies]
+tox-gh-actions = "^2.9.1"
 
 [tool.poetry.scripts]
 mcstatus = 'mcstatus.__main__:main'

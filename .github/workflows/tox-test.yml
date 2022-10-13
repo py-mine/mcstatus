@@ -28,13 +28,9 @@ jobs:
         uses: HassanAbouelela/actions/setup-python@setup-python_v1.3.1
         id: setup_python
         with:
-          dev: false
+          dev: true
+          install_args: "--with workflow-tox --without lint"
           python_version: "${{ matrix.python-version }}"
-
-      # In case the dependencies weren't restored, install them
-      - name: Install tox dependencies
-        if: steps.setup_python.outputs.cache-hit != 'true'
-        run: poetry run pip install tox tox-poetry tox-gh-actions
 
       - name: Test with tox
         run: poetry run tox
