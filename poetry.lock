@@ -276,11 +276,11 @@ flake8 = ">=3.0.0"
 
 [[package]]
 name = "flake8-pep585"
-version = "0.1.5.1"
+version = "0.1.6"
 description = "flake8 plugin to enforce new-style type hints (PEP 585)"
 category = "dev"
 optional = false
-python-versions = ">=3.9,<4.0"
+python-versions = ">=3.7,<4.0"
 
 [[package]]
 name = "flake8-tidy-imports"
@@ -879,7 +879,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4"
-content-hash = "d16395b3278866255533aaed460bf5afa2b084031b8e37313f518cd40aaf647b"
+content-hash = "e87001a0d7614b6a5cd36685e0a5d5659e87b30fd1ab5ebb1b90d8ee0f581795"
 
 [metadata.files]
 asyncio-dgram = [
@@ -1120,8 +1120,8 @@ flake8-new-union-types = [
     {file = "flake8_new_union_types-0.4.1-py3-none-any.whl", hash = "sha256:92737a2f598772d5aedd05b5450c5dd200e0f1acd42b3c1f95dbbe3211af2009"},
 ]
 flake8-pep585 = [
-    {file = "flake8-pep585-0.1.5.1.tar.gz", hash = "sha256:07e6fef6e7b02d5c2b363a6c7008b7aad0db1489c57b4c2629d4b04ed295cec8"},
-    {file = "flake8_pep585-0.1.5.1-py3-none-any.whl", hash = "sha256:80eaa848b45ff7d2d1952782f28cea20d7e0f27c0f57e6a112ee9c4fdd83e6a3"},
+    {file = "flake8-pep585-0.1.6.tar.gz", hash = "sha256:8b7bccfa760c40baedb28dc48b1b514907867b3551a7aec87552d115355a6def"},
+    {file = "flake8_pep585-0.1.6-py3-none-any.whl", hash = "sha256:67feae956ccf7ef20c5cfe57bb63f5342e4f7898fd1cb1d3a8a8a52e26393fd2"},
 ]
 flake8-tidy-imports = [
     {file = "flake8-tidy-imports-4.8.0.tar.gz", hash = "sha256:df44f9c841b5dfb3a7a1f0da8546b319d772c2a816a1afefcce43e167a593d83"},
