@@ -91,8 +91,8 @@ class JavaServer(MCServer):
         :return: The latency between the Minecraft Server and you.
         """
 
-        connection = TCPSocketConnection(self.address, self.timeout)
-        return self._retry_ping(connection, **kwargs)
+        with TCPSocketConnection(self.address, self.timeout) as connection:
+            return self._retry_ping(connection, **kwargs)
 
     @retry(tries=3)
     def _retry_ping(self, connection: TCPSocketConnection, **kwargs) -> float:
@@ -107,9 +107,8 @@ class JavaServer(MCServer):
         :return: The latency between the Minecraft Server and you.
         """
 
-        connection = TCPAsyncSocketConnection()
-        await connection.connect(self.address, self.timeout)
-        return await self._retry_async_ping(connection, **kwargs)
+        async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
+            return await self._retry_async_ping(connection, **kwargs)
 
     @retry(tries=3)
     async def _retry_async_ping(self, connection: TCPAsyncSocketConnection, **kwargs) -> float:
@@ -125,8 +124,8 @@ class JavaServer(MCServer):
         :return: Status information in a `PingResponse` instance.
         """
 
-        connection = TCPSocketConnection(self.address, self.timeout)
-        return self._retry_status(connection, **kwargs)
+        with TCPSocketConnection(self.address, self.timeout) as connection:
+            return self._retry_status(connection, **kwargs)
 
     @retry(tries=3)
     def _retry_status(self, connection: TCPSocketConnection, **kwargs) -> PingResponse:
@@ -142,9 +141,8 @@ class JavaServer(MCServer):
         :return: Status information in a `PingResponse` instance.
         """
 
-        connection = TCPAsyncSocketConnection()
-        await connection.connect(self.address, self.timeout)
-        return await self._retry_async_status(connection, **kwargs)
+        async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
+            return await self._retry_async_status(connection, **kwargs)
 
     @retry(tries=3)
     async def _retry_async_status(self, connection: TCPAsyncSocketConnection, **kwargs) -> PingResponse:
@@ -169,10 +167,10 @@ class JavaServer(MCServer):
 
     @retry(tries=3)
     def _retry_query(self, addr: Address) -> QueryResponse:
-        connection = UDPSocketConnection(addr, self.timeout)
-        querier = ServerQuerier(connection)
-        querier.handshake()
-        return querier.read_query()
+        with UDPSocketConnection(addr, self.timeout) as connection:
+            querier = ServerQuerier(connection)
+            querier.handshake()
+            return querier.read_query()
 
     async def async_query(self) -> QueryResponse:
         """Asynchronously checks the status of a Minecraft Java Edition server via the query protocol."""
@@ -190,11 +188,10 @@ class JavaServer(MCServer):
 
     @retry(tries=3)
     async def _retry_async_query(self, address: Address) -> QueryResponse:
-        connection = UDPAsyncSocketConnection()
-        await connection.connect(address, self.timeout)
-        querier = AsyncServerQuerier(connection)
-        await querier.handshake()
-        return await querier.read_query()
+        async with UDPAsyncSocketConnection(address, self.timeout) as connection:
+            querier = AsyncServerQuerier(connection)
+            await querier.handshake()
+            return await querier.read_query()
 
 
 class BedrockServer(MCServer):

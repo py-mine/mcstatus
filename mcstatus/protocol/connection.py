@@ -17,7 +17,7 @@ import asyncio_dgram
 from mcstatus.address import Address
 
 if TYPE_CHECKING:
-    from typing_extensions import SupportsIndex, TypeAlias
+    from typing_extensions import Self, SupportsIndex, TypeAlias
 
     BytesConvertable: TypeAlias = "SupportsIndex | Iterable[SupportsIndex]"
 
@@ -512,12 +512,11 @@ class SocketConnection(BaseSyncConnection):
             self.socket.shutdown(socket.SHUT_RDWR)
             self.socket.close()
 
-    def __del__(self) -> None:
-        """Close self.socket."""
-        try:
-            self.close()
-        except OSError:  # Probably, the socket was already closed by the OS
-            pass
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(self, *_) -> None:
+        self.close()
 
 
 class TCPSocketConnection(SocketConnection):
@@ -588,18 +587,18 @@ class UDPSocketConnection(SocketConnection):
 class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
     """Asynchronous TCP Connection class"""
 
-    __slots__ = ("reader", "writer", "timeout")
+    __slots__ = ("reader", "writer", "timeout", "_addr")
 
-    def __init__(self) -> None:
+    def __init__(self, addr: Address, timeout: float = 3) -> None:
         # These will only be None until connect is called, ignore the None type assignment
         self.reader: asyncio.StreamReader = None  # type: ignore[assignment]
         self.writer: asyncio.StreamWriter = None  # type: ignore[assignment]
-        self.timeout: float = None  # type: ignore[assignment]
+        self.timeout: float = timeout
+        self._addr = addr
 
-    async def connect(self, addr: Address, timeout: float = 3) -> None:
+    async def connect(self) -> None:
         """Use asyncio to open a connection to address. Timeout is in seconds."""
-        self.timeout = timeout
-        conn = asyncio.open_connection(addr[0], addr[1])
+        conn = asyncio.open_connection(*self._addr)
         self.reader, self.writer = await asyncio.wait_for(conn, timeout=self.timeout)
 
     async def read(self, length: int) -> bytearray:
@@ -623,30 +622,30 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
     def close(self) -> None:
         """Close self.writer."""
         if self.writer is not None:  # If initialized
-            try:
-                self.writer.close()
-            except RuntimeError:  # There is a case where event loop is closed
-                pass
+            self.writer.close()
 
-    def __del__(self) -> None:
-        """Close self."""
+    async def __aenter__(self) -> Self:
+        await self.connect()
+        return self
+
+    async def __aexit__(self, *_) -> None:
         self.close()
 
 
 class UDPAsyncSocketConnection(BaseAsyncConnection):
     """Asynchronous UDP Connection class"""
 
-    __slots__ = ("stream", "timeout")
+    __slots__ = ("stream", "timeout", "_addr")
 
-    def __init__(self) -> None:
+    def __init__(self, addr: Address, timeout: float = 3) -> None:
         # This will only be None until connect is called, ignore the None type assignment
         self.stream: asyncio_dgram.aio.DatagramClient = None  # type: ignore[assignment]
-        self.timeout: float = None  # type: ignore[assignment]
+        self.timeout: float = timeout
+        self._addr = addr
 
-    async def connect(self, addr: Address, timeout: float = 3) -> None:
+    async def connect(self) -> None:
         """Connect to address. Timeout is in seconds."""
-        self.timeout = timeout
-        conn = asyncio_dgram.connect((addr[0], addr[1]))
+        conn = asyncio_dgram.connect(self._addr)
         self.stream = await asyncio.wait_for(conn, timeout=self.timeout)
 
     def remaining(self) -> int:
@@ -671,9 +670,9 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         if self.stream is not None:  # If initialized
             self.stream.close()
 
-    def __del__(self) -> None:
-        """Close self.stream"""
-        try:
-            self.close()
-        except (asyncio.exceptions.CancelledError, asyncio.exceptions.TimeoutError):
-            return
+    async def __aenter__(self) -> Self:
+        await self.connect()
+        return self
+
+    async def __aexit__(self, *_) -> None:
+        self.close()
