@@ -10,7 +10,7 @@ class TestJavaStatusResponse(BaseStatusResponseTest):
         ("players", JavaStatusPlayers(0, 20, None)),
         ("version", JavaStatusVersion("1.8-pre1", 44)),
         ("motd", "A Minecraft Server"),
-        ("latency", None),
+        ("latency", 0),
         ("icon", "data:image/png;base64,foo"),
     ]
     BUILD_METHOD_VALIDATION = (
