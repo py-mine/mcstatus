@@ -123,15 +123,15 @@ class TestJavaServer:
             bytearray.fromhex(
                 "6D006B7B226465736372697074696F6E223A2241204D696E65637261667420536572766572222C22706C6179657273223A7B2"
                 "26D6178223A32302C226F6E6C696E65223A307D2C2276657273696F6E223A7B226E616D65223A22312E38222C2270726F746F"
-                "636F6C223A34377D7D09010000000001C54246"
+                "636F6C223A34377D7D"
             )
         )
 
         with patch("mcstatus.server.TCPSocketConnection") as connection:
             connection.return_value = self.socket
-            info = self.server.status(ping_token=29704774, version=47)
+            info = self.server.status(version=47)
 
-        assert self.socket.flush() == bytearray.fromhex("0F002F096C6F63616C686F737463DD01010009010000000001C54246")
+        assert self.socket.flush() == bytearray.fromhex("0F002F096C6F63616C686F737463DD010100")
         assert self.socket.remaining() == 0, "Data is pending to be read, but should be empty"
         assert info.raw == {
             "description": "A Minecraft Server",

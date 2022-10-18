@@ -156,10 +156,11 @@ class JavaStatusResponse(BaseStatusResponse):
     icon: str | None
 
     @classmethod
-    def build(cls, raw: RawJavaResponse) -> Self:
+    def build(cls, raw: RawJavaResponse, latency: float = 0) -> Self:
         """Build JavaStatusResponse and check is it valid.
 
         :param raw: Raw response dict.
+        :param latency: Time that server took to response (in milliseconds).
         :raise ValueError: If the required keys (players, version, description) are not present.
         :raise TypeError: If the required keys (players - dict, version - dict, description - str)
             are not of the specified type.
@@ -172,8 +173,7 @@ class JavaStatusResponse(BaseStatusResponse):
             version=JavaStatusVersion.build(raw["version"]),
             motd=cls._parse_motd(raw["description"]),
             icon=raw.get("favicon"),
-            # This will be set later.
-            latency=None,  # type: ignore[assignment]
+            latency=latency,
         )
 
     @staticmethod

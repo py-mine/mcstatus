@@ -134,7 +134,6 @@ class JavaServer(MCServer):
         pinger = ServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         result = pinger.read_status()
-        result.latency = pinger.test_ping()
         return result
 
     async def async_status(self, **kwargs) -> JavaStatusResponse:
@@ -153,7 +152,6 @@ class JavaServer(MCServer):
         pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         result = await pinger.read_status()
-        result.latency = await pinger.test_ping()
         return result
 
     def query(self) -> QueryResponse:

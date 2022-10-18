@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import datetime
 import json
 import random
+from time import perf_counter
 from typing import TYPE_CHECKING
 
 from mcstatus.address import Address
@@ -71,7 +71,9 @@ class ServerPinger:
         request.write_varint(0)  # Request status
         self.connection.write_buffer(request)
 
+        start = perf_counter()
         response = self.connection.read_buffer()
+        received = perf_counter()
         if response.read_varint() != 0:
             raise IOError("Received invalid status response packet.")
         try:
@@ -79,7 +81,7 @@ class ServerPinger:
         except ValueError:
             raise IOError("Received invalid JSON")
         try:
-            return JavaStatusResponse.build(raw)
+            return JavaStatusResponse.build(raw, latency=(received - start))
         except (ValueError, TypeError) as e:
             raise IOError(f"Received invalid status response: {e}")
 
@@ -87,11 +89,11 @@ class ServerPinger:
         request = Connection()
         request.write_varint(1)  # Test ping
         request.write_long(self.ping_token)
-        sent = datetime.datetime.now()
+        sent = perf_counter()
         self.connection.write_buffer(request)
 
         response = self.connection.read_buffer()
-        received = datetime.datetime.now()
+        received = perf_counter()
         if response.read_varint() != 1:
             raise IOError("Received invalid ping response packet.")
         received_token = response.read_long()
@@ -100,8 +102,7 @@ class ServerPinger:
                 f"Received mangled ping response packet (expected token {self.ping_token}, received {received_token})"
             )
 
-        delta = received - sent
-        return delta.total_seconds() * 1000
+        return received - sent
 
 
 class AsyncServerPinger(ServerPinger):
@@ -121,7 +122,9 @@ class AsyncServerPinger(ServerPinger):
         request.write_varint(0)  # Request status
         self.connection.write_buffer(request)
 
+        start = perf_counter()
         response = await self.connection.read_buffer()
+        received = perf_counter()
         if response.read_varint() != 0:
             raise IOError("Received invalid status response packet.")
         try:
@@ -129,7 +132,7 @@ class AsyncServerPinger(ServerPinger):
         except ValueError:
             raise IOError("Received invalid JSON")
         try:
-            return JavaStatusResponse.build(raw)
+            return JavaStatusResponse.build(raw, latency=(received - start))
         except ValueError as e:
             raise IOError(f"Received invalid status response: {e}")
 
@@ -137,11 +140,11 @@ class AsyncServerPinger(ServerPinger):
         request = Connection()
         request.write_varint(1)  # Test ping
         request.write_long(self.ping_token)
-        sent = datetime.datetime.now()
+        sent = perf_counter()
         self.connection.write_buffer(request)
 
         response = await self.connection.read_buffer()
-        received = datetime.datetime.now()
+        received = perf_counter()
         if response.read_varint() != 1:
             raise IOError("Received invalid ping response packet.")
         received_token = response.read_long()
@@ -150,8 +153,7 @@ class AsyncServerPinger(ServerPinger):
                 f"Received mangled ping response packet (expected token {self.ping_token}, received {received_token})"
             )
 
-        delta = received - sent
-        return delta.total_seconds() * 1000
+        return received - sent
 
 
 # TODO Remove this deprecation after 2022-08
