@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import ipaddress
-from collections.abc import Awaitable, Callable
 from pathlib import Path
-from typing import TypeVar
 from unittest.mock import MagicMock, Mock, patch
 
 import dns.resolver
@@ -11,22 +9,6 @@ import pytest
 from dns.rdatatype import RdataType
 
 from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
-
-T = TypeVar("T")
-
-
-def const_coro(value: T) -> Callable[..., Awaitable[T]]:
-    """This is a helper function, which returns an async func returning value.
-
-    This is needed because in python 3.7, Mock.return_value didn't properly cover
-    async functions, which means we need to do Mock.side_effect = some_coro. This
-    function just makes it easy to quickly construct these coroutines.
-    """
-
-    async def inner(*a, **kw) -> T:
-        return value
-
-    return inner
 
 
 class TestSRVLookup:
@@ -69,7 +51,7 @@ class TestSRVLookup:
             answer = Mock()
             answer.target = "different.example.org."
             answer.port = 12345
-            resolve.side_effect = const_coro([answer])
+            resolve.return_value = [answer]
 
             address = await async_minecraft_srv_address_lookup("example.org", lifetime=3)
             resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3)
@@ -183,7 +165,7 @@ class TestAddressIPResolving:
         with patch("dns.asyncresolver.resolve") as resolve:
             answer = MagicMock()
             answer.__str__.return_value = "48.225.1.104."
-            resolve.side_effect = const_coro([answer])
+            resolve.return_value = [answer]
 
             resolved_ip = await self.host_addr.async_resolve_ip(lifetime=3)
 
