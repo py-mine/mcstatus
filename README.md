@@ -21,7 +21,7 @@ python3 -m pip install mcstatus
 
 ### Python API
 
-##### Java Edition
+#### Java Edition
 
 ```python
 from mcstatus import JavaServer
@@ -47,7 +47,7 @@ query = server.query()
 print(f"The server has the following players online: {', '.join(query.players.names)}")
 ```
 
-##### Bedrock Edition
+#### Bedrock Edition
 
 ```python
 from mcstatus import BedrockServer
