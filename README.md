@@ -32,7 +32,8 @@ server = JavaServer.lookup("example.org:1234")
 
 # 'status' is supported by all Minecraft servers that are version 1.7 or higher.
 # Don't expect the player list to always be complete, because many servers run
-# plugins that hide information or limit the number of players returned.
+# plugins that hide this information or limit the number of players returned or even
+# alter this list to contain fake players for purposes of having a custom message here.
 status = server.status()
 print(f"The server has {status.players.online} player(s) online and replied in {status.latency} ms")
 
