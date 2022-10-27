@@ -120,7 +120,7 @@ class ServerPinger:
         except ValueError:
             raise IOError("Received invalid JSON")
         try:
-            return PingResponse(raw, latency=(received - start))
+            return PingResponse(raw, latency=(received - start) * 1000)
         except ValueError as e:
             raise IOError(f"Received invalid status response: {e}")
 
@@ -141,7 +141,7 @@ class ServerPinger:
                 f"Received mangled ping response packet (expected token {self.ping_token}, received {received_token})"
             )
 
-        return received - sent
+        return (received - sent) * 1000
 
 
 class AsyncServerPinger(ServerPinger):
@@ -171,7 +171,7 @@ class AsyncServerPinger(ServerPinger):
         except ValueError:
             raise IOError("Received invalid JSON")
         try:
-            return PingResponse(raw, latency=(received - start))
+            return PingResponse(raw, latency=(received - start) * 1000)
         except ValueError as e:
             raise IOError(f"Received invalid status response: {e}")
 
@@ -192,7 +192,7 @@ class AsyncServerPinger(ServerPinger):
                 f"Received mangled ping response packet (expected token {self.ping_token}, received {received_token})"
             )
 
-        return received - sent
+        return (received - sent) * 1000
 
 
 class PingResponse:

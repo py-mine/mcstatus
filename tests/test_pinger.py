@@ -1,3 +1,6 @@
+import time
+from unittest import mock
+
 import pytest
 
 from mcstatus.address import Address
@@ -77,6 +80,67 @@ class TestServerPinger:
 
         with pytest.raises(IOError):
             self.pinger.test_ping()
+
+    def test_latency_is_real_number(self):
+        """`time.perf_counter` returns fractional seconds, we must convert it to milliseconds."""
+
+        def mocked_read_buffer():
+            time.sleep(0.001)
+            return mock.DEFAULT
+
+        with mock.patch.object(Connection, "read_buffer") as mocked:
+            mocked.side_effect = mocked_read_buffer
+            mocked.return_value.read_varint.return_value = 0
+            mocked.return_value.read_utf.return_value = """
+            {
+                "description": "A Minecraft Server",
+                "players": {"max": 20, "online": 0},
+                "version": {"name": "1.8-pre1", "protocol": 44}
+            }
+            """
+            pinger = ServerPinger(
+                Connection(),  # type: ignore[arg-type]
+                address=Address("localhost", 25565),
+                version=44,
+            )
+
+            pinger.connection.receive(
+                bytearray.fromhex(
+                    "7200707B226465736372697074696F6E223A2241204D696E65637261667420536572766572222C22706C6179657273223A"
+                    "7B226D6178223A32302C226F6E6C696E65223A307D2C2276657273696F6E223A7B226E616D65223A22312E382D70726531"
+                    "222C2270726F746F636F6C223A34347D7D"
+                )
+            )
+            # we slept 1ms, so this should be always ~1.
+            assert pinger.read_status().latency >= 1
+
+    def test_test_ping_is_in_milliseconds(self):
+        """`time.perf_counter` returns fractional seconds, we must convert it to milliseconds."""
+
+        def mocked_read_buffer():
+            time.sleep(0.001)
+            return mock.DEFAULT
+
+        with mock.patch.object(Connection, "read_buffer") as mocked:
+            mocked.side_effect = mocked_read_buffer
+            mocked.return_value.read_varint.return_value = 1
+            mocked.return_value.read_long.return_value = 123456789
+            pinger = ServerPinger(
+                Connection(),  # type: ignore[arg-type]
+                address=Address("localhost", 25565),
+                version=44,
+                ping_token=123456789,
+            )
+
+            pinger.connection.receive(
+                bytearray.fromhex(
+                    "7200707B226465736372697074696F6E223A2241204D696E65637261667420536572766572222C22706C6179657273223A"
+                    "7B226D6178223A32302C226F6E6C696E65223A307D2C2276657273696F6E223A7B226E616D65223A22312E382D70726531"
+                    "222C2270726F746F636F6C223A34347D7D"
+                )
+            )
+            # we slept 1ms, so this should be always ~1.
+            assert pinger.test_ping() >= 1
 
 
 class TestPingResponse:
