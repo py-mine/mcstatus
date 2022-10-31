@@ -1,5 +1,6 @@
 import asyncio
 import typing
+from asyncio.exceptions import TimeoutError
 from unittest.mock import patch
 
 import pytest
@@ -24,11 +25,6 @@ class TestAsyncSocketConnection:
         self.test_addr = Address("dummy_address", 1234)
 
     def test_tcp_socket_read(self):
-        try:
-            from asyncio.exceptions import TimeoutError  # type: ignore # (Import for older versions)
-        except ImportError:
-            from asyncio import TimeoutError
-
         with patch("asyncio.open_connection", fake_asyncio_asyncio_open_connection):
             asyncio.run(self.tcp_async_socket.connect(self.test_addr, timeout=0.01))
 

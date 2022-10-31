@@ -31,19 +31,28 @@ class BedrockServerStatus:
 
     def read_status(self) -> BedrockStatusResponse:
         start = perf_counter()
+        data = self._read_status()
+        end = perf_counter()
+        return self.parse_response(data, (end - start) * 1000)
 
+    def _read_status(self) -> bytes:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.settimeout(self.timeout)
 
         s.sendto(self.request_status_data, self.address)
         data, _ = s.recvfrom(2048)
 
-        return self.parse_response(data, (perf_counter() - start))
+        return data
 
     async def read_status_async(self) -> BedrockStatusResponse:
         start = perf_counter()
-        stream = None
+        data = await self._read_status_async()
+        end = perf_counter()
 
+        return self.parse_response(data, (end - start) * 1000)
+
+    async def _read_status_async(self) -> bytes:
+        stream = None
         try:
             conn = asyncio_dgram.connect(self.address)
             stream = await asyncio.wait_for(conn, timeout=self.timeout)
@@ -54,4 +63,4 @@ class BedrockServerStatus:
             if stream is not None:
                 stream.close()
 
-        return self.parse_response(data, (perf_counter() - start))
+        return data
