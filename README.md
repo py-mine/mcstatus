@@ -3,6 +3,7 @@
 [![discord chat](https://img.shields.io/discord/936788458939224094.svg?logo=Discord)](https://discord.gg/C2wX7zduxC)
 ![supported python versions](https://img.shields.io/pypi/pyversions/mcstatus.svg)
 [![current PyPI version](https://img.shields.io/pypi/v/mcstatus.svg)](https://pypi.org/project/mcstatus/)
+[![Docs](https://img.shields.io/readthedocs/mcstatus?label=Docs)](https://mcstatus.readthedocs.io/)
 [![Validation](https://github.com/py-mine/mcstatus/actions/workflows/validation.yml/badge.svg)](https://github.com/py-mine/mcstatus/actions/workflows/validation.yml)
 [![Tox test](https://github.com/py-mine/mcstatus/actions/workflows/tox-test.yml/badge.svg)](https://github.com/py-mine/mcstatus/actions/workflows/tox-test.yml)
 
