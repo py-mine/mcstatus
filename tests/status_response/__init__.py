@@ -5,6 +5,8 @@ from typing import Any, TypeVar, cast
 
 import pytest
 
+from mcstatus.status_response import BaseStatusResponse
+
 __all__ = ["BaseStatusResponseTest"]
 _T = TypeVar("_T", bound="type[BaseStatusResponseTest]")
 
@@ -16,12 +18,12 @@ class BaseStatusResponseTest(abc.ABC):
     # if we don't specify item in raw answer, target field will be None
     # first element is a list with fields to remove, and attribute that
     # must be None. a dict is a raw answer to pass into `build` method
-    OPTIONAL_FIELDS: tuple[list[tuple[str, str]], dict] | None = None
+    OPTIONAL_FIELDS: tuple[list[tuple[str, str]], dict[str, Any]] | None = None  # noqa: ANN401
     # there will be a ValueError, if we exclude the field from input
     # and a TypeError, if specify incorrect type
     # second item in tuple is an additional items to test their types,
     # but they aren't required. third item in tuple is a raw answer dict
-    BUILD_METHOD_VALIDATION: tuple[list[str], list[str], dict] | None = None
+    BUILD_METHOD_VALIDATION: tuple[list[str], list[str], dict[str, Any]] | None = None  # noqa: ANN401
 
     def _validate(self) -> None:
         """Perform checks to validate the class."""
@@ -53,32 +55,32 @@ class BaseStatusResponseTest(abc.ABC):
                     )
 
     @abc.abstractmethod
-    def build(self) -> Any:
+    def build(self) -> Any:  # noqa: ANN401
         ...
 
     # implementations for tests
 
-    def test_values_of_attributes(self, build, field, value):
+    def test_values_of_attributes(self, build: BaseStatusResponse, field: str, value: Any) -> None:  # noqa: ANN401
         assert getattr(build, field) == value
 
-    def test_types_of_attributes(self, build, field, type_):
+    def test_types_of_attributes(self, build: BaseStatusResponse, field: str, type_: type) -> None:
         assert isinstance(getattr(build, field), type_)
 
-    def test_attribute_in(self, build, field):
+    def test_attribute_in(self, build: BaseStatusResponse, field: str) -> None:
         assert hasattr(build, field)
 
-    def test_optional_field_turns_into_none(self, build, to_remove, attribute_name):
+    def test_optional_field_turns_into_none(self, build: BaseStatusResponse, to_remove: str, attribute_name: str) -> None:
         raw = cast(tuple, self.OPTIONAL_FIELDS)[1]
         del raw[to_remove]
         assert getattr(type(build).build(raw), attribute_name) is None
 
-    def test_value_validating(self, build, exclude_field):
+    def test_value_validating(self, build: BaseStatusResponse, exclude_field: str) -> None:
         raw = cast(list, self.BUILD_METHOD_VALIDATION)[2].copy()
         raw.pop(exclude_field)
         with pytest.raises(ValueError):
             type(build).build(raw)
 
-    def test_type_validating(self, build, to_change_field):
+    def test_type_validating(self, build: BaseStatusResponse, to_change_field: str) -> None:
         raw = cast(list, self.BUILD_METHOD_VALIDATION)[2].copy()
         raw[to_change_field] = object()
         with pytest.raises(TypeError):
