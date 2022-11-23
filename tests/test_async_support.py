@@ -4,7 +4,7 @@ from mcstatus.protocol.connection import TCPAsyncSocketConnection, UDPAsyncSocke
 
 
 def test_is_completely_asynchronous():
-    conn = TCPAsyncSocketConnection()
+    conn = TCPAsyncSocketConnection
     assertions = 0
     for attribute in dir(conn):
         if attribute.startswith("read_"):
@@ -14,7 +14,7 @@ def test_is_completely_asynchronous():
 
 
 def test_query_is_completely_asynchronous():
-    conn = UDPAsyncSocketConnection()
+    conn = UDPAsyncSocketConnection
     assertions = 0
     for attribute in dir(conn):
         if attribute.startswith("read_"):

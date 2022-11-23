@@ -102,7 +102,7 @@ class TestJavaServer:
         self.socket.receive(bytearray.fromhex("09010000000001C54246"))
 
         with patch("mcstatus.server.TCPSocketConnection") as connection:
-            connection.return_value = self.socket
+            connection.return_value.__enter__.return_value = self.socket
             latency = self.server.ping(ping_token=29704774, version=47)
 
         assert self.socket.flush() == bytearray.fromhex("0F002F096C6F63616C686F737463DD0109010000000001C54246")
@@ -110,13 +110,12 @@ class TestJavaServer:
         assert latency >= 0
 
     def test_ping_retry(self):
-        with patch("mcstatus.server.TCPSocketConnection") as connection:
-            connection.return_value = None
-            with patch("mcstatus.server.ServerPinger") as pinger:
-                pinger.side_effect = [Exception, Exception, Exception]
-                with pytest.raises(Exception):
-                    self.server.ping()
-                assert pinger.call_count == 3
+        # Use a blank mock for the connection, we don't want to actually create any connections
+        with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.ServerPinger") as pinger:
+            pinger.side_effect = [Exception, Exception, Exception]
+            with pytest.raises(Exception):
+                self.server.ping()
+            assert pinger.call_count == 3
 
     def test_status(self):
         self.socket.receive(
@@ -128,7 +127,7 @@ class TestJavaServer:
         )
 
         with patch("mcstatus.server.TCPSocketConnection") as connection:
-            connection.return_value = self.socket
+            connection.return_value.__enter__.return_value = self.socket
             info = self.server.status(version=47)
 
         assert self.socket.flush() == bytearray.fromhex("0F002F096C6F63616C686F737463DD010100")
@@ -141,13 +140,12 @@ class TestJavaServer:
         assert info.latency >= 0
 
     def test_status_retry(self):
-        with patch("mcstatus.server.TCPSocketConnection") as connection:
-            connection.return_value = None
-            with patch("mcstatus.server.ServerPinger") as pinger:
-                pinger.side_effect = [Exception, Exception, Exception]
-                with pytest.raises(Exception):
-                    self.server.status()
-                assert pinger.call_count == 3
+        # Use a blank mock for the connection, we don't want to actually create any connections
+        with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.ServerPinger") as pinger:
+            pinger.side_effect = [Exception, Exception, Exception]
+            with pytest.raises(Exception):
+                self.server.status()
+            assert pinger.call_count == 3
 
     def test_query(self):
         self.socket.receive(bytearray.fromhex("090000000035373033353037373800"))
@@ -167,7 +165,7 @@ class TestJavaServer:
             with patch("mcstatus.server.UDPSocketConnection") as connection, patch.object(
                 self.server.address, "resolve_ip"
             ) as resolve_ip:
-                connection.return_value = self.socket
+                connection.return_value.__enter__.return_value = self.socket
                 resolve_ip.return_value = "127.0.0.1"
                 info = self.server.query()
 
@@ -187,14 +185,13 @@ class TestJavaServer:
             }
 
     def test_query_retry(self):
-        with patch("mcstatus.server.UDPSocketConnection") as connection:
-            connection.return_value = None
-            with patch("mcstatus.server.ServerQuerier") as querier:
-                querier.side_effect = [Exception, Exception, Exception]
-                with pytest.raises(Exception), patch.object(self.server.address, "resolve_ip") as resolve_ip:
-                    resolve_ip.return_value = "127.0.0.1"
-                    self.server.query()
-                assert querier.call_count == 3
+        # Use a blank mock for the connection, we don't want to actually create any connections
+        with patch("mcstatus.server.UDPSocketConnection"), patch("mcstatus.server.ServerQuerier") as querier:
+            querier.side_effect = [Exception, Exception, Exception]
+            with pytest.raises(Exception), patch.object(self.server.address, "resolve_ip") as resolve_ip:
+                resolve_ip.return_value = "127.0.0.1"
+                self.server.query()
+            assert querier.call_count == 3
 
     def test_lookup_constructor(self):
         s = JavaServer.lookup("example.org:4444")

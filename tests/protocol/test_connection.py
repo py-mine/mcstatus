@@ -206,76 +206,80 @@ class TestConnection:
 
 
 class TestTCPSocketConnection:
-    def setup_method(self):
-        self.test_addr = Address("localhost", 1234)
+    @pytest.fixture(scope="class")
+    def connection(self):
+        test_addr = Address("localhost", 1234)
 
         socket = Mock()
         socket.recv = Mock()
         socket.send = Mock()
         with patch("socket.create_connection") as create_connection:
             create_connection.return_value = socket
-            self.connection = TCPSocketConnection(self.test_addr)
+            with TCPSocketConnection(test_addr) as connection:
+                yield connection
 
-    def test_flush(self):
+    def test_flush(self, connection):
         with pytest.raises(TypeError):
-            self.connection.flush()
+            connection.flush()
 
-    def test_receive(self):
+    def test_receive(self, connection):
         with pytest.raises(TypeError):
-            self.connection.receive("")  # type: ignore # This is desired to produce TypeError
+            connection.receive("")  # type: ignore # This is desired to produce TypeError
 
-    def test_remaining(self):
+    def test_remaining(self, connection):
         with pytest.raises(TypeError):
-            self.connection.remaining()
+            connection.remaining()
 
-    def test_read(self):
-        self.connection.socket.recv.return_value = bytearray.fromhex("7FAA")
+    def test_read(self, connection):
+        connection.socket.recv.return_value = bytearray.fromhex("7FAA")
 
-        assert self.connection.read(2) == bytearray.fromhex("7FAA")
+        assert connection.read(2) == bytearray.fromhex("7FAA")
 
-    def test_read_empty(self):
-        self.connection.socket.recv.return_value = bytearray.fromhex("")
+    def test_read_empty(self, connection):
+        connection.socket.recv.return_value = bytearray.fromhex("")
 
         with pytest.raises(IOError):
-            self.connection.read(2)
+            connection.read(2)
 
-    def test_write(self):
-        self.connection.write(bytearray.fromhex("7FAA"))
+    def test_write(self, connection):
+        connection.write(bytearray.fromhex("7FAA"))
 
-        self.connection.socket.send.assert_called_once_with(bytearray.fromhex("7FAA"))  # type: ignore[attr-defined]
+        connection.socket.send.assert_called_once_with(bytearray.fromhex("7FAA"))  # type: ignore[attr-defined]
 
 
 class TestUDPSocketConnection:
-    def setup_method(self):
-        self.test_addr = Address("localhost", 1234)
+    @pytest.fixture(scope="class")
+    def connection(self):
+        test_addr = Address("localhost", 1234)
 
         socket = Mock()
         socket.recvfrom = Mock()
         socket.sendto = Mock()
         with patch("socket.socket") as create_socket:
             create_socket.return_value = socket
-            self.connection = UDPSocketConnection(self.test_addr)
+            with UDPSocketConnection(test_addr) as connection:
+                yield connection
 
-    def test_flush(self):
+    def test_flush(self, connection):
         with pytest.raises(TypeError):
-            self.connection.flush()
+            connection.flush()
 
-    def test_receive(self):
+    def test_receive(self, connection):
         with pytest.raises(TypeError):
-            self.connection.receive("")  # type: ignore # This is desired to produce TypeError
+            connection.receive("")  # type: ignore # This is desired to produce TypeError
 
-    def test_remaining(self):
-        assert self.connection.remaining() == 65535
+    def test_remaining(self, connection):
+        assert connection.remaining() == 65535
 
-    def test_read(self):
-        self.connection.socket.recvfrom.return_value = [bytearray.fromhex("7FAA")]
+    def test_read(self, connection):
+        connection.socket.recvfrom.return_value = [bytearray.fromhex("7FAA")]
 
-        assert self.connection.read(2) == bytearray.fromhex("7FAA")
+        assert connection.read(2) == bytearray.fromhex("7FAA")
 
-    def test_write(self):
-        self.connection.write(bytearray.fromhex("7FAA"))
+    def test_write(self, connection):
+        connection.write(bytearray.fromhex("7FAA"))
 
-        self.connection.socket.sendto.assert_called_once_with(  # type: ignore[attr-defined]
+        connection.socket.sendto.assert_called_once_with(  # type: ignore[attr-defined]
             bytearray.fromhex("7FAA"),
-            self.test_addr,
+            Address("localhost", 1234),
         )
