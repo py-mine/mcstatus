@@ -1,5 +1,6 @@
-from pytest import fixture, mark
+from pytest import fixture
 
+from mcstatus.motd import Motd
 from mcstatus.status_response import JavaStatusPlayer, JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
 from tests.status_response import BaseStatusResponseTest
 
@@ -9,7 +10,7 @@ class TestJavaStatusResponse(BaseStatusResponseTest):
     EXPECTED_VALUES = [
         ("players", JavaStatusPlayers(0, 20, None)),
         ("version", JavaStatusVersion("1.8-pre1", 44)),
-        ("motd", "A Minecraft Server"),
+        ("motd", Motd.parse("A Minecraft Server", bedrock=False)),
         ("latency", 0),
         ("icon", "data:image/png;base64,foo"),
     ]
@@ -36,90 +37,6 @@ class TestJavaStatusResponse(BaseStatusResponseTest):
                 "favicon": "data:image/png;base64,foo",
             }
         )
-
-    def test_parse_description_strips_html_color_codes(self):
-        assert JavaStatusResponse._parse_motd(
-            {
-                "extra": [
-                    {"text": " "},
-                    {"strikethrough": True, "color": "#b3eeff", "text": "="},
-                    {"strikethrough": True, "color": "#b9ecff", "text": "="},
-                    {"strikethrough": True, "color": "#c0eaff", "text": "="},
-                    {"strikethrough": True, "color": "#c7e8ff", "text": "="},
-                    {"strikethrough": True, "color": "#cee6ff", "text": "="},
-                    {"strikethrough": True, "color": "#d5e4ff", "text": "="},
-                    {"strikethrough": True, "color": "#dce2ff", "text": "="},
-                    {"strikethrough": True, "color": "#e3e0ff", "text": "="},
-                    {"strikethrough": True, "color": "#eadeff", "text": "="},
-                    {"strikethrough": True, "color": "#f1dcff", "text": "="},
-                    {"strikethrough": True, "color": "#f8daff", "text": "="},
-                    {"strikethrough": True, "color": "#ffd9ff", "text": "="},
-                    {"strikethrough": True, "color": "#f4dcff", "text": "="},
-                    {"strikethrough": True, "color": "#f9daff", "text": "="},
-                    {"strikethrough": True, "color": "#ffd9ff", "text": "="},
-                    {"color": "white", "text": " "},
-                    {"bold": True, "color": "#66ff99", "text": "C"},
-                    {"bold": True, "color": "#75f5a2", "text": "r"},
-                    {"bold": True, "color": "#84ebab", "text": "e"},
-                    {"bold": True, "color": "#93e2b4", "text": "a"},
-                    {"bold": True, "color": "#a3d8bd", "text": "t"},
-                    {"bold": True, "color": "#b2cfc6", "text": "i"},
-                    {"bold": True, "color": "#c1c5cf", "text": "v"},
-                    {"bold": True, "color": "#d1bbd8", "text": "e"},
-                    {"bold": True, "color": "#e0b2e1", "text": "F"},
-                    {"bold": True, "color": "#efa8ea", "text": "u"},
-                    {"bold": True, "color": "#ff9ff4", "text": "n "},
-                    {"strikethrough": True, "color": "#b3eeff", "text": "="},
-                    {"strikethrough": True, "color": "#b9ecff", "text": "="},
-                    {"strikethrough": True, "color": "#c0eaff", "text": "="},
-                    {"strikethrough": True, "color": "#c7e8ff", "text": "="},
-                    {"strikethrough": True, "color": "#cee6ff", "text": "="},
-                    {"strikethrough": True, "color": "#d5e4ff", "text": "="},
-                    {"strikethrough": True, "color": "#dce2ff", "text": "="},
-                    {"strikethrough": True, "color": "#e3e0ff", "text": "="},
-                    {"strikethrough": True, "color": "#eadeff", "text": "="},
-                    {"strikethrough": True, "color": "#f1dcff", "text": "="},
-                    {"strikethrough": True, "color": "#f8daff", "text": "="},
-                    {"strikethrough": True, "color": "#ffd9ff", "text": "="},
-                    {"strikethrough": True, "color": "#f4dcff", "text": "="},
-                    {"strikethrough": True, "color": "#f9daff", "text": "="},
-                    {"strikethrough": True, "color": "#ffd9ff", "text": "="},
-                    {"color": "white", "text": " \n "},
-                    {"bold": True, "color": "#E5E5E5", "text": "The server has been updated to "},
-                    {"bold": True, "color": "#97ABFF", "text": "1.17.1"},
-                ],
-                "text": "",
-            }
-        ) == (
-            " §m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§f §lC§lr§le§la§lt§li§lv§le§lF§lu§ln"
-            " §m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§m=§f \n"
-            " §lThe server has been updated to §l1.17.1"
-        )
-
-    def test_parse_description_with_string(self):
-        assert JavaStatusResponse._parse_motd("test §2description") == "test §2description"
-
-    @mark.parametrize(
-        "input_value,expected_output",
-        [
-            (
-                {
-                    "extra": [
-                        {"bold": True, "italic": True, "color": "gray", "text": "foo"},
-                        {"color": "gold", "text": "bar"},
-                    ],
-                    "text": ".",
-                },
-                "§7§l§ofoo§6bar.",
-            ),
-            (
-                [{"bold": True, "italic": True, "color": "gray", "text": "foo"}, {"color": "gold", "text": "bar"}],
-                "§7§l§ofoo§6bar",
-            ),
-        ],
-    )
-    def test_parse_description_with_dict_and_list(self, input_value, expected_output):
-        assert JavaStatusResponse._parse_motd(input_value) == expected_output
 
 
 @BaseStatusResponseTest.construct

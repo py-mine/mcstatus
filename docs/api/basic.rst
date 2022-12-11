@@ -115,10 +115,12 @@ For Java Server
             The list of plugins. Can be empty if hidden.
 
     .. attribute:: motd
-        :type: str
+        :type: ~mcstatus.motd.Motd
         :canonical: mcstatus.querier.QueryResponse.motd
 
         The MOTD of the server. Also known as description.
+
+        .. seealso:: :doc:`/api/motd_parsing`.
 
     .. attribute:: map
         :type: str
