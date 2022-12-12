@@ -106,4 +106,4 @@ class BedrockStatusResponse:
         self.players_max = players_max
         self.motd = motd
         self.map = map_
-        self.gamemode = gamemode
+        self.gamemode = gamemode 
