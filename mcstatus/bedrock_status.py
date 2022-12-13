@@ -11,7 +11,9 @@ from mcstatus.address import Address
 
 
 class BedrockServerStatus:
-    request_status_data = b"\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\x00\xfe\xfe\xfe\xfe\xfd\xfd\xfd\xfd\x124Vx"
+    request_status_data = (
+        b"\x01\x00\x00\x00\x00\x00\xda\\\xb1\x00\xff\xff\x00\xfe\xfe\xfe\xfe\xfd\xfd\xfd\xfd\x124Vxu4] \xf7B\xb9\xf4"
+    )
 
     def __init__(self, address: Address, timeout: float = 3):
         self.address = address
