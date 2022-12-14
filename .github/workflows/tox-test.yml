@@ -28,7 +28,6 @@ jobs:
         uses: HassanAbouelela/actions/setup-python@setup-python_v1.4.0
         id: setup_python
         with:
-          dev: true
           install_args: "--with workflow-tox --without lint"
           python_version: "${{ matrix.python-version }}"
 
