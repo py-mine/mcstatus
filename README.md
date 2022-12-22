@@ -53,7 +53,7 @@ print(f"The server has the following players online: {', '.join(query.players.na
 from mcstatus import BedrockServer
 
 # You can pass the same address you'd enter into the address field in minecraft into the 'lookup' function
-# If you know the host and port, you may skip this and use MinecraftBedrockServer("example.org", 19132)
+# If you know the host and port, you may skip this and use BedrockServer("example.org", 19132)
 server = BedrockServer.lookup("example.org:19132")
 
 # 'status' is the only feature that is supported by Bedrock at this time.
