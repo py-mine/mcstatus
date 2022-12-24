@@ -11,7 +11,10 @@ from mcstatus.address import Address
 
 
 class BedrockServerStatus:
-    request_status_data = b"\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\x00\xfe\xfe\xfe\xfe\xfd\xfd\xfd\xfd\x124Vx"
+    request_status_data = bytes.fromhex(
+        # see https://wiki.vg/Raknet_Protocol#Unconnected_Ping
+        "01" + "000000000000000000" + "ffff00fefefefefdfdfdfd12345678" + "0000000000000000"  # fmt: skip
+    )
 
     def __init__(self, address: Address, timeout: float = 3):
         self.address = address
