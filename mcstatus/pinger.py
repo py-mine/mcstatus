@@ -13,34 +13,6 @@ if TYPE_CHECKING:
     from typing_extensions import TypeAlias
 
 
-STYLE_MAP = {
-    "color": {
-        "dark_red": "4",
-        "red": "c",
-        "gold": "6",
-        "yellow": "e",
-        "dark_green": "2",
-        "green": "a",
-        "aqua": "b",
-        "dark_aqua": "3",
-        "dark_blue": "1",
-        "blue": "9",
-        "light_purple": "d",
-        "dark_purple": "5",
-        "white": "f",
-        "gray": "7",
-        "dark_gray": "8",
-        "black": "0",
-    },
-    "bold": "l",
-    "strikethrough": "m",
-    "italic": "o",
-    "underlined": "n",
-    "obfuscated": "k",
-    "reset": "r",
-}
-
-
 class ServerPinger:
     def __init__(
         self,
