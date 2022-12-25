@@ -51,7 +51,7 @@ status = server.status()
 print(f"The server has {status.players.online} players online and replied in {status.latency} ms")
 ```
 
-Status methods (`JavaServer.status` and `BedrockServer`) return similar answer objects, here is a scheme for them:
+Status methods (`JavaServer.status` and `BedrockServer.status`) return similar answer objects, here is a scheme for them:
 
 - `players`: Some players' info, like current online.
   - `online`: Current count of players, which playing on the server.
