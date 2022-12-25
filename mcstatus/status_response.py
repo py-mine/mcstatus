@@ -99,7 +99,7 @@ def _validate_data(raw: Mapping[str, Any], who: str, required: Iterable[tuple[st
     :param required: An iterable of string and type. The string is the required key which must be in `raw`, and
         the `type` is the type that the key must be. If you want to ignore check of the type, set the type to `object`.
     :raises ValueError: If the required keys are not present.
-    :raises TypeError: If the required keys are not of the specified type.
+    :raises TypeError: If the required keys are not of the expected type.
     """
     for required_key, required_type in required:
         if required_key not in raw:
@@ -163,7 +163,7 @@ class JavaStatusResponse(BaseStatusResponse):
         :param latency: Time that server took to response (in milliseconds).
         :raise ValueError: If the required keys (players, version, description) are not present.
         :raise TypeError: If the required keys (players - dict, version - dict, description - str)
-            are not of the specified type.
+            are not of the expected type.
         :return: `JavaStatusResponse` object.
         """
         _validate_data(raw, "status", [("players", dict), ("version", dict), ("description", str)])
@@ -296,7 +296,7 @@ class JavaStatusPlayers(BaseStatusPlayers):
 
         :param raw: Raw response dict.
         :raise ValueError: If the required keys (online, max) are not present.
-        :raise TypeError: If the required keys (online - int, max - int, sample - list) are not of the specified type.
+        :raise TypeError: If the required keys (online - int, max - int, sample - list) are not of the expected type.
         :return: `JavaStatusPlayers` object.
         """
         _validate_data(raw, "players", [("online", int), ("max", int)])
@@ -337,7 +337,7 @@ class JavaStatusPlayer:
 
         :param raw: Raw response dict.
         :raise ValueError: If the required keys (name, id) are not present.
-        :raise TypeError: If the required keys (name - str, id - str) are not of the specified type.
+        :raise TypeError: If the required keys (name - str, id - str) are not of the expected type.
         :return: `JavaStatusPlayer` object.
         """
         _validate_data(raw, "player", [("name", str), ("id", str)])
@@ -366,7 +366,7 @@ class JavaStatusVersion(BaseStatusVersion):
 
         :param raw: Raw response dict.
         :raise ValueError: If the required keys (name, protocol) are not present.
-        :raise TypeError: If the required keys (name - str, protocol - int) are not of the specified type.
+        :raise TypeError: If the required keys (name - str, protocol - int) are not of the expected type.
         :return: `JavaStatusVersion` object.
         """
         _validate_data(raw, "version", [("name", str), ("protocol", int)])
