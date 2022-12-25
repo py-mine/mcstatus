@@ -54,21 +54,21 @@ print(f"The server has {status.players.online} players online and replied in {st
 Status methods (`JavaServer.status` and `BedrockServer.status`) return similar answer objects, here is a scheme for them:
 
 - `players`: Some players' info, like current online.
-  - `online`: Current count of players, which playing on the server.
+  - `online`: Current count of players, which are playing on the server.
   - `max`: Maximum of possible players on the server.
-  - (Java only) `sample`: List of players that playing at this moment.
+  - (Java only) `sample`: List of players that are playing at this moment.
     - `name`: Player's name.
     - `id`: Player's ID.
     - `uuid`: Alias to `id` because it's actually in UUID format.
 - `version`: Some server's version info.
   - `name`: Version name, like `1.18.0`.
   - `protocol`: Version protocol. See [wiki](https://minecraft.fandom.com/wiki/Protocol_version).
-  - (Bedrock only) `brand`: Version brand, like `MCPE` or something another.
+  - (Bedrock only) `brand`: Version brand, like `MCPE` or `MCEE`.
 - `motd`: Message of the Day (or just description) of the server.
 - `description`: Alias to `motd`.
 - `latency`: Latency between a server and the client (you). In milliseconds.
 - (Java only) `icon`: Base64 encoded icon of the server.
-- (Bedrock only) `map_name`: Name of the map in the server.
+- (Bedrock only) `map_name`: Name of the server's map.
 - (Bedrock only) `gamemode`: Gamemode of the server.
 
 You should also check [`status_response.py`](https://github.com/py-mine/mcstatus/blob/master/mcstatus/status_response.py)
