@@ -147,7 +147,7 @@ class BaseStatusResponse(ABC):
 class JavaStatusResponse(BaseStatusResponse):
     """Class for storing JavaServer data from a status response.
 
-    :param icon: Base64 encoded icon of the server. Can be unset.
+    :param icon: Base64 encoded icon of the server.
     """
 
     raw: RawJavaResponse
@@ -214,7 +214,7 @@ class JavaStatusResponse(BaseStatusResponse):
 class BedrockStatusResponse(BaseStatusResponse):
     """Class for storing BedrockServer data from a status response.
 
-    :param map_name: Name of the map. Can be unset.
+    :param map_name: Name of the map.
     :param gamemode: Gamemode of the server. Can be hidden.
     """
 
