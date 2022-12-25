@@ -33,7 +33,7 @@ if TYPE_CHECKING:
         underlined: bool
         obfuscated: bool
 
-    RawJavaResponseMotd: TypeAlias = RawJavaResponseMotdWhenDict | list[RawJavaResponseMotdWhenDict] | str
+    RawJavaResponseMotd: TypeAlias = "RawJavaResponseMotdWhenDict | list[RawJavaResponseMotdWhenDict] | str"
 
     class RawJavaResponse(TypedDict):
         description: RawJavaResponseMotd
