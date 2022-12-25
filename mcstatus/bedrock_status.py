@@ -10,7 +10,7 @@ import asyncio_dgram
 from mcstatus.address import Address
 from mcstatus.status_response import BedrockStatusResponse
 
-# TODO Remove this useless __all__ after 2022-08
+# TODO Remove this useless __all__ after DEPRECATION_DATE
 __all__ = ("BedrockServerStatus", "BedrockStatusResponse")
 
 
