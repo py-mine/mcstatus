@@ -51,16 +51,16 @@ else:
 from mcstatus.utils import deprecated
 
 __all__ = [
-    "BaseStatusResponse",
-    "JavaStatusResponse",
-    "BedrockStatusResponse",
     "BaseStatusPlayers",
-    "JavaStatusPlayers",
-    "BedrockStatusPlayers",
-    "JavaStatusPlayer",
+    "BaseStatusResponse",
     "BaseStatusVersion",
-    "JavaStatusVersion",
+    "BedrockStatusPlayers",
+    "BedrockStatusResponse",
     "BedrockStatusVersion",
+    "JavaStatusPlayer",
+    "JavaStatusPlayers",
+    "JavaStatusResponse",
+    "JavaStatusVersion",
 ]
 
 STYLE_MAP = {
