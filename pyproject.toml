@@ -32,11 +32,6 @@ packages = [
 python = ">=3.8,<4"
 asyncio-dgram = "2.1.2"
 dnspython = "2.2.1"
-furo = { version = "^2022.1.2", optional = true }
-Sphinx = { version = "^4.3.0", optional = true }
-
-[tool.poetry.extras]
-docs = ["furo", "Sphinx"]
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^2.20.0"
@@ -56,14 +51,26 @@ coverage = "^6.5"
 flake8 = "^5.0.4"
 flake8-annotations = "^2.9.1"
 flake8-bugbear = "^22.9.23"
-flake8-future-annotations = "^1.0.0"
-flake8-new-union-types = "^0.4.1"
-flake8-pep585 = {version = "^0.1.6", python = ">=3.9"}
 flake8-tidy-imports = "^4.8.0"
+flake8-pep585 = {version = "^0.1.6", python = ">=3.9"}
+flake8-new-union-types = "^0.4.1"
+flake8-future-annotations = "^1.0.0"
 isort = "^5.10.1"
 pep8-naming = "^0.13.2"
 pyright = "^1.1.275"
 typing-extensions = "^4.4.0"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^5.3.0"
+sphinx-autodoc-typehints = "^1.19.0"
+furo = "*"
+m2r2 = "^0.3.0"
+tomli = { version = "^2.0.0", markers = "python_version < '3.11'" }
+packaging = "22.0"
+poetry-dynamic-versioning = "*"  # actual version is in `release` group
 
 [tool.poetry.group.release]
 optional = true
