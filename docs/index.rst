@@ -1,21 +1,21 @@
-.. mcstatus documentation master file, created by
-   sphinx-quickstart on Sun Feb 13 09:51:08 2022.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. mdinclude:: ../README.md
 
-Welcome to mcstatus's documentation!
-====================================
+Content
+-------
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+	:maxdepth: 1
+	:caption: Pages
 
-   ./contributing.rst
-   ./modules.rst
+	pages/contributing.rst
+
+.. toctree::
+	:maxdepth: 1
+	:caption: API Documentation
 
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`

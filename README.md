@@ -1,4 +1,4 @@
-# <img src="https://i.imgur.com/nPCcxts.png" height=25> MCStatus
+# <img src="https://i.imgur.com/nPCcxts.png" style="height: 25px"> MCStatus
 
 [![discord chat](https://img.shields.io/discord/936788458939224094.svg?logo=Discord)](https://discord.gg/C2wX7zduxC)
 ![supported python versions](https://img.shields.io/pypi/pyversions/mcstatus.svg)
