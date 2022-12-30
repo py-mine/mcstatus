@@ -11,13 +11,14 @@ http://www.sphinx-doc.org/en/master/config
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
+from __future__ import annotations
+
 import os
 import sys
 from datetime import date
-from typing import Dict, List, Optional
 
 from packaging.version import parse as parse_version
-from sphinx.application import Sphinx
+
 if sys.version_info >= (3, 11):
     from tomllib import load as toml_parse
 else:
@@ -29,7 +30,7 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 
-def _get_project_meta() -> Dict[str, str]:
+def _get_project_meta() -> dict[str, str]:
     with open("../pyproject.toml", "rb") as pyproject:
         return toml_parse(pyproject)["tool"]["poetry"]  # type: ignore[no-any-return]
 
