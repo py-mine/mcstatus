@@ -18,7 +18,7 @@ from typing import Dict, List, Optional
 
 from packaging.version import parse as parse_version
 from sphinx.application import Sphinx
-if sys.version_info < (3, 11):
+if sys.version_info >= (3, 11):
     from tomllib import load as toml_parse
 else:
     from tomli import load as toml_parse
