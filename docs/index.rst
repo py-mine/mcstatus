@@ -13,6 +13,10 @@ Content
 	:maxdepth: 1
 	:caption: API Documentation
 
+	api/basic.rst
+	api/advanced/index.rst
+	api/internal.rst
+
 
 Indices and tables
 ------------------

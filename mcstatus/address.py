@@ -50,6 +50,9 @@ class Address(_AddressBase):
     which require pure (host, port) address tuples, but on top of that, it includes
     some neat functionalities, such as validity ensuring, alternative constructors
     for easy quick creation and methods handling IP resolving.
+
+    .. note::
+        The class is not a part of a Public API, but attributes :attr:`host` and :attr:`port` are a part of Public API.
     """
 
     def __init__(self, *a, **kw):
