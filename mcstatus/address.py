@@ -52,7 +52,7 @@ class Address(_AddressBase):
     for easy quick creation and methods handling IP resolving.
 
     .. note::
-        Only attributes :attr:`host` and :attr:`port` are a part of Public API in this class.
+        The class is not a part of a Public API, but attributes :attr:`host` and :attr:`port` are a part of Public API.
     """
 
     def __init__(self, *a, **kw):

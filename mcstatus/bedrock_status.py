@@ -85,6 +85,14 @@ class BedrockServerStatus:
 
 
 class BedrockStatusResponse:
+    """Documentation for this class is written by hand, without docstrings.
+
+    This is because the class is not supposted to be auto-documented.
+
+    Please see https://mcstatus.readthedocs.io/en/latest/api/basic/#mcstatus.bedrock_status.BedrockStatusResponse
+    for the actual documentation.
+    """
+
     class Version:
         def __init__(self, protocol: int, brand: str, version: str):
             self.protocol = protocol
