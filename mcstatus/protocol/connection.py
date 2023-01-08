@@ -23,7 +23,13 @@ if TYPE_CHECKING:
 
 
 def ip_type(address: int | str) -> int | None:
-    """Returns what version of IP a given address is."""
+    """Determinate what IP version is.
+
+    :param address:
+        A string or integer, the IP address. Either IPv4 or IPv6 addresses may be supplied.
+        Integers less than 2**32 will be considered to be IPv4 by default.
+    :return: ``4`` or ``6`` if the IP is IPv4 or IPv6, respectively. :obj:`None` if the IP is invalid.
+    """
     try:
         return ip_address(address).version
     except ValueError:
@@ -37,11 +43,9 @@ class BaseWriteSync(ABC):
 
     @abstractmethod
     def write(self, data: Connection | str | bytearray | bytes) -> None:
-        """Write data to self."""
-        ...
+        """Write data to ``self``."""
 
     def __repr__(self) -> str:
-        """Return representation of self."""
         return f"<{self.__class__.__name__} Object>"
 
     @staticmethod
@@ -50,10 +54,9 @@ class BaseWriteSync(ABC):
         return struct.pack(">" + format_, data)
 
     def write_varint(self, value: int) -> None:
-        """
-        Write varint with value value to self.
+        """Write varint with value ``value`` to ``self``.
 
-        :param value: Max 2 ** 31 - 1, min -(2 ** 31).
+        :param value: Maximum is ``2 ** 31 - 1``, minimum is ``-(2 ** 31)``.
         :raises ValueError: If value is out of range.
         """
         remaining = unsigned_int32(value).value
@@ -68,10 +71,9 @@ class BaseWriteSync(ABC):
         raise ValueError(f'The value "{value}" is too big to send in a varint')
 
     def write_varlong(self, value: int) -> None:
-        """
-        Write varlong with value value to self.
+        """Write varlong with value ``value`` to ``self``.
 
-        :param value: Max 2 ** 63 - 1, min -(2 ** 63).
+        :param value: Maximum is ``2 ** 63 - 1``, minimum is ``-(2 ** 63)``.
         :raises ValueError: If value is out of range.
         """
         remaining = unsigned_int64(value).value
@@ -86,37 +88,37 @@ class BaseWriteSync(ABC):
         raise ValueError(f'The value "{value}" is too big to send in a varlong')
 
     def write_utf(self, value: str) -> None:
-        """Write varint of length of value up to 32767 bytes, then write value encoded with utf8."""
+        """Write varint of length of ``value`` up to 32767 bytes, then write ``value`` encoded with ``UTF-8``."""
         self.write_varint(len(value))
         self.write(bytearray(value, "utf8"))
 
     def write_ascii(self, value: str) -> None:
-        """Write value encoded with ISO-8859-1, then write an additional 0x00 at the end."""
+        """Write value encoded with ``ISO-8859-1``, then write an additional ``0x00`` at the end."""
         self.write(bytearray(value, "ISO-8859-1"))
         self.write(bytearray.fromhex("00"))
 
     def write_short(self, value: int) -> None:
-        """Write 2 bytes for value -32768 - 32767."""
+        """Write 2 bytes for value ``-32768 - 32767``."""
         self.write(self._pack("h", value))
 
     def write_ushort(self, value: int) -> None:
-        """Write 2 bytes for value 0 - 65535 (2 ** 16 - 1)."""
+        """Write 2 bytes for value ``0 - 65535 (2 ** 16 - 1)``."""
         self.write(self._pack("H", value))
 
     def write_int(self, value: int) -> None:
-        """Write 4 bytes for value -2147483648 - 2147483647."""
+        """Write 4 bytes for value ``-2147483648 - 2147483647``."""
         self.write(self._pack("i", value))
 
     def write_uint(self, value: int) -> None:
-        """Write 4 bytes for value 0 - 4294967295 (2 ** 32 - 1)."""
+        """Write 4 bytes for value ``0 - 4294967295 (2 ** 32 - 1)``."""
         self.write(self._pack("I", value))
 
     def write_long(self, value: int) -> None:
-        """Write 8 bytes for value -9223372036854775808 - 9223372036854775807."""
+        """Write 8 bytes for value ``-9223372036854775808 - 9223372036854775807``."""
         self.write(self._pack("q", value))
 
     def write_ulong(self, value: int) -> None:
-        """Write 8 bytes for value 0 - 18446744073709551613 (2 ** 64 - 1)."""
+        """Write 8 bytes for value ``0 - 18446744073709551613 (2 ** 64 - 1)``."""
         self.write(self._pack("Q", value))
 
     def write_buffer(self, buffer: "Connection") -> None:
@@ -133,11 +135,9 @@ class BaseWriteAsync(ABC):
 
     @abstractmethod
     async def write(self, data: Connection | str | bytearray | bytes) -> None:
-        """Write data to self."""
-        ...
+        """Write data to ``self``."""
 
     def __repr__(self) -> str:
-        """Return representation of self."""
         return f"<{self.__class__.__name__} Object>"
 
     @staticmethod
@@ -146,10 +146,9 @@ class BaseWriteAsync(ABC):
         return struct.pack(">" + format_, data)
 
     async def write_varint(self, value: int) -> None:
-        """
-        Write varint with value value to self.
+        """Write varint with value ``value`` to ``self``.
 
-        :param value: Max 2 ** 31 - 1, min -(2 ** 31).
+        :param value: Maximum is ``2 ** 31 - 1``, minimum is ``-(2 ** 31)``.
         :raises ValueError: If value is out of range.
         """
         remaining = unsigned_int32(value).value
@@ -164,10 +163,9 @@ class BaseWriteAsync(ABC):
         raise ValueError(f'The value "{value}" is too big to send in a varint')
 
     async def write_varlong(self, value: int) -> None:
-        """
-        Write varlong with value value to self.
+        """Write varlong with value ``value`` to ``self``.
 
-        :param value: Max 2 ** 63 - 1, min -(2 ** 63).
+        :param value: Maximum is ``2 ** 63 - 1``, minimum is ``-(2 ** 63)``.
         :raises ValueError: If value is out of range.
         """
         remaining = unsigned_int64(value).value
@@ -182,42 +180,41 @@ class BaseWriteAsync(ABC):
         raise ValueError(f'The value "{value}" is too big to send in a varlong')
 
     async def write_utf(self, value: str) -> None:
-        """Write varint of length of value up to 32767 bytes, then write value encoded with utf8."""
+        """Write varint of length of ``value`` up to 32767 bytes, then write ``value`` encoded with ``UTF-8``."""
         await self.write_varint(len(value))
         await self.write(bytearray(value, "utf8"))
 
     async def write_ascii(self, value: str) -> None:
-        """Write value encoded with ISO-8859-1, then write an additional 0x00 at the end."""
+        """Write value encoded with ``ISO-8859-1``, then write an additional ``0x00`` at the end."""
         await self.write(bytearray(value, "ISO-8859-1"))
         await self.write(bytearray.fromhex("00"))
 
     async def write_short(self, value: int) -> None:
-        """Write 2 bytes for value -32768 - 32767."""
+        """Write 2 bytes for value ``-32768 - 32767``."""
         await self.write(self._pack("h", value))
 
     async def write_ushort(self, value: int) -> None:
-        """Write 2 bytes for value 0 - 65535 (2 ** 16 - 1)."""
+        """Write 2 bytes for value ``0 - 65535 (2 ** 16 - 1)``."""
         await self.write(self._pack("H", value))
 
     async def write_int(self, value: int) -> None:
-        """Write 4 bytes for value -2147483648 - 2147483647."""
+        """Write 4 bytes for value ``-2147483648 - 2147483647``."""
         await self.write(self._pack("i", value))
 
     async def write_uint(self, value: int) -> None:
-        """Write 4 bytes for value 0 - 4294967295 (2 ** 32 - 1)."""
+        """Write 4 bytes for value ``0 - 4294967295 (2 ** 32 - 1)``."""
         await self.write(self._pack("I", value))
 
     async def write_long(self, value: int) -> None:
-        """Write 8 bytes for value -9223372036854775808 - 9223372036854775807."""
+        """Write 8 bytes for value ``-9223372036854775808 - 9223372036854775807``."""
         await self.write(self._pack("q", value))
 
     async def write_ulong(self, value: int) -> None:
-        """Write 8 bytes for value 0 - 18446744073709551613 (2 ** 64 - 1)."""
+        """Write 8 bytes for value ``0 - 18446744073709551613 (2 ** 64 - 1)``."""
         await self.write(self._pack("Q", value))
 
     async def write_buffer(self, buffer: "Connection") -> None:
-        """Flush buffer, then write a varint of the length of the buffer's
-        data, then write buffer data."""
+        """Flush buffer, then write a varint of the length of the buffer's data, then write buffer data."""
         data = buffer.flush()
         await self.write_varint(len(data))
         await self.write(data)
@@ -230,11 +227,9 @@ class BaseReadSync(ABC):
 
     @abstractmethod
     def read(self, length: int) -> bytearray:
-        """Read length bytes from self, return a byte array."""
-        ...
+        """Read length bytes from ``self``, and return a byte array."""
 
     def __repr__(self) -> str:
-        """Return representation of self."""
         return f"<{self.__class__.__name__} Object>"
 
     @staticmethod
@@ -243,10 +238,9 @@ class BaseReadSync(ABC):
         return struct.unpack(">" + format_, bytes(data))[0]
 
     def read_varint(self) -> int:
-        """
-        Read varint from self and return it.
+        """Read varint from ``self`` and return it.
 
-        :param value: Max 2 ** 31 - 1, min -(2 ** 31)
+        :param value: Maximum is ``2 ** 31 - 1``, minimum is ``-(2 ** 31)``.
         :raises IOError: If varint received is out of range.
         """
         result = 0
@@ -258,10 +252,9 @@ class BaseReadSync(ABC):
         raise IOError("Received varint is too big!")
 
     def read_varlong(self) -> int:
-        """
-        Read varlong from self and return it.
+        """Read varlong from ``self`` and return it.
 
-        :param value: Max 2 ** 63 - 1, min -(2 ** 63).
+        :param value: Maximum is ``2 ** 63 - 1``, minimum is ``-(2 ** 63)``.
         :raises IOError: If varint received is out of range.
         """
         result = 0
@@ -273,39 +266,39 @@ class BaseReadSync(ABC):
         raise IOError("Received varlong is too big!")
 
     def read_utf(self) -> str:
-        """Read up to 32767 bytes by reading a varint, then decode bytes as utf8."""
+        """Read up to 32767 bytes by reading a varint, then decode bytes as ``UTF-8``."""
         length = self.read_varint()
         return self.read(length).decode("utf8")
 
     def read_ascii(self) -> str:
-        """Read self until last value is not zero, then return that decoded with ISO-8859-1"""
+        """Read ``self`` until last value is not zero, then return that decoded with ``ISO-8859-1``"""
         result = bytearray()
         while len(result) == 0 or result[-1] != 0:
             result.extend(self.read(1))
         return result[:-1].decode("ISO-8859-1")
 
     def read_short(self) -> int:
-        """Return -32768 - 32767. Read 2 bytes."""
+        """Return ``-32768 - 32767``. Read 2 bytes."""
         return self._unpack("h", self.read(2))
 
     def read_ushort(self) -> int:
-        """Return 0 - 65535 (2 ** 16 - 1). Read 2 bytes."""
+        """Return ``0 - 65535 (2 ** 16 - 1)``. Read 2 bytes."""
         return self._unpack("H", self.read(2))
 
     def read_int(self) -> int:
-        """Return -2147483648 - 2147483647. Read 4 bytes."""
+        """Return ``-2147483648 - 2147483647``. Read 4 bytes."""
         return self._unpack("i", self.read(4))
 
     def read_uint(self) -> int:
-        """Return 0 - 4294967295 (2 ** 32 - 1). 4 bytes read."""
+        """Return ``0 - 4294967295 (2 ** 32 - 1)``. 4 bytes read."""
         return self._unpack("I", self.read(4))
 
     def read_long(self) -> int:
-        """Return -9223372036854775808 - 9223372036854775807. Read 8 bytes."""
+        """Return ``-9223372036854775808 - 9223372036854775807``. Read 8 bytes."""
         return self._unpack("q", self.read(8))
 
     def read_ulong(self) -> int:
-        """Return 0 - 18446744073709551613 (2 ** 64 - 1). Read 8 bytes."""
+        """Return ``0 - 18446744073709551613 (2 ** 64 - 1)``. Read 8 bytes."""
         return self._unpack("Q", self.read(8))
 
     def read_buffer(self) -> "Connection":
@@ -323,11 +316,9 @@ class BaseReadAsync(ABC):
 
     @abstractmethod
     async def read(self, length: int) -> bytearray:
-        """Read length bytes from self, return a byte array."""
-        ...
+        """Read length bytes from ``self``, return a byte array."""
 
     def __repr__(self) -> str:
-        """Return representation of self."""
         return f"<{self.__class__.__name__} Object>"
 
     @staticmethod
@@ -336,10 +327,9 @@ class BaseReadAsync(ABC):
         return struct.unpack(">" + format_, bytes(data))[0]
 
     async def read_varint(self) -> int:
-        """
-        Read varint from self and return it.
+        """Read varint from ``self`` and return it.
 
-        :param value: Max 2 ** 31 - 1, min -(2 ** 31)
+        :param value: Maximum is ``2 ** 31 - 1``, minimum is ``-(2 ** 31)``.
         :raises IOError: If varint received is out of range.
         """
         result = 0
@@ -351,10 +341,9 @@ class BaseReadAsync(ABC):
         raise IOError("Received a varint that was too big!")
 
     async def read_varlong(self) -> int:
-        """
-        Read varlong from self and return it.
+        """Read varlong from ``self`` and return it.
 
-        :param value: Max 2 ** 63 - 1, min -(2 ** 63).
+        :param value: Maximum is ``2 ** 63 - 1``, minimum is ``-(2 ** 63)``.
         :raises IOError: If varint received is out of range.
         """
         result = 0
@@ -366,39 +355,39 @@ class BaseReadAsync(ABC):
         raise IOError("Received varlong is too big!")
 
     async def read_utf(self) -> str:
-        """Read up to 32767 bytes by reading a varint, then decode bytes as utf8."""
+        """Read up to 32767 bytes by reading a varint, then decode bytes as ``UTF-8``."""
         length = await self.read_varint()
         return (await self.read(length)).decode("utf8")
 
     async def read_ascii(self) -> str:
-        """Read self until last value is not zero, then return that decoded with ISO-8859-1"""
+        """Read ``self`` until last value is not zero, then return that decoded with ``ISO-8859-1``"""
         result = bytearray()
         while len(result) == 0 or result[-1] != 0:
             result.extend(await self.read(1))
         return result[:-1].decode("ISO-8859-1")
 
     async def read_short(self) -> int:
-        """Return -32768 - 32767. Read 2 bytes."""
+        """Return ``-32768 - 32767``. Read 2 bytes."""
         return self._unpack("h", await self.read(2))
 
     async def read_ushort(self) -> int:
-        """Return 0 - 65535 (2 ** 16 - 1). Read 2 bytes."""
+        """Return ``0 - 65535 (2 ** 16 - 1)``. Read 2 bytes."""
         return self._unpack("H", await self.read(2))
 
     async def read_int(self) -> int:
-        """Return -2147483648 - 2147483647. Read 4 bytes."""
+        """Return ``-2147483648 - 2147483647``. Read 4 bytes."""
         return self._unpack("i", await self.read(4))
 
     async def read_uint(self) -> int:
-        """Return 0 - 4294967295 (2 ** 32 - 1). 4 bytes read."""
+        """Return ``0 - 4294967295 (2 ** 32 - 1)``. 4 bytes read."""
         return self._unpack("I", await self.read(4))
 
     async def read_long(self) -> int:
-        """Return -9223372036854775808 - 9223372036854775807. Read 8 bytes."""
+        """Return ``-9223372036854775808 - 9223372036854775807``. Read 8 bytes."""
         return self._unpack("q", await self.read(8))
 
     async def read_ulong(self) -> int:
-        """Return 0 - 18446744073709551613 (2 ** 64 - 1). Read 8 bytes."""
+        """Return ``0 - 18446744073709551613 (2 ** 64 - 1)``. Read 8 bytes."""
         return self._unpack("Q", await self.read(8))
 
     async def read_buffer(self) -> Connection:
@@ -415,19 +404,18 @@ class BaseConnection:
     __slots__ = ()
 
     def __repr__(self) -> str:
-        """Return representation of self."""
         return f"<{self.__class__.__name__} Object>"
 
     def flush(self) -> bytearray:
-        """Raise TypeError, unsupported."""
+        """Raise :exc:`TypeError`, unsupported."""
         raise TypeError(f"{self.__class__.__name__} does not support flush()")
 
     def receive(self, data: BytesConvertable | bytearray) -> None:
-        """Raise TypeError, unsupported."""
+        """Raise :exc:`TypeError`, unsupported."""
         raise TypeError(f"{self.__class__.__name__} does not support receive()")
 
     def remaining(self) -> int:
-        """Raise TypeError, unsupported."""
+        """Raise :exc:`TypeError`, unsupported."""
         raise TypeError(f"{self.__class__.__name__} does not support remaining()")
 
 
@@ -455,18 +443,17 @@ class Connection(BaseSyncConnection):
     __slots__ = ("sent", "received")
 
     def __init__(self) -> None:
-        """Initialize self.send and self.received to an empty byte array."""
         self.sent = bytearray()
         self.received = bytearray()
 
     def read(self, length: int) -> bytearray:
-        """Return self.received up to length bytes, then cut received up to that point."""
+        """Return :attr:`.received` up to length bytes, then cut received up to that point."""
         result = self.received[:length]
         self.received = self.received[length:]
         return result
 
     def write(self, data: Connection | str | bytearray | bytes) -> None:
-        """Extend self.sent from data."""
+        """Extend :attr:`.sent` from ``data``."""
         if isinstance(data, Connection):
             data = data.flush()
         if isinstance(data, str):
@@ -474,22 +461,22 @@ class Connection(BaseSyncConnection):
         self.sent.extend(data)
 
     def receive(self, data: BytesConvertable | bytearray) -> None:
-        """Extend self.received with data."""
+        """Extend :attr:`.received` with ``data``."""
         if not isinstance(data, bytearray):
             data = bytearray(data)
         self.received.extend(data)
 
     def remaining(self) -> int:
-        """Return length of self.received."""
+        """Return length of :attr:`.received`."""
         return len(self.received)
 
     def flush(self) -> bytearray:
-        """Return self.sent. Clears self.sent."""
+        """Return :attr:`.sent`, also clears :attr:`.sent`."""
         result, self.sent = self.sent, bytearray()
         return result
 
     def copy(self) -> "Connection":
-        """Return a copy of self"""
+        """Return a copy of ``self``"""
         new = self.__class__()
         new.receive(self.received)
         new.write(self.sent)
@@ -502,12 +489,11 @@ class SocketConnection(BaseSyncConnection):
     __slots__ = ("socket",)
 
     def __init__(self) -> None:
-        """Set socket to none"""
         # These will only be None until connect is called, ignore the None type assignment
         self.socket: socket.socket = None  # type: ignore[assignment]
 
     def close(self) -> None:
-        """Close self.socket."""
+        """Close :attr:`.socket`."""
         if self.socket is not None:  # If initialized
             self.socket.shutdown(socket.SHUT_RDWR)
             self.socket.close()
@@ -525,13 +511,12 @@ class TCPSocketConnection(SocketConnection):
     __slots__ = ()
 
     def __init__(self, addr: tuple[str | None, int], timeout: float = 3):
-        """Create a connection to address with self.socket, set TCP NODELAY to True."""
         super().__init__()
         self.socket = socket.create_connection(addr, timeout=timeout)
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     def read(self, length: int) -> bytearray:
-        """Return length bytes read from self.socket. Raises IOError when server doesn't respond."""
+        """Return length bytes read from :attr:`.socket`. Raises :exc:`IOError` when server doesn't respond."""
         result = bytearray()
         while len(result) < length:
             new = self.socket.recv(length - len(result))
@@ -541,7 +526,7 @@ class TCPSocketConnection(SocketConnection):
         return result
 
     def write(self, data: Connection | str | bytes | bytearray) -> None:
-        """Send data on self.socket."""
+        """Send data on :attr:`.socket`."""
         if isinstance(data, Connection):
             data = bytearray(data.flush())
         elif isinstance(data, str):
@@ -555,7 +540,6 @@ class UDPSocketConnection(SocketConnection):
     __slots__ = ("addr",)
 
     def __init__(self, addr: Address, timeout: float = 3):
-        """Set self.addr to address, set self.socket to new socket, AF_INET if IPv4, AF_INET6 otherwise."""
         super().__init__()
         self.addr = addr
         self.socket = socket.socket(
@@ -565,18 +549,18 @@ class UDPSocketConnection(SocketConnection):
         self.socket.settimeout(timeout)
 
     def remaining(self) -> int:
-        """Return 65535."""
+        """Always return ``65535`` (``2 ** 16 - 1``)."""
         return 65535
 
     def read(self, length: int) -> bytearray:
-        """Return up to self.remaining() bytes. Length does nothing."""
+        """Return up to :meth:`.remaining` bytes. Length does nothing here."""
         result = bytearray()
         while len(result) == 0:
             result.extend(self.socket.recvfrom(self.remaining())[0])
         return result
 
     def write(self, data: Connection | str | bytes | bytearray) -> None:
-        """Use self.socket to send data to self.addr."""
+        """Use :attr:`.socket` to send data to :attr:`.addr`."""
         if isinstance(data, Connection):
             data = bytearray(data.flush())
         elif isinstance(data, str):
@@ -597,12 +581,12 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         self._addr = addr
 
     async def connect(self) -> None:
-        """Use asyncio to open a connection to address. Timeout is in seconds."""
+        """Use :mod:`asyncio` to open a connection to address. Timeout is in seconds."""
         conn = asyncio.open_connection(*self._addr)
         self.reader, self.writer = await asyncio.wait_for(conn, timeout=self.timeout)
 
     async def read(self, length: int) -> bytearray:
-        """Read up to length bytes from self.reader."""
+        """Read up to ``length`` bytes from :attr:`.reader`."""
         result = bytearray()
         while len(result) < length:
             new = await asyncio.wait_for(self.reader.read(length - len(result)), timeout=self.timeout)
@@ -612,7 +596,7 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         return result
 
     def write(self, data: Connection | str | bytes | bytearray) -> None:
-        """Write data to self.writer."""
+        """Write data to :attr:`.writer`."""
         if isinstance(data, Connection):
             data = bytearray(data.flush())
         elif isinstance(data, str):
@@ -620,7 +604,7 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         self.writer.write(data)
 
     def close(self) -> None:
-        """Close self.writer."""
+        """Close :attr:`.writer`."""
         if self.writer is not None:  # If initialized
             self.writer.close()
 
@@ -649,16 +633,16 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         self.stream = await asyncio.wait_for(conn, timeout=self.timeout)
 
     def remaining(self) -> int:
-        """Return 65535 (2 ** 16 - 1)."""
+        """Always return ``65535`` (``2 ** 16 - 1``)."""
         return 65535
 
     async def read(self, length: int) -> bytearray:
-        """Read from stream. Length does nothing."""
+        """Read from :attr:`.stream`. Length does nothing here."""
         data, remote_addr = await asyncio.wait_for(self.stream.recv(), timeout=self.timeout)
         return bytearray(data)
 
     async def write(self, data: Connection | str | bytes | bytearray) -> None:
-        """Send data with self.stream."""
+        """Send data with :attr:`.stream`."""
         if isinstance(data, Connection):
             data = bytearray(data.flush())
         elif isinstance(data, str):
@@ -666,7 +650,7 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         await self.stream.send(data)
 
     def close(self) -> None:
-        """Close self.stream"""
+        """Close :attr:`.stream`."""
         if self.stream is not None:  # If initialized
             self.stream.close()
 

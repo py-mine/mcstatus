@@ -28,7 +28,7 @@ def test_bedrock_response_contains_expected_fields():
 
 
 def test_latency_is_real_number():
-    """`time.perf_counter` returns fractional seconds, we must convert it to milliseconds."""
+    """``time.perf_counter`` returns fractional seconds, we must convert it to milliseconds."""
 
     def mocked_read_status():
         time.sleep(0.001)
@@ -48,7 +48,7 @@ def test_latency_is_real_number():
 
 @pytest.mark.asyncio
 async def test_async_latency_is_real_number():
-    """`time.perf_counter` returns fractional seconds, we must convert it to milliseconds."""
+    """``time.perf_counter`` returns fractional seconds, we must convert it to milliseconds."""
 
     def mocked_read_status():
         time.sleep(0.001)
