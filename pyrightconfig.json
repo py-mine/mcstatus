@@ -9,6 +9,8 @@
         // GitHub validation workflow creates .cache folder to store the
         // python environment into, we don't want to check the files in it
         // for the same reason as with venv
-        ".cache"
+        ".cache",
+        // Documentation configuration files do not require type checking
+        "docs/conf.py"
     ]
 }
