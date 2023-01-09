@@ -688,6 +688,18 @@ pytest = ">=4.6"
 testing = ["fields", "hunter", "process-tests", "pytest-xdist", "six", "virtualenv"]
 
 [[package]]
+name = "pytest-rerunfailures"
+version = "10.3"
+description = "pytest plugin to re-run tests to eliminate flaky failures"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+packaging = ">=17.1"
+pytest = ">=5.3"
+
+[[package]]
 name = "pywin32-ctypes"
 version = "0.2.0"
 description = ""
@@ -965,7 +977,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4"
-content-hash = "1c7019fb00d8dccea3a1b7134c78d3577f3de65084e54f90efbaf254578edbad"
+content-hash = "aa180a7eb07e77392711c70fc49f381726f1aa38b2a5b4db42ec68205b5b1362"
 
 [metadata.files]
 asyncio-dgram = [
@@ -1381,6 +1393,10 @@ pytest-asyncio = [
 pytest-cov = [
     {file = "pytest-cov-4.0.0.tar.gz", hash = "sha256:996b79efde6433cdbd0088872dbc5fb3ed7fe1578b68cdbba634f14bb8dd0470"},
     {file = "pytest_cov-4.0.0-py3-none-any.whl", hash = "sha256:2feb1b751d66a8bd934e5edfa2e961d11309dc37b73b0eabe73b5945fee20f6b"},
+]
+pytest-rerunfailures = [
+    {file = "pytest-rerunfailures-10.3.tar.gz", hash = "sha256:d8244d799f89a6edb5e57301ddaeb3b6f10d6691638d51e80b371311592e28c6"},
+    {file = "pytest_rerunfailures-10.3-py3-none-any.whl", hash = "sha256:6be6f96510bf94b54198bf15bc5568fe2cdff88e83875912e22d29810acf65ff"},
 ]
 pywin32-ctypes = [
     {file = "pywin32-ctypes-0.2.0.tar.gz", hash = "sha256:24ffc3b341d457d48e8922352130cf2644024a4ff09762a2261fd34c36ee5942"},

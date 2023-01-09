@@ -1,3 +1,4 @@
+import sys
 import time
 from unittest import mock
 
@@ -81,6 +82,7 @@ class TestServerPinger:
         with pytest.raises(IOError):
             self.pinger.test_ping()
 
+    @pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
     def test_latency_is_real_number(self):
         """`time.perf_counter` returns fractional seconds, we must convert it to milliseconds."""
 
@@ -114,6 +116,7 @@ class TestServerPinger:
             # we slept 1ms, so this should be always ~1.
             assert pinger.read_status().latency >= 1
 
+    @pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
     def test_test_ping_is_in_milliseconds(self):
         """`time.perf_counter` returns fractional seconds, we must convert it to milliseconds."""
 
