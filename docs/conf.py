@@ -38,7 +38,7 @@ def _get_project_meta() -> dict[str, str]:
 pkg_meta = _get_project_meta()
 project = str(pkg_meta["name"])
 copyright = str(date.today().year) + ", py-mine"
-author = "py-mine"
+author = "Dinnerbone"
 
 parsed_version = parse_version(pkg_meta["version"])
 
