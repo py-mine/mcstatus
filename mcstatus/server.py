@@ -30,15 +30,16 @@ class MCServer(ABC):
 
     This class only contains the basic logic shared across both java and bedrock versions,
     it doesn't include any version specific settings and it can't be used to make any requests.
-
-    :param str host: The host/ip of the minecraft server.
-    :param int port: The port that the server is on.
-    :param float timeout: The timeout in seconds before failing to connect.
     """
 
     DEFAULT_PORT: int
 
     def __init__(self, host: str, port: int | None = None, timeout: float = 3):
+        """
+        :param host: The host/ip of the minecraft server.
+        :param port: The port that the server is on.
+        :param timeout: The timeout in seconds before failing to connect.
+        """
         if port is None:
             port = self.DEFAULT_PORT
         self.address = Address(host, port)
@@ -48,8 +49,8 @@ class MCServer(ABC):
     def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Mimics minecraft's server address field.
 
-        :param str address: The address of the Minecraft server, like `example.com:19132`
-        :param float timeout: The timeout in seconds before failing to connect.
+        :param address: The address of the Minecraft server, like ``example.com:19132``
+        :param timeout: The timeout in seconds before failing to connect.
         """
         addr = Address.parse_address(address, default_port=cls.DEFAULT_PORT)
         return cls(addr.host, addr.port, timeout=timeout)
@@ -66,20 +67,20 @@ class JavaServer(MCServer):
 
         With Java servers, on top of just parsing the address, we also check the
         DNS records for an SRV record that points to the server, which is the same
-        behavior as with minecraft's server address field for java. This DNS record
-        resolution is happening synchronously (see async_lookup).
+        behavior as with minecraft's server address field for Java. This DNS record
+        resolution is happening synchronously (see :meth:`.async_lookup`).
 
-        :param str address: The address of the Minecraft server, like `example.com:25565`.
-        :param float timeout: The timeout in seconds before failing to connect.
+        :param address: The address of the Minecraft server, like ``example.com:25565``.
+        :param timeout: The timeout in seconds before failing to connect.
         """
         addr = minecraft_srv_address_lookup(address, default_port=cls.DEFAULT_PORT, lifetime=timeout)
         return cls(addr.host, addr.port, timeout=timeout)
 
     @classmethod
     async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
-        """Asynchronous alternative to lookup
+        """Asynchronous alternative to :meth:`.lookup`.
 
-        For more details, check the docstring of the synchronous lookup function.
+        For more details, check the :meth:`JavaServer.lookup() <.lookup>` docstring.
         """
         addr = await async_minecraft_srv_address_lookup(address, default_port=cls.DEFAULT_PORT, lifetime=timeout)
         return cls(addr.host, addr.port, timeout=timeout)
@@ -87,7 +88,7 @@ class JavaServer(MCServer):
     def ping(self, **kwargs) -> float:
         """Checks the latency between a Minecraft Java Edition server and the client (you).
 
-        :param type **kwargs: Passed to a `ServerPinger` instance.
+        :param kwargs: Passed to a :class:`~mcstatus.pinger.ServerPinger` instance.
         :return: The latency between the Minecraft Server and you.
         """
 
@@ -103,7 +104,7 @@ class JavaServer(MCServer):
     async def async_ping(self, **kwargs) -> float:
         """Asynchronously checks the latency between a Minecraft Java Edition server and the client (you).
 
-        :param type **kwargs: Passed to a `AsyncServerPinger` instance.
+        :param kwargs: Passed to a :class:`~mcstatus.pinger.AsyncServerPinger` instance.
         :return: The latency between the Minecraft Server and you.
         """
 
@@ -118,10 +119,10 @@ class JavaServer(MCServer):
         return ping
 
     def status(self, **kwargs) -> PingResponse:
-        """Checks the status of a Minecraft Java Edition server via the ping protocol.
+        """Checks the status of a Minecraft Java Edition server via the status protocol.
 
-        :param type **kwargs: Passed to a `ServerPinger` instance.
-        :return: Status information in a `PingResponse` instance.
+        :param kwargs: Passed to a :class:`~mcstatus.pinger.ServerPinger` instance.
+        :return: Status information in a :class:`~mcstatus.pinger.PingResponse` instance.
         """
 
         with TCPSocketConnection(self.address, self.timeout) as connection:
@@ -135,10 +136,10 @@ class JavaServer(MCServer):
         return result
 
     async def async_status(self, **kwargs) -> PingResponse:
-        """Asynchronously checks the status of a Minecraft Java Edition server via the ping protocol.
+        """Asynchronously checks the status of a Minecraft Java Edition server via the status protocol.
 
-        :param type **kwargs: Passed to a `AsyncServerPinger` instance.
-        :return: Status information in a `PingResponse` instance.
+        :param kwargs: Passed to a :class:`~mcstatus.pinger.AsyncServerPinger` instance.
+        :return: Status information in a :class:`~mcstatus.pinger.PingResponse` instance.
         """
 
         async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
@@ -203,9 +204,8 @@ class BedrockServer(MCServer):
     def status(self, **kwargs) -> BedrockStatusResponse:
         """Checks the status of a Minecraft Bedrock Edition server.
 
-        :param type **kwargs: Passed to a `BedrockServerStatus` instance.
-        :return: Status information in a `BedrockStatusResponse` instance.
-        :rtype: BedrockStatusResponse
+        :param kwargs: Passed to a :class:`~mcstatus.bedrock_status.BedrockServerStatus` instance.
+        :return: Status information in a :class:`~mcstatus.bedrock_status.BedrockStatusResponse` instance.
         """
         return BedrockServerStatus(self.address, self.timeout, **kwargs).read_status()
 
@@ -213,8 +213,7 @@ class BedrockServer(MCServer):
     async def async_status(self, **kwargs) -> BedrockStatusResponse:
         """Asynchronously checks the status of a Minecraft Bedrock Edition server.
 
-        :param type **kwargs: Passed to a `BedrockServerStatus` instance.
-        :return: Status information in a `BedrockStatusResponse` instance.
-        :rtype: BedrockStatusResponse
+        :param kwargs: Passed to a :class:`~mcstatus.bedrock_status.BedrockServerStatus` instance.
+        :return: Status information in a :class:`~mcstatus.bedrock_status.BedrockStatusResponse` instance.
         """
         return await BedrockServerStatus(self.address, self.timeout, **kwargs).read_status_async()
