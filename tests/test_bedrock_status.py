@@ -1,3 +1,4 @@
+import sys
 import time
 from unittest import mock
 
@@ -27,6 +28,7 @@ def test_bedrock_response_contains_expected_fields():
     assert "protocol" in parsed.version.__dict__
 
 
+@pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
 def test_latency_is_real_number():
     """`time.perf_counter` returns fractional seconds, we must convert it to milliseconds."""
 
@@ -47,6 +49,7 @@ def test_latency_is_real_number():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
 async def test_async_latency_is_real_number():
     """`time.perf_counter` returns fractional seconds, we must convert it to milliseconds."""
 

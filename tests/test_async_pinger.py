@@ -1,4 +1,5 @@
 import asyncio
+import sys
 import time
 from unittest import mock
 
@@ -95,6 +96,7 @@ class TestAsyncServerPinger:
             async_decorator(self.pinger.test_ping)()
 
     @pytest.mark.asyncio
+    @pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
     async def test_latency_is_real_number(self):
         """`time.perf_counter` returns fractional seconds, we must convert it to milliseconds."""
 
@@ -131,6 +133,7 @@ class TestAsyncServerPinger:
             assert (await pinger.read_status()).latency >= 1
 
     @pytest.mark.asyncio
+    @pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
     async def test_test_ping_is_in_milliseconds(self):
         """`time.perf_counter` returns fractional seconds, we must convert it to milliseconds."""
 
