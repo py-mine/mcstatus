@@ -30,7 +30,7 @@ class TestValidateDataFunction:
         with raises(ValueError) as exc:
             _validate_data({"foo": "bar"}, who, [("not exist", object)])
 
-        exc.match(r"^Invalid {} object".format(who))
+        exc.match(f"^Invalid {who} object")
 
 
 class TestMCStatusResponse:
