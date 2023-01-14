@@ -16,7 +16,7 @@ def pytest_generate_tests(metafunc: Metafunc) -> None:
 
         marker_name, args = instance._marks_table()[metafunc.definition.name]
         if marker_name != "parametrize":
-            return
+            return  # other markers will be handled in `pytest_collection_modifyitems`
         metafunc.parametrize(*args)
 
 
