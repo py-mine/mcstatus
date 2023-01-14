@@ -103,10 +103,10 @@ def _validate_data(raw: Mapping[str, Any], who: str, required: Iterable[tuple[st
     """
     for required_key, required_type in required:
         if required_key not in raw:
-            raise ValueError(f"Invalid {who} object (no '{required_key}' value)")
+            raise ValueError(f"Invalid {who} object (no {required_key!r} value)")
         if not isinstance(raw[required_key], required_type):
             raise TypeError(
-                f"Invalid {who} object (expected '{required_key}' to be {required_type}, was {type(raw[required_key])})"
+                f"Invalid {who} object (expected {required_key!r} to be {required_type}, was {type(raw[required_key])})"
             )
 
 
