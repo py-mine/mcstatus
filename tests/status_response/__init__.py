@@ -19,10 +19,10 @@ class BaseStatusResponseTest(abc.ABC):
     # first element is a list with fields to remove, and attribute that
     # must be None. a dict is a raw answer to pass into `build` method
     OPTIONAL_FIELDS: tuple[list[tuple[str, str]], dict[str, Any]] | None = None  # noqa: ANN401
-    # there will be a ValueError, if we exclude the field from input
+    # there should be a ValueError, if we exclude the field from input
     # and a TypeError, if specify incorrect type
     # second item in tuple is an additional items to test their types,
-    # but they aren't required. third item in tuple is a raw answer dict
+    # but they can be not present. third item in tuple is a raw answer dict
     BUILD_METHOD_VALIDATION: tuple[list[str], list[str], dict[str, Any]] | None = None  # noqa: ANN401
 
     def _validate(self) -> None:
