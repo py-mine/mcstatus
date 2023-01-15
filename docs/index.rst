@@ -8,6 +8,7 @@ Content
 	:caption: Pages
 
 	pages/contributing.rst
+	examples/examples.rst
 
 .. toctree::
 	:maxdepth: 1
