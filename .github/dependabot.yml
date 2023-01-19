@@ -11,6 +11,7 @@ updates:
       interval: "daily"
     labels:
       - "area: dependencies"
+    open-pull-requests-limit: 9999
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
