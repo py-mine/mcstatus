@@ -345,7 +345,7 @@ class BaseStatusVersion(ABC):
     """Class for storing version info."""
 
     name: str
-    """Version name. Example `1.19.3`."""
+    """Version name. Example ``1.19.3``."""
     protocol: int
     """Version protocol. See https://minecraft.fandom.com/wiki/Protocol_version."""
 
