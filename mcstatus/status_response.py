@@ -94,10 +94,10 @@ STYLE_MAP = {
 def _validate_data(raw: Mapping[str, Any], who: str, required: Iterable[tuple[str, type]]) -> None:
     """Ensure that all required keys are present, and have the specified type.
 
-    :param raw: The raw dict answer to check.
-    :param who: The name of the object that is checking the data. Example `status`, `player` etc.
-    :param required: An iterable of string and type. The string is the required key which must be in `raw`, and
-        the `type` is the type that the key must be. If you want to ignore check of the type, set the type to `object`.
+    :param raw: The raw :class:`dict` answer to check.
+    :param who: The name of the object that is checking the data. Example ``status``, ``player`` etc.
+    :param required: An iterable of string and type. The string is the required key which must be in ``raw``, and the
+        ``type`` is the type that the key must be. If you want to ignore check of the type, set the type to ``object``.
     :raises ValueError: If the required keys are not present.
     :raises TypeError: If the required keys are not of the expected type.
     """
@@ -112,20 +112,18 @@ def _validate_data(raw: Mapping[str, Any], who: str, required: Iterable[tuple[st
 
 @dataclass
 class BaseStatusResponse(ABC):
-    """Class for storing shared data from a status response.
-
-    :param motd: Message Of The Day. Also known as `Description`.
-    :param latency: Latency between a server and the client (you). In milliseconds.
-    """
+    """Class for storing shared data from a status response."""
 
     players: BaseStatusPlayers
     version: BaseStatusVersion
     motd: str
+    """Message Of The Day. Also known as description."""
     latency: float
+    """Latency between a server and the client (you). In milliseconds."""
 
     @property
     def description(self) -> str:
-        """Alias to the `motd` field.
+        """Alias to the :attr:`.motd` field.
 
         :return: Description of the server.
         """
@@ -138,33 +136,32 @@ class BaseStatusResponse(ABC):
 
         :param args: Arguments in specific realisation.
         :param kwargs: Keyword arguments in specific realisation.
-        :return: `BaseStatusResponse` object.
+        :return: :class:`BaseStatusResponse` object.
         """
         raise NotImplementedError("You can't use abstract methods.")
 
 
 @dataclass
 class JavaStatusResponse(BaseStatusResponse):
-    """Class for storing JavaServer data from a status response.
-
-    :param icon: Base64 encoded icon of the server.
-    """
+    """Class for storing JavaServer data from a status response."""
 
     raw: RawJavaResponse
     players: JavaStatusPlayers
     version: JavaStatusVersion
     icon: str | None
+    """Base64 encoded icon of the server."""
 
     @classmethod
     def build(cls, raw: RawJavaResponse, latency: float = 0) -> Self:
         """Build JavaStatusResponse and check is it valid.
 
-        :param raw: Raw response dict.
+        :param raw: Raw response :class:`dict`.
         :param latency: Time that server took to response (in milliseconds).
-        :raise ValueError: If the required keys (players, version, description) are not present.
-        :raise TypeError: If the required keys (players - dict, version - dict, description - str)
-            are not of the expected type.
-        :return: `JavaStatusResponse` object.
+        :raise ValueError: If the required keys (``players``, ``version``, ``description``) are not present.
+        :raise TypeError:
+            If the required keys (``players`` - :class:`dict`, ``version`` - :class:`dict`,
+            ``description`` - :class:`str`) are not of the expected type.
+        :return: :class:`JavaStatusResponse` object.
         """
         _validate_data(raw, "status", [("players", dict), ("version", dict), ("description", str)])
         return cls(
@@ -212,16 +209,14 @@ class JavaStatusResponse(BaseStatusResponse):
 
 @dataclass
 class BedrockStatusResponse(BaseStatusResponse):
-    """Class for storing BedrockServer data from a status response.
-
-    :param map_name: Name of the map.
-    :param gamemode: Gamemode of the server. Can be hidden.
-    """
+    """Class for storing BedrockServer data from a status response."""
 
     players: BedrockStatusPlayers
     version: BedrockStatusVersion
     map_name: str | None
+    """Name of the map."""
     gamemode: str | None
+    """Gamemode of the server. Can be hidden."""
 
     @classmethod
     def build(cls, decoded_data: list[Any], latency: float) -> Self:
@@ -229,7 +224,7 @@ class BedrockStatusResponse(BaseStatusResponse):
 
         :param decoded_data: Raw decoded response object.
         :param latency: Latency of the request.
-        :return: `BedrockStatusResponse` object.
+        :return: :class:`BedrockStatusResponse` object.
         """
 
         try:
@@ -283,21 +278,21 @@ class BaseStatusPlayers(ABC):
 
 @dataclass
 class JavaStatusPlayers(BaseStatusPlayers):
-    """Class which extends a `BaseStatusPlayers` class with sample of players.
-
-    :param sample: list of players or `None` if the sample is missing in the response.
-    """
+    """Class which extends a :class:`BaseStatusPlayers` class with sample of players."""
 
     sample: list[JavaStatusPlayer] | None
+    """:class:`list` of players or :obj:`None` if the sample is missing in the response."""
 
     @classmethod
     def build(cls, raw: RawJavaResponsePlayers) -> Self:
-        """Build `JavaStatusPlayers` from raw response dict.
+        """Build :class:`JavaStatusPlayers` from raw response :class:`dict`.
 
-        :param raw: Raw response dict.
-        :raise ValueError: If the required keys (online, max) are not present.
-        :raise TypeError: If the required keys (online - int, max - int, sample - list) are not of the expected type.
-        :return: `JavaStatusPlayers` object.
+        :param raw: Raw response :class:`dict`.
+        :raise ValueError: If the required keys (``online``, ``max``) are not present.
+        :raise TypeError:
+            If the required keys (``online`` - :class:`int`, ``max`` - :class:`int`,
+            ``sample`` - :class:`list`) are not of the expected type.
+        :return: :class:`JavaStatusPlayers` object.
         """
         _validate_data(raw, "players", [("online", int), ("max", int)])
         sample = None
@@ -313,7 +308,7 @@ class JavaStatusPlayers(BaseStatusPlayers):
 
 @dataclass
 class BedrockStatusPlayers(BaseStatusPlayers):
-    """Class which represents `BedrockStatusResponse` players field."""
+    """Class which represents :attr`BedrockStatusResponse.players` attribute."""
 
 
 @dataclass
@@ -325,7 +320,7 @@ class JavaStatusPlayer:
 
     @property
     def uuid(self) -> str:
-        """Alias to the `id` field.
+        """Alias to the :attr:`.id` field.
 
         :return: UUID of the player.
         """
@@ -333,12 +328,13 @@ class JavaStatusPlayer:
 
     @classmethod
     def build(cls, raw: RawJavaResponsePlayer) -> Self:
-        """Build `JavaStatusPlayer` from raw response dict.
+        """Build :class:`JavaStatusPlayer` from raw response :class:`dict`.
 
-        :param raw: Raw response dict.
-        :raise ValueError: If the required keys (name, id) are not present.
-        :raise TypeError: If the required keys (name - str, id - str) are not of the expected type.
-        :return: `JavaStatusPlayer` object.
+        :param raw: Raw response :class:`dict`.
+        :raise ValueError: If the required keys (``name``, ``id``) are not present.
+        :raise TypeError: If the required keys (``name`` - :class:`str`, ``id`` - :class:`str`)
+            are not of the expected type.
+        :return: :class:`JavaStatusPlayer` object.
         """
         _validate_data(raw, "player", [("name", str), ("id", str)])
         return cls(name=raw["name"], id=raw["id"])
@@ -346,14 +342,12 @@ class JavaStatusPlayer:
 
 @dataclass
 class BaseStatusVersion(ABC):
-    """Class for storing version info.
-
-    :param name: Version name. Example `1.18.0`.
-    :param protocol: Version protocol. See https://minecraft.fandom.com/wiki/Protocol_version.
-    """
+    """Class for storing version info."""
 
     name: str
+    """Version name. Example `1.19.3`."""
     protocol: int
+    """Version protocol. See https://minecraft.fandom.com/wiki/Protocol_version."""
 
 
 @dataclass
@@ -362,12 +356,13 @@ class JavaStatusVersion(BaseStatusVersion):
 
     @classmethod
     def build(cls, raw: RawJavaResponseVersion) -> Self:
-        """Build `JavaStatusVersion` from raw response dict.
+        """Build :class:`JavaStatusVersion` from raw response dict.
 
-        :param raw: Raw response dict.
-        :raise ValueError: If the required keys (name, protocol) are not present.
-        :raise TypeError: If the required keys (name - str, protocol - int) are not of the expected type.
-        :return: `JavaStatusVersion` object.
+        :param raw: Raw response :class:`dict`.
+        :raise ValueError: If the required keys (``name``, ``protocol``) are not present.
+        :raise TypeError: If the required keys (``name`` - :class:`str`, ``protocol`` - :class:`int`)
+            are not of the expected type.
+        :return: :class:`JavaStatusVersion` object.
         """
         _validate_data(raw, "version", [("name", str), ("protocol", int)])
         return cls(name=raw["name"], protocol=raw["protocol"])
@@ -375,12 +370,10 @@ class JavaStatusVersion(BaseStatusVersion):
 
 @dataclass
 class BedrockStatusVersion(BaseStatusVersion):
-    """Class for storing Bedrock version info.
-
-    :param brand: Like `MCPE` or another.
-    """
+    """Class for storing Bedrock version info."""
 
     brand: str
+    """Like ``MCPE`` or something another."""
 
     @property
     @deprecated(replacement="name", date="DEPRECATION_DATE")
