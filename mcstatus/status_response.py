@@ -96,8 +96,9 @@ def _validate_data(raw: Mapping[str, Any], who: str, required: Iterable[tuple[st
 
     :param raw: The raw :class:`dict` answer to check.
     :param who: The name of the object that is checking the data. Example ``status``, ``player`` etc.
-    :param required: An iterable of string and type. The string is the required key which must be in ``raw``, and the
-        ``type`` is the type that the key must be. If you want to ignore check of the type, set the type to ``object``.
+    :param required:
+        An iterable of string and type. The string is the required key which must be in ``raw``, and the ``type`` is the
+        type that the key must be. If you want to ignore check of the type, set the type to :obj:`object`.
     :raises ValueError: If the required keys are not present.
     :raises TypeError: If the required keys are not of the expected type.
     """
