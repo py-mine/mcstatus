@@ -20,13 +20,9 @@ async def fake_asyncio_asyncio_open_connection(hostname: str, port: int):
 
 
 class TestAsyncSocketConnection:
-    def setup_method(self):
-        self.tcp_async_socket = TCPAsyncSocketConnection()
-        self.test_addr = Address("dummy_address", 1234)
-
-    def test_tcp_socket_read(self):
+    @pytest.mark.asyncio
+    async def test_tcp_socket_read(self):
         with patch("asyncio.open_connection", fake_asyncio_asyncio_open_connection):
-            asyncio.run(self.tcp_async_socket.connect(self.test_addr, timeout=0.01))
-
-            with pytest.raises(TimeoutError):
-                asyncio.run(self.tcp_async_socket.read(10))
+            async with TCPAsyncSocketConnection(Address("dummy_address", 1234), timeout=0.01) as tcp_async_socket:
+                with pytest.raises(TimeoutError):
+                    await tcp_async_socket.read(10)

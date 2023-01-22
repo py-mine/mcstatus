@@ -44,12 +44,15 @@ class _AddressBase(NamedTuple):
 
 
 class Address(_AddressBase):
-    """Extension of a NamedTuple of host and port, for storing addresses.
+    """Extension of a :class:`~typing.NamedTuple` of :attr:`.host` and :attr:`.port`, for storing addresses.
 
-    This class inherits from tuple, and is fully compatible with all functions
-    which require pure (host, port) address tuples, but on top of that, it includes
+    This class inherits from :class:`tuple`, and is fully compatible with all functions
+    which require pure ``(host, port)`` address tuples, but on top of that, it includes
     some neat functionalities, such as validity ensuring, alternative constructors
     for easy quick creation and methods handling IP resolving.
+
+    .. note::
+        Only attributes :attr:`host` and :attr:`port` are a part of Public API in this class.
     """
 
     def __init__(self, *a, **kw):
@@ -71,28 +74,28 @@ class Address(_AddressBase):
 
     @classmethod
     def from_tuple(cls, tup: tuple[str, int]) -> Self:
-        """Construct the class from a regular tuple of (host, port), commonly used for addresses."""
+        """Construct the class from a regular tuple of ``(host, port)``, commonly used for addresses."""
         return cls(host=tup[0], port=tup[1])
 
     @classmethod
     def from_path(cls, path: Path, *, default_port: int | None = None) -> Self:
-        """Construct the class from a Path object.
+        """Construct the class from a :class:`~pathlib.Path` object.
 
-        If path has a port specified, use it, if not fall back to default_port.
-        In case default_port isn't available and port wasn't specified, raise ValueError.
+        If path has a port specified, use it, if not fall back to ``default_port`` kwarg.
+        In case ``default_port`` isn't provided and port wasn't specified, raise :exc:`ValueError`.
         """
         address = str(path)
         return cls.parse_address(address, default_port=default_port)
 
     @classmethod
     def parse_address(cls, address: str, *, default_port: int | None = None) -> Self:
-        """Parses a string address like 127.0.0.1:25565 into host and port parts
+        """Parses a string address like ``127.0.0.1:25565`` into :attr:`.host` and :attr:`.port` parts.
 
-        If the address has a port specified, use it, if not, fall back to default_port.
+        If the address has a port specified, use it, if not, fall back to ``default_port`` kwarg.
 
         :raises ValueError:
             Either the address isn't valid and can't be parsed,
-            or it lacks a port and `default_port` wasn't specified.
+            or it lacks a port and ``default_port`` wasn't specified.
         """
         hostname, port = _valid_urlparse(address)
         if port is None:
@@ -112,10 +115,10 @@ class Address(_AddressBase):
 
         :param lifetime:
             How many seconds a query should run before timing out.
-            Default value for this is inherited from dns.resolver.resolve
+            Default value for this is inherited from :func:`dns.resolver.resolve`.
         :raises dns.exception.DNSException:
-            One of the exceptions possibly raised by dns.resolver.resolve
-            Most notably this will be `dns.exception.Timeout` and `dns.resolver.NXDOMAIN`
+            One of the exceptions possibly raised by :func:`dns.resolver.resolve`.
+            Most notably this will be :exc:`dns.exception.Timeout` and :exc:`dns.resolver.NXDOMAIN`
         """
         if self._cached_ip is not None:
             return self._cached_ip
@@ -135,7 +138,7 @@ class Address(_AddressBase):
     async def async_resolve_ip(self, lifetime: float | None = None) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
         """Resolves a hostname's A record into an IP address.
 
-        See the docstring for `resolve_ip` for further info. This function is purely
+        See the docstring for :meth:`.resolve_ip` for further info. This function is purely
         an async alternative to it.
         """
         if self._cached_ip is not None:
@@ -160,22 +163,25 @@ def minecraft_srv_address_lookup(
     default_port: int | None = None,
     lifetime: float | None = None,
 ) -> Address:
-    """Parses the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port
+    """Lookup the SRV record for a Minecraft server.
 
-    This function essentially mimics the address field of a minecraft java server. It expects an address like
-    '192.168.0.100:25565', if this address does contain a port, it will simply use it. If it doesn't, it will try
+    Firstly it parses the address, if it doesn't include port, tries SRV record, and if it's not there,
+    falls back on ``default_port``.
+
+    This function essentially mimics the address field of a Minecraft Java server. It expects an address like
+    ``192.168.0.100:25565``, if this address does contain a port, it will simply use it. If it doesn't, it will try
     to perform an SRV lookup, which if found, will contain the info on which port to use. If there's no SRV record,
-    this will fall back to the given default_port.
+    this will fall back to the given ``default_port``.
 
     :param address:
         The same address which would be used in minecraft's server address field.
-        Can look like: '127.0.0.1', or '192.168.0.100:12345', or 'mc.hypixel.net', or 'example.com:12345'.
+        Can look like: ``127.0.0.1``, or ``192.168.0.100:12345``, or ``mc.hypixel.net``, or ``example.com:12345``.
     :param lifetime:
         How many seconds a query should run before timing out.
-        Default value for this is inherited from dns.resolver.resolve
+        Default value for this is inherited from :func:`dns.resolver.resolve`.
     :raises ValueError:
         Either the address isn't valid and can't be parsed,
-        or it lacks a port, SRV record isn't present, and `default_port` wasn't specified.
+        or it lacks a port, SRV record isn't present, and ``default_port`` wasn't specified.
     """
     host, port = _valid_urlparse(address)
 
@@ -205,10 +211,7 @@ async def async_minecraft_srv_address_lookup(
     default_port: int | None = None,
     lifetime: float | None = None,
 ) -> Address:
-    """Parses the address, if it doesn't include port, tries SRV record, if it's not there, falls back on default_port
-
-    This function is an async alternative to minecraft_srv_address_lookup, check it's docstring for more details.
-    """
+    """Just an async alternative to :func:`.minecraft_srv_address_lookup`, check it for more details."""
     host, port = _valid_urlparse(address)
 
     # If we found a port in the address, there's nothing more we need

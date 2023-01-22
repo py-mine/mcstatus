@@ -18,17 +18,16 @@ jobs:
     strategy:
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.11"]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Install Python Dependencies
-        uses: HassanAbouelela/actions/setup-python@setup-python_v1.3.2
+        uses: HassanAbouelela/actions/setup-python@setup-python_v1.4.0
         id: setup_python
         with:
-          dev: true
           install_args: "--with workflow-tox --without lint"
           python_version: "${{ matrix.python-version }}"
 

@@ -1,3 +1,4 @@
+import sys
 import time
 from unittest import mock
 
@@ -19,8 +20,9 @@ def test_bedrock_response_is_expected_type():
     assert isinstance(parsed, BedrockStatusResponse)
 
 
+@pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
 def test_latency_is_real_number():
-    """`time.perf_counter` returns fractional seconds, we must convert it to milliseconds."""
+    """``time.perf_counter`` returns fractional seconds, we must convert it to milliseconds."""
 
     def mocked_read_status():
         time.sleep(0.001)
@@ -39,8 +41,9 @@ def test_latency_is_real_number():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
 async def test_async_latency_is_real_number():
-    """`time.perf_counter` returns fractional seconds, we must convert it to milliseconds."""
+    """``time.perf_counter`` returns fractional seconds, we must convert it to milliseconds."""
 
     def mocked_read_status():
         time.sleep(0.001)

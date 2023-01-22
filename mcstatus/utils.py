@@ -22,16 +22,17 @@ R2 = TypeVar("R2")
 
 
 def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> Callable[[Callable[P, R]], Callable[P, R]]:
-    """
-    Decorator that re-runs given function tries times if error occurs.
+    """Decorator that re-runs given function ``tries`` times if error occurs.
 
     The amount of tries will either be the value given to the decorator,
     or if tries is present in keyword arguments on function call, this
-    specified value will take precedense.
+    specified value will take precedence.
 
-    If the function fails even after all of the retries, raise the last
-    exception that the function raised (even if the previous failures caused
-    a different exception, this will only raise the last one!).
+    If the function fails even after all the retries, raise the last
+    exception that the function raised.
+
+    .. note::
+        Even if the previous failures caused a different exception, this will only raise the last one.
     """
 
     def decorate(func: Callable[P, R]) -> Callable[P, R]:
