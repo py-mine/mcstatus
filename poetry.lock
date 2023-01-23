@@ -505,14 +505,14 @@ dev = ["coverage", "hypothesis", "hypothesmith (>=0.2)", "pre-commit", "tox"]
 
 [[package]]
 name = "flake8-future-annotations"
-version = "1.0.0"
+version = "1.1.0"
 description = "Verifies python 3.7+ files use from __future__ import annotations"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "flake8-future-annotations-1.0.0.tar.gz", hash = "sha256:1cc718f0ffe78db9ecba1e173de386474c2c1de571042c75c02725c49e8122ed"},
-    {file = "flake8_future_annotations-1.0.0-py3-none-any.whl", hash = "sha256:3b150d252ee8bf2378f5a055c9ec317378a21f1fb023e98b07f97c336d977e80"},
+    {file = "flake8-future-annotations-1.1.0.tar.gz", hash = "sha256:df416bd2b9e1eda7ea639a5fd2a083dabb942ffe49d197f836df380d0dcf6608"},
+    {file = "flake8_future_annotations-1.1.0-py3-none-any.whl", hash = "sha256:555f16f51ae24ab4d0683b1ce8d0f59d36259c3a7e776bd5642f58c78ce7d3ab"},
 ]
 
 [package.dependencies]
