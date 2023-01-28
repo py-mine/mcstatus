@@ -7,6 +7,7 @@ Content
 	:maxdepth: 1
 	:caption: Pages
 
+	pages/faq.rst
 	pages/contributing.rst
 	examples/examples.rst
 

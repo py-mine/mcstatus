@@ -140,7 +140,7 @@ For Java Server
 
         The favicon of the server. In `Base64 <https://en.wikipedia.org/wiki/Base64>`_ encoded PNG image format.
 
-        .. todo: in FAQ will be an example how to convert it to an image. We need to link it here.
+        .. seealso:: :ref:`pages/faq:how to get server image?`
 
 .. module:: mcstatus.querier
 
