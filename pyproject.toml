@@ -60,6 +60,18 @@ pep8-naming = "^0.13.2"
 pyright = "^1.1.275"
 typing-extensions = "^4.4.0"
 
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^5.3.0"
+sphinx-autodoc-typehints = "^1.19.0"
+furo = ">=2022.12.7"
+m2r2 = "^0.3.0"
+tomli = { version = "^2.0.0", markers = "python_version < '3.11'" }
+packaging = "22.0"
+poetry-dynamic-versioning = "*"  # actual version is in `release` group
+
 [tool.poetry.group.release]
 optional = true
 
