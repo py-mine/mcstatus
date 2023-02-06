@@ -254,17 +254,17 @@ class BedrockStatusResponse(BaseStatusResponse):
         )
 
     @property
-    @deprecated(replacement="players.online", date="DEPRECATION_DATE")
+    @deprecated(replacement="players.online", date="2023-08")
     def players_online(self) -> int:
         return self.players.online
 
     @property
-    @deprecated(replacement="players.max", date="DEPRECATION_DATE")
+    @deprecated(replacement="players.max", date="2023-08")
     def players_max(self) -> int:
         return self.players.max
 
     @property
-    @deprecated(replacement="map_name", date="DEPRECATION_DATE")
+    @deprecated(replacement="map_name", date="2023-08")
     def map(self) -> str | None:
         return self.map_name
 
@@ -377,6 +377,6 @@ class BedrockStatusVersion(BaseStatusVersion):
     """Like ``MCPE`` or something another."""
 
     @property
-    @deprecated(replacement="name", date="DEPRECATION_DATE")
+    @deprecated(replacement="name", date="2023-08")
     def version(self) -> str:
         return self.name
