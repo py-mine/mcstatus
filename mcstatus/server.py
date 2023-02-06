@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 import dns.resolver
 
 from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
-from mcstatus.bedrock_status import BedrockServerStatus, BedrockStatusResponse
-from mcstatus.pinger import AsyncServerPinger, PingResponse, ServerPinger
+from mcstatus.bedrock_status import BedrockServerStatus
+from mcstatus.pinger import AsyncServerPinger, ServerPinger
 from mcstatus.protocol.connection import (
     TCPAsyncSocketConnection,
     TCPSocketConnection,
@@ -16,6 +16,7 @@ from mcstatus.protocol.connection import (
     UDPSocketConnection,
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
+from mcstatus.status_response import BedrockStatusResponse, JavaStatusResponse
 from mcstatus.utils import retry
 
 if TYPE_CHECKING:
@@ -118,35 +119,35 @@ class JavaServer(MCServer):
         ping = await pinger.test_ping()
         return ping
 
-    def status(self, **kwargs) -> PingResponse:
+    def status(self, **kwargs) -> JavaStatusResponse:
         """Checks the status of a Minecraft Java Edition server via the status protocol.
 
         :param kwargs: Passed to a :class:`~mcstatus.pinger.ServerPinger` instance.
-        :return: Status information in a :class:`~mcstatus.pinger.PingResponse` instance.
+        :return: Status information in a :class:`~mcstatus.status_response.JavaStatusResponse` instance.
         """
 
         with TCPSocketConnection(self.address, self.timeout) as connection:
             return self._retry_status(connection, **kwargs)
 
     @retry(tries=3)
-    def _retry_status(self, connection: TCPSocketConnection, **kwargs) -> PingResponse:
+    def _retry_status(self, connection: TCPSocketConnection, **kwargs) -> JavaStatusResponse:
         pinger = ServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         result = pinger.read_status()
         return result
 
-    async def async_status(self, **kwargs) -> PingResponse:
+    async def async_status(self, **kwargs) -> JavaStatusResponse:
         """Asynchronously checks the status of a Minecraft Java Edition server via the status protocol.
 
         :param kwargs: Passed to a :class:`~mcstatus.pinger.AsyncServerPinger` instance.
-        :return: Status information in a :class:`~mcstatus.pinger.PingResponse` instance.
+        :return: Status information in a :class:`~mcstatus.status_response.JavaStatusResponse` instance.
         """
 
         async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
             return await self._retry_async_status(connection, **kwargs)
 
     @retry(tries=3)
-    async def _retry_async_status(self, connection: TCPAsyncSocketConnection, **kwargs) -> PingResponse:
+    async def _retry_async_status(self, connection: TCPAsyncSocketConnection, **kwargs) -> JavaStatusResponse:
         pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
         result = await pinger.read_status()
@@ -205,7 +206,7 @@ class BedrockServer(MCServer):
         """Checks the status of a Minecraft Bedrock Edition server.
 
         :param kwargs: Passed to a :class:`~mcstatus.bedrock_status.BedrockServerStatus` instance.
-        :return: Status information in a :class:`~mcstatus.bedrock_status.BedrockStatusResponse` instance.
+        :return: Status information in a :class:`~mcstatus.status_response.BedrockStatusResponse` instance.
         """
         return BedrockServerStatus(self.address, self.timeout, **kwargs).read_status()
 
@@ -214,6 +215,6 @@ class BedrockServer(MCServer):
         """Asynchronously checks the status of a Minecraft Bedrock Edition server.
 
         :param kwargs: Passed to a :class:`~mcstatus.bedrock_status.BedrockServerStatus` instance.
-        :return: Status information in a :class:`~mcstatus.bedrock_status.BedrockStatusResponse` instance.
+        :return: Status information in a :class:`~mcstatus.status_response.BedrockStatusResponse` instance.
         """
         return await BedrockServerStatus(self.address, self.timeout, **kwargs).read_status_async()

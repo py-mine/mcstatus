@@ -12,5 +12,6 @@
         ".cache",
         // Documentation configuration files do not require type checking
         "docs/conf.py"
-    ]
+    ],
+    "pythonVersion": "3.10"
 }
