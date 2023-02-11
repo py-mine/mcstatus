@@ -116,7 +116,9 @@ class BaseStatusResponse(ABC):
     """Class for storing shared data from a status response."""
 
     players: BaseStatusPlayers
+    """The players information."""
     version: BaseStatusVersion
+    """The version information."""
     motd: str
     """Message Of The Day. Also known as description."""
     latency: float
@@ -124,10 +126,7 @@ class BaseStatusResponse(ABC):
 
     @property
     def description(self) -> str:
-        """Alias to the :attr:`.motd` field.
-
-        :return: Description of the server.
-        """
+        """Alias to the :attr:`.motd` field."""
         return self.motd
 
     @classmethod
@@ -144,13 +143,17 @@ class BaseStatusResponse(ABC):
 
 @dataclass
 class JavaStatusResponse(BaseStatusResponse):
-    """Class for storing JavaServer data from a status response."""
+    """The response object for :meth:`JavaServer.status() <mcstatus.server.JavaServer.status>`."""
 
     raw: RawJavaResponse
+    """Raw response from the server.
+
+    This is :class:`~typing.TypedDict` actually, please see sources to find what is here.
+    """
     players: JavaStatusPlayers
     version: JavaStatusVersion
     icon: str | None
-    """Base64 encoded icon of the server."""
+    """The icon of the server. In `Base64 <https://en.wikipedia.org/wiki/Base64>`_ encoded PNG image format."""
 
     @classmethod
     def build(cls, raw: RawJavaResponse, latency: float = 0) -> Self:
@@ -210,14 +213,14 @@ class JavaStatusResponse(BaseStatusResponse):
 
 @dataclass
 class BedrockStatusResponse(BaseStatusResponse):
-    """Class for storing BedrockServer data from a status response."""
+    """The response object for :meth:`BedrockServer.status() <mcstatus.server.BedrockServer.status>`."""
 
     players: BedrockStatusPlayers
     version: BedrockStatusVersion
     map_name: str | None
-    """Name of the map."""
+    """The name of the map."""
     gamemode: str | None
-    """Gamemode of the server. Can be hidden."""
+    """The name of the gamemode on the server."""
 
     @classmethod
     def build(cls, decoded_data: list[Any], latency: float) -> Self:
@@ -256,33 +259,56 @@ class BedrockStatusResponse(BaseStatusResponse):
     @property
     @deprecated(replacement="players.online", date="2023-08")
     def players_online(self) -> int:
+        """
+        .. deprecated:: 11.0.0
+            Will be removed 2023-08, use :attr:`players.online <BedrockStatusPlayers.online>` instead.
+        """
         return self.players.online
 
     @property
     @deprecated(replacement="players.max", date="2023-08")
     def players_max(self) -> int:
+        """
+        .. deprecated:: 11.0.0
+            Will be removed 2023-08, use :attr:`players.max <BedrockStatusPlayers.max>` instead.
+        """
         return self.players.max
 
     @property
     @deprecated(replacement="map_name", date="2023-08")
     def map(self) -> str | None:
+        """
+        .. deprecated:: 11.0.0
+            Will be removed 2023-08, use :attr:`.map_name` instead.
+        """
         return self.map_name
 
 
 @dataclass
 class BaseStatusPlayers(ABC):
-    """Class for storing players info, like current online."""
+    """Class for storing information about players on the server."""
 
     online: int
+    """Current number of online players."""
     max: int
+    """The maximum allowed number of players (aka server slots)."""
 
 
 @dataclass
 class JavaStatusPlayers(BaseStatusPlayers):
-    """Class which extends a :class:`BaseStatusPlayers` class with sample of players."""
+    """Class for storing information about players on the server."""
 
     sample: list[JavaStatusPlayer] | None
-    """:class:`list` of players or :obj:`None` if the sample is missing in the response."""
+    """List of players, who are online. If server didn't provide this, it will be :obj:`None`.
+
+    Actually, this is what appears when you hover over the slot count on the multiplayer screen.
+
+    .. note::
+        It's often empty or even contains some advertisement, because the specific server implementations or plugins can
+        disable providing this information or even change it to something custom.
+
+        There is nothing that ``mcstatus`` can to do here if the player sample was modified/disabled like this.
+    """
 
     @classmethod
     def build(cls, raw: RawJavaResponsePlayers) -> Self:
@@ -309,22 +335,21 @@ class JavaStatusPlayers(BaseStatusPlayers):
 
 @dataclass
 class BedrockStatusPlayers(BaseStatusPlayers):
-    """Class which represents :attr`BedrockStatusResponse.players` attribute."""
+    """Class for storing information about players on the server."""
 
 
 @dataclass
 class JavaStatusPlayer:
-    """Class for storing player info. Only for Java."""
+    """Class with information about a single player."""
 
     name: str
+    """Name of the player."""
     id: str
+    """ID of the player (in `UUID <https://en.wikipedia.org/wiki/Universally_unique_identifier>`_ format)."""
 
     @property
     def uuid(self) -> str:
-        """Alias to the :attr:`.id` field.
-
-        :return: UUID of the player.
-        """
+        """Alias to :attr:`.id` field."""
         return self.id
 
     @classmethod
@@ -343,17 +368,24 @@ class JavaStatusPlayer:
 
 @dataclass
 class BaseStatusVersion(ABC):
-    """Class for storing version info."""
+    """A class for storing version information."""
 
     name: str
-    """Version name. Example ``1.19.3``."""
+    """The version name, like ``1.19.3``.
+
+    See `Minecraft wiki <https://minecraft.fandom.com/wiki/Java_Edition_version_history#Full_release>`__
+    for complete list.
+    """
     protocol: int
-    """Version protocol. See https://minecraft.fandom.com/wiki/Protocol_version."""
+    """The protocol version, like ``761``.
+
+    See `Minecraft wiki <https://minecraft.fandom.com/wiki/Protocol_version#Java_Edition_2>`__.
+    """
 
 
 @dataclass
 class JavaStatusVersion(BaseStatusVersion):
-    """Class for storing Java version info."""
+    """A class for storing version information."""
 
     @classmethod
     def build(cls, raw: RawJavaResponseVersion) -> Self:
@@ -371,12 +403,22 @@ class JavaStatusVersion(BaseStatusVersion):
 
 @dataclass
 class BedrockStatusVersion(BaseStatusVersion):
-    """Class for storing Bedrock version info."""
+    """A class for storing version information."""
 
+    name: str
+    """The version name, like ``1.19.60``.
+
+    See `Minecraft wiki <https://minecraft.fandom.com/wiki/Bedrock_Edition_version_history#Bedrock_Edition>`__
+    for complete list.
+    """
     brand: str
-    """Like ``MCPE`` or something another."""
+    """``MCPE`` or ``MCEE`` for Education Edition."""
 
     @property
     @deprecated(replacement="name", date="2023-08")
     def version(self) -> str:
+        """
+        .. deprecated:: 11.0.0
+            Will be removed 2023-08, use :attr:`.name` instead.
+        """
         return self.name

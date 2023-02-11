@@ -1,11 +1,10 @@
 import asyncio
 
 from mcstatus import BedrockServer, JavaServer
-from mcstatus.bedrock_status import BedrockStatusResponse
-from mcstatus.pinger import PingResponse
+from mcstatus.status_response import BedrockStatusResponse, JavaStatusResponse
 
 
-async def status(host: str) -> PingResponse | BedrockStatusResponse:
+async def status(host: str) -> JavaStatusResponse | BedrockStatusResponse:
     """Get status from server, which can be Java or Bedrock.
 
     The function will ping server as Java and as Bedrock in one time, and return the first response.
@@ -23,7 +22,7 @@ async def status(host: str) -> PingResponse | BedrockStatusResponse:
     )
 
     if success_task is None:
-        raise ValueError("No tasks was successful. Is server offline?")
+        raise ValueError("No tasks were successful. Is server offline?")
 
     return success_task.result()
 
@@ -49,7 +48,7 @@ async def handle_exceptions(done: set[asyncio.Task], pending: set[asyncio.Task])
             return task
 
 
-async def handle_java(host: str) -> PingResponse:
+async def handle_java(host: str) -> JavaStatusResponse:
     """A wrapper around mcstatus, to compress it in one function."""
     return await (await JavaServer.async_lookup(host)).async_status()
 
