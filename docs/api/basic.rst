@@ -167,4 +167,4 @@ For Bedrock Servers
 Conclusion
 ----------
 
-That is all! At least for general usage, if you want to use more advanced features, you can read :doc:`/api/advanced/index`.
+That is all! See also our :doc:`examples </examples/examples>`!

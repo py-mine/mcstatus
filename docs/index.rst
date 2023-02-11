@@ -15,7 +15,6 @@ Content
 	:caption: API Documentation
 
 	api/basic.rst
-	api/advanced/index.rst
 	api/internal.rst
 
 

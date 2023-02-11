@@ -44,6 +44,11 @@ versions. They are only documented here for linkable reference to them.
 
             The port of the server. Is a part of Public API.
 
+.. automodule:: mcstatus.dns
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 .. autoclass:: mcstatus.status_response.BaseStatusResponse
     :members:
     :undoc-members:
