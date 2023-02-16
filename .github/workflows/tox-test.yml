@@ -43,6 +43,7 @@ jobs:
           restore-keys: "pytest-${{ runner.os }}-${{ steps.poetry_setup.outputs-python-version}}-"
 
       - name: Test with tox
+        shell: bash
         run: poetry run tox
         env:
           PIP_USER: 0  # We want tox to use it's environments, not user installs
