@@ -1,0 +1,32 @@
+name: Publish to PyPi
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+**"
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup poetry
+        id: poetry_setup
+        uses: ItsDrike/setup-poetry@v1
+        with:
+          python-version: 3.11
+
+      - name: Build package
+        run: poetry build
+
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
