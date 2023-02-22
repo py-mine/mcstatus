@@ -100,6 +100,7 @@ class JavaServer(MCServer):
     def _retry_ping(self, connection: TCPSocketConnection, **kwargs) -> float:
         pinger = ServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
+        pinger.read_status()
         return pinger.test_ping()
 
     async def async_ping(self, **kwargs) -> float:
@@ -116,6 +117,7 @@ class JavaServer(MCServer):
     async def _retry_async_ping(self, connection: TCPAsyncSocketConnection, **kwargs) -> float:
         pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
+        pinger.read_status()
         ping = await pinger.test_ping()
         return ping
 
