@@ -153,7 +153,10 @@ class JavaStatusResponse(BaseStatusResponse):
     players: JavaStatusPlayers
     version: JavaStatusVersion
     icon: str | None
-    """The icon of the server. In `Base64 <https://en.wikipedia.org/wiki/Base64>`_ encoded PNG image format."""
+    """The icon of the server. In `Base64 <https://en.wikipedia.org/wiki/Base64>`_ encoded PNG image format.
+
+    .. seealso:: :ref:`pages/faq:how to get server image?`
+    """
 
     @classmethod
     def build(cls, raw: RawJavaResponse, latency: float = 0) -> Self:
