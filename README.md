@@ -60,7 +60,7 @@ server = BedrockServer.lookup("example.org:19132")
 # 'status' is the only feature that is supported by Bedrock at this time.
 # In this case status includes players_online, latency, motd, map, gamemode, and players_max. (ex: status.gamemode)
 status = server.status()
-print(f"The server has {status.players.online} players online and replied in {status.latency} ms")
+print(f"The server has {status.players_online} players online and replied in {status.latency} ms")
 ```
 
 See the [documentation](https://mcstatus.readthedocs.io) to find what you can do with our library!
