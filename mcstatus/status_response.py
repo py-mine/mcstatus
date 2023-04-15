@@ -213,6 +213,15 @@ class JavaStatusResponse(BaseStatusResponse):
 
         return description + end
 
+    @property
+    @deprecated(replacement="icon", date="2023-08")
+    def favicon(self) -> str | None:
+        """
+        .. deprecated:: 11.0.0
+            Will be removed 2023-08, use :attr:`icon <JavaStatusResponse.icon>` instead.
+        """
+        return self.icon
+
 
 @dataclass
 class BedrockStatusResponse(BaseStatusResponse):
