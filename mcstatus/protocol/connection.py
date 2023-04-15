@@ -448,6 +448,9 @@ class Connection(BaseSyncConnection):
 
     def read(self, length: int) -> bytearray:
         """Return :attr:`.received` up to length bytes, then cut received up to that point."""
+        if len(self.received) < length:
+            raise IOError(f"Not enough data to read! {len(self.received)} < {length}")
+
         result = self.received[:length]
         self.received = self.received[length:]
         return result

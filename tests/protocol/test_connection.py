@@ -204,6 +204,18 @@ class TestConnection:
 
         assert self.connection.flush() == bytearray.fromhex("027FAA")
 
+    def test_read_empty(self):
+        self.connection.received = bytearray()
+
+        with pytest.raises(IOError):
+            self.connection.read(1)
+
+    def test_read_not_enough(self):
+        self.connection.received = bytearray(b"a")
+
+        with pytest.raises(IOError):
+            self.connection.read(2)
+
 
 class TestTCPSocketConnection:
     @pytest.fixture(scope="class")
@@ -236,7 +248,13 @@ class TestTCPSocketConnection:
         assert connection.read(2) == bytearray.fromhex("7FAA")
 
     def test_read_empty(self, connection):
-        connection.socket.recv.return_value = bytearray.fromhex("")
+        connection.socket.recv.return_value = bytearray()
+
+        with pytest.raises(IOError):
+            connection.read(1)
+
+    def test_read_not_enough(self, connection):
+        connection.socket.recv.side_effect = [bytearray(b"a"), bytearray()]
 
         with pytest.raises(IOError):
             connection.read(2)
@@ -275,6 +293,12 @@ class TestUDPSocketConnection:
         connection.socket.recvfrom.return_value = [bytearray.fromhex("7FAA")]
 
         assert connection.read(2) == bytearray.fromhex("7FAA")
+
+    def test_read_empty(self, connection):
+        connection.socket.recvfrom.return_value = []
+
+        with pytest.raises(IndexError):
+            connection.read(1)
 
     def test_write(self, connection):
         connection.write(bytearray.fromhex("7FAA"))
