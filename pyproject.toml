@@ -46,7 +46,7 @@ pytest-rerunfailures = "^10.3"
 coverage = "^6.4"
 
 [tool.poetry.group.lint.dependencies]
-black = ">=22.10,<24.0"
+black = "^23.3.0"
 coverage = "^6.5"
 flake8 = "^5.0.4"
 flake8-annotations = "^2.9.1"
