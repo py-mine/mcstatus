@@ -28,7 +28,6 @@ def json(server: JavaServer) -> None:
     data["online"] = False
     # Build data with responses and quit on exception
     try:
-
         status_res = server.status(tries=1)
         data["version"] = status_res.version.name
         data["protocol"] = status_res.version.protocol
