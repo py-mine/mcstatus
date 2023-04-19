@@ -1,36 +1,6 @@
-from pytest import mark, raises
+from pytest import raises
 
-from mcstatus.status_response import BaseStatusResponse, _validate_data
-
-
-class TestValidateDataFunction:
-    @mark.parametrize("raw", [{"foo": "bar"}, {"foo": 123, "bar": 1.4, "baz": True}])
-    @mark.parametrize("required_key", ["foo", "bar", "baz"])
-    @mark.parametrize("required_type", [str, int, object])
-    def test_invalid_data(self, raw, required_key, required_type):
-        if required_key in raw and isinstance(raw[required_key], required_type):
-            return
-        elif required_key in raw and not isinstance(raw[required_key], required_type):
-            error = TypeError
-        elif required_key not in raw:
-            error = ValueError
-        else:
-            raise ValueError("Unknown parametrize")
-
-        with raises(error) as exc:
-            _validate_data(raw, "test", [(required_key, required_type)])
-
-        if error == ValueError:
-            assert exc.match(f"no '{required_key}' value")
-        else:
-            assert exc.match(f"'{required_key}' to be {required_type}, was {type(raw[required_key])}")
-
-    def test_who_parameter(self):
-        who = str(object())
-        with raises(ValueError) as exc:
-            _validate_data({"foo": "bar"}, who, [("not exist", object)])
-
-        exc.match(f"^Invalid {who} object")
+from mcstatus.status_response import BaseStatusResponse
 
 
 class TestMCStatusResponse:

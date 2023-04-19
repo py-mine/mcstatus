@@ -3,8 +3,6 @@ from __future__ import annotations
 import abc
 from typing import Any, TypeVar, cast
 
-import pytest
-
 from mcstatus.status_response import BaseStatusResponse
 
 __all__ = ["BaseStatusResponseTest"]
@@ -73,18 +71,6 @@ class BaseStatusResponseTest(abc.ABC):
         raw = cast(tuple, self.OPTIONAL_FIELDS)[1]
         del raw[to_remove]
         assert getattr(type(build).build(raw), attribute_name) is None
-
-    def test_value_validating(self, build: BaseStatusResponse, exclude_field: str) -> None:
-        raw = cast(list, self.BUILD_METHOD_VALIDATION)[2].copy()
-        raw.pop(exclude_field)
-        with pytest.raises(ValueError):
-            type(build).build(raw)
-
-    def test_type_validating(self, build: BaseStatusResponse, to_change_field: str) -> None:
-        raw = cast(list, self.BUILD_METHOD_VALIDATION)[2].copy()
-        raw[to_change_field] = object()
-        with pytest.raises(TypeError):
-            type(build).build(raw)
 
     def _dependency_table(self) -> dict[str, bool]:
         # a key in the dict must be a name of a test implementation.

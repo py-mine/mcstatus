@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
@@ -91,26 +90,6 @@ STYLE_MAP = {
 }
 
 
-def _validate_data(raw: Mapping[str, Any], who: str, required: Iterable[tuple[str, type]]) -> None:
-    """Ensure that all required keys are present, and have the specified type.
-
-    :param raw: The raw :class:`dict` answer to check.
-    :param who: The name of the object that is checking the data. Example ``status``, ``player`` etc.
-    :param required:
-        An iterable of string and type. The string is the required key which must be in ``raw``, and the ``type`` is the
-        type that the key must be. If you want to ignore check of the type, set the type to :obj:`object`.
-    :raises ValueError: If the required keys are not present.
-    :raises TypeError: If the required keys are not of the expected type.
-    """
-    for required_key, required_type in required:
-        if required_key not in raw:
-            raise ValueError(f"Invalid {who} object (no {required_key!r} value)")
-        if not isinstance(raw[required_key], required_type):
-            raise TypeError(
-                f"Invalid {who} object (expected {required_key!r} to be {required_type}, was {type(raw[required_key])})"
-            )
-
-
 @dataclass
 class BaseStatusResponse(ABC):
     """Class for storing shared data from a status response."""
@@ -170,7 +149,6 @@ class JavaStatusResponse(BaseStatusResponse):
             ``description`` - :class:`str`) are not of the expected type.
         :return: :class:`JavaStatusResponse` object.
         """
-        _validate_data(raw, "status", [("players", dict), ("version", dict), ("description", str)])
         return cls(
             raw=raw,
             players=JavaStatusPlayers.build(raw["players"]),
@@ -333,10 +311,8 @@ class JavaStatusPlayers(BaseStatusPlayers):
             ``sample`` - :class:`list`) are not of the expected type.
         :return: :class:`JavaStatusPlayers` object.
         """
-        _validate_data(raw, "players", [("online", int), ("max", int)])
         sample = None
         if "sample" in raw:
-            _validate_data(raw, "players", [("sample", list)])
             sample = [JavaStatusPlayer.build(player) for player in raw["sample"]]
         return cls(
             online=raw["online"],
@@ -374,7 +350,6 @@ class JavaStatusPlayer:
             are not of the expected type.
         :return: :class:`JavaStatusPlayer` object.
         """
-        _validate_data(raw, "player", [("name", str), ("id", str)])
         return cls(name=raw["name"], id=raw["id"])
 
 
@@ -409,7 +384,6 @@ class JavaStatusVersion(BaseStatusVersion):
             are not of the expected type.
         :return: :class:`JavaStatusVersion` object.
         """
-        _validate_data(raw, "version", [("name", str), ("protocol", int)])
         return cls(name=raw["name"], protocol=raw["protocol"])
 
 
