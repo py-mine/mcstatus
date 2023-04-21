@@ -11,6 +11,8 @@ updates:
       interval: "daily"
     labels:
       - "area: dependencies"
+    versioning-strategy: increase-if-necessary
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
