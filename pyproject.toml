@@ -64,7 +64,7 @@ typing-extensions = "^4.4.0"
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-sphinx = "^5.3.0"
+sphinx = "^6.2.0"
 sphinx-autodoc-typehints = "^1.19.0"
 furo = ">=2022.12.7"
 m2r2 = "^0.3.0"
