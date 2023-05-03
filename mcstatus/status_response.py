@@ -137,11 +137,11 @@ class JavaStatusResponse(BaseStatusResponse):
         )
 
     @property
-    @deprecated(replacement="icon", date="2023-08")
+    @deprecated(replacement="icon", date="2023-12")
     def favicon(self) -> str | None:
         """
         .. deprecated:: 11.0.0
-            Will be removed 2023-08, use :attr:`icon <JavaStatusResponse.icon>` instead.
+            Will be removed 2023-12, use :attr:`icon <JavaStatusResponse.icon>` instead.
         """
         return self.icon
 
@@ -192,29 +192,29 @@ class BedrockStatusResponse(BaseStatusResponse):
         )
 
     @property
-    @deprecated(replacement="players.online", date="2023-08")
+    @deprecated(replacement="players.online", date="2023-12")
     def players_online(self) -> int:
         """
         .. deprecated:: 11.0.0
-            Will be removed 2023-08, use :attr:`players.online <BedrockStatusPlayers.online>` instead.
+            Will be removed 2023-12, use :attr:`players.online <BedrockStatusPlayers.online>` instead.
         """
         return self.players.online
 
     @property
-    @deprecated(replacement="players.max", date="2023-08")
+    @deprecated(replacement="players.max", date="2023-12")
     def players_max(self) -> int:
         """
         .. deprecated:: 11.0.0
-            Will be removed 2023-08, use :attr:`players.max <BedrockStatusPlayers.max>` instead.
+            Will be removed 2023-12, use :attr:`players.max <BedrockStatusPlayers.max>` instead.
         """
         return self.players.max
 
     @property
-    @deprecated(replacement="map_name", date="2023-08")
+    @deprecated(replacement="map_name", date="2023-12")
     def map(self) -> str | None:
         """
         .. deprecated:: 11.0.0
-            Will be removed 2023-08, use :attr:`.map_name` instead.
+            Will be removed 2023-12, use :attr:`.map_name` instead.
         """
         return self.map_name
 
@@ -346,10 +346,10 @@ class BedrockStatusVersion(BaseStatusVersion):
     """``MCPE`` or ``MCEE`` for Education Edition."""
 
     @property
-    @deprecated(replacement="name", date="2023-08")
+    @deprecated(replacement="name", date="2023-12")
     def version(self) -> str:
         """
         .. deprecated:: 11.0.0
-            Will be removed 2023-08, use :attr:`.name` instead.
+            Will be removed 2023-12, use :attr:`.name` instead.
         """
         return self.name

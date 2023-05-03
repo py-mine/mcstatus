@@ -128,5 +128,5 @@ class AsyncServerPinger(ServerPinger):
         return (received - sent) * 1000
 
 
-# TODO Remove this deprecation after 2023-08
+# TODO Remove this deprecation after 2023-12
 PingResponse: TypeAlias = JavaStatusResponse
