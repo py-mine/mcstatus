@@ -180,7 +180,6 @@ class HtmlTransformer(PlainTransformer):
 
 
 class AnsiTransformer(PlainTransformer):
-
     FORMATTING_TO_ANSI_TAGS = {
         Formatting.BOLD: "1",
         Formatting.STRIKETHROUGH: "9",
