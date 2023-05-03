@@ -16,6 +16,7 @@ Content
 	:caption: API Documentation
 
 	api/basic.rst
+	api/motd_parsing.rst
 	api/internal.rst
 
 

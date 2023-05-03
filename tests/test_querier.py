@@ -1,3 +1,4 @@
+from mcstatus.motd import Motd
 from mcstatus.protocol.connection import Connection
 from mcstatus.querier import QueryResponse, ServerQuerier
 
@@ -54,7 +55,7 @@ class TestMinecraftQuerier:
         self.querier.connection.flush()
 
         assert response.raw["game_id"] == "MINECRAFT"
-        assert response.motd == "Geyser"
+        assert response.motd == Motd.parse("Geyser")
         assert response.software.version == "Geyser (git-master-0fd903e) 1.18.10"
 
     def test_query_handles_unicode_motd_with_nulls(self):
@@ -70,7 +71,7 @@ class TestMinecraftQuerier:
         self.querier.connection.flush()
 
         assert response.raw["game_id"] == "MINECRAFT"
-        assert response.motd == "\x00*KÕ"
+        assert response.motd == Motd.parse("\x00*KÕ")
 
     def test_query_handles_unicode_motd_with_2a00_at_the_start(self):
         self.querier.connection.receive(
@@ -85,7 +86,7 @@ class TestMinecraftQuerier:
         self.querier.connection.flush()
 
         assert response.raw["game_id"] == "MINECRAFT"
-        assert response.motd == "\x00other"  # "\u2a00other" is actually what is expected,
+        assert response.motd == Motd.parse("\x00other")  # "\u2a00other" is actually what is expected,
         # but the query protocol for vanilla has a bug when it comes to unicode handling.
         # The status protocol correctly shows "⨀other".
 
@@ -108,7 +109,7 @@ class TestQueryResponse:
 
     def test_valid(self):
         response = QueryResponse(self.raw, self.players)
-        assert response.motd == "A Minecraft Server"
+        assert response.motd == Motd.parse("A Minecraft Server")
         assert response.map == "world"
         assert response.players.online == 3
         assert response.players.max == 20

@@ -5,6 +5,7 @@ import re
 import struct
 from typing import TYPE_CHECKING
 
+from mcstatus.motd import Motd
 from mcstatus.protocol.connection import Connection, UDPAsyncSocketConnection, UDPSocketConnection
 
 if TYPE_CHECKING:
@@ -127,7 +128,7 @@ class QueryResponse:
                 if len(parts) == 2:
                     self.plugins = [s.strip() for s in parts[1].split(";")]
 
-    motd: str
+    motd: Motd
     map: str
     players: Players
     software: Software
@@ -135,7 +136,7 @@ class QueryResponse:
     def __init__(self, raw: dict[str, str], players: list[str]):
         try:
             self.raw = raw
-            self.motd = raw["hostname"]
+            self.motd = Motd.parse(raw["hostname"], bedrock=False)
             self.map = raw["map"]
             self.players = QueryResponse.Players(raw["numplayers"], raw["maxplayers"], players)
             self.software = QueryResponse.Software(raw["version"], raw["plugins"])

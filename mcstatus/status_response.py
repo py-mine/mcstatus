@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
+from mcstatus.motd import Motd
+
 if TYPE_CHECKING:
     from typing_extensions import NotRequired, Self, TypeAlias, TypedDict
 
@@ -62,33 +64,6 @@ __all__ = [
     "JavaStatusVersion",
 ]
 
-STYLE_MAP = {
-    "color": {
-        "dark_red": "4",
-        "red": "c",
-        "gold": "6",
-        "yellow": "e",
-        "dark_green": "2",
-        "green": "a",
-        "aqua": "b",
-        "dark_aqua": "3",
-        "dark_blue": "1",
-        "blue": "9",
-        "light_purple": "d",
-        "dark_purple": "5",
-        "white": "f",
-        "gray": "7",
-        "dark_gray": "8",
-        "black": "0",
-    },
-    "bold": "l",
-    "strikethrough": "m",
-    "italic": "o",
-    "underlined": "n",
-    "obfuscated": "k",
-    "reset": "r",
-}
-
 
 @dataclass
 class BaseStatusResponse(ABC):
@@ -98,15 +73,18 @@ class BaseStatusResponse(ABC):
     """The players information."""
     version: BaseStatusVersion
     """The version information."""
-    motd: str
-    """Message Of The Day. Also known as description."""
+    motd: Motd
+    """Message Of The Day. Also known as description.
+
+    .. seealso:: :doc:`/api/motd_parsing`.
+    """
     latency: float
     """Latency between a server and the client (you). In milliseconds."""
 
     @property
     def description(self) -> str:
-        """Alias to the :attr:`.motd` field."""
-        return self.motd
+        """Alias to the :meth:`mcstatus.motd.Motd.to_minecraft` method."""
+        return self.motd.to_minecraft()
 
     @classmethod
     @abstractmethod
@@ -153,43 +131,10 @@ class JavaStatusResponse(BaseStatusResponse):
             raw=raw,
             players=JavaStatusPlayers.build(raw["players"]),
             version=JavaStatusVersion.build(raw["version"]),
-            motd=cls._parse_motd(raw["description"]),
+            motd=Motd.parse(raw["description"], bedrock=False),
             icon=raw.get("favicon"),
             latency=latency,
         )
-
-    @staticmethod
-    def _parse_motd(raw_motd: RawJavaResponseMotd) -> str:
-        """Parse MOTD from raw response.
-
-        :param raw_motd: Raw MOTD.
-        :return: Parsed MOTD.
-        """
-        if isinstance(raw_motd, str):
-            return raw_motd
-
-        if isinstance(raw_motd, dict):
-            entries = raw_motd.get("extra", [])
-            end = raw_motd.get("text", "")
-        else:
-            entries = raw_motd
-            end = ""
-
-        description = ""
-
-        for entry in entries:
-            for style_key, style_val in STYLE_MAP.items():
-                if entry.get(style_key):
-                    try:
-                        if isinstance(style_val, dict):
-                            style_val = style_val[entry[style_key]]
-
-                        description += f"§{style_val}"
-                    except KeyError:
-                        pass  # ignoring these key errors strips out html color codes
-            description += entry.get("text", "")
-
-        return description + end
 
     @property
     @deprecated(replacement="icon", date="2023-08")
@@ -240,7 +185,7 @@ class BedrockStatusResponse(BaseStatusResponse):
                 protocol=int(decoded_data[2]),
                 brand=decoded_data[0],
             ),
-            motd=decoded_data[1],
+            motd=Motd.parse(decoded_data[1], bedrock=True),
             latency=latency,
             map_name=map_name,
             gamemode=gamemode,

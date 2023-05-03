@@ -1,5 +1,6 @@
 from pytest import fixture, mark
 
+from mcstatus.motd import Motd
 from mcstatus.status_response import BedrockStatusPlayers, BedrockStatusResponse, BedrockStatusVersion
 from tests.status_response import BaseStatusResponseTest
 
@@ -29,7 +30,7 @@ def build():
 @BaseStatusResponseTest.construct
 class TestBedrockStatusResponse(BaseStatusResponseTest):
     EXPECTED_VALUES = [
-        ("motd", "§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r"),
+        ("motd", Motd.parse("§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r", bedrock=True)),
         ("latency", 123.0),
         ("map_name", "map name here"),
         ("gamemode", "Default"),
