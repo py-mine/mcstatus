@@ -7,11 +7,11 @@
 [![Validation](https://github.com/py-mine/mcstatus/actions/workflows/validation.yml/badge.svg)](https://github.com/py-mine/mcstatus/actions/workflows/validation.yml)
 [![Tox test](https://github.com/py-mine/mcstatus/actions/workflows/tox-test.yml/badge.svg)](https://github.com/py-mine/mcstatus/actions/workflows/tox-test.yml)
 
-Mcstatus provides an API and command line script to fetch publicly available data from Minecraft servers. Specifically, mcstatus retrieves data by using these protocols: [Server List Ping](https://wiki.vg/Server_List_Ping) and [Query](https://wiki.vg/Query). Because of mcstatus, you do not need to fully understand those protocols and can instead skip straight to retrieving minecraft server data quickly in your own programs.
+MCStatus provides an API and command line script to fetch publicly available data from Minecraft servers. Specifically, MCStatus retrieves data by using these protocols: [Server List Ping](https://wiki.vg/Server_List_Ping) and [Query](https://wiki.vg/Query). Because of MCStatus, you do not need to fully understand those protocols and can instead skip straight to retrieving minecraft server data quickly in your own programs.
 
 ## Installation
 
-Mcstatus is available on [PyPI](https://pypi.org/project/mcstatus/), and can be installed trivially with:
+MCStatus is available on [PyPI](https://pypi.org/project/mcstatus/), and can be installed trivially with:
 
 ```bash
 python3 -m pip install mcstatus
@@ -71,4 +71,4 @@ This only works with Java servers; Bedrock is not yet supported. Use `mcstatus -
 
 ## License
 
-Mcstatus is licensed under the Apache 2.0 license. See LICENSE for full text.
+MCStatus is licensed under the Apache 2.0 license. See LICENSE for full text.
