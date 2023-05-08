@@ -7,12 +7,20 @@ from tests.status_response import BaseStatusResponseTest
 
 @BaseStatusResponseTest.construct
 class TestJavaStatusResponse(BaseStatusResponseTest):
+    RAW = {
+        "players": {"max": 20, "online": 0},
+        "version": {"name": "1.8-pre1", "protocol": 44},
+        "description": "A Minecraft Server",
+        "favicon": "data:image/png;base64,foo",
+    }
+
     EXPECTED_VALUES = [
         ("players", JavaStatusPlayers(0, 20, None)),
         ("version", JavaStatusVersion("1.8-pre1", 44)),
         ("motd", Motd.parse("A Minecraft Server", bedrock=False)),
         ("latency", 0),
         ("icon", "data:image/png;base64,foo"),
+        ("raw", RAW),
     ]
     BUILD_METHOD_VALIDATION = (
         ["players", "version", "description"],
@@ -29,14 +37,7 @@ class TestJavaStatusResponse(BaseStatusResponseTest):
 
     @fixture(scope="class")
     def build(self):
-        return JavaStatusResponse.build(
-            {
-                "players": {"max": 20, "online": 0},
-                "version": {"name": "1.8-pre1", "protocol": 44},
-                "description": "A Minecraft Server",
-                "favicon": "data:image/png;base64,foo",
-            }
-        )
+        return JavaStatusResponse.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
 
 @BaseStatusResponseTest.construct
