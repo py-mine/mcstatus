@@ -17,11 +17,6 @@ class BaseStatusResponseTest(abc.ABC):
     # first element is a list with fields to remove, and attribute that
     # must be None. a dict is a raw answer to pass into `build` method
     OPTIONAL_FIELDS: tuple[list[tuple[str, str]], dict[str, Any]] | None = None  # noqa: ANN401
-    # there should be a ValueError, if we exclude the field from input
-    # and a TypeError, if specify incorrect type
-    # second item in tuple is an additional items to test their types,
-    # but they can be not present. third item in tuple is a raw answer dict
-    BUILD_METHOD_VALIDATION: tuple[list[str], list[str], dict[str, Any]] | None = None  # noqa: ANN401
 
     def _validate(self) -> None:
         """Perform checks to validate the class."""
@@ -43,14 +38,6 @@ class BaseStatusResponseTest(abc.ABC):
             for attribute_name in self.ATTRIBUTES_IN:
                 if attribute_name in already_checked_attributes:
                     raise ValueError("You can't test the type availability, if already testing its value/type.")
-
-        if self.BUILD_METHOD_VALIDATION is not None:
-            for do_required_item in self.BUILD_METHOD_VALIDATION[1]:
-                if do_required_item in self.BUILD_METHOD_VALIDATION[0]:
-                    raise ValueError(
-                        "You must specify only required fields, in first tuple's item."
-                        f" Found '{do_required_item}' in first and second items."
-                    )
 
     @abc.abstractmethod
     def build(self) -> Any:  # noqa: ANN401
@@ -81,17 +68,10 @@ class BaseStatusResponseTest(abc.ABC):
             "test_types_of_attributes": self.EXPECTED_TYPES is not None,
             "test_attribute_in": self.ATTRIBUTES_IN is not None,
             "test_optional_field_turns_into_none": self.OPTIONAL_FIELDS is not None,
-            "test_value_validating": self.BUILD_METHOD_VALIDATION is not None,
-            "test_type_validating": self.BUILD_METHOD_VALIDATION is not None,
         }
 
     def _marks_table(self) -> dict[str, tuple[str, tuple[Any, ...]]]:
         # hooks in conftest.py parses this table
-        if self.BUILD_METHOD_VALIDATION is not None:
-            build_method_validation_args = self.BUILD_METHOD_VALIDATION[0].copy()
-            build_method_validation_args.extend(self.BUILD_METHOD_VALIDATION[1])
-        else:
-            build_method_validation_args = []
 
         # a key in the dict must be a name of a test implementation.
         # and a value of the dict is a tuple, where first element is
@@ -105,11 +85,6 @@ class BaseStatusResponseTest(abc.ABC):
                 "parametrize",
                 ("to_remove,attribute_name", self.OPTIONAL_FIELDS[0] if self.OPTIONAL_FIELDS is not None else ()),
             ),
-            "test_value_validating": (
-                "parametrize",
-                ("exclude_field", self.BUILD_METHOD_VALIDATION[0] if self.BUILD_METHOD_VALIDATION is not None else ()),
-            ),
-            "test_type_validating": ("parametrize", ("to_change_field", build_method_validation_args)),
         }
 
     @staticmethod

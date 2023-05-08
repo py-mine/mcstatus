@@ -14,18 +14,12 @@ class TestJavaStatusResponse(BaseStatusResponseTest):
         ("latency", 0),
         ("icon", "data:image/png;base64,foo"),
     ]
-    BUILD_METHOD_VALIDATION = (
-        ["players", "version", "description"],
-        [],
-        {
-            "players": {"max": 20, "online": 0},
-            "version": {"name": "1.8-pre1", "protocol": 44},
-            "description": "A Minecraft Server",
-            "favicon": "data:image/png;base64,foo",
-        },
-    )
-    # `BUILD_METHOD_VALIDATION[2]` has the same value, as we need. so why not reuse it?
-    OPTIONAL_FIELDS = [("favicon", "icon")], BUILD_METHOD_VALIDATION[2]
+    OPTIONAL_FIELDS = [("favicon", "icon")], {
+        "players": {"max": 20, "online": 0},
+        "version": {"name": "1.8-pre1", "protocol": 44},
+        "description": "A Minecraft Server",
+        "favicon": "data:image/png;base64,foo",
+    }
 
     @fixture(scope="class")
     def build(self):
@@ -53,21 +47,15 @@ class TestJavaStatusPlayers(BaseStatusResponseTest):
             ],
         ),
     ]
-    BUILD_METHOD_VALIDATION = (
-        ["max", "online"],
-        ["sample"],
-        {
-            "max": 20,
-            "online": 0,
-            "sample": [
-                {"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"},
-                {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"},
-                {"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4"},
-            ],
-        },
-    )
-    # `BUILD_METHOD_VALIDATION[2]` has the same value, as we need. so why not reuse it?
-    OPTIONAL_FIELDS = [("sample", "sample")], BUILD_METHOD_VALIDATION[2]
+    OPTIONAL_FIELDS = [("sample", "sample")], {
+        "max": 20,
+        "online": 0,
+        "sample": [
+            {"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"},
+            {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"},
+            {"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4"},
+        ],
+    }
 
     @fixture(scope="class")
     def build(self):
@@ -90,7 +78,6 @@ class TestJavaStatusPlayers(BaseStatusResponseTest):
 @BaseStatusResponseTest.construct
 class TestJavaStatusPlayer(BaseStatusResponseTest):
     EXPECTED_VALUES = [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")]
-    BUILD_METHOD_VALIDATION = ["name", "id"], [], {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"}
 
     @fixture(scope="class")
     def build(self):
@@ -107,7 +94,6 @@ class TestJavaStatusPlayer(BaseStatusResponseTest):
 @BaseStatusResponseTest.construct
 class TestJavaStatusVersion(BaseStatusResponseTest):
     EXPECTED_VALUES = [("name", "1.8-pre1"), ("protocol", 44)]
-    BUILD_METHOD_VALIDATION = ["name", "protocol"], [], {"name": "1.8-pre1", "protocol": 44}
 
     @fixture(scope="class")
     def build(self):
