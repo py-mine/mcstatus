@@ -112,8 +112,8 @@ class TestJavaServer:
     def test_ping_retry(self):
         # Use a blank mock for the connection, we don't want to actually create any connections
         with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.ServerPinger") as pinger:
-            pinger.side_effect = [Exception, Exception, Exception]
-            with pytest.raises(Exception):
+            pinger.side_effect = [RuntimeError, RuntimeError, RuntimeError]
+            with pytest.raises(RuntimeError):
                 self.server.ping()
             assert pinger.call_count == 3
 
@@ -142,8 +142,8 @@ class TestJavaServer:
     def test_status_retry(self):
         # Use a blank mock for the connection, we don't want to actually create any connections
         with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.ServerPinger") as pinger:
-            pinger.side_effect = [Exception, Exception, Exception]
-            with pytest.raises(Exception):
+            pinger.side_effect = [RuntimeError, RuntimeError, RuntimeError]
+            with pytest.raises(RuntimeError):
                 self.server.status()
             assert pinger.call_count == 3
 
@@ -187,8 +187,8 @@ class TestJavaServer:
     def test_query_retry(self):
         # Use a blank mock for the connection, we don't want to actually create any connections
         with patch("mcstatus.server.UDPSocketConnection"), patch("mcstatus.server.ServerQuerier") as querier:
-            querier.side_effect = [Exception, Exception, Exception]
-            with pytest.raises(Exception), patch.object(self.server.address, "resolve_ip") as resolve_ip:
+            querier.side_effect = [RuntimeError, RuntimeError, RuntimeError]
+            with pytest.raises(RuntimeError), patch.object(self.server.address, "resolve_ip") as resolve_ip:
                 resolve_ip.return_value = "127.0.0.1"
                 self.server.query()
             assert querier.call_count == 3
