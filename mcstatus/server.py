@@ -162,7 +162,7 @@ class JavaServer(MCServer):
         try:
             ip = str(self.address.resolve_ip())
         except dns.resolver.NXDOMAIN:
-            warnings.warn(f"Resolving IP for {self.address.host} failed with NXDOMAIN")
+            warnings.warn(f"Resolving IP for {self.address.host} failed with NXDOMAIN", stacklevel=1)
             ip = self.address.host
 
         return self._retry_query(Address(ip, self.address.port))
@@ -183,7 +183,7 @@ class JavaServer(MCServer):
         try:
             ip = str(await self.address.async_resolve_ip())
         except dns.resolver.NXDOMAIN:
-            warnings.warn(f"Resolving IP for {self.address.host} failed with NXDOMAIN")
+            warnings.warn(f"Resolving IP for {self.address.host} failed with NXDOMAIN", stacklevel=1)
             ip = self.address.host
 
         return await self._retry_async_query(Address(ip, self.address.port))
