@@ -5,7 +5,7 @@ import typing
 import pytest
 from _pytest.python import Function, Metafunc
 
-from tests.status_response import BaseStatusResponseTest
+from tests.responses import BaseStatusResponseTest
 
 
 def pytest_generate_tests(metafunc: Metafunc) -> None:

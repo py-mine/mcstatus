@@ -3,7 +3,7 @@ from __future__ import annotations
 import abc
 from typing import Any, TypeVar, cast
 
-from mcstatus.status_response import BaseStatusResponse
+from mcstatus.responses import BaseStatusResponse
 
 __all__ = ["BaseStatusResponseTest"]
 _T = TypeVar("_T", bound="type[BaseStatusResponseTest]")

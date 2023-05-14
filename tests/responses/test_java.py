@@ -1,8 +1,8 @@
 from pytest import fixture
 
 from mcstatus.motd import Motd
-from mcstatus.status_response import JavaStatusPlayer, JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
-from tests.status_response import BaseStatusResponseTest
+from mcstatus.responses import JavaStatusPlayer, JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
+from tests.responses import BaseStatusResponseTest
 
 
 @BaseStatusResponseTest.construct

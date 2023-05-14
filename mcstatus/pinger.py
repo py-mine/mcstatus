@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
-from mcstatus.status_response import JavaStatusResponse
+from mcstatus.responses import JavaStatusResponse
 
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias

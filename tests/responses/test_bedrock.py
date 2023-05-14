@@ -1,8 +1,8 @@
 from pytest import fixture, mark
 
 from mcstatus.motd import Motd
-from mcstatus.status_response import BedrockStatusPlayers, BedrockStatusResponse, BedrockStatusVersion
-from tests.status_response import BaseStatusResponseTest
+from mcstatus.responses import BedrockStatusPlayers, BedrockStatusResponse, BedrockStatusVersion
+from tests.responses import BaseStatusResponseTest
 
 
 @fixture(scope="module")

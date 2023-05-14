@@ -8,7 +8,7 @@ from time import perf_counter
 import asyncio_dgram
 
 from mcstatus.address import Address
-from mcstatus.status_response import BedrockStatusResponse
+from mcstatus.responses import BedrockStatusResponse
 
 # TODO Remove this useless __all__ after 2023-08
 __all__ = ("BedrockServerStatus", "BedrockStatusResponse")

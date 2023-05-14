@@ -34,27 +34,27 @@ These are the classes that you get back after making a request.
 For Java Server
 ***************
 
-.. module:: mcstatus.status_response
+.. module:: mcstatus.responses
 
-.. autoclass:: mcstatus.status_response.JavaStatusResponse()
+.. autoclass:: mcstatus.responses.JavaStatusResponse()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.status_response.JavaStatusPlayers()
+.. autoclass:: mcstatus.responses.JavaStatusPlayers()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.status_response.JavaStatusPlayer()
+.. autoclass:: mcstatus.responses.JavaStatusPlayer()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.status_response.JavaStatusVersion()
+.. autoclass:: mcstatus.responses.JavaStatusVersion()
     :members:
     :undoc-members:
     :inherited-members:
@@ -144,22 +144,22 @@ For Java Server
 For Bedrock Servers
 *******************
 
-.. module:: mcstatus.status_response
+.. module:: mcstatus.responses
     :noindex:
 
-.. autoclass:: mcstatus.status_response.BedrockStatusResponse()
+.. autoclass:: mcstatus.responses.BedrockStatusResponse()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.status_response.BedrockStatusPlayers()
+.. autoclass:: mcstatus.responses.BedrockStatusPlayers()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.status_response.BedrockStatusVersion()
+.. autoclass:: mcstatus.responses.BedrockStatusVersion()
     :members:
     :undoc-members:
     :inherited-members:

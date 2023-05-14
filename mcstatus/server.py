@@ -16,7 +16,7 @@ from mcstatus.protocol.connection import (
     UDPSocketConnection,
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
-from mcstatus.status_response import BedrockStatusResponse, JavaStatusResponse
+from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse
 from mcstatus.utils import retry
 
 if TYPE_CHECKING:
@@ -123,7 +123,7 @@ class JavaServer(MCServer):
         """Checks the status of a Minecraft Java Edition server via the status protocol.
 
         :param kwargs: Passed to a :class:`~mcstatus.pinger.ServerPinger` instance.
-        :return: Status information in a :class:`~mcstatus.status_response.JavaStatusResponse` instance.
+        :return: Status information in a :class:`~mcstatus.responses.JavaStatusResponse` instance.
         """
 
         with TCPSocketConnection(self.address, self.timeout) as connection:
@@ -140,7 +140,7 @@ class JavaServer(MCServer):
         """Asynchronously checks the status of a Minecraft Java Edition server via the status protocol.
 
         :param kwargs: Passed to a :class:`~mcstatus.pinger.AsyncServerPinger` instance.
-        :return: Status information in a :class:`~mcstatus.status_response.JavaStatusResponse` instance.
+        :return: Status information in a :class:`~mcstatus.responses.JavaStatusResponse` instance.
         """
 
         async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
@@ -206,7 +206,7 @@ class BedrockServer(MCServer):
         """Checks the status of a Minecraft Bedrock Edition server.
 
         :param kwargs: Passed to a :class:`~mcstatus.bedrock_status.BedrockServerStatus` instance.
-        :return: Status information in a :class:`~mcstatus.status_response.BedrockStatusResponse` instance.
+        :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
         return BedrockServerStatus(self.address, self.timeout, **kwargs).read_status()
 
@@ -215,6 +215,6 @@ class BedrockServer(MCServer):
         """Asynchronously checks the status of a Minecraft Bedrock Edition server.
 
         :param kwargs: Passed to a :class:`~mcstatus.bedrock_status.BedrockServerStatus` instance.
-        :return: Status information in a :class:`~mcstatus.status_response.BedrockStatusResponse` instance.
+        :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
         return await BedrockServerStatus(self.address, self.timeout, **kwargs).read_status_async()
