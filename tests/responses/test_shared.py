@@ -1,6 +1,6 @@
 from pytest import raises
 
-from mcstatus.status_response import BaseStatusResponse
+from mcstatus.responses import BaseStatusResponse
 
 
 class TestMCStatusResponse:
