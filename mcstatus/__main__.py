@@ -66,7 +66,7 @@ def query(server: JavaServer) -> None:
     print(f"software: v{response.software.version} {response.software.brand}")
     print(f"plugins: {response.software.plugins}")
     print(f'motd: "{response.motd}"')
-    print(f"players: {response.players.online}/{response.players.max} {response.players.names}")
+    print(f"players: {response.players.online}/{response.players.max} {', '.join(response.players.list)}")
 
 
 def main() -> None:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, TYPE_CHECKING
+from typing import Any, Literal, TYPE_CHECKING
 
 from mcstatus.motd import Motd
 
@@ -42,12 +42,25 @@ if TYPE_CHECKING:
         version: RawJavaResponseVersion
         favicon: NotRequired[str]
 
+    class RawQueryResponse(TypedDict):
+        hostname: str
+        gametype: Literal["SMP"]
+        game_id: Literal["MINECRAFT"]
+        version: str
+        plugins: str
+        map: str
+        numplayers: str  # can be transformed into `int`
+        maxplayers: str  # can be transformed into `int`
+        hostport: str  # can be transformed into `int`
+        hostip: str
+
 else:
     RawJavaResponsePlayer = dict
     RawJavaResponsePlayers = dict
     RawJavaResponseVersion = dict
     RawJavaResponseMotdWhenDict = dict
     RawJavaResponse = dict
+    RawQueryResponse = dict
 
 from mcstatus.utils import deprecated
 
@@ -62,6 +75,7 @@ __all__ = [
     "JavaStatusPlayers",
     "JavaStatusResponse",
     "JavaStatusVersion",
+    "QueryResponse",
 ]
 
 
@@ -353,3 +367,126 @@ class BedrockStatusVersion(BaseStatusVersion):
             Will be removed 2023-12, use :attr:`.name` instead.
         """
         return self.name
+
+
+@dataclass
+class QueryResponse:
+    """The response object for :meth:`JavaServer.query() <mcstatus.server.JavaServer.query>`."""
+
+    raw: RawQueryResponse
+    """Raw response from the server.
+
+    This is :class:`~typing.TypedDict` actually, please see sources to find what is here.
+    """
+    motd: Motd
+    """The MOTD of the server. Also known as description.
+
+    .. seealso:: :doc:`/api/motd_parsing`.
+    """
+    map_name: str
+    """The name of the map. Default is ``world``."""
+    players: QueryPlayers
+    """The players information."""
+    software: QuerySoftware
+    """The software information."""
+    ip: str
+    """The IP address the server is listening/was contacted on."""
+    port: int
+    """The port the server is listening/was contacted on."""
+    game_type: str = "SMP"
+    """The game type of the server. Hardcoded to ``SMP`` (survival multiplayer)."""
+    game_id: str = "MINECRAFT"
+    """The game ID of the server. Hardcoded to ``MINECRAFT``."""
+
+    @classmethod
+    def build(cls, raw: RawQueryResponse, players_list: list[str]) -> Self:
+        return cls(
+            raw=raw,
+            motd=Motd.parse(raw["hostname"], bedrock=False),
+            map_name=raw["map"],
+            players=QueryPlayers.build(raw, players_list),
+            software=QuerySoftware.build(raw["version"], raw["plugins"]),
+            ip=raw["hostip"],
+            port=int(raw["hostport"]),
+            game_type=raw["gametype"],
+            game_id=raw["game_id"],
+        )
+
+    @property
+    @deprecated(replacement="map_name", date="2023-12")
+    def map(self) -> str | None:
+        """
+        .. deprecated:: 11.0.0
+            Will be removed 2023-12, use :attr:`.map_name` instead.
+        """
+        return self.map_name
+
+
+@dataclass
+class QueryPlayers:
+    """Class for storing information about players on the server."""
+
+    online: int
+    """The number of online players."""
+    max: int
+    """The maximum allowed number of players (server slots)."""
+    list: list[str]
+    """The list of online players."""
+
+    @classmethod
+    def build(cls, raw: RawQueryResponse, players_list: list[str]) -> Self:
+        return cls(
+            online=int(raw["numplayers"]),
+            max=int(raw["maxplayers"]),
+            list=players_list,
+        )
+
+    @property
+    @deprecated(replacement="'list' attribute", date="2023-12")
+    def names(self) -> list[str]:
+        """
+        .. deprecated:: 11.0.0
+            Will be removed 2023-12, use :attr:`.list` instead.
+        """
+        return self.list
+
+
+@dataclass
+class QuerySoftware:
+    """Class for storing information about software on the server."""
+
+    version: str
+    """The version of the software."""
+    brand: str
+    """The brand of the software. Like `Paper <https://papermc.io>`_ or `Spigot <https://www.spigotmc.org>`_."""
+    plugins: list[str]
+    """The list of plugins. Can be an empty list if hidden."""
+
+    @classmethod
+    def build(cls, version: str, plugins: str) -> Self:
+        brand, parsed_plugins = cls._parse_plugins(plugins)
+        return cls(
+            version=version,
+            brand=brand,
+            plugins=parsed_plugins,
+        )
+
+    @staticmethod
+    def _parse_plugins(plugins: str) -> tuple[str, list[str]]:
+        """Parse plugins string to list.
+
+        Returns:
+            :class:`tuple` with two elements. First is brand of server (:attr:`.brand`)
+            and second is a list of :attr:`plugins`.
+        """
+        brand = "vanilla"
+        parsed_plugins = []
+
+        if plugins:
+            parts = plugins.split(":", 1)
+            brand = parts[0].strip()
+
+            if len(parts) == 2:
+                parsed_plugins = [s.strip() for s in parts[1].split(";")]
+
+        return brand, parsed_plugins
