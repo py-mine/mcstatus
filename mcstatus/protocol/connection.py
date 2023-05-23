@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import errno
 import socket
 import struct
 from abc import ABC, abstractmethod
@@ -498,7 +499,12 @@ class SocketConnection(BaseSyncConnection):
     def close(self) -> None:
         """Close :attr:`.socket`."""
         if self.socket is not None:  # If initialized
-            self.socket.shutdown(socket.SHUT_RDWR)
+            try:
+                self.socket.shutdown(socket.SHUT_RDWR)
+            except OSError as exception:  # Socket wasn't connected (nothing to shut down)
+                if exception.errno != errno.ENOTCONN:
+                    raise
+
             self.socket.close()
 
     def __enter__(self) -> Self:
