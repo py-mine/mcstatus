@@ -4,10 +4,16 @@ extend-ignore=E203
 ban-relative-imports=true
 exclude=.venv,.git,.cache,.tox
 ignore=
-    ANN002, # *args annotation
-    ANN003, # **kwargs annotation
-    ANN101, # self param annotation
-    ANN102, # cls param annotation
-    ANN204, # return type annotation for special methods
-    B024,   # ABC class without any abstractmethods
+    # *args annotation
+    ANN002,
+    # **kwargs annotation
+    ANN003,
+    # self param annotation
+    ANN101,
+    # cls param annotation
+    ANN102,
+    # return type annotation for special methods
+    ANN204,
+    # ABC class without any abstractmethods
+    B024,
 per-file-ignores=test_*.py:ANN
