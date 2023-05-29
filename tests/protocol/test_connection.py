@@ -190,6 +190,26 @@ class TestConnection:
 
         assert self.connection.flush() == bytearray.fromhex("8000000000000000")
 
+    def test_read_bool_true(self):
+        self.connection.receive(bytearray.fromhex("01"))
+
+        assert self.connection.read_bool() == True
+
+    def test_write_bool_true(self):
+        self.connection.write_bool(True)
+
+        assert self.connection.flush() == bytearray.fromhex("01")
+
+    def test_read_bool_false(self):
+        self.connection.receive(bytearray.fromhex("00"))
+
+        assert self.connection.read_bool() == False
+
+    def test_write_bool_false(self):
+        self.connection.write_bool(False)
+
+        assert self.connection.flush() == bytearray.fromhex("00")
+
     def test_read_buffer(self):
         self.connection.receive(bytearray.fromhex("027FAA"))
         buffer = self.connection.read_buffer()
