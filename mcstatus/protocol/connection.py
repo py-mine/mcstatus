@@ -11,14 +11,16 @@ from ctypes import c_int64 as signed_int64
 from ctypes import c_uint32 as unsigned_int32
 from ctypes import c_uint64 as unsigned_int64
 from ipaddress import ip_address
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import asyncio_dgram
 
 from mcstatus.address import Address
 
 if TYPE_CHECKING:
-    from typing_extensions import Self, SupportsIndex, TypeAlias
+    from types import TracebackType
+
+    from typing_extensions import Literal, Self, SupportsIndex, TypeAlias
 
     BytesConvertable: TypeAlias = "SupportsIndex | Iterable[SupportsIndex]"
 
@@ -244,7 +246,7 @@ class BaseReadSync(ABC):
     @staticmethod
     def _unpack(format_: str, data: bytes) -> int:
         """Unpack data as bytes with format in big-endian."""
-        return struct.unpack(">" + format_, bytes(data))[0]
+        return cast(int, struct.unpack(">" + format_, bytes(data))[0])
 
     def read_varint(self) -> int:
         """Read varint from ``self`` and return it.
@@ -312,7 +314,7 @@ class BaseReadSync(ABC):
 
     def read_bool(self) -> bool:
         """Return `True` or `False`. Read 1 byte."""
-        return self._unpack("?", self.read(1)) == 1
+        return cast(bool, self._unpack("?", self.read(1)))
 
     def read_buffer(self) -> "Connection":
         """Read a varint for length, then return a new connection from length read bytes."""
@@ -337,7 +339,7 @@ class BaseReadAsync(ABC):
     @staticmethod
     def _unpack(format_: str, data: bytes) -> int:
         """Unpack data as bytes with format in big-endian."""
-        return struct.unpack(">" + format_, bytes(data))[0]
+        return cast(int, struct.unpack(">" + format_, bytes(data))[0])
 
     async def read_varint(self) -> int:
         """Read varint from ``self`` and return it.
@@ -405,7 +407,7 @@ class BaseReadAsync(ABC):
 
     async def read_bool(self) -> bool:
         """Return `True` or `False`. Read 1 byte."""
-        return self._unpack("?", await self.read(1)) == 1
+        return cast(bool, self._unpack("?", await self.read(1)))
 
     async def read_buffer(self) -> Connection:
         """Read a varint for length, then return a new connection from length read bytes."""
@@ -526,8 +528,16 @@ class SocketConnection(BaseSyncConnection):
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *_) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> Literal[False]:
         self.close()
+        # Return false, we don't want to suppress
+        # exceptions raised in the context
+        return False
 
 
 class TCPSocketConnection(SocketConnection):
@@ -637,8 +647,16 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         await self.connect()
         return self
 
-    async def __aexit__(self, *_) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> Literal[False]:
         self.close()
+        # Return false, we don't want to suppress
+        # exceptions raised in the context
+        return False
 
 
 class UDPAsyncSocketConnection(BaseAsyncConnection):
@@ -683,5 +701,13 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         await self.connect()
         return self
 
-    async def __aexit__(self, *_) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> Literal[False]:
         self.close()
+        # Return false, we don't want to suppress
+        # exceptions raised in the context
+        return False
