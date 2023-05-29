@@ -193,7 +193,7 @@ class TestConnection:
     def test_read_bool_true(self):
         self.connection.receive(bytearray.fromhex("01"))
 
-        assert self.connection.read_bool() == True
+        assert self.connection.read_bool() is True
 
     def test_write_bool_true(self):
         self.connection.write_bool(True)
@@ -203,7 +203,7 @@ class TestConnection:
     def test_read_bool_false(self):
         self.connection.receive(bytearray.fromhex("00"))
 
-        assert self.connection.read_bool() == False
+        assert self.connection.read_bool() is False
 
     def test_write_bool_false(self):
         self.connection.write_bool(False)
