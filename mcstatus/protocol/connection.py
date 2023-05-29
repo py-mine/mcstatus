@@ -20,7 +20,7 @@ from mcstatus.address import Address
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from typing_extensions import Literal, Self, SupportsIndex, TypeAlias
+    from typing_extensions import Self, SupportsIndex, TypeAlias
 
     BytesConvertable: TypeAlias = "SupportsIndex | Iterable[SupportsIndex]"
 
@@ -246,7 +246,7 @@ class BaseReadSync(ABC):
     @staticmethod
     def _unpack(format_: str, data: bytes) -> int:
         """Unpack data as bytes with format in big-endian."""
-        return cast(int, struct.unpack(">" + format_, bytes(data))[0])
+        return struct.unpack(">" + format_, bytes(data))[0]
 
     def read_varint(self) -> int:
         """Read varint from ``self`` and return it.
@@ -339,7 +339,7 @@ class BaseReadAsync(ABC):
     @staticmethod
     def _unpack(format_: str, data: bytes) -> int:
         """Unpack data as bytes with format in big-endian."""
-        return cast(int, struct.unpack(">" + format_, bytes(data))[0])
+        return struct.unpack(">" + format_, bytes(data))[0]
 
     async def read_varint(self) -> int:
         """Read varint from ``self`` and return it.
@@ -533,11 +533,8 @@ class SocketConnection(BaseSyncConnection):
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
-    ) -> Literal[False]:
+    ) -> None:
         self.close()
-        # Return false, we don't want to suppress
-        # exceptions raised in the context
-        return False
 
 
 class TCPSocketConnection(SocketConnection):
@@ -652,11 +649,8 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
-    ) -> Literal[False]:
+    ) -> None:
         self.close()
-        # Return false, we don't want to suppress
-        # exceptions raised in the context
-        return False
 
 
 class UDPAsyncSocketConnection(BaseAsyncConnection):
@@ -706,8 +700,5 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
-    ) -> Literal[False]:
+    ) -> None:
         self.close()
-        # Return false, we don't want to suppress
-        # exceptions raised in the context
-        return False
