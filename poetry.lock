@@ -785,13 +785,13 @@ files = [
 
 [[package]]
 name = "flake8-tidy-imports"
-version = "4.8.0"
+version = "4.9.0"
 description = "A flake8 plugin that helps you write tidier imports."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "flake8-tidy-imports-4.8.0.tar.gz", hash = "sha256:df44f9c841b5dfb3a7a1f0da8546b319d772c2a816a1afefcce43e167a593d83"},
-    {file = "flake8_tidy_imports-4.8.0-py3-none-any.whl", hash = "sha256:25bd9799358edefa0e010ce2c587b093c3aba942e96aeaa99b6d0500ae1bf09c"},
+    {file = "flake8_tidy_imports-4.9.0-py3-none-any.whl", hash = "sha256:bdbd6ea3750089c5d0f4a27a554e8890ecfe6d1b9b60b6c0f1ffbfd00e161c58"},
+    {file = "flake8_tidy_imports-4.9.0.tar.gz", hash = "sha256:dd90625871f6a03e6f0763fed7098a9b090afaea8c5c27464049e4b0d41ec787"},
 ]
 
 [package.dependencies]
