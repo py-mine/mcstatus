@@ -17,7 +17,7 @@ jobs:
     uses: ./.github/workflows/validation.yml
 
   unit-tests:
-    uses: ./.github/workflows/tox-test.yml
+    uses: ./.github/workflows/test.yml
 
   # Produce a pull request payload artifact with various data about the
   # pull-request event (such as the PR number, title, author, ...).

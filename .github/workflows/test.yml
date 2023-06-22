@@ -1,9 +1,9 @@
-name: Tox test
+name: Test
 
 on: workflow_call
 
 jobs:
-  tox-test:
+  test:
     runs-on: ${{ matrix.platform }}
 
     strategy:
@@ -20,21 +20,20 @@ jobs:
         id: poetry_setup
         uses: ItsDrike/setup-poetry@v1
         with:
-          install-args: "--with workflow-tox --without lint"
+          install-args: "--without lint"
           python-version: "${{ matrix.python-version }}"
 
-      - name: Test with tox
+      - name: Run unit tests
         shell: bash
-        run: poetry run tox
-        env:
-          PIP_USER: 0 # We want tox to use it's environments, not user installs
+        run: poetry run poe test
 
-  # This job is used purely to provide a workflow status, which we can mark as a
-  # required action in branch protection rules. This is a better option than marking
-  # the tox-test jobs manually, since their names cnange as the supported python
-  # versions change. This job provides an easy single action that can be marked required.
+  # This job is used purely to provide a workflow status, which we can mark as
+  # a required action in branch protection rules. This is a better option than
+  # marking the test jobs manually, since their names cnange as the supported
+  # python versions change. This job provides an easy single action that can be
+  # marked required.
   tests-done:
-    needs: [tox-test]
+    needs: [test]
     if: always() && !cancelled()
     runs-on: ubuntu-latest
 

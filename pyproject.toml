@@ -35,9 +35,8 @@ asyncio-dgram = "^2.1.2"
 dnspython = "^2.4.2"
 
 [tool.poetry.group.dev.dependencies]
+poethepoet = "^0.20.0"
 pre-commit = "^3.3.3"
-tox = "^3.28.0"
-tox-poetry = "0.5.0" # deprecated, no sense in `^`
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=7.4,<9.0"
@@ -70,13 +69,6 @@ optional = true
 [tool.poetry.group.release.dependencies]
 twine = ">=4.0.2,<6.0.0"
 poetry-dynamic-versioning = "^1.1.0"
-
-[tool.poetry.group.workflow-tox]
-optional = true
-
-[tool.poetry.group.workflow-tox.dependencies]
-tox-gh-actions = "^2.12.0"
-poetry = "^1.5.1"
 
 [tool.poetry.scripts]
 mcstatus = 'mcstatus.__main__:main'
@@ -159,6 +151,39 @@ split-on-trailing-comma = false # if last member of multiline import has a comma
 
 [tool.ruff-formatter]
 line-ending = "lf"
+
+[tool.poe.tasks]
+_lint_ruff = "ruff check --show-source ."
+_lint_pyright = "pyright ."
+
+[tool.poe.tasks.build]
+cmd = "poetry build"
+help = "Builds the whl and tar.gz distributions"
+
+[tool.poe.tasks.docs]
+cmd = "make -C docs/ html"
+help = "Generates documentation locally in html format"
+
+[tool.poe.tasks.format]
+cmd = "ruff format"
+help = "Runs automatic formatting tools"
+
+[tool.poe.tasks.lint]
+sequence = [ "_lint_pyright", "_lint_ruff" ]
+help = "Runs linter tools"
+
+[tool.poe.tasks.pre-commit]
+cmd = "pre-commit run --all-files"
+help = "Executes commit hook checks on all files"
+
+[tool.poe.tasks.release]
+cmd = "poetry publish"
+deps = [ "pre-commit", "test", "build" ]
+help = "Requires all the checks to pass before building and publishing"
+
+[tool.poe.tasks.test]
+cmd = "pytest"
+help = "Runs the unit tests"
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
