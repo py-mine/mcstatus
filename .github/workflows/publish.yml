@@ -5,7 +5,7 @@ on:
     tags:
       # This pattern is not a typical regular expression, see:
       # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
-      - "v[0-9]+.[0-9]+.[0-9]+**"
+      - "v*"
 
 permissions:
   contents: read
