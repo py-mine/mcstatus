@@ -18,8 +18,6 @@ import asyncio_dgram
 from mcstatus.address import Address
 
 if TYPE_CHECKING:
-    from types import TracebackType
-
     from typing_extensions import Self, SupportsIndex, TypeAlias
 
     BytesConvertable: TypeAlias = "SupportsIndex | Iterable[SupportsIndex]"
