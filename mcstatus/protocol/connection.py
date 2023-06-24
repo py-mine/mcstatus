@@ -528,12 +528,7 @@ class SocketConnection(BaseSyncConnection):
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> None:
+    def __exit__(self, *_) -> None:
         self.close()
 
 
@@ -644,12 +639,7 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         await self.connect()
         return self
 
-    async def __aexit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> None:
+    async def __aexit__(self, *_) -> None:
         self.close()
 
 
@@ -695,10 +685,5 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         await self.connect()
         return self
 
-    async def __aexit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> None:
+    async def __aexit__(self, *_) -> None:
         self.close()
