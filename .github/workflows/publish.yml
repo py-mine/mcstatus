@@ -24,6 +24,7 @@ jobs:
         uses: ItsDrike/setup-poetry@v1
         with:
           python-version: 3.11
+          install-args: "--with release"
 
       - name: Build package
         run: poetry build
