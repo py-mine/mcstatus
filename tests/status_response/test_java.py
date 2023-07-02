@@ -1,6 +1,6 @@
-from mcstaus.forge_data import RawForgeData
 from pytest import fixture
 
+from mcstatus.forge_data import RawForgeData
 from mcstatus.motd import Motd
 from mcstatus.status_response import ForgeData, JavaStatusPlayer, JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
 from tests.status_response import BaseStatusResponseTest
@@ -104,7 +104,7 @@ class TestJavaStatusVersion(BaseStatusResponseTest):
 
 
 @BaseStatusResponseTest.construct
-class TestJavaStatusVersion(BaseStatusResponseTest):
+class TestForgeData(BaseStatusResponseTest):
     EXPECTED_VALUES = [
         ("fml_network_version", 3),
         (
