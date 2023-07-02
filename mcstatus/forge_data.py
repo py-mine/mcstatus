@@ -50,30 +50,6 @@ else:
     RawForgeData = dict
 
 
-@dataclass
-class ForgeData:
-    fml_network_version: int
-    """Forge Mod Loader network version."""
-    channels: list[ForgeDataChannel]
-    """List of channels, both for mods and non-mods."""
-    mods: list[ForgeDataMod]
-    """List of mods"""
-    truncated: bool
-    """Is the mods list and or channel list incomplete?"""
-
-    @classmethod
-    def build(cls, raw: RawForgeData) -> Self:
-        """Build an object about Forge mods from raw response.
-
-        :param raw: ``forgeData`` attribute in raw response :class:`dict`.
-        :return: :class:`ForgeData` object.
-        """
-        raw.setdefault("fmlNetworkVersion", 0)
-        raw.setdefault("channels", [])
-        raw.setdefault("mods", [])
-        return decode_forge_data(raw)
-
-
 def decode_optimized(string: str) -> Connection:
     """Decode buffer UTF-16 optimized binary data from `string`."""
     text = io.StringIO(string)
@@ -103,82 +79,103 @@ def decode_optimized(string: str) -> Connection:
     return buffer
 
 
-def decode_forge_data(response: RawForgeData) -> ForgeData:
-    """Decode the encoded forge data if it exists."""
+@dataclass
+class ForgeData:
+    fml_network_version: int
+    """Forge Mod Loader network version."""
+    channels: list[ForgeDataChannel]
+    """List of channels, both for mods and non-mods."""
+    mods: list[ForgeDataMod]
+    """List of mods"""
+    truncated: bool
+    """Is the mods list and or channel list incomplete?"""
 
-    # see https://github.com/MinecraftForge/MinecraftForge/blob/7d0330eb08299935714e34ac651a293e2609aa86/src/main/java/net/minecraftforge/network/ServerStatusPing.java#L27-L73
-    if "d" not in response:
-        return ForgeData(
-            fml_network_version=response["fmlNetworkVersion"],
-            channels=response["channels"],
-            mods=response["mods"],
-            truncated=False,
-        )
+    @classmethod
+    def build(cls, raw: RawForgeData) -> Self:
+        """Build an object about Forge mods from raw response.
 
-    buffer = decode_optimized(response["d"])
+        :param raw: ``forgeData`` attribute in raw response :class:`dict`.
+        :return: :class:`ForgeData` object.
+        """
+        return cls._decode_forge_data(raw)
 
-    channels: list[ForgeDataChannel] = []
-    mods: list[ForgeDataMod] = []
+    @classmethod
+    def _decode_forge_data(cls, response: RawForgeData) -> ForgeData:
+        """Decode the encoded forge data if it exists."""
 
-    truncated = buffer.read_bool()
-    mod_size = buffer.read_ushort()
-    try:
-        for _ in range(mod_size):
-            channel_version_flags = buffer.read_varint()
+        # see https://github.com/MinecraftForge/MinecraftForge/blob/7d0330eb08299935714e34ac651a293e2609aa86/src/main/java/net/minecraftforge/network/ServerStatusPing.java#L27-L73
+        if "d" not in response:
+            return cls(
+                fml_network_version=response["fmlNetworkVersion"],
+                channels=response["channels"],
+                mods=response["mods"],
+                truncated=False,
+            )
 
-            channel_size = channel_version_flags >> 1
-            is_server = channel_version_flags & VERSION_FLAG_IGNORE_SERVER_ONLY != 0
-            mod_id = buffer.read_utf()
+        buffer = decode_optimized(response["d"])
 
-            mod_version = IGNORE_SERVER_ONLY
-            if not is_server:
-                mod_version = buffer.read_utf()
+        channels: list[ForgeDataChannel] = []
+        mods: list[ForgeDataMod] = []
 
-            for _ in range(channel_size):
-                name = buffer.read_utf()
+        truncated = buffer.read_bool()
+        mod_size = buffer.read_ushort()
+        try:
+            for _ in range(mod_size):
+                channel_version_flags = buffer.read_varint()
+
+                channel_size = channel_version_flags >> 1
+                is_server = channel_version_flags & VERSION_FLAG_IGNORE_SERVER_ONLY != 0
+                mod_id = buffer.read_utf()
+
+                mod_version = IGNORE_SERVER_ONLY
+                if not is_server:
+                    mod_version = buffer.read_utf()
+
+                for _ in range(channel_size):
+                    name = buffer.read_utf()
+                    version = buffer.read_utf()
+                    client_required = buffer.read_bool()
+                    channels.append(
+                        ForgeDataChannel(
+                            {
+                                "res": f"{mod_id}:{name}",
+                                "version": version,
+                                "required": client_required,
+                            }
+                        )
+                    )
+
+                mods.append(
+                    ForgeDataMod(
+                        {
+                            "modid": mod_id,
+                            "modmarker": mod_version,
+                        }
+                    )
+                )
+
+            non_mod_channel_size = buffer.read_varint()
+            for _ in range(non_mod_channel_size):
+                channel_identifier = buffer.read_utf()
                 version = buffer.read_utf()
                 client_required = buffer.read_bool()
                 channels.append(
                     ForgeDataChannel(
                         {
-                            "res": f"{mod_id}:{name}",
+                            "res": channel_identifier,
                             "version": version,
                             "required": client_required,
                         }
                     )
                 )
+        except IOError:
+            if not truncated:
+                raise
+            # Semi-expect errors if truncated, we are missing data
 
-            mods.append(
-                ForgeDataMod(
-                    {
-                        "modid": mod_id,
-                        "modmarker": mod_version,
-                    }
-                )
-            )
-
-        non_mod_channel_size = buffer.read_varint()
-        for _ in range(non_mod_channel_size):
-            channel_identifier = buffer.read_utf()
-            version = buffer.read_utf()
-            client_required = buffer.read_bool()
-            channels.append(
-                ForgeDataChannel(
-                    {
-                        "res": channel_identifier,
-                        "version": version,
-                        "required": client_required,
-                    }
-                )
-            )
-    except IOError:
-        if not truncated:
-            raise
-        # Semi-expect errors if truncated, we are missing data
-
-    return ForgeData(
-        fml_network_version=response["fmlNetworkVersion"],
-        channels=channels,
-        mods=mods,
-        truncated=truncated,
-    )
+        return cls(
+            fml_network_version=response["fmlNetworkVersion"],
+            channels=channels,
+            mods=mods,
+            truncated=truncated,
+        )
