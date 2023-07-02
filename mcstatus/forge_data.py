@@ -35,10 +35,10 @@ if TYPE_CHECKING:
     class ForgeDataMod(TypedDict):
         modid: str
         modmarker: str
-        """Mod version"""
+        """Mod version."""
 
     class RawForgeData(TypedDict):
-        fmlNetworkVersion: int  # noqa: N815
+        fmlNetworkVersion: int  # noqa: N815 # camel case
         channels: list[ForgeDataChannel]
         mods: list[ForgeDataMod]
         d: NotRequired[str]
@@ -63,9 +63,9 @@ class ForgeData:
 
     @classmethod
     def build(cls, raw: RawForgeData) -> Self:
-        """Build :class:`ForgeData` from raw response :class:`dict`.
+        """Build an object about Forge mods from raw response.
 
-        :param raw: Raw forge data response :class:`dict`.
+        :param raw: ``forgeData`` attribute in raw response :class:`dict`.
         :return: :class:`ForgeData` object.
         """
         raw.setdefault("fmlNetworkVersion", 0)
@@ -106,6 +106,7 @@ def decode_optimized(string: str) -> Connection:
 def decode_forge_data(response: RawForgeData) -> ForgeData:
     """Decode the encoded forge data if it exists."""
 
+    # see https://github.com/MinecraftForge/MinecraftForge/blob/7d0330eb08299935714e34ac651a293e2609aa86/src/main/java/net/minecraftforge/network/ServerStatusPing.java#L27-L73
     if "d" not in response:
         return ForgeData(
             fml_network_version=response["fmlNetworkVersion"],
