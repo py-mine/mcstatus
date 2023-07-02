@@ -145,7 +145,7 @@ class JavaStatusResponse(BaseStatusResponse):
             motd=Motd.parse(raw["description"], bedrock=False),
             icon=raw.get("favicon"),
             latency=latency,
-            forge_data=forge_data,
+            forge_data=JavaForgeData.build(raw["forgeData"]) if "forgeData" in raw else None,
         )
 
     @property

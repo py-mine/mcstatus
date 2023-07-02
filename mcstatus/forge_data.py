@@ -18,7 +18,7 @@ from mcstatus.protocol.connection import Connection
 
 VERSION_FLAG_IGNORESERVERONLY: Final = 0b1
 # IGNORESERVERONLY: Final = 'OHNOES\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31'  # noqa
-IGNORESERVERONLY: Final = "<not required for client>"
+IGNORE_SERVER_ONLY: Final = "<not required for client>"
 
 
 if TYPE_CHECKING:
@@ -33,7 +33,6 @@ if TYPE_CHECKING:
 
     class ForgeDataMod(TypedDict):
         modid: str
-        """Mod ID"""
         modmarker: str
         """Mod version"""
 
@@ -86,8 +85,7 @@ def decode_optimized(string: str) -> Connection:
     size = read() | (read() << 15)
 
     buffer = Connection()
-    value = 0
-    bits = 0
+    value, bits = 0, 0
     for _ in range(len(string) - 2):
         while bits >= 8:
             buffer.receive((value & 0xFF).to_bytes(length=1, byteorder="big", signed=False))
