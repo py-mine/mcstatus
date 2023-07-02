@@ -23,7 +23,7 @@ IGNORESERVERONLY: Final = "<not required for client>"
 
 if TYPE_CHECKING:
 
-    class JavaForgeDataChannel(TypedDict):
+    class ForgeDataChannel(TypedDict):
         res: str
         """Channel name and ID (for example ``fml:handshake``)."""
         version: str
@@ -31,41 +31,41 @@ if TYPE_CHECKING:
         required: bool
         """Is this channel required for client to join?"""
 
-    class JavaForgeDataMod(TypedDict):
+    class ForgeDataMod(TypedDict):
         modid: str
         """Mod ID"""
         modmarker: str
         """Mod version"""
 
-    class RawJavaForgeData(TypedDict):
+    class RawForgeData(TypedDict):
         fmlNetworkVersion: int
-        channels: list[JavaForgeDataChannel]
-        mods: list[JavaForgeDataMod]
+        channels: list[ForgeDataChannel]
+        mods: list[ForgeDataMod]
         d: NotRequired[str]
 
 else:
-    JavaForgeDataChannel = dict
-    JavaForgeDataMod = dict
-    RawJavaForgeData = dict
+    ForgeDataChannel = dict
+    ForgeDataMod = dict
+    RawForgeData = dict
 
 
 @dataclass
-class JavaForgeData:
+class ForgeData:
     fml_network_version: int
     """Forge Mod Loader network version"""
-    channels: list[JavaForgeDataChannel]
+    channels: list[ForgeDataChannel]
     """List of channels, both for mods and non-mods"""
-    mods: list[JavaForgeDataMod]
+    mods: list[ForgeDataMod]
     """List of mods"""
     truncated: bool
     """Is the mods list and or channel list incomplete?"""
 
     @classmethod
-    def build(cls, raw: RawJavaForgeData) -> Self:
-        """Build :class:`JavaForgeData` from raw response :class:`dict`.
+    def build(cls, raw: RawForgeData) -> Self:
+        """Build :class:`ForgeData` from raw response :class:`dict`.
 
         :param raw: Raw forge data response :class:`dict`.
-        :return: :class:`JavaForgeData` object.
+        :return: :class:`ForgeData` object.
         """
         raw.setdefault("fmlNetworkVersion", 0)
         raw.setdefault("channels", [])
@@ -103,11 +103,11 @@ def decode_optimized(string: str) -> Connection:
     return buffer
 
 
-def decode_forge_data(response: RawJavaForgeData) -> JavaForgeData:
+def decode_forge_data(response: RawForgeData) -> ForgeData:
     "Return decoded forgeData if present or None"
 
     if "d" not in response:
-        return JavaForgeData(
+        return ForgeData(
             fml_network_version=response["fmlNetworkVersion"],
             channels=response["channels"],
             mods=response["mods"],
@@ -116,8 +116,8 @@ def decode_forge_data(response: RawJavaForgeData) -> JavaForgeData:
 
     buffer = decode_optimized(response["d"])
 
-    channels: list[JavaForgeDataChannel] = []
-    mods: list[JavaForgeDataMod] = []
+    channels: list[ForgeDataChannel] = []
+    mods: list[ForgeDataMod] = []
 
     truncated = buffer.read_bool()
     mod_size = buffer.read_ushort()
@@ -138,7 +138,7 @@ def decode_forge_data(response: RawJavaForgeData) -> JavaForgeData:
                 version = buffer.read_utf()
                 client_required = buffer.read_bool()
                 channels.append(
-                    JavaForgeDataChannel(
+                    ForgeDataChannel(
                         {
                             "res": f"{mod_id}:{name}",
                             "version": version,
@@ -148,7 +148,7 @@ def decode_forge_data(response: RawJavaForgeData) -> JavaForgeData:
                 )
 
             mods.append(
-                JavaForgeDataMod(
+                ForgeDataMod(
                     {
                         "modid": mod_id,
                         "modmarker": mod_version,
@@ -162,7 +162,7 @@ def decode_forge_data(response: RawJavaForgeData) -> JavaForgeData:
             version = buffer.read_utf()
             client_required = buffer.read_bool()
             channels.append(
-                JavaForgeDataChannel(
+                ForgeDataChannel(
                     {
                         "res": channel_identifier,
                         "version": version,
@@ -175,7 +175,7 @@ def decode_forge_data(response: RawJavaForgeData) -> JavaForgeData:
             raise
         # Semi-expect errors if truncated
 
-    return JavaForgeData(
+    return ForgeData(
         fml_network_version=response["fmlNetworkVersion"],
         channels=channels,
         mods=mods,

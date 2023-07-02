@@ -4,10 +4,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
-from mcstatus.forge_data import JavaForgeData as JavaForgeData
-from mcstatus.forge_data import JavaForgeDataChannel as JavaForgeDataChannel
-from mcstatus.forge_data import JavaForgeDataMod as JavaForgeDataMod
-from mcstatus.forge_data import RawJavaForgeData
+from mcstatus.forge_data import ForgeData as ForgeData
+from mcstatus.forge_data import ForgeDataChannel as ForgeDataChannel
+from mcstatus.forge_data import ForgeDataMod as ForgeDataMod
+from mcstatus.forge_data import RawForgeData
 from mcstatus.motd import Motd
 
 if TYPE_CHECKING:
@@ -45,7 +45,7 @@ if TYPE_CHECKING:
         players: RawJavaResponsePlayers
         version: RawJavaResponseVersion
         favicon: NotRequired[str]
-        forge_data: NotRequired[RawJavaForgeData]
+        forge_data: NotRequired[RawForgeData]
 
 else:
     RawJavaResponsePlayer = dict
@@ -119,7 +119,7 @@ class JavaStatusResponse(BaseStatusResponse):
 
     .. seealso:: :ref:`pages/faq:how to get server image?`
     """
-    forge_data: JavaForgeData | None
+    forge_data: ForgeData | None
     """Forge mod data (mod list, channels, etc) if the server is modded"""
 
     @classmethod
@@ -137,7 +137,7 @@ class JavaStatusResponse(BaseStatusResponse):
         forge_data = None
         raw_forge_data = raw.get("forgeData")
         if raw_forge_data:
-            forge_data = JavaForgeData.build(raw_forge_data)
+            forge_data = ForgeData.build(raw_forge_data)
         return cls(
             raw=raw,
             players=JavaStatusPlayers.build(raw["players"]),
