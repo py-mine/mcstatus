@@ -4,7 +4,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
-from mcstatus.forgedata import JavaForgeDataChannel, JavaForgeDataMod, RawJavaForgeData
+from mcstatus.forge_data import JavaForgeData
+from mcstatus.forge_data import JavaForgeDataChannel as JavaForgeDataChannel
+from mcstatus.forge_data import JavaForgeDataMod as JavaForgeDataMod
+from mcstatus.forge_data import RawJavaForgeData
 from mcstatus.motd import Motd
 
 if TYPE_CHECKING:
@@ -22,21 +25,6 @@ if TYPE_CHECKING:
     class RawJavaResponseVersion(TypedDict):
         name: str
         protocol: int
-
-    class RawJavaForgeDataChannel(TypedDict):
-        res: str
-        version: str
-        required: bool
-
-    class RawJavaForgeDataMod(TypedDict):
-        modid: str
-        modmarker: str
-
-    class RawJavaForgeData(TypedDict):
-        fml_network_version: int
-        channels: list[RawJavaForgeDataChannel]
-        mods: list[RawJavaForgeDataMod]
-        d: NotRequired[str]
 
     class RawJavaResponseMotdWhenDict(TypedDict, total=False):
         text: str  # only present if translation is set
@@ -63,9 +51,6 @@ else:
     RawJavaResponsePlayer = dict
     RawJavaResponsePlayers = dict
     RawJavaResponseVersion = dict
-    RawJavaForgeDataChannel = dict
-    RawJavaForgeDataMod = dict
-    RawJavaForgeData = dict
     RawJavaResponseMotdWhenDict = dict
     RawJavaResponse = dict
 
@@ -134,6 +119,8 @@ class JavaStatusResponse(BaseStatusResponse):
 
     .. seealso:: :ref:`pages/faq:how to get server image?`
     """
+    forge_data: JavaForgeData | None
+    """Forge mod data (mod list, channels, etc) if the server is modded"""
 
     @classmethod
     def build(cls, raw: RawJavaResponse, latency: float = 0) -> Self:
@@ -147,6 +134,10 @@ class JavaStatusResponse(BaseStatusResponse):
             ``description`` - :class:`str`) are not of the expected type.
         :return: :class:`JavaStatusResponse` object.
         """
+        forge_data = None
+        raw_forge_data = raw.get("forgeData")
+        if raw_forge_data:
+            forge_data = JavaForgeData.build(raw_forge_data)
         return cls(
             raw=raw,
             players=JavaStatusPlayers.build(raw["players"]),
@@ -154,6 +145,7 @@ class JavaStatusResponse(BaseStatusResponse):
             motd=Motd.parse(raw["description"], bedrock=False),
             icon=raw.get("favicon"),
             latency=latency,
+            forge_data=forge_data,
         )
 
     @property
@@ -283,37 +275,6 @@ class JavaStatusPlayers(BaseStatusPlayers):
             online=raw["online"],
             max=raw["max"],
             sample=sample,
-        )
-
-
-@dataclass
-class JavaForgeData(BaseStatusPlayers):
-    """Class for storing information about forge mods on the server."""
-
-    truncated: bool
-    """True if the server had to truncate the response to be able to send successfully
-
-    If true, expect the mods and channels list to be incomplete"""
-    mods: list[RawJavaForgeDataMod] = {}
-    """Dictionary of mod IDs to mod versions"""
-    channels: list[RawJavaForgeDataChannel] = {}
-    """Dictionary of (mod name, mod id) to (channel version, is required on client)"""
-
-    @classmethod
-    def build(cls, raw: RawJavaResponseForge) -> Self:
-        """Build :class:`JavaStatusPlayers` from raw response :class:`dict`.
-
-        :param raw: Raw response :class:`dict`.
-        :raise ValueError: If the required keys (``online``, ``max``) are not present.
-        :raise TypeError:
-            If the required keys (``online`` - :class:`int`, ``max`` - :class:`int`,
-            ``sample`` - :class:`list`) are not of the expected type.
-        :return: :class:`JavaStatusPlayers` object.
-        """
-        return cls(
-            truncated=raw["online"],
-            mods=raw["mods"],
-            channels=raw["channels"],
         )
 
 

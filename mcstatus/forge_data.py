@@ -6,13 +6,14 @@ version, a big list of channels that all the forge mods use,
 and a list of mods the server has.
 
 For more information see this file from forge itself:
-https://github.com/MinecraftForge/MinecraftForge/blob/42115d37d6a46856e3dc914b54a1ce6d33b9872a/src/main/java/net/minecraftforge/network/ServerStatusPing.java"""
+https://github.com/MinecraftForge/MinecraftForge/blob/42115d37d6a46856e3dc914b54a1ce6d33b9872a/src/main/java/net/minecraftforge/network/ServerStatusPing.java"""  # noqa: E501
 
 from __future__ import annotations
 
-from typing import Final, NotRequired, TypedDict
+import io
+from dataclasses import dataclass
+from typing import Final, NotRequired, Self, TypedDict
 
-from mcstatus.pinger import RawResponse
 from mcstatus.protocol.connection import Connection
 
 VERSION_FLAG_IGNORESERVERONLY: Final = 0b1
@@ -33,14 +34,38 @@ class JavaForgeDataMod(TypedDict):
     modid: str
     """Mod ID"""
     modmarker: str
-    """Mod marker"""
+    """Mod version"""
 
 
 class RawJavaForgeData(TypedDict):
-    fml_network_version: int
-    channels: list[RawJavaForgeDataChannel]
-    mods: list[RawJavaForgeDataMod]
+    fmlNetworkVersion: int
+    channels: list[JavaForgeDataChannel]
+    mods: list[JavaForgeDataMod]
     d: NotRequired[str]
+
+
+@dataclass
+class JavaForgeData:
+    fml_network_version: int
+    """Forge Mod Loader network version"""
+    channels: list[JavaForgeDataChannel]
+    """List of channels, both for mods and non-mods"""
+    mods: list[JavaForgeDataMod]
+    """List of mods"""
+    truncated: bool
+    """Is the mods list and or channel list incomplete?"""
+
+    @classmethod
+    def build(cls, raw: RawJavaForgeData) -> Self:
+        """Build :class:`JavaForgeData` from raw response :class:`dict`.
+
+        :param raw: Raw forge data response :class:`dict`.
+        :return: :class:`JavaForgeData` object.
+        """
+        raw.setdefault("fmlNetworkVersion", 0)
+        raw.setdefault("channels", [])
+        raw.setdefault("mods", [])
+        return decode_forge_data(raw)
 
 
 def decode_optimized(string: str) -> Connection:
@@ -73,21 +98,22 @@ def decode_optimized(string: str) -> Connection:
     return buffer
 
 
-def decode_forge_data(response: RawResponse) -> dict[str, Any] | None:
+def decode_forge_data(response: RawJavaForgeData) -> JavaForgeData:
     "Return decoded forgeData if present or None"
-    data: dict[str, Any] = response
 
-    if "forgeData" not in response:
-        return None
-    forge = response["forgeData"]
     if "d" not in response:
-        return forge
+        return JavaForgeData(
+            fml_network_version=response["fmlNetworkVersion"],
+            channels=response["channels"],
+            mods=response["mods"],
+            truncated=False,
+        )
 
-    buffer = decode_optimized(forge["d"])
+    buffer = decode_optimized(response["d"])
 
-    channels: dict[tuple[str, str], tuple[str, bool]] = {}
+    channels: list[JavaForgeDataChannel] = []
     # channels: dict[str, tuple[str, bool]] = {}
-    mods: dict[str, str] = {}
+    mods: list[JavaForgeDataMod] = []
 
     try:
         truncated = buffer.read_bool()
@@ -107,25 +133,47 @@ def decode_forge_data(response: RawResponse) -> dict[str, Any] | None:
                 name = buffer.read_utf()
                 version = buffer.read_utf()
                 client_required = buffer.read_bool()
-                channels[(mod_id, name)] = (version, client_required)
+                channels.append(
+                    JavaForgeDataChannel(
+                        {
+                            "res": f"{mod_id}:{name}",
+                            "version": version,
+                            "required": client_required,
+                        }
+                    )
+                )
 
-            mods[mod_id] = mod_version
+            mods.append(
+                JavaForgeDataMod(
+                    {
+                        "modid": mod_id,
+                        "modmarker": mod_version,
+                    }
+                )
+            )
 
         non_mod_channel_size = buffer.read_varint()
         for _ in range(non_mod_channel_size):
-            mod_name, mod_id = buffer.read_utf().split(":", 1)
-            channel_key: tuple[str, str] = mod_name, mod_id
-            # name = buffer.read_utf()
+            channel_identifier = buffer.read_utf()
             version = buffer.read_utf()
             client_required = buffer.read_bool()
-            # channels[name] = (version, client_required)
-            channels[channel_key] = (version, client_required)
-    except Exception as ex:
+            channels.append(
+                JavaForgeDataChannel(
+                    {
+                        "res": channel_identifier,
+                        "version": version,
+                        "required": client_required,
+                    }
+                )
+            )
+    except Exception:
         if not truncated:
             raise
         # Semi-expect errors if truncated
 
-    new_forge = forge.update({"truncated": truncated, "mods": mods, "channels": channels})
-    if "d" in new_forge:
-        del new_forge["d"]
-    return new_forge
+    return JavaForgeData(
+        fml_network_version=response["fmlNetworkVersion"],
+        channels=channels,
+        mods=mods,
+        truncated=truncated,
+    )
