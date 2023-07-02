@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import io
 from dataclasses import dataclass
-from typing import Final
+from typing import Final, TYPE_CHECKING
 
 from mcstatus.protocol.connection import Connection
 
