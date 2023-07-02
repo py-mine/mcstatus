@@ -6,7 +6,7 @@ version, a big list of channels that all the forge mods use,
 and a list of mods the server has.
 
 For more information see this file from forge itself:
-https://github.com/MinecraftForge/MinecraftForge/blob/42115d37d6a46856e3dc914b54a1ce6d33b9872a/src/main/java/net/minecraftforge/network/ServerStatusPing.java"""  # noqa: E501
+https://github.com/MinecraftForge/MinecraftForge/blob/42115d37d6a46856e3dc914b54a1ce6d33b9872a/src/main/java/net/minecraftforge/network/ServerStatusPing.java"""
 
 from __future__ import annotations
 
@@ -16,8 +16,8 @@ from typing import Final, NotRequired, Self, TYPE_CHECKING, TypedDict
 
 from mcstatus.protocol.connection import Connection
 
-VERSION_FLAG_IGNORESERVERONLY: Final = 0b1
-# IGNORESERVERONLY: Final = 'OHNOES\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31'  # noqa
+VERSION_FLAG_IGNORE_SERVER_ONLY: Final = 0b1
+# IGNORE_SERVER_ONLY: Final = 'OHNOES\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31'  # noqa
 IGNORE_SERVER_ONLY: Final = "<not required for client>"
 
 
@@ -51,9 +51,9 @@ else:
 @dataclass
 class ForgeData:
     fml_network_version: int
-    """Forge Mod Loader network version"""
+    """Forge Mod Loader network version."""
     channels: list[ForgeDataChannel]
-    """List of channels, both for mods and non-mods"""
+    """List of channels, both for mods and non-mods."""
     mods: list[ForgeDataMod]
     """List of mods"""
     truncated: bool
@@ -73,7 +73,7 @@ class ForgeData:
 
 
 def decode_optimized(string: str) -> Connection:
-    """Decode buffer UTF-16 optimized binary data from `string`"""
+    """Decode buffer UTF-16 optimized binary data from `string`."""
     text = io.StringIO(string)
 
     def read() -> int:
@@ -102,7 +102,7 @@ def decode_optimized(string: str) -> Connection:
 
 
 def decode_forge_data(response: RawForgeData) -> ForgeData:
-    "Return decoded forgeData if present or None"
+    """Decode the encoded forge data if it exists."""
 
     if "d" not in response:
         return ForgeData(
@@ -124,10 +124,10 @@ def decode_forge_data(response: RawForgeData) -> ForgeData:
             channel_version_flags = buffer.read_varint()
 
             channel_size = channel_version_flags >> 1
-            is_server = channel_version_flags & VERSION_FLAG_IGNORESERVERONLY != 0
+            is_server = channel_version_flags & VERSION_FLAG_IGNORE_SERVER_ONLY != 0
             mod_id = buffer.read_utf()
 
-            mod_version = IGNORESERVERONLY
+            mod_version = IGNORE_SERVER_ONLY
             if not is_server:
                 mod_version = buffer.read_utf()
 
@@ -168,10 +168,10 @@ def decode_forge_data(response: RawForgeData) -> ForgeData:
                     }
                 )
             )
-    except Exception:
+    except IOError:
         if not truncated:
             raise
-        # Semi-expect errors if truncated
+        # Semi-expect errors if truncated, we are missing data
 
     return ForgeData(
         fml_network_version=response["fmlNetworkVersion"],

@@ -134,10 +134,6 @@ class JavaStatusResponse(BaseStatusResponse):
             ``description`` - :class:`str`) are not of the expected type.
         :return: :class:`JavaStatusResponse` object.
         """
-        forge_data = None
-        raw_forge_data = raw.get("forgeData")
-        if raw_forge_data:
-            forge_data = ForgeData.build(raw_forge_data)
         return cls(
             raw=raw,
             players=JavaStatusPlayers.build(raw["players"]),
