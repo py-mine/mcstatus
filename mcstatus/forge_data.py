@@ -25,11 +25,11 @@ if TYPE_CHECKING:
 
     class JavaForgeDataChannel(TypedDict):
         res: str
-        """Channel name and id (ex. "fml:handshake")"""
+        """Channel name and ID (for example ``fml:handshake``)."""
         version: str
-        """Channel version (ex. "1.2.3.4")"""
+        """Channel version (for example ``1.2.3.4``)."""
         required: bool
-        """Is this channel required for client to join"""
+        """Is this channel required for client to join?"""
 
     class JavaForgeDataMod(TypedDict):
         modid: str
