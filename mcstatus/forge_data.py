@@ -109,7 +109,7 @@ class ForgeData:
                 truncated=False,
             )
 
-        buffer = _decode_optimized(raw["d"])
+        buffer = cls._decode_optimized(raw["d"])
 
         channels: list[ForgeDataChannel] = []
         mods: list[ForgeDataMod] = []
