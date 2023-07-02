@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
-from mcstatus.forge_data import JavaForgeData
+from mcstatus.forge_data import JavaForgeData as JavaForgeData
 from mcstatus.forge_data import JavaForgeDataChannel as JavaForgeDataChannel
 from mcstatus.forge_data import JavaForgeDataMod as JavaForgeDataMod
 from mcstatus.forge_data import RawJavaForgeData

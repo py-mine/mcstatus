@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import io
 from dataclasses import dataclass
-from typing import Final, NotRequired, Self, TypedDict
+from typing import Final, NotRequired, Self, TYPE_CHECKING, TypedDict
 
 from mcstatus.protocol.connection import Connection
 
@@ -21,27 +21,32 @@ VERSION_FLAG_IGNORESERVERONLY: Final = 0b1
 IGNORESERVERONLY: Final = "<not required for client>"
 
 
-class JavaForgeDataChannel(TypedDict):
-    res: str
-    """Channel name and id (ex. "fml:handshake")"""
-    version: str
-    """Channel version (ex. "1.2.3.4")"""
-    required: bool
-    """Is this channel required for client to join"""
+if TYPE_CHECKING:
 
+    class JavaForgeDataChannel(TypedDict):
+        res: str
+        """Channel name and id (ex. "fml:handshake")"""
+        version: str
+        """Channel version (ex. "1.2.3.4")"""
+        required: bool
+        """Is this channel required for client to join"""
 
-class JavaForgeDataMod(TypedDict):
-    modid: str
-    """Mod ID"""
-    modmarker: str
-    """Mod version"""
+    class JavaForgeDataMod(TypedDict):
+        modid: str
+        """Mod ID"""
+        modmarker: str
+        """Mod version"""
 
+    class RawJavaForgeData(TypedDict):
+        fmlNetworkVersion: int
+        channels: list[JavaForgeDataChannel]
+        mods: list[JavaForgeDataMod]
+        d: NotRequired[str]
 
-class RawJavaForgeData(TypedDict):
-    fmlNetworkVersion: int
-    channels: list[JavaForgeDataChannel]
-    mods: list[JavaForgeDataMod]
-    d: NotRequired[str]
+else:
+    JavaForgeDataChannel = dict
+    JavaForgeDataMod = dict
+    RawJavaForgeData = dict
 
 
 @dataclass
@@ -112,12 +117,11 @@ def decode_forge_data(response: RawJavaForgeData) -> JavaForgeData:
     buffer = decode_optimized(response["d"])
 
     channels: list[JavaForgeDataChannel] = []
-    # channels: dict[str, tuple[str, bool]] = {}
     mods: list[JavaForgeDataMod] = []
 
+    truncated = buffer.read_bool()
+    mod_size = buffer.read_ushort()
     try:
-        truncated = buffer.read_bool()
-        mod_size = buffer.read_ushort()
         for _ in range(mod_size):
             channel_version_flags = buffer.read_varint()
 
