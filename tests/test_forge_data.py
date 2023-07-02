@@ -30,9 +30,9 @@ def test_decode_forge_data() -> None:
             "truncated": True,
         }
     )
-    assert forge_data == {
-        "fml_network_version": 3,
-        "channels": [
+    assert forge_data == ForgeData(
+        fml_network_version=3,
+        channels=[
             {
                 "res": "cyclopscore:channel_main",
                 "version": "1.0.0",
@@ -275,7 +275,7 @@ def test_decode_forge_data() -> None:
                 "required": False,
             },
         ],
-        "mods": [
+        mods=[
             {"modid": "rsrequestify", "modmarker": "2.2.0"},
             {"modid": "cyclopscore", "modmarker": "1.15.1"},
             {"modid": "auudio", "modmarker": "1.0.3"},
@@ -434,5 +434,5 @@ def test_decode_forge_data() -> None:
             {"modid": "openloader", "modmarker": "12.0.1"},
             {"modid": "the_vault", "modmarker": "1.18.2-2.0.10.869"},
         ],
-        "truncated": False,
-    }
+        truncated=False,
+    )
