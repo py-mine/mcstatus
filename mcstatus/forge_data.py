@@ -50,35 +50,6 @@ else:
     RawForgeData = dict
 
 
-def decode_optimized(string: str) -> Connection:
-    """Decode buffer UTF-16 optimized binary data from `string`."""
-    text = io.StringIO(string)
-
-    def read() -> int:
-        result = text.read(1)
-        if not result:
-            return 0
-        return ord(result)
-
-    size = read() | (read() << 15)
-
-    buffer = Connection()
-    value, bits = 0, 0
-    for _ in range(len(string) - 2):
-        while bits >= 8:
-            buffer.receive((value & 0xFF).to_bytes(length=1, byteorder="big", signed=False))
-            value >>= 8
-            bits -= 8
-        value |= (read() & 0x7FFF) << bits
-        bits += 15
-
-    while buffer.remaining() < size:
-        buffer.receive((value & 0xFF).to_bytes(length=1, byteorder="big", signed=False))
-        value >>= 8
-        bits -= 8
-    return buffer
-
-
 @dataclass
 class ForgeData:
     fml_network_version: int
@@ -89,6 +60,35 @@ class ForgeData:
     """List of mods"""
     truncated: bool
     """Is the mods list and or channel list incomplete?"""
+
+    @staticmethod
+    def _decode_optimized(string: str) -> Connection:
+        """Decode buffer from UTF-16 optimized binary data `string`."""
+        text = io.StringIO(string)
+
+        def read() -> int:
+            result = text.read(1)
+            if not result:
+                return 0
+            return ord(result)
+
+        size = read() | (read() << 15)
+
+        buffer = Connection()
+        value, bits = 0, 0
+        for _ in range(len(string) - 2):
+            while bits >= 8:
+                buffer.receive((value & 0xFF).to_bytes(length=1, byteorder="big", signed=False))
+                value >>= 8
+                bits -= 8
+            value |= (read() & 0x7FFF) << bits
+            bits += 15
+
+        while buffer.remaining() < size:
+            buffer.receive((value & 0xFF).to_bytes(length=1, byteorder="big", signed=False))
+            value >>= 8
+            bits -= 8
+        return buffer
 
     @classmethod
     def build(cls, raw: RawForgeData) -> Self:
@@ -109,7 +109,7 @@ class ForgeData:
                 truncated=False,
             )
 
-        buffer = decode_optimized(raw["d"])
+        buffer = _decode_optimized(raw["d"])
 
         channels: list[ForgeDataChannel] = []
         mods: list[ForgeDataMod] = []
