@@ -4,10 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
-from mcstatus.forge_data import ForgeData as ForgeData
-from mcstatus.forge_data import ForgeDataChannel as ForgeDataChannel
-from mcstatus.forge_data import ForgeDataMod as ForgeDataMod
-from mcstatus.forge_data import RawForgeData
+from mcstatus.forge_data import ForgeData, RawForgeData
 from mcstatus.motd import Motd
 
 if TYPE_CHECKING:
@@ -45,7 +42,7 @@ if TYPE_CHECKING:
         players: RawJavaResponsePlayers
         version: RawJavaResponseVersion
         favicon: NotRequired[str]
-        forgeData: NotRequired[RawForgeData]
+        forgeData: NotRequired[RawForgeData]  # noqa: N815
 
 else:
     RawJavaResponsePlayer = dict

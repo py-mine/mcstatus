@@ -1,5 +1,3 @@
-import pytest
-
 from mcstatus.forge_data import ForgeData, decode_forge_data, decode_optimized
 
 ENCODED_STRING = bytes.fromhex(
