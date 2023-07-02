@@ -97,22 +97,19 @@ class ForgeData:
         :param raw: ``forgeData`` attribute in raw response :class:`dict`.
         :return: :class:`ForgeData` object.
         """
-        return cls._decode_forge_data(raw)
-
-    @classmethod
-    def _decode_forge_data(cls, response: RawForgeData) -> ForgeData:
-        """Decode the encoded forge data if it exists."""
+        fml_network_version = raw.get("fmlNetworkVersion", 0)
+        # Decode the encoded forge data if it exists.
 
         # see https://github.com/MinecraftForge/MinecraftForge/blob/7d0330eb08299935714e34ac651a293e2609aa86/src/main/java/net/minecraftforge/network/ServerStatusPing.java#L27-L73
-        if "d" not in response:
+        if "d" not in raw:
             return cls(
-                fml_network_version=response["fmlNetworkVersion"],
-                channels=response["channels"],
-                mods=response["mods"],
+                fml_network_version=fml_network_version,
+                channels=raw.get("channels", []),
+                mods=raw.get("mods", []),
                 truncated=False,
             )
 
-        buffer = decode_optimized(response["d"])
+        buffer = decode_optimized(raw["d"])
 
         channels: list[ForgeDataChannel] = []
         mods: list[ForgeDataMod] = []
@@ -174,7 +171,7 @@ class ForgeData:
             # Semi-expect errors if truncated, we are missing data
 
         return cls(
-            fml_network_version=response["fmlNetworkVersion"],
+            fml_network_version=fml_network_version,
             channels=channels,
             mods=mods,
             truncated=truncated,
