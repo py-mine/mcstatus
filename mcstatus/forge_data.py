@@ -17,7 +17,6 @@ from typing import Final
 from mcstatus.protocol.connection import Connection
 
 VERSION_FLAG_IGNORE_SERVER_ONLY: Final = 0b1
-# IGNORE_SERVER_ONLY: Final = 'OHNOES\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31\uD83D\uDE31'  # noqa
 IGNORE_SERVER_ONLY: Final = "<not required for client>"
 
 
