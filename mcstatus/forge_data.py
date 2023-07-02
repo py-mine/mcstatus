@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import io
 from dataclasses import dataclass
-from typing import Final, NotRequired, Self, TYPE_CHECKING, TypedDict
+from typing import Final
 
 from mcstatus.protocol.connection import Connection
 
@@ -22,6 +22,7 @@ IGNORE_SERVER_ONLY: Final = "<not required for client>"
 
 
 if TYPE_CHECKING:
+    from typing_extensions import NotRequired, Self, TypeAlias, TypedDict
 
     class ForgeDataChannel(TypedDict):
         res: str
