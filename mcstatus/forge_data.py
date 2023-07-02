@@ -41,6 +41,7 @@ if TYPE_CHECKING:
         channels: list[ForgeDataChannel]
         mods: list[ForgeDataMod]
         d: NotRequired[str]
+        truncated: NotRequired[bool]
 
 else:
     ForgeDataChannel = dict

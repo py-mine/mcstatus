@@ -45,7 +45,7 @@ if TYPE_CHECKING:
         players: RawJavaResponsePlayers
         version: RawJavaResponseVersion
         favicon: NotRequired[str]
-        forge_data: NotRequired[RawForgeData]
+        forgeData: NotRequired[RawForgeData]
 
 else:
     RawJavaResponsePlayer = dict
@@ -141,7 +141,7 @@ class JavaStatusResponse(BaseStatusResponse):
             motd=Motd.parse(raw["description"], bedrock=False),
             icon=raw.get("favicon"),
             latency=latency,
-            forge_data=JavaForgeData.build(raw["forgeData"]) if "forgeData" in raw else None,
+            forge_data=ForgeData.build(raw["forgeData"]) if "forgeData" in raw else None,
         )
 
     @property
