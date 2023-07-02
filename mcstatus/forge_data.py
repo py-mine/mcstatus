@@ -100,7 +100,7 @@ class ForgeData:
         fml_network_version = raw.get("fmlNetworkVersion", 0)
         # Decode the encoded forge data if it exists.
 
-        # see https://github.com/MinecraftForge/MinecraftForge/blob/7d0330eb08299935714e34ac651a293e2609aa86/src/main/java/net/minecraftforge/network/ServerStatusPing.java#L27-L73
+        # see https://github.com/MinecraftForge/MinecraftForge/blob/7d0330eb08299935714e34ac651a293e2609aa86/src/main/java/net/minecraftforge/network/ServerStatusPing.java#L27-L73  # noqa: E501  # line too long
         if "d" not in raw:
             return cls(
                 fml_network_version=fml_network_version,
