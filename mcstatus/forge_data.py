@@ -6,7 +6,8 @@ version, a big list of channels that all the forge mods use,
 and a list of mods the server has.
 
 For more information see this file from forge itself:
-https://github.com/MinecraftForge/MinecraftForge/blob/42115d37d6a46856e3dc914b54a1ce6d33b9872a/src/main/java/net/minecraftforge/network/ServerStatusPing.java"""
+https://github.com/MinecraftForge/MinecraftForge/blob/42115d37d6a46856e3dc914b54a1ce6d33b9872a/src/main/java/net/minecraftforge/network/ServerStatusPing.java
+"""
 
 from __future__ import annotations
 
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
         """Mod version"""
 
     class RawForgeData(TypedDict):
-        fmlNetworkVersion: int
+        fmlNetworkVersion: int  # noqa: N815
         channels: list[ForgeDataChannel]
         mods: list[ForgeDataMod]
         d: NotRequired[str]
