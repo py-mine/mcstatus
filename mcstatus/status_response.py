@@ -117,7 +117,7 @@ class JavaStatusResponse(BaseStatusResponse):
     .. seealso:: :ref:`pages/faq:how to get server image?`
     """
     forge_data: ForgeData | None
-    """Forge mod data (mod list, channels, etc) if the server is modded"""
+    """Forge mod data (mod list, channels, etc). Only present if this is a forge (modded) server."""
 
     @classmethod
     def build(cls, raw: RawJavaResponse, latency: float = 0) -> Self:

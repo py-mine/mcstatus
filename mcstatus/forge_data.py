@@ -63,7 +63,7 @@ class ForgeData:
 
     @staticmethod
     def _decode_optimized(string: str) -> Connection:
-        """Decode buffer from UTF-16 optimized binary data `string`."""
+        """Decode buffer from UTF-16 optimized binary data ``string``."""
         text = io.StringIO(string)
 
         def read() -> int:
