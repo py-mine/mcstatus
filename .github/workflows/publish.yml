@@ -26,6 +26,9 @@ jobs:
           python-version: 3.11
           install-args: "--with release"
 
+      - name: Prepare pyproject.toml with dynamic version
+        run: poetry run poetry-dynamic-versioning
+
       - name: Build package
         run: poetry build
 
