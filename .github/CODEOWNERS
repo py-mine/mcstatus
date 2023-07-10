@@ -2,3 +2,6 @@
 .github/dependabot.yml      @ItsDrike
 .github/workflows/**        @ItsDrike
 .pre-commit-config.yaml     @ItsDrike
+
+# Default catch-all
+* @kevinkjt200
