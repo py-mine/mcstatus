@@ -34,38 +34,38 @@ asyncio-dgram = "^2.1.2"
 dnspython = "^2.3.0"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.3.2"
+pre-commit = "^3.3.3"
 tox = "^3.28.0"
 tox-poetry = "0.5.0" # deprecated, no sense in `^`
 
 [tool.poetry.group.test.dependencies]
-pytest = "^7.3.1"
+pytest = "^7.4.0"
 pytest-asyncio = "^0.21.0"
-pytest-cov = "^4.0.0"
+pytest-cov = "^4.1.0"
 pytest-rerunfailures = "^11.1.2"
-coverage = "^7.2.6"
+coverage = "^7.2.7"
 
 [tool.poetry.group.lint.dependencies]
 black = "^23.3.0"
-coverage = "^7.2.6"
+coverage = "^7.2.7"
 flake8 = "^6.0.0"
 flake8-annotations = "^3.0.1"
-flake8-bugbear = "^23.5.9"
-flake8-tidy-imports = "^4.8.0"
+flake8-bugbear = "^23.7.10"
+flake8-tidy-imports = "^4.10.0"
 flake8-pep585 = {version = "^0.1.7", python = ">=3.9"}
 flake8-new-union-types = "^0.4.1"
 flake8-future-annotations = "^1.1.0"
 isort = "^5.12.0"
 pep8-naming = "^0.13.3"
 pyright = "^1.1.309"
-typing-extensions = "^4.6.1"
+typing-extensions = "^4.7.1"
 
 [tool.poetry.group.docs]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
 sphinx = "^7.0.1"
-sphinx-autodoc-typehints = "^1.23.0"
+sphinx-autodoc-typehints = "^1.23.3"
 furo = ">=2022.12.7"
 m2r2 = "^0.3.3"
 tomli = { version = "^2.0.1", markers = "python_version < '3.11'" }
@@ -77,14 +77,14 @@ optional = true
 
 [tool.poetry.group.release.dependencies]
 twine = "^4.0.2"
-poetry-dynamic-versioning = "^0.22.0"
+poetry-dynamic-versioning = "^0.24.0"
 
 [tool.poetry.group.workflow-tox]
 optional = true
 
 [tool.poetry.group.workflow-tox.dependencies]
 tox-gh-actions = "^2.12.0"
-poetry = "^1.5.0"
+poetry = "^1.5.1"
 
 [tool.poetry.scripts]
 mcstatus = 'mcstatus.__main__:main'

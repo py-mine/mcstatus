@@ -1451,13 +1451,13 @@ files = [
 
 [[package]]
 name = "poetry-dynamic-versioning"
-version = "0.22.0"
+version = "0.24.0"
 description = "Plugin for Poetry to enable dynamic versioning based on VCS tags"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "poetry_dynamic_versioning-0.22.0-py3-none-any.whl", hash = "sha256:4864371c930e5d9a8144a9457c5a49c32cc44efd2370242721cb0240e8a9bf0e"},
-    {file = "poetry_dynamic_versioning-0.22.0.tar.gz", hash = "sha256:f148b77337821a8e1c24a78ad98326d2189da0b84b76572b8d011fc4218e9ac1"},
+    {file = "poetry_dynamic_versioning-0.24.0-py3-none-any.whl", hash = "sha256:f90fbec96546d5a5112f4b5f324b271ded95214966f90d78d8e00e3ed925917a"},
+    {file = "poetry_dynamic_versioning-0.24.0.tar.gz", hash = "sha256:e53111b21fb11862a26f54f849f0d3b7a179b4455a0c3b890f875e717955f63a"},
 ]
 
 [package.dependencies]
@@ -2497,4 +2497,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4"
-content-hash = "39042bc4fa5ed70773010cd7ae41813bdc2d5ec050dc0d7075ac05f15a9345d6"
+content-hash = "0286e4240095ac194aca4f87e5bc9c5393ce7122c1cb3d38a7b953e1cbc906f9"
