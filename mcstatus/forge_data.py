@@ -1,12 +1,14 @@
-"""Forge Data Decoder
+"""Decoder for data from Forge, that is included into a response object.
 
 Forge mod data is encoded into a UTF-16 string that represents
 binary data containing data like the forge mod loader network
 version, a big list of channels that all the forge mods use,
 and a list of mods the server has.
 
+Before 1.18.1, the mod data was in `forgeData` attribute inside a response object. We support this implementation too.
+
 For more information see this file from forge itself:
-https://github.com/MinecraftForge/MinecraftForge/blob/42115d37d6a46856e3dc914b54a1ce6d33b9872a/src/main/java/net/minecraftforge/network/ServerStatusPing.java
+https://github.com/MinecraftForge/MinecraftForge/blob/54b08d2711a15418130694342a3fe9a5dfe005d2/src/main/java/net/minecraftforge/network/ServerStatusPing.java#L27-L73
 """
 
 from __future__ import annotations
