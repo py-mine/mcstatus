@@ -43,6 +43,7 @@ if TYPE_CHECKING:
         version: RawJavaResponseVersion
         favicon: NotRequired[str]
         forgeData: NotRequired[RawForgeData]  # noqa: N815
+        modinfo: NotRequired[RawForgeData]
 
 else:
     RawJavaResponsePlayer = dict
@@ -131,6 +132,11 @@ class JavaStatusResponse(BaseStatusResponse):
             ``description`` - :class:`str`) are not of the expected type.
         :return: :class:`JavaStatusResponse` object.
         """
+        forge_data = None
+        if "forgeData" in raw:
+            forge_data = ForgeData.build(raw["forgeData"])
+        elif "modinfo" in raw:
+            forge_data = ForgeData.build(raw["modinfo"])
         return cls(
             raw=raw,
             players=JavaStatusPlayers.build(raw["players"]),
@@ -138,7 +144,7 @@ class JavaStatusResponse(BaseStatusResponse):
             motd=Motd.parse(raw["description"], bedrock=False),
             icon=raw.get("favicon"),
             latency=latency,
-            forge_data=ForgeData.build(raw["forgeData"]) if "forgeData" in raw else None,
+            forge_data=forge_data,
         )
 
     @property

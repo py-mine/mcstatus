@@ -36,7 +36,8 @@ if TYPE_CHECKING:
         """Is this channel required for client to join?"""
 
     class RawForgeDataMod(TypedDict):
-        modid: str
+        modid: NotRequired[str]
+        modId: NotRequired[str]
         modmarker: str
         """Mod version."""
 
@@ -105,7 +106,8 @@ class ForgeDataMod:
         :param raw: ``mod`` element in raw forge response :class:`dict`.
         :return: :class:`ForgeDataMod` object.
         """
-        return cls(modid=raw["modid"], modmarker=raw["modmarker"])
+        # In FML v2, modid was modId instead. At least one of the two should exist.
+        return cls(modid=raw.get("modid", raw["modId"]), modmarker=raw["modmarker"])
 
     @classmethod
     def decode(cls, buffer: Connection) -> tuple[Self, list[ForgeDataChannel]]:
