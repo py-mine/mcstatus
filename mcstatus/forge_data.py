@@ -107,7 +107,10 @@ class ForgeDataMod:
         :return: :class:`ForgeDataMod` object.
         """
         # In FML v2, modid was modId instead. At least one of the two should exist.
-        return cls(modid=raw.get("modid", raw["modId"]), modmarker=raw["modmarker"])
+        modid = raw.get("modid") or raw.get("modId")
+        if modid is None:
+            raise ValueError("Mod ID must not be None")
+        return cls(modid=modid, modmarker=raw["modmarker"])
 
     @classmethod
     def decode(cls, buffer: Connection) -> tuple[Self, list[ForgeDataChannel]]:
