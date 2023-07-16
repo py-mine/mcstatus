@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
     class RawForgeDataMod(TypedDict):
         modid: NotRequired[str]
-        modId: NotRequired[str]
+        modId: NotRequired[str]  # noqa: N815 # camel case
         modmarker: str
         """Mod version."""
 
