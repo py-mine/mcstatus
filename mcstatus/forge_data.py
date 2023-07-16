@@ -66,10 +66,30 @@ class ForgeDataChannel:
     def build(cls, raw: RawForgeDataChannel) -> Self:
         """Build an object about Forge channel from raw response.
 
-        :param raw: ``forgeData`` attribute in raw response :class:`dict`.
+        :param raw: ``channel`` element in raw forge response :class:`dict`.
         :return: :class:`ForgeDataChannel` object.
         """
         return cls(res=raw["res"], version=raw["version"], required=raw["required"])
+
+    @classmethod
+    def decode(cls, buffer: Connection, mod_id: str | None = None) -> Self:
+        """Decode an object about Forge channel from decoded optimized buffer.
+
+        :param buffer: :class:`Connection` object from UTF-16 encoded binary data.
+        :param mod_id: Optional mod id prefix :class:`str`.
+        :return: :class:`ForgeDataChannel` object.
+        """
+        channel_identifier = buffer.read_utf()
+        if mod_id is not None:
+            channel_identifier = f"{mod_id}:{channel_identifier}"
+        version = buffer.read_utf()
+        client_required = buffer.read_bool()
+
+        return cls(
+            res=channel_identifier,
+            version=version,
+            required=client_required,
+        )
 
 
 @dataclass
@@ -82,10 +102,33 @@ class ForgeDataMod:
     def build(cls, raw: RawForgeDataMod) -> Self:
         """Build an object about Forge mod from raw response.
 
-        :param raw: ``forgeData`` attribute in raw response :class:`dict`.
+        :param raw: ``mod`` element in raw forge response :class:`dict`.
         :return: :class:`ForgeDataMod` object.
         """
         return cls(modid=raw["modid"], modmarker=raw["modmarker"])
+
+    @classmethod
+    def decode(cls, buffer: Connection) -> tuple[Self, list[ForgeDataChannel]]:
+        """Decode data about a Forge mod from decoded optimized buffer.
+
+        :param buffer: :class:`Connection` object from UTF-16 encoded binary data.
+        :return: :class:`tuple` object of :class:`ForgeDataMod` object and :class:`list` of :class:`ForgeDataChannel` objects.
+        """
+        channel_version_flags = buffer.read_varint()
+
+        channel_count = channel_version_flags >> 1
+        is_server = channel_version_flags & VERSION_FLAG_IGNORE_SERVER_ONLY != 0
+        mod_id = buffer.read_utf()
+
+        mod_version = IGNORE_SERVER_ONLY
+        if not is_server:
+            mod_version = buffer.read_utf()
+
+        channels = []
+        for _ in range(channel_count):
+            channels.append(ForgeDataChannel.decode(buffer, mod_id))
+
+        return cls(modid=mod_id, modmarker=mod_version), channels
 
 
 @dataclass
@@ -156,47 +199,14 @@ class ForgeData:
         mod_count = buffer.read_ushort()
         try:
             for _ in range(mod_count):
-                channel_version_flags = buffer.read_varint()
+                mod, mod_channels = ForgeDataMod.decode(buffer)
 
-                channel_count = channel_version_flags >> 1
-                is_server = channel_version_flags & VERSION_FLAG_IGNORE_SERVER_ONLY != 0
-                mod_id = buffer.read_utf()
-
-                mod_version = IGNORE_SERVER_ONLY
-                if not is_server:
-                    mod_version = buffer.read_utf()
-
-                for _ in range(channel_count):
-                    name = buffer.read_utf()
-                    version = buffer.read_utf()
-                    client_required = buffer.read_bool()
-                    channels.append(
-                        ForgeDataChannel(
-                            res=f"{mod_id}:{name}",
-                            version=version,
-                            required=client_required,
-                        )
-                    )
-
-                mods.append(
-                    ForgeDataMod(
-                        modid=mod_id,
-                        modmarker=mod_version,
-                    )
-                )
+                channels.extend(mod_channels)
+                mods.append(mod)
 
             non_mod_channel_count = buffer.read_varint()
             for _ in range(non_mod_channel_count):
-                channel_identifier = buffer.read_utf()
-                version = buffer.read_utf()
-                client_required = buffer.read_bool()
-                channels.append(
-                    ForgeDataChannel(
-                        res=channel_identifier,
-                        version=version,
-                        required=client_required,
-                    )
-                )
+                channels.append(ForgeDataChannel.decode(buffer))
         except IOError:
             if not truncated:
                 raise
