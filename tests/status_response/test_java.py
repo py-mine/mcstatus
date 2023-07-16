@@ -104,6 +104,51 @@ class TestJavaStatusVersion(BaseStatusResponseTest):
 
 
 @BaseStatusResponseTest.construct
+class TestOldForgeData(BaseStatusResponseTest):
+    EXPECTED_VALUES = [
+        ("fml_network_version", 2),
+        (
+            "channels",
+            [
+                {
+                    "res": "cyclopscore:channel_main",
+                    "version": "1.0.0",
+                    "required": True,
+                },
+            ],
+        ),
+        (
+            "mods",
+            [
+                {"modid": "rsrequestify", "modmarker": "2.2.0"},
+            ],
+        ),
+        ("truncated", False),
+    ]
+
+    @fixture(scope="class")
+    def build(self):
+        return ForgeData.build(
+            RawForgeData(
+                {
+                    "channels": [
+                        {
+                            "res": "cyclopscore:channel_main",
+                            "version": "1.0.0",
+                            "required": True,
+                        },
+                    ],
+                    "fmlNetworkVersion": 2,
+                    "mods": [
+                        {"modid": "rsrequestify", "modmarker": "2.2.0"},
+                    ],
+                    "truncated": False,
+                }
+            )
+        )
+
+
+@BaseStatusResponseTest.construct
 class TestForgeData(BaseStatusResponseTest):
     EXPECTED_VALUES = [
         ("fml_network_version", 3),
