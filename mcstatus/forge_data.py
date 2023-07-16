@@ -16,9 +16,9 @@ from __future__ import annotations
 
 import io
 from dataclasses import dataclass
-from typing import Final, TYPE_CHECKING
+from typing import Final, IO, TYPE_CHECKING
 
-from mcstatus.protocol.connection import Connection
+from mcstatus.protocol.connection import BaseConnection, BaseReadSync, Connection
 
 VERSION_FLAG_IGNORE_SERVER_ONLY: Final = 0b1
 IGNORE_SERVER_ONLY: Final = "<not required for client>"
@@ -129,6 +129,30 @@ class ForgeDataMod:
             channels.append(ForgeDataChannel.decode(buffer, mod_id))
 
         return cls(modid=mod_id, modmarker=mod_version), channels
+
+
+class StringBuffer(BaseReadSync, BaseConnection):
+    """String Buffer"""
+
+    __slots__ = ("stringio", "received")
+
+    def __init__(self, stringio: IO[str]) -> None:
+        self.stringio = stringio
+        self.received = bytearray()
+
+    def read(self, length: int) -> bytearray:
+        """Read length bytes from ``self``, and return a byte array."""
+        data = bytearray()
+        while self.received and len(data) < length:
+            data.append(self.received.pop(0))
+        for _ in range(length - len(data)):
+            result = self.stringio.read(1)
+            if not result:
+                raise IOError(f"Not enough data to read! {len(data)} < {length}")
+            data.extend(result.encode("utf-8"))
+        while len(data) > length:
+            self.received.append(data.pop())
+        return data
 
 
 @dataclass
