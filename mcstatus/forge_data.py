@@ -203,7 +203,6 @@ class ForgeData:
         :return: :class:`ForgeData` object.
         """
         fml_network_version = raw["fmlNetworkVersion"]
-        # Decode the encoded forge data if it exists.
 
         # see https://github.com/MinecraftForge/MinecraftForge/blob/7d0330eb08299935714e34ac651a293e2609aa86/src/main/java/net/minecraftforge/network/ServerStatusPing.java#L27-L73  # noqa: E501  # line too long
         if "d" not in raw:
