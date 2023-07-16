@@ -106,6 +106,7 @@ select = [
     "FA",    # flake8-future-annotations
     "TID",   # flake8-tidy-imports
     "UP007", # flake8-new-union-types equivalent rule
+    "RUF",   # ruff's custom rules
 ]
 
 ignore = [
@@ -115,6 +116,7 @@ ignore = [
     "ANN102", # Missing type annotation for cls in classmethod
     "ANN204", # Missing return type annotation for special method
     "B904",   # Exception raised within try-except should use raise ... from exc
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
 ]
 
 [tool.ruff.extend-per-file-ignores]
