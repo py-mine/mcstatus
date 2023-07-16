@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
-from mcstatus.forge_data import ForgeData, RawForgeData
+from mcstatus.forge_data import ForgeData, ForgeDataChannel, ForgeDataMod, RawForgeData
 from mcstatus.motd import Motd
 
 if TYPE_CHECKING:

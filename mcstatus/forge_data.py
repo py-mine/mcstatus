@@ -27,7 +27,7 @@ IGNORE_SERVER_ONLY: Final = "<not required for client>"
 if TYPE_CHECKING:
     from typing_extensions import NotRequired, Self, TypedDict
 
-    class ForgeDataChannel(TypedDict):
+    class RawForgeDataChannel(TypedDict):
         res: str
         """Channel name and ID (for example ``fml:handshake``)."""
         version: str
@@ -35,22 +35,57 @@ if TYPE_CHECKING:
         required: bool
         """Is this channel required for client to join?"""
 
-    class ForgeDataMod(TypedDict):
+    class RawForgeDataMod(TypedDict):
         modid: str
         modmarker: str
         """Mod version."""
 
     class RawForgeData(TypedDict):
         fmlNetworkVersion: int  # noqa: N815 # camel case
-        channels: list[ForgeDataChannel]
-        mods: list[ForgeDataMod]
+        channels: list[RawForgeDataChannel]
+        mods: list[RawForgeDataMod]
         d: NotRequired[str]
         truncated: NotRequired[bool]
 
 else:
-    ForgeDataChannel = dict
-    ForgeDataMod = dict
+    RawForgeDataChannel = dict
+    RawForgeDataMod = dict
     RawForgeData = dict
+
+
+@dataclass
+class ForgeDataChannel:
+    res: str
+    """Channel name and ID (for example ``fml:handshake``)."""
+    version: str
+    """Channel version (for example ``1.2.3.4``)."""
+    required: bool
+    """Is this channel required for client to join?"""
+
+    @classmethod
+    def build(cls, raw: RawForgeDataChannel) -> Self:
+        """Build an object about Forge channel from raw response.
+
+        :param raw: ``forgeData`` attribute in raw response :class:`dict`.
+        :return: :class:`ForgeDataChannel` object.
+        """
+        return cls(res=raw["res"], version=raw["version"], required=raw["required"])
+
+
+@dataclass
+class ForgeDataMod:
+    modid: str
+    modmarker: str
+    """Mod version."""
+
+    @classmethod
+    def build(cls, raw: RawForgeDataMod) -> Self:
+        """Build an object about Forge mod from raw response.
+
+        :param raw: ``forgeData`` attribute in raw response :class:`dict`.
+        :return: :class:`ForgeDataMod` object.
+        """
+        return cls(modid=raw["modid"], modmarker=raw["modmarker"])
 
 
 @dataclass
@@ -107,8 +142,8 @@ class ForgeData:
         if "d" not in raw:
             return cls(
                 fml_network_version=fml_network_version,
-                channels=raw["channels"],
-                mods=raw["mods"],
+                channels=[ForgeDataChannel.build(channel) for channel in raw["channels"]],
+                mods=[ForgeDataMod.build(mod) for mod in raw["mods"]],
                 truncated=False,
             )
 
@@ -118,12 +153,12 @@ class ForgeData:
         mods: list[ForgeDataMod] = []
 
         truncated = buffer.read_bool()
-        mod_size = buffer.read_ushort()
+        mod_count = buffer.read_ushort()
         try:
-            for _ in range(mod_size):
+            for _ in range(mod_count):
                 channel_version_flags = buffer.read_varint()
 
-                channel_size = channel_version_flags >> 1
+                channel_count = channel_version_flags >> 1
                 is_server = channel_version_flags & VERSION_FLAG_IGNORE_SERVER_ONLY != 0
                 mod_id = buffer.read_utf()
 
@@ -131,41 +166,35 @@ class ForgeData:
                 if not is_server:
                     mod_version = buffer.read_utf()
 
-                for _ in range(channel_size):
+                for _ in range(channel_count):
                     name = buffer.read_utf()
                     version = buffer.read_utf()
                     client_required = buffer.read_bool()
                     channels.append(
                         ForgeDataChannel(
-                            {
-                                "res": f"{mod_id}:{name}",
-                                "version": version,
-                                "required": client_required,
-                            }
+                            res=f"{mod_id}:{name}",
+                            version=version,
+                            required=client_required,
                         )
                     )
 
                 mods.append(
                     ForgeDataMod(
-                        {
-                            "modid": mod_id,
-                            "modmarker": mod_version,
-                        }
+                        modid=mod_id,
+                        modmarker=mod_version,
                     )
                 )
 
-            non_mod_channel_size = buffer.read_varint()
-            for _ in range(non_mod_channel_size):
+            non_mod_channel_count = buffer.read_varint()
+            for _ in range(non_mod_channel_count):
                 channel_identifier = buffer.read_utf()
                 version = buffer.read_utf()
                 client_required = buffer.read_bool()
                 channels.append(
                     ForgeDataChannel(
-                        {
-                            "res": channel_identifier,
-                            "version": version,
-                            "required": client_required,
-                        }
+                        res=channel_identifier,
+                        version=version,
+                        required=client_required,
                     )
                 )
         except IOError:
