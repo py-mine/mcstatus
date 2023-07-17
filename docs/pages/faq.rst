@@ -59,14 +59,19 @@ On Bedrock, only official servers have a server image. There is no way to get
 or set an icon to a custom server. For Java servers, you can use
 :attr:`status.icon <mcstatus.status_response.JavaStatusResponse.icon>`
 attribute. It will return `Base64 <https://en.wikipedia.org/wiki/Base64>`_
-encoded PNG image, so you can decode it in that way:
+encoded PNG image. If you wish to save this image into a file, this is how:
 
 .. code-block:: python
 
+    from mcstatus import JavaServer
     import base64
 
-    with open("server-icon.png", "wb") as server_icon_file:
-        server_favicon_file.write(base64.decodebytes(status.icon))
+    server = JavaServer.lookup("hypixel.net")
+    status = server.status()
+
+    decoded_icon = base64.b64decode(status.icon.removeprefix("data:image/png;base64,"))
+    with open("server-icon.png", "wb") as f:
+        f.write(decoded_icon)
 
 .. note::
     Most modern browsers support simply pasting the raw Base64 image into the
