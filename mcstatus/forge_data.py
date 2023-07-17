@@ -109,7 +109,8 @@ class ForgeDataMod:
         # In FML v2, modid was modId instead. At least one of the two should exist.
         modid = raw.get("modid") or raw.get("modId")
         if modid is None:
-            raise ValueError("Mod ID must not be None")
+            raise ValueError(f"Mod ID in Forge mod data must be provided. Mod marker: {raw['modmarker']!r}.")
+
         return cls(modid=modid, modmarker=raw["modmarker"])
 
     @classmethod

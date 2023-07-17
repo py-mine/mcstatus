@@ -133,10 +133,9 @@ class JavaStatusResponse(BaseStatusResponse):
         :return: :class:`JavaStatusResponse` object.
         """
         forge_data = None
-        if "forgeData" in raw:
-            forge_data = ForgeData.build(raw["forgeData"])
-        elif "modinfo" in raw:
-            forge_data = ForgeData.build(raw["modinfo"])
+        if "forgeData" in raw or "modinfo" in raw:
+            forge_data = ForgeData.build(raw.get("forgeData") or raw.get("modinfo"))
+
         return cls(
             raw=raw,
             players=JavaStatusPlayers.build(raw["players"]),
