@@ -63,8 +63,8 @@ encoded PNG image. If you wish to save this image into a file, this is how:
 
 .. code-block:: python
 
-    from mcstatus import JavaServer
     import base64
+    from mcstatus import JavaServer
 
     server = JavaServer.lookup("hypixel.net")
     status = server.status()
