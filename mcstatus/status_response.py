@@ -91,7 +91,7 @@ class BaseStatusResponse(ABC):
 
     @classmethod
     @abstractmethod
-    def build(cls, *args: Any, **kwargs: Any) -> Self:
+    def build(cls, *args: Any, **kwargs: Any) -> Self:  # noqa: ANN401  # Any is bad, but this is abstract
         """Build BaseStatusResponse and check is it valid.
 
         :param args: Arguments in specific realisation.

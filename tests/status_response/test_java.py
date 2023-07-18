@@ -1,6 +1,6 @@
 from pytest import fixture
 
-from mcstatus.forge_data import ForgeDataChannel, ForgeDataMod, RawForgeData, RawForgeDataChannel, RawForgeDataMod
+from mcstatus.forge_data import ForgeDataChannel, ForgeDataMod, RawForgeData
 from mcstatus.motd import Formatting, Motd
 from mcstatus.status_response import ForgeData, JavaStatusPlayer, JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
 from tests.status_response import BaseStatusResponseTest

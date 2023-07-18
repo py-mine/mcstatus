@@ -46,7 +46,7 @@ if TYPE_CHECKING:
         fmlNetworkVersion: NotRequired[int]  # noqa: N815 # camel case
         channels: NotRequired[list[RawForgeDataChannel]]
         mods: NotRequired[list[RawForgeDataMod]]
-        modList: NotRequired[list[RawForgeDataMod]]
+        modList: NotRequired[list[RawForgeDataMod]]  # noqa: N815 # camel case
         d: NotRequired[str]
         truncated: NotRequired[bool]
 
