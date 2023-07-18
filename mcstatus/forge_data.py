@@ -58,7 +58,7 @@ else:
 
 @dataclass
 class ForgeDataChannel:
-    res: str
+    name: str
     """Channel name and ID (for example ``fml:handshake``)."""
     version: str
     """Channel version (for example ``1.2.3.4``)."""
@@ -72,7 +72,7 @@ class ForgeDataChannel:
         :param raw: ``channel`` element in raw forge response :class:`dict`.
         :return: :class:`ForgeDataChannel` object.
         """
-        return cls(res=raw["res"], version=raw["version"], required=raw["required"])
+        return cls(name=raw["res"], version=raw["version"], required=raw["required"])
 
     @classmethod
     def decode(cls, buffer: Connection, mod_id: str | None = None) -> Self:
@@ -89,7 +89,7 @@ class ForgeDataChannel:
         client_required = buffer.read_bool()
 
         return cls(
-            res=channel_identifier,
+            name=channel_identifier,
             version=version,
             required=client_required,
         )
@@ -97,7 +97,7 @@ class ForgeDataChannel:
 
 @dataclass
 class ForgeDataMod:
-    id: str
+    name: str
     version: str
 
     @classmethod
@@ -117,7 +117,7 @@ class ForgeDataMod:
         if mod_id is None:
             raise ValueError(f"Mod ID in Forge mod data must be provided. Mod version: {mod_version!r}.")
 
-        return cls(mod_id=mod_id, mod_version=mod_version)
+        return cls(name=mod_id, version=mod_version)
 
     @classmethod
     def decode(cls, buffer: Connection) -> tuple[Self, list[ForgeDataChannel]]:
@@ -140,7 +140,7 @@ class ForgeDataMod:
         for _ in range(channel_count):
             channels.append(ForgeDataChannel.decode(buffer, mod_id))
 
-        return cls(mod_id=mod_id, mod_version=mod_version), channels
+        return cls(name=mod_id, version=mod_version), channels
 
 
 class StringBuffer(BaseReadSync, BaseConnection):
