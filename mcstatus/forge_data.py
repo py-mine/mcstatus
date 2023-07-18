@@ -97,9 +97,8 @@ class ForgeDataChannel:
 
 @dataclass
 class ForgeDataMod:
-    modid: str
-    modmarker: str
-    """Mod version."""
+    mod_id: str
+    mod_version: str
 
     @classmethod
     def build(cls, raw: RawForgeDataMod) -> Self:
@@ -118,7 +117,7 @@ class ForgeDataMod:
         if mod_id is None:
             raise ValueError(f"Mod ID in Forge mod data must be provided. Mod version: {mod_version!r}.")
 
-        return cls(modid=mod_id, modmarker=mod_version)
+        return cls(mod_id=mod_id, mod_version=mod_version)
 
     @classmethod
     def decode(cls, buffer: Connection) -> tuple[Self, list[ForgeDataChannel]]:
@@ -141,7 +140,7 @@ class ForgeDataMod:
         for _ in range(channel_count):
             channels.append(ForgeDataChannel.decode(buffer, mod_id))
 
-        return cls(modid=mod_id, modmarker=mod_version), channels
+        return cls(mod_id=mod_id, mod_version=mod_version), channels
 
 
 class StringBuffer(BaseReadSync, BaseConnection):
