@@ -1,7 +1,7 @@
 from pytest import fixture
 
 from mcstatus.forge_data import ForgeDataChannel, ForgeDataMod, RawForgeData, RawForgeDataChannel, RawForgeDataMod
-from mcstatus.motd import Motd
+from mcstatus.motd import Formatting, Motd
 from mcstatus.status_response import ForgeData, JavaStatusPlayer, JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
 from tests.status_response import BaseStatusResponseTest
 
@@ -101,53 +101,6 @@ class TestJavaStatusVersion(BaseStatusResponseTest):
     @fixture(scope="class")
     def build(self):
         return JavaStatusVersion.build({"name": "1.8-pre1", "protocol": 44})
-
-
-@BaseStatusResponseTest.construct
-class TestOldForgeData(BaseStatusResponseTest):
-    EXPECTED_VALUES = [
-        ("fml_network_version", 2),
-        (
-            "channels",
-            [
-                ForgeDataChannel(
-                    res="cyclopscore:channel_main",
-                    version="1.0.0",
-                    required=True,
-                ),
-            ],
-        ),
-        (
-            "mods",
-            [
-                ForgeDataMod(modid="rsrequestify", modmarker="2.2.0"),
-            ],
-        ),
-        ("truncated", False),
-    ]
-
-    @fixture(scope="class")
-    def build(self):
-        return ForgeData.build(
-            RawForgeData(
-                {
-                    "channels": [
-                        RawForgeDataChannel(
-                            {
-                                "res": "cyclopscore:channel_main",
-                                "version": "1.0.0",
-                                "required": True,
-                            }
-                        ),
-                    ],
-                    "fmlNetworkVersion": 2,
-                    "mods": [
-                        RawForgeDataMod({"modid": "rsrequestify", "modmarker": "2.2.0"}),
-                    ],
-                    "truncated": False,
-                }
-            )
-        )
 
 
 @BaseStatusResponseTest.construct
@@ -700,3 +653,140 @@ class TestForgeData(BaseStatusResponseTest):
                 }
             )
         )
+
+
+@BaseStatusResponseTest.construct
+class TestForgeDataV1(TestJavaStatusResponse):
+    RAW = {
+        "description": {"text": "A Minecraft Server"},
+        "players": {"max": 20, "online": 0},
+        "version": {"name": "1.12.2", "protocol": 340},
+        "modinfo": {
+            "type": "FML",
+            "modList": [
+                {"modid": "minecraft", "version": "1.12.2"},
+                {"modid": "mcp", "version": "9.42"},
+                {"modid": "FML", "version": "8.0.99.99"},
+                {"modid": "forge", "version": "14.23.5.2859"},
+            ],
+        },
+    }
+
+    EXPECTED_VALUES = [
+        ("players", JavaStatusPlayers(0, 20, None)),
+        ("version", JavaStatusVersion("1.12.2", 340)),
+        ("motd", Motd(parsed=["A Minecraft Server", Formatting.RESET], raw={"text": "A Minecraft Server"}, bedrock=False)),
+        ("latency", 0),
+        ("raw", RAW),
+        (
+            "forge_data",
+            ForgeData(
+                fml_network_version=1,
+                channels=[],
+                mods=[
+                    ForgeDataMod(modid="minecraft", modmarker="1.12.2"),
+                    ForgeDataMod(modid="mcp", modmarker="9.42"),
+                    ForgeDataMod(modid="FML", modmarker="8.0.99.99"),
+                    ForgeDataMod(modid="forge", modmarker="14.23.5.2859"),
+                ],
+                truncated=False,
+            ),
+        ),
+    ]
+    OPTIONAL_FIELDS = [], {
+        "players": {"max": 20, "online": 0},
+        "version": {"name": "1.12.2", "protocol": 340},
+        "description": "A Minecraft Server",
+    }
+
+
+@BaseStatusResponseTest.construct
+class TestForgeDataV2(TestJavaStatusResponse):
+    RAW = {
+        "description": {"text": "A Minecraft Server"},
+        "players": {"max": 20, "online": 0},
+        "version": {"name": "1.13.2", "protocol": 404},
+        "forgeData": {
+            "fmlNetworkVersion": 2,
+            "channels": [],
+            "mods": [
+                {"modId": "forge", "modmarker": "ANY"},
+            ],
+        },
+    }
+
+    EXPECTED_VALUES = [
+        ("players", JavaStatusPlayers(0, 20, None)),
+        ("version", JavaStatusVersion("1.13.2", 404)),
+        ("motd", Motd(parsed=["A Minecraft Server", Formatting.RESET], raw={"text": "A Minecraft Server"}, bedrock=False)),
+        ("latency", 0),
+        ("raw", RAW),
+        (
+            "forge_data",
+            ForgeData(
+                fml_network_version=2,
+                channels=[],
+                mods=[
+                    ForgeDataMod(modid="forge", modmarker="ANY"),
+                ],
+                truncated=False,
+            ),
+        ),
+    ]
+    OPTIONAL_FIELDS = [], {
+        "players": {"max": 20, "online": 0},
+        "version": {"name": "1.13.2", "protocol": 404},
+        "description": "A Minecraft Server",
+    }
+
+
+@BaseStatusResponseTest.construct
+class TestForgeDataV3(TestJavaStatusResponse):
+    RAW = {
+        "enforcesSecureChat": True,
+        "forgeData": {
+            "channels": [],
+            "mods": [],
+            "truncated": False,
+            "fmlNetworkVersion": 3,
+            "d": bytes.fromhex(
+                "5e0000e0a084e390a4e78d8be39996e2b98ce1a698ccbae2b8b1e681a4e492b8e2a191e29ba7e6b2aee5a"
+                "999e3a8b9e789a5e0b088e384b5e0a69ae28280e6b2aee5a999e3a8b9e789a5e0b088e384b5e0a69ae581"
+                "80e6b380e5b29be38ab3e48483e38a9ce580b1e2ad8be79ca6e6b9abe1b29be392bae69daee68886e482b"
+                "8e2a081dcb0e2b68ee5b49ae1a281e384ae02"
+            ).decode("utf8"),
+        },
+        "description": {"text": "A Minecraft Server"},
+        "players": {"max": 20, "online": 0},
+        "version": {"name": "1.20.1", "protocol": 763},
+    }
+
+    EXPECTED_VALUES = [
+        ("players", JavaStatusPlayers(0, 20, None)),
+        ("version", JavaStatusVersion("1.20.1", 763)),
+        ("motd", Motd(parsed=["A Minecraft Server", Formatting.RESET], raw={"text": "A Minecraft Server"}, bedrock=False)),
+        ("latency", 0),
+        ("raw", RAW),
+        (
+            "forge_data",
+            ForgeData(
+                fml_network_version=3,
+                channels=[
+                    ForgeDataChannel(res="minecraft:unregister", version="FML3", required=True),
+                    ForgeDataChannel(res="minecraft:register", version="FML3", required=True),
+                    ForgeDataChannel(res="forge:tier_sorting", version="1.0", required=False),
+                    ForgeDataChannel(res="forge:split", version="1.1", required=True),
+                ],
+                mods=[
+                    ForgeDataMod(modid="minecraft", modmarker="1.20.1"),
+                    ForgeDataMod(modid="forge", modmarker="ANY"),
+                ],
+                truncated=False,
+            ),
+        ),
+    ]
+    OPTIONAL_FIELDS = [], {
+        "players": {"max": 20, "online": 0},
+        "version": {"name": "1.20.1", "protocol": 763},
+        "description": "A Minecraft Server",
+    }

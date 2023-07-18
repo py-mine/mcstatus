@@ -38,13 +38,15 @@ if TYPE_CHECKING:
     class RawForgeDataMod(TypedDict):
         modid: NotRequired[str]
         modId: NotRequired[str]  # noqa: N815 # camel case
-        modmarker: str
+        modmarker: NotRequired[str]
         """Mod version."""
+        version: NotRequired[str]
 
     class RawForgeData(TypedDict):
-        fmlNetworkVersion: int  # noqa: N815 # camel case
-        channels: list[RawForgeDataChannel]
-        mods: list[RawForgeDataMod]
+        fmlNetworkVersion: NotRequired[int]  # noqa: N815 # camel case
+        channels: NotRequired[list[RawForgeDataChannel]]
+        mods: NotRequired[list[RawForgeDataMod]]
+        modList: NotRequired[list[RawForgeDataMod]]
         d: NotRequired[str]
         truncated: NotRequired[bool]
 
@@ -106,12 +108,17 @@ class ForgeDataMod:
         :param raw: ``mod`` element in raw forge response :class:`dict`.
         :return: :class:`ForgeDataMod` object.
         """
-        # In FML v2, modid was modId instead. At least one of the two should exist.
-        modid = raw.get("modid") or raw.get("modId")
-        if modid is None:
-            raise ValueError(f"Mod ID in Forge mod data must be provided. Mod marker: {raw['modmarker']!r}.")
+        # In FML v1, modmarker was version instead.
+        mod_version = raw.get("modmarker") or raw.get("version")
+        if mod_version is None:
+            raise ValueError("Mod version in Forge mod data must be provided.")
 
-        return cls(modid=modid, modmarker=raw["modmarker"])
+        # In FML v2, modid was modId instead. At least one of the two should exist.
+        mod_id = raw.get("modid") or raw.get("modId")
+        if mod_id is None:
+            raise ValueError(f"Mod ID in Forge mod data must be provided. Mod version: {mod_version!r}.")
+
+        return cls(modid=mod_id, modmarker=mod_version)
 
     @classmethod
     def decode(cls, buffer: Connection) -> tuple[Self, list[ForgeDataChannel]]:
@@ -202,20 +209,25 @@ class ForgeData:
         return buffer
 
     @classmethod
-    def build(cls, raw: RawForgeData) -> Self:
+    def build(cls, raw: RawForgeData) -> Self | None:
         """Build an object about Forge mods from raw response.
 
         :param raw: ``forgeData`` attribute in raw response :class:`dict`.
         :return: :class:`ForgeData` object.
         """
-        fml_network_version = raw["fmlNetworkVersion"]
+        fml_network_version = 1
+        if "fmlNetworkVersion" in raw:
+            fml_network_version = raw["fmlNetworkVersion"]
 
         # see https://github.com/MinecraftForge/MinecraftForge/blob/7d0330eb08299935714e34ac651a293e2609aa86/src/main/java/net/minecraftforge/network/ServerStatusPing.java#L27-L73  # noqa: E501  # line too long
         if "d" not in raw:
+            mod_list = raw.get("mods") or raw.get("modList")
+            if mod_list is None:
+                return None
             return cls(
                 fml_network_version=fml_network_version,
-                channels=[ForgeDataChannel.build(channel) for channel in raw["channels"]],
-                mods=[ForgeDataMod.build(mod) for mod in raw["mods"]],
+                channels=[ForgeDataChannel.build(channel) for channel in raw.get("channels", ())],
+                mods=[ForgeDataMod.build(mod) for mod in mod_list],
                 truncated=False,
             )
 
