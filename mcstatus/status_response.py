@@ -91,8 +91,7 @@ class BaseStatusResponse(ABC):
 
     @classmethod
     @abstractmethod
-    # types: no-untyped-def error: Function is missing a type annotation for one or more arguments
-    def build(cls, *args, **kwargs) -> Self:
+    def build(cls, *args: Any, **kwargs: Any) -> Self:
         """Build BaseStatusResponse and check is it valid.
 
         :param args: Arguments in specific realisation.
