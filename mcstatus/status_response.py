@@ -91,6 +91,7 @@ class BaseStatusResponse(ABC):
 
     @classmethod
     @abstractmethod
+    # types: no-untyped-def error: Function is missing a type annotation for one or more arguments
     def build(cls, *args, **kwargs) -> Self:
         """Build BaseStatusResponse and check is it valid.
 
@@ -132,9 +133,11 @@ class JavaStatusResponse(BaseStatusResponse):
             ``description`` - :class:`str`) are not of the expected type.
         :return: :class:`JavaStatusResponse` object.
         """
-        forge_data = None
+        forge_data: ForgeData | None = None
         if "forgeData" in raw or "modinfo" in raw:
-            forge_data = ForgeData.build(raw.get("forgeData") or raw.get("modinfo"))
+            raw_forge = raw.get("forgeData") or raw.get("modinfo")
+            assert raw_forge is not None
+            forge_data = ForgeData.build(raw_forge)
 
         return cls(
             raw=raw,
