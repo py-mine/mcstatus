@@ -1434,13 +1434,13 @@ tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 
 [[package]]
 name = "pyright"
-version = "1.1.311"
+version = "1.1.318"
 description = "Command line wrapper for pyright"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.311-py3-none-any.whl", hash = "sha256:04df30c6b31d05068effe5563411291c876f5e4221d0af225a267b61dce1ca85"},
-    {file = "pyright-1.1.311.tar.gz", hash = "sha256:554b555d3f770e8da2e76d6bb94e2ac63b3edc7dcd5fb8de202f9dd53e36689a"},
+    {file = "pyright-1.1.318-py3-none-any.whl", hash = "sha256:056c1b2e711c3526e32919de1684ae599d34b7ec27e94398858a43f56ac9ba9b"},
+    {file = "pyright-1.1.318.tar.gz", hash = "sha256:69dcf9c32d5be27d531750de627e76a7cadc741d333b547c09044278b508db7b"},
 ]
 
 [package.dependencies]
