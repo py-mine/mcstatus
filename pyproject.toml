@@ -46,17 +46,10 @@ pytest-rerunfailures = "^11.1.2"
 coverage = "^7.2.6"
 
 [tool.poetry.group.lint.dependencies]
+ruff = "^0.0.278"
 black = "^23.3.0"
 coverage = "^7.2.6"
-flake8 = "^6.0.0"
-flake8-annotations = "^3.0.1"
-flake8-bugbear = "^23.5.9"
-flake8-tidy-imports = "^4.8.0"
-flake8-pep585 = {version = "^0.1.7", python = ">=3.9"}
-flake8-new-union-types = "^0.4.1"
-flake8-future-annotations = "^1.1.0"
 isort = "^5.12.0"
-pep8-naming = "^0.13.3"
 pyright = "^1.1.309"
 typing-extensions = "^4.6.1"
 
@@ -98,6 +91,44 @@ testpaths = ["tests"]
 bump = true
 enable = true
 style = "pep440"
+
+[tool.ruff]
+target-version = "py38"
+line-length = 127
+
+select = [
+    "F",     # Pyflakes
+    "W",     # Pycodestyle (warnigns)
+    "E",     # Pycodestyle (errors)
+    "N",     # pep8-naming
+    "ANN",   # flake8-annotations
+    "B",     # flake8-bugbear
+    "FA",    # flake8-future-annotations
+    "TID",   # flake8-tidy-imports
+    "UP007", # flake8-new-union-types equivalent rule
+    "RUF",   # ruff's custom rules
+]
+
+ignore = [
+    "ANN002", # Missing type annotation for *args
+    "ANN003", # Missing type annotation for **kwargs
+    "ANN101", # Missing type annotation for self in method
+    "ANN102", # Missing type annotation for cls in classmethod
+    "ANN204", # Missing return type annotation for special method
+    "B904",   # Exception raised within try-except should use raise ... from exc
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+]
+
+[tool.ruff.extend-per-file-ignores]
+"test_*.py" = [
+    "ANN", # flake8-annotations
+]
+"docs/examples/code/**" = [
+    "FA",  # flake8-future-annotations
+]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
 
 [tool.black]
 line-length = 127

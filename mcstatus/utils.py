@@ -124,7 +124,7 @@ def deprecated(
 
 
 def deprecated(
-    obj: Any = None,  # noqa: ANN401
+    obj: Any = None,
     *,
     replacement: str | None = None,
     version: str | None = None,
