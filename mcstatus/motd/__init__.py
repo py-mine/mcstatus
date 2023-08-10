@@ -35,7 +35,12 @@ class Motd:
     """Is server Bedrock Edition? Some details may change in work of this class."""
 
     @classmethod
-    def parse(cls, raw: RawJavaResponseMotd, *, bedrock: bool = False) -> Self:
+    def parse(
+        cls,
+        raw: RawJavaResponseMotd,  # type: ignore # later, we overwrite the type
+        *,
+        bedrock: bool = False,
+    ) -> Self:
         """Parse a raw MOTD to less raw MOTD (:attr:`.parsed` attribute).
 
         :param raw: Raw MOTD, directly from server.
@@ -44,7 +49,7 @@ class Motd:
         """
         original_raw = raw.copy() if hasattr(raw, "copy") else raw  # type: ignore # Cannot access "copy" for type "str"
         if isinstance(raw, list):
-            raw = RawJavaResponseMotdWhenDict(**{"extra": raw})
+            raw: RawJavaResponseMotdWhenDict = {"extra": raw}
 
         if isinstance(raw, str):
             parsed = cls._parse_as_str(raw, bedrock=bedrock)
