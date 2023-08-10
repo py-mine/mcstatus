@@ -114,7 +114,7 @@ class WebColor:
 class TranslationTag:
     """Represents a ``translate`` field in server's answer.
 
-    This just exist, but is completely ignored by our transformers.
+    This just exists, but is completely ignored by our transformers.
     You can find translation tags in :attr:`Motd.parsed <mcstatus.motd.Motd.parsed>` attribute.
 
     .. seealso:: `Minecraft's wiki. <https://minecraft.fandom.com/wiki/Raw_JSON_text_format#Translated_Text>`__
