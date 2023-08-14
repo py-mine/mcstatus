@@ -16,7 +16,7 @@ class BaseStatusResponseTest(abc.ABC):
     # if we don't specify item in raw answer, target field will be None
     # first element is a list with fields to remove, and attribute that
     # must be None. a dict is a raw answer to pass into `build` method
-    OPTIONAL_FIELDS: tuple[list[tuple[str, str]], dict[str, Any]] | None = None  # noqa: ANN401
+    OPTIONAL_FIELDS: tuple[list[tuple[str, str]], dict[str, Any]] | None = None
 
     def _validate(self) -> None:
         """Perform checks to validate the class."""

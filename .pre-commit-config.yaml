@@ -26,12 +26,14 @@ repos:
 
   - repo: local
     hooks:
-      - id: flake8
-        name: Flake8
-        description: Run flake8 checks on the code
-        entry: poetry run flake8
+      - id: ruff
+        name: Ruff
+        description: Run ruff checks on the code
+        entry: poetry run ruff check --force-exclude
         language: system
         types: [python]
+        require_serial: true
+        args: [--fix, --exit-non-zero-on-fix]
 
   - repo: local
     hooks:

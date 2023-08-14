@@ -103,7 +103,7 @@ class TestMotdParse:
         ]
 
     def test_translate_string(self):
-        assert Motd.parse(RawJavaResponseMotdWhenDict(**{"translate": "the key"})).parsed == [
+        assert Motd.parse(RawJavaResponseMotdWhenDict(translate="the key")).parsed == [
             TranslationTag("the key"),
             Formatting.RESET,
         ]
