@@ -23,8 +23,8 @@ if TYPE_CHECKING:
         protocol: int
 
     class RawJavaResponseMotdWhenDict(TypedDict, total=False):
-        text: str  # only present if translation is set
-        translation: str  # same to the above field
+        text: str  # only present if `translate` is set
+        translate: str  # same to the above field
         extra: list[RawJavaResponseMotdWhenDict]
 
         color: str
