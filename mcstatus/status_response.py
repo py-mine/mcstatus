@@ -1,4 +1,4 @@
-from mcstatus.responses import *  # noqa: F403
+from mcstatus.responses import *  # noqa: F403 # type: ignore # wildcard import
 
 # __all__ is frozen on the moment of deprecation
 __all__ = [  # noqa: F405
