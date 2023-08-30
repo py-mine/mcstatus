@@ -206,3 +206,12 @@ class TestAddressIPResolving:
             resolve.assert_not_called()  # Make sure we didn't needlessly try to resolve
             assert isinstance(resolved_ip, ipaddress.IPv6Address)
             assert str(resolved_ip) == self.ipv6_addr.host
+
+    def test_resolve_localhost(self):
+        addr = Address("localhost", 25565)
+        assert addr.resolve_ip() == ipaddress.ip_address("127.0.0.1")
+
+    @pytest.mark.asyncio
+    async def test_async_resolve_localhost(self):
+        addr = Address("localhost", 25565)
+        assert await addr.async_resolve_ip() == ipaddress.ip_address("127.0.0.1")

@@ -124,7 +124,9 @@ class Address(_AddressBase):
             return self._cached_ip
 
         try:
-            ip = ipaddress.ip_address(self.host)
+            # On MacOS because of some mysterious reasons we can't resolve
+            # localhost into IP using `ipaddress.ip_address`.
+            ip = ipaddress.ip_address(self.host if self.host != "localhost" else "127.0.0.1")
         except ValueError:
             # ValueError is raised if the given address wasn't valid
             # this means it's a hostname and we should try to resolve
@@ -145,7 +147,9 @@ class Address(_AddressBase):
             return self._cached_ip
 
         try:
-            ip = ipaddress.ip_address(self.host)
+            # On MacOS because of some mysterious reasons we can't resolve
+            # localhost into IP using `ipaddress.ip_address`.
+            ip = ipaddress.ip_address(self.host if self.host != "localhost" else "127.0.0.1")
         except ValueError:
             # ValueError is raised if the given address wasn't valid
             # this means it's a hostname and we should try to resolve
