@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ipaddress
+import sys
 from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
@@ -209,9 +210,15 @@ class TestAddressIPResolving:
 
     def test_resolve_localhost(self):
         addr = Address("localhost", 25565)
-        assert addr.resolve_ip() == ipaddress.ip_address("127.0.0.1")
+
+        context_manager = pytest.warns(RuntimeWarning) if sys.platform == "darwin" else MagicMock()
+        with context_manager:
+            assert addr.resolve_ip() == ipaddress.ip_address("127.0.0.1")
 
     @pytest.mark.asyncio
     async def test_async_resolve_localhost(self):
         addr = Address("localhost", 25565)
-        assert await addr.async_resolve_ip() == ipaddress.ip_address("127.0.0.1")
+
+        context_manager = pytest.warns(RuntimeWarning) if sys.platform == "darwin" else MagicMock()
+        with context_manager:
+            assert await addr.async_resolve_ip() == ipaddress.ip_address("127.0.0.1")
