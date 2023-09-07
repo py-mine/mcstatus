@@ -126,7 +126,7 @@ class Address(_AddressBase):
             return self._cached_ip
 
         host = self.host
-        if self.host != "localhost" and sys.platform != "darwin":
+        if self.host == "localhost" and sys.platform == "darwin":
             host = "127.0.0.1"
             warnings.warn(
                 "On macOS because of some mysterious reasons we can't resolve localhost into IP. "
