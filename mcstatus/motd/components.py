@@ -82,7 +82,7 @@ class WebColor:
             hex = "{0}{0}{1}{1}{2}{2}".format(*hex)
 
         try:
-            rgb = tuple(int(hex[i : i + 2], 16) for i in (0, 2, 4))
+            rgb = t.cast(tuple[int, int, int], tuple(int(hex[i : i + 2], 16) for i in (0, 2, 4)))
         except ValueError:
             raise ValueError(f"Failed to parse given hex color: {'#' + hex!r}")
 
