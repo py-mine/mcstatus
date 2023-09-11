@@ -150,7 +150,7 @@ class JavaServer(MCServer):
         result = await pinger.read_status()
         return result
 
-    def query(self, tries: int = 3) -> QueryResponse:
+    def query(self, *, tries: int = 3) -> QueryResponse:
         """Checks the status of a Minecraft Java Edition server via the query protocol.
 
         :param tries: The number of times to retry if an error is encountered.
@@ -166,7 +166,7 @@ class JavaServer(MCServer):
             querier.handshake()
             return querier.read_query()
 
-    async def async_query(self, tries: int = 3) -> QueryResponse:
+    async def async_query(self, *, tries: int = 3) -> QueryResponse:
         """Asynchronously checks the status of a Minecraft Java Edition server via the query protocol.
 
         :param tries: The number of times to retry if an error is encountered.
