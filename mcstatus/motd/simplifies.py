@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import typing as t
 from collections.abc import Sequence
 
 from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, WebColor
+
+_PARSED_MOTD_COMPONENTS_TYPEVAR = t.TypeVar("_PARSED_MOTD_COMPONENTS_TYPEVAR", bound=list[ParsedMotdComponent])
 
 
 def get_unused_elements(parsed: Sequence[ParsedMotdComponent]) -> set[int]:
@@ -12,10 +15,44 @@ def get_unused_elements(parsed: Sequence[ParsedMotdComponent]) -> set[int]:
     """
     to_remove: set[int] = set()
 
-    for simplifier in [get_double_items, get_double_colors, get_formatting_before_color, get_empty_text, get_end_non_text]:
+    for simplifier in [
+        get_double_items,
+        get_double_colors,
+        get_formatting_before_color,
+        get_meaningless_resets_and_colors,
+        get_empty_text,
+        get_end_non_text,
+    ]:
         to_remove.update(simplifier(parsed))
 
     return to_remove
+
+
+def squash_nearby_strings(parsed: _PARSED_MOTD_COMPONENTS_TYPEVAR) -> _PARSED_MOTD_COMPONENTS_TYPEVAR:
+    """Squash duplicate strings together.
+
+    Note that this function doesn't create a copy of passed array, it modifies it.
+    This is what those typevars are for in the function signature.
+    """
+    # in order to not break indexes, we need to fill values and then remove them after the loop
+    fillers: set[int] = set()
+    for index, item in enumerate(parsed):
+        if not isinstance(item, str):
+            continue
+
+        try:
+            next_item = parsed[index + 1]
+        except IndexError:  # Last item (without any next item)
+            break
+
+        if isinstance(next_item, str):
+            parsed[index + 1] = item + next_item
+            fillers.add(index)
+
+    for already_removed, index_to_remove in enumerate(fillers):
+        parsed.pop(index_to_remove - already_removed)
+
+    return parsed
 
 
 def get_double_items(parsed: Sequence[ParsedMotdComponent]) -> set[int]:
@@ -83,7 +120,7 @@ def get_formatting_before_color(parsed: Sequence[ParsedMotdComponent]) -> set[in
 
         # If there's a string after some formattings, the formattings apply to it.
         # This means they're not unused, remove them.
-        if isinstance(item, str):
+        if isinstance(item, str) and not item.isspace():
             collected_formattings = []
             continue
 
@@ -128,5 +165,30 @@ def get_end_non_text(parsed: Sequence[ParsedMotdComponent]) -> set[int]:
         if isinstance(item, (MinecraftColor, WebColor, Formatting)):
             index = len(parsed) - 1 - rev_index
             to_remove.add(index)
+
+    return to_remove
+
+
+def get_meaningless_resets_and_colors(parsed: Sequence[ParsedMotdComponent]) -> set[int]:
+    to_remove: set[int] = set()
+
+    active_color: MinecraftColor | WebColor | None = None
+    active_formatting: Formatting | None = None
+    for index, item in enumerate(parsed):
+        if isinstance(item, (MinecraftColor, WebColor)):
+            if active_color == item:
+                to_remove.add(index)
+            active_color = item
+            continue
+        if isinstance(item, Formatting):
+            if item == Formatting.RESET:
+                if active_color is None and active_formatting is None:
+                    to_remove.add(index)
+                    continue
+                active_color, active_formatting = None, None
+                continue
+            if active_formatting == item:
+                to_remove.add(index)
+            active_formatting = item
 
     return to_remove
