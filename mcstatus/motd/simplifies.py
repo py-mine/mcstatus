@@ -5,7 +5,7 @@ from collections.abc import Sequence
 
 from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, WebColor
 
-_PARSED_MOTD_COMPONENTS_TYPEVAR = t.TypeVar("_PARSED_MOTD_COMPONENTS_TYPEVAR", bound=list[ParsedMotdComponent])
+_PARSED_MOTD_COMPONENTS_TYPEVAR = t.TypeVar("_PARSED_MOTD_COMPONENTS_TYPEVAR", bound="list[ParsedMotdComponent]")
 
 
 def get_unused_elements(parsed: Sequence[ParsedMotdComponent]) -> set[int]:
