@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import ipaddress
+import sys
+import warnings
 from pathlib import Path
 from typing import NamedTuple, TYPE_CHECKING
 from urllib.parse import urlparse
@@ -123,8 +125,18 @@ class Address(_AddressBase):
         if self._cached_ip is not None:
             return self._cached_ip
 
+        host = self.host
+        if self.host == "localhost" and sys.platform == "darwin":
+            host = "127.0.0.1"
+            warnings.warn(
+                "On macOS because of some mysterious reasons we can't resolve localhost into IP. "
+                "Please, replace 'localhost' with '127.0.0.1' (or '::1' for IPv6) in your code to remove this warning.",
+                category=RuntimeWarning,
+                stacklevel=2,
+            )
+
         try:
-            ip = ipaddress.ip_address(self.host)
+            ip = ipaddress.ip_address(host)
         except ValueError:
             # ValueError is raised if the given address wasn't valid
             # this means it's a hostname and we should try to resolve
@@ -144,8 +156,18 @@ class Address(_AddressBase):
         if self._cached_ip is not None:
             return self._cached_ip
 
+        host = self.host
+        if self.host == "localhost" and sys.platform == "darwin":
+            host = "127.0.0.1"
+            warnings.warn(
+                "On macOS because of some mysterious reasons we can't resolve localhost into IP. "
+                "Please, replace 'localhost' with '127.0.0.1' (or '::1' for IPv6) in your code to remove this warning.",
+                category=RuntimeWarning,
+                stacklevel=2,
+            )
+
         try:
-            ip = ipaddress.ip_address(self.host)
+            ip = ipaddress.ip_address(host)
         except ValueError:
             # ValueError is raised if the given address wasn't valid
             # this means it's a hostname and we should try to resolve

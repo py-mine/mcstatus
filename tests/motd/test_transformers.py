@@ -71,8 +71,8 @@ class TestMotdHTML:
             "<span style='color:rgb(170, 0, 0);text-shadow:0 0 1px rgb(42, 0, 0)'>8</span>"
             "<span style='color:rgb(170, 0, 170);text-shadow:0 0 1px rgb(42, 0, 42)'>9</span>"
             "<span style='color:rgb(255, 170, 0);text-shadow:0 0 1px rgb"
-            + str((64, 42, 0) if bedrock else (42, 42, 0))  # noqa: W503
-            + "'>10</span>"  # noqa: W503
+            + str((64, 42, 0) if bedrock else (42, 42, 0))
+            + "'>10</span>"
             "<span style='color:rgb(170, 170, 170);text-shadow:0 0 1px rgb(42, 42, 42)'>11</span>"
             "<span style='color:rgb(85, 85, 85);text-shadow:0 0 1px rgb(21, 21, 21)'>12</span>"
             "<span style='color:rgb(85, 85, 255);text-shadow:0 0 1px rgb(21, 21, 63)'>13</span>"

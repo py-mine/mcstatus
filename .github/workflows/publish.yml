@@ -8,16 +8,17 @@ on:
       - "v*"
 
 permissions:
+  id-token: write # Used to authenticate to PyPI via OIDC.
   contents: read
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
+    environment: release
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup poetry
         id: poetry_setup
@@ -26,10 +27,12 @@ jobs:
           python-version: 3.11
           install-args: "--with release"
 
+      - name: Prepare pyproject.toml with dynamic version
+        run: poetry run poetry-dynamic-versioning
+
       - name: Build package
         run: poetry build
 
-      - name: Publish package
-        env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
-        run: poetry publish --no-interaction
+      # This uses PyPI's trusted publishing, so no token is required
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

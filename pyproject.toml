@@ -31,41 +31,34 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4"
 asyncio-dgram = "^2.1.2"
-dnspython = "^2.3.0"
+dnspython = "^2.4.2"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.3.2"
+pre-commit = "^3.3.3"
 tox = "^3.28.0"
 tox-poetry = "0.5.0" # deprecated, no sense in `^`
 
 [tool.poetry.group.test.dependencies]
-pytest = "^7.3.1"
-pytest-asyncio = "^0.21.0"
-pytest-cov = "^4.0.0"
-pytest-rerunfailures = "^11.1.2"
-coverage = "^7.2.6"
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.1"
+pytest-cov = "^4.1.0"
+pytest-rerunfailures = "^12.0"
+coverage = "^7.3.0"
 
 [tool.poetry.group.lint.dependencies]
-black = "^23.3.0"
-coverage = "^7.2.6"
-flake8 = "^6.0.0"
-flake8-annotations = "^3.0.1"
-flake8-bugbear = "^23.5.9"
-flake8-tidy-imports = "^4.8.0"
-flake8-pep585 = {version = "^0.1.7", python = ">=3.9"}
-flake8-new-union-types = "^0.4.1"
-flake8-future-annotations = "^1.1.0"
+ruff = "0.0.290"
+black = "^23.7.0"
+coverage = "^7.3.0"
 isort = "^5.12.0"
-pep8-naming = "^0.13.3"
-pyright = "^1.1.309"
-typing-extensions = "^4.6.1"
+pyright = "^1.1.322"
+typing-extensions = "^4.7.1"
 
 [tool.poetry.group.docs]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-sphinx = "^7.0.1"
-sphinx-autodoc-typehints = "^1.23.0"
+sphinx = "^7.1.2"
+sphinx-autodoc-typehints = "^1.24.0"
 furo = ">=2022.12.7"
 m2r2 = "^0.3.3"
 tomli = { version = "^2.0.1", markers = "python_version < '3.11'" }
@@ -77,14 +70,14 @@ optional = true
 
 [tool.poetry.group.release.dependencies]
 twine = "^4.0.2"
-poetry-dynamic-versioning = "^0.22.0"
+poetry-dynamic-versioning = "^0.25.0"
 
 [tool.poetry.group.workflow-tox]
 optional = true
 
 [tool.poetry.group.workflow-tox.dependencies]
 tox-gh-actions = "^2.12.0"
-poetry = "^1.5.0"
+poetry = "^1.5.1"
 
 [tool.poetry.scripts]
 mcstatus = 'mcstatus.__main__:main'
@@ -99,6 +92,44 @@ bump = true
 enable = true
 style = "pep440"
 
+[tool.ruff]
+target-version = "py38"
+line-length = 127
+
+select = [
+    "F",     # Pyflakes
+    "W",     # Pycodestyle (warnigns)
+    "E",     # Pycodestyle (errors)
+    "N",     # pep8-naming
+    "ANN",   # flake8-annotations
+    "B",     # flake8-bugbear
+    "FA",    # flake8-future-annotations
+    "TID",   # flake8-tidy-imports
+    "UP007", # flake8-new-union-types equivalent rule
+    "RUF",   # ruff's custom rules
+]
+
+ignore = [
+    "ANN002", # Missing type annotation for *args
+    "ANN003", # Missing type annotation for **kwargs
+    "ANN101", # Missing type annotation for self in method
+    "ANN102", # Missing type annotation for cls in classmethod
+    "ANN204", # Missing return type annotation for special method
+    "B904",   # Exception raised within try-except should use raise ... from exc
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+]
+
+[tool.ruff.extend-per-file-ignores]
+"test_*.py" = [
+    "ANN", # flake8-annotations
+]
+"docs/examples/code/**" = [
+    "FA",  # flake8-future-annotations
+]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
 [tool.black]
 line-length = 127
 
@@ -111,4 +142,4 @@ skip = [".venv", ".git", ".cache", ".tox"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
-build-backend = "poetry.core.masonry.api"
+build-backend = "poetry_dynamic_versioning.backend"

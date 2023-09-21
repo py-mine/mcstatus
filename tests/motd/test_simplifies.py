@@ -76,6 +76,10 @@ class TestMotdSimplifies:
     def test_skip_get_formatting_before_color(self):
         assert get_formatting_before_color(["abc", Formatting.BOLD, "def", Formatting.RESET, "ghi"]) == set()
 
+    @pytest.mark.parametrize("last_item", (MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")))
+    def test_get_formatting_before_color_if_space_between(self, last_item):
+        assert get_formatting_before_color([Formatting.BOLD, " ", last_item]) == {0}
+
     def test_get_empty_text_removes_empty_string(self):
         assert get_empty_text([Formatting.BOLD, "", Formatting.RESET, "", MinecraftColor.RED, ""]) == {1, 3, 5}
 
@@ -121,10 +125,21 @@ class TestMotdSimplifies:
                 stack.enter_context(mock.patch("mcstatus.motd.simplifies." + simplifier, remove_first_element))
             assert obj.simplify().parsed == ["1"]
 
-    def test_do_not_remove_duplicated_strings(self):
-        """See https://github.com/py-mine/mcstatus/pull/335#discussion_r1083549778."""
-        assert Motd(["123", "123"], raw="").simplify().parsed == ["123", "123"]
-
     def test_simplify_function_provides_the_same_raw(self):
         obj = object()
         assert Motd([], raw=obj).simplify().raw is obj  # type: ignore # Invalid argument type
+
+    def test_simplify_do_not_remove_string_contains_only_spaces(self):
+        """Those can be used as delimiters."""
+        assert Motd([" " * 20], raw="").simplify().parsed == [" " * 20]
+
+    def test_simplify_meaningless_resets_and_colors(self):
+        assert Motd.parse("&a1&a2&a3").simplify().parsed == [MinecraftColor.GREEN, "123"]
+
+    def test_remove_formatting_reset_if_there_was_no_color_or_formatting(self):
+        motd = Motd.parse({"text": "123", "extra": [{"text": "123"}]})
+        assert motd.parsed == ["123", Formatting.RESET, "123", Formatting.RESET]
+        assert motd.simplify().parsed == ["123123"]
+
+    def test_squash_nearby_strings(self):
+        assert Motd(["123", "123", "123"], raw="").simplify().parsed == ["123123123"]

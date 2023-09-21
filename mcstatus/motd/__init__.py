@@ -5,7 +5,7 @@ import typing as t
 from dataclasses import dataclass
 
 from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
-from mcstatus.motd.simplifies import get_unused_elements
+from mcstatus.motd.simplifies import get_unused_elements, squash_nearby_strings
 from mcstatus.motd.transformers import AnsiTransformer, HtmlTransformer, MinecraftTransformer, PlainTransformer
 
 if t.TYPE_CHECKING:
@@ -35,7 +35,12 @@ class Motd:
     """Is server Bedrock Edition? Some details may change in work of this class."""
 
     @classmethod
-    def parse(cls, raw: RawJavaResponseMotd, *, bedrock: bool = False) -> Self:
+    def parse(
+        cls,
+        raw: RawJavaResponseMotd,  # type: ignore # later, we overwrite the type
+        *,
+        bedrock: bool = False,
+    ) -> Self:
         """Parse a raw MOTD to less raw MOTD (:attr:`.parsed` attribute).
 
         :param raw: Raw MOTD, directly from server.
@@ -44,7 +49,7 @@ class Motd:
         """
         original_raw = raw.copy() if hasattr(raw, "copy") else raw  # type: ignore # Cannot access "copy" for type "str"
         if isinstance(raw, list):
-            raw = RawJavaResponseMotdWhenDict(**{"extra": raw})
+            raw: RawJavaResponseMotdWhenDict = {"extra": raw}
 
         if isinstance(raw, str):
             parsed = cls._parse_as_str(raw, bedrock=bedrock)
@@ -177,6 +182,7 @@ class Motd:
             unused_elements = get_unused_elements(parsed)
             parsed = [el for index, el in enumerate(parsed) if index not in unused_elements]
 
+        parsed = squash_nearby_strings(parsed)
         return __class__(parsed, self.raw, bedrock=self.bedrock)
 
     def to_plain(self) -> str:

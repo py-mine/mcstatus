@@ -1,4 +1,4 @@
-from mcstatus.server import BedrockServer, JavaServer, MCServer  # noqa: F401
+from mcstatus.server import BedrockServer, JavaServer, MCServer
 
 __all__ = [
     "MCServer",
