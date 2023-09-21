@@ -37,16 +37,16 @@ if TYPE_CHECKING:
 
     class RawForgeDataMod(TypedDict):
         modid: NotRequired[str]
-        modId: NotRequired[str]  # noqa: N815 # camel case
+        modId: NotRequired[str]  # camel case
         modmarker: NotRequired[str]
         """Mod version."""
         version: NotRequired[str]
 
     class RawForgeData(TypedDict):
-        fmlNetworkVersion: NotRequired[int]  # noqa: N815 # camel case
+        fmlNetworkVersion: NotRequired[int]  # camel case
         channels: NotRequired[list[RawForgeDataChannel]]
         mods: NotRequired[list[RawForgeDataMod]]
-        modList: NotRequired[list[RawForgeDataMod]]  # noqa: N815 # camel case
+        modList: NotRequired[list[RawForgeDataMod]]  # camel case
         d: NotRequired[str]
         truncated: NotRequired[bool]
 

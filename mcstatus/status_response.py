@@ -42,7 +42,7 @@ if TYPE_CHECKING:
         players: RawJavaResponsePlayers
         version: RawJavaResponseVersion
         favicon: NotRequired[str]
-        forgeData: NotRequired[RawForgeData]  # noqa: N815
+        forgeData: NotRequired[RawForgeData]
         modinfo: NotRequired[RawForgeData]
 
 else:
