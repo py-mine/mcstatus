@@ -305,13 +305,13 @@ class BaseStatusVersion(ABC):
     name: str
     """The version name, like ``1.19.3``.
 
-    See `Minecraft wiki <https://minecraft.fandom.com/wiki/Java_Edition_version_history#Full_release>`__
+    See `Minecraft wiki <https://minecraft.wiki/w/Java_Edition_version_history#Full_release>`__
     for complete list.
     """
     protocol: int
     """The protocol version, like ``761``.
 
-    See `Minecraft wiki <https://minecraft.fandom.com/wiki/Protocol_version#Java_Edition_2>`__.
+    See `Minecraft wiki <https://minecraft.wiki/w/Protocol_version#Java_Edition_2>`__.
     """
 
 
@@ -339,7 +339,7 @@ class BedrockStatusVersion(BaseStatusVersion):
     name: str
     """The version name, like ``1.19.60``.
 
-    See `Minecraft wiki <https://minecraft.fandom.com/wiki/Bedrock_Edition_version_history#Bedrock_Edition>`__
+    See `Minecraft wiki <https://minecraft.wiki/w/Bedrock_Edition_version_history#Bedrock_Edition>`__
     for complete list.
     """
     brand: str

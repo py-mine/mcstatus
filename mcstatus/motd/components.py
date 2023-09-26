@@ -11,7 +11,7 @@ if t.TYPE_CHECKING:
 class Formatting(Enum):
     """Enum for Formatting codes.
 
-    See `Minecraft wiki <https://minecraft.fandom.com/wiki/Formatting_codes#Formatting_codes>`__
+    See `Minecraft wiki <https://minecraft.wiki/w/Formatting_codes#Formatting_codes>`__
     for more info.
 
     .. note::
@@ -30,7 +30,7 @@ class Formatting(Enum):
 class MinecraftColor(Enum):
     """Enum for Color codes.
 
-    See `Minecraft wiki <https://minecraft.fandom.com/wiki/Formatting_codes#Color_codes>`_
+    See `Minecraft wiki <https://minecraft.wiki/w/Formatting_codes#Color_codes>`_
     for more info.
     """
 
@@ -117,7 +117,7 @@ class TranslationTag:
     This just exists, but is completely ignored by our transformers.
     You can find translation tags in :attr:`Motd.parsed <mcstatus.motd.Motd.parsed>` attribute.
 
-    .. seealso:: `Minecraft's wiki. <https://minecraft.fandom.com/wiki/Raw_JSON_text_format#Translated_Text>`__
+    .. seealso:: `Minecraft's wiki. <https://minecraft.wiki/w/Raw_JSON_text_format#Translated_Text>`__
     """
 
     id: str
