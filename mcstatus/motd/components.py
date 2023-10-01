@@ -11,7 +11,7 @@ if t.TYPE_CHECKING:
 class Formatting(Enum):
     """Enum for Formatting codes.
 
-    See `Minecraft wiki <https://minecraft.fandom.com/wiki/Formatting_codes#Formatting_codes>`__
+    See `Minecraft wiki <https://minecraft.wiki/w/Formatting_codes#Formatting_codes>`__
     for more info.
 
     .. note::
@@ -30,7 +30,7 @@ class Formatting(Enum):
 class MinecraftColor(Enum):
     """Enum for Color codes.
 
-    See `Minecraft wiki <https://minecraft.fandom.com/wiki/Formatting_codes#Color_codes>`_
+    See `Minecraft wiki <https://minecraft.wiki/w/Formatting_codes#Color_codes>`_
     for more info.
     """
 
@@ -82,7 +82,7 @@ class WebColor:
             hex = "{0}{0}{1}{1}{2}{2}".format(*hex)
 
         try:
-            rgb = tuple(int(hex[i : i + 2], 16) for i in (0, 2, 4))
+            rgb = t.cast("tuple[int, int, int]", tuple(int(hex[i : i + 2], 16) for i in (0, 2, 4)))
         except ValueError:
             raise ValueError(f"Failed to parse given hex color: {'#' + hex!r}")
 
@@ -117,7 +117,7 @@ class TranslationTag:
     This just exists, but is completely ignored by our transformers.
     You can find translation tags in :attr:`Motd.parsed <mcstatus.motd.Motd.parsed>` attribute.
 
-    .. seealso:: `Minecraft's wiki. <https://minecraft.fandom.com/wiki/Raw_JSON_text_format#Translated_Text>`__
+    .. seealso:: `Minecraft's wiki. <https://minecraft.wiki/w/Raw_JSON_text_format#Translated_Text>`__
     """
 
     id: str

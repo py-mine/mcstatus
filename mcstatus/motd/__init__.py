@@ -5,7 +5,7 @@ import typing as t
 from dataclasses import dataclass
 
 from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
-from mcstatus.motd.simplifies import get_unused_elements
+from mcstatus.motd.simplifies import get_unused_elements, squash_nearby_strings
 from mcstatus.motd.transformers import AnsiTransformer, HtmlTransformer, MinecraftTransformer, PlainTransformer
 
 if t.TYPE_CHECKING:
@@ -182,6 +182,7 @@ class Motd:
             unused_elements = get_unused_elements(parsed)
             parsed = [el for index, el in enumerate(parsed) if index not in unused_elements]
 
+        parsed = squash_nearby_strings(parsed)
         return __class__(parsed, self.raw, bedrock=self.bedrock)
 
     def to_plain(self) -> str:

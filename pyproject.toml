@@ -31,34 +31,34 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4"
 asyncio-dgram = "^2.1.2"
-dnspython = "^2.3.0"
+dnspython = "^2.4.2"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.3.2"
+pre-commit = "^3.3.3"
 tox = "^3.28.0"
 tox-poetry = "0.5.0" # deprecated, no sense in `^`
 
 [tool.poetry.group.test.dependencies]
-pytest = "^7.3.1"
-pytest-asyncio = "^0.21.0"
-pytest-cov = "^4.0.0"
-pytest-rerunfailures = "^11.1.2"
-coverage = "^7.2.6"
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.1"
+pytest-cov = "^4.1.0"
+pytest-rerunfailures = "^12.0"
+coverage = "^7.3.0"
 
 [tool.poetry.group.lint.dependencies]
-ruff = "^0.0.284"
-black = "^23.3.0"
-coverage = "^7.2.6"
+ruff = "0.0.291"
+black = "^23.7.0"
+coverage = "^7.3.0"
 isort = "^5.12.0"
-pyright = "^1.1.309"
-typing-extensions = "^4.6.1"
+pyright = "^1.1.322"
+typing-extensions = "^4.7.1"
 
 [tool.poetry.group.docs]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-sphinx = "^7.0.1"
-sphinx-autodoc-typehints = "^1.23.0"
+sphinx = "^7.1.2"
+sphinx-autodoc-typehints = "^1.24.0"
 furo = ">=2022.12.7"
 m2r2 = "^0.3.3"
 tomli = { version = "^2.0.1", markers = "python_version < '3.11'" }
@@ -70,14 +70,14 @@ optional = true
 
 [tool.poetry.group.release.dependencies]
 twine = "^4.0.2"
-poetry-dynamic-versioning = "^0.22.0"
+poetry-dynamic-versioning = "^0.25.0"
 
 [tool.poetry.group.workflow-tox]
 optional = true
 
 [tool.poetry.group.workflow-tox.dependencies]
 tox-gh-actions = "^2.12.0"
-poetry = "^1.5.0"
+poetry = "^1.5.1"
 
 [tool.poetry.scripts]
 mcstatus = 'mcstatus.__main__:main'
