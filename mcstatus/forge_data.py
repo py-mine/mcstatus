@@ -192,12 +192,12 @@ class ForgeData:
             value |= (str_buffer.read_short() & 0x7FFF) << bits
             bits += 15
             while bits >= 8:
-                buffer.receive((value & 0xFF).to_bytes(1, 'big'))
+                buffer.receive((value & 0xFF).to_bytes(1, "big"))
                 value >>= 8
                 bits -= 8
 
         while buffer.remaining() < size:
-            buffer.receive((value & 0xFF).to_bytes(1, 'big'))
+            buffer.receive((value & 0xFF).to_bytes(1, "big"))
             value >>= 8
             bits -= 8
         return buffer
