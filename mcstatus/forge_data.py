@@ -157,11 +157,11 @@ class StringBuffer(BaseReadSync, BaseConnection):
         data = bytearray()
         while self.received and len(data) < length:
             data.append(self.received.pop(0))
-        for _ in range(length - len(data)):
+        while len(data) < length:
             result = self.stringio.read(1)
             if not result:
                 raise IOError(f"Not enough data to read! {len(data)} < {length}")
-            data.extend(result.encode("utf-8"))
+            data.extend(result.encode("utf-16be"))
         while len(data) > length:
             self.received.append(data.pop())
         return data
@@ -181,28 +181,23 @@ class ForgeData:
     @staticmethod
     def _decode_optimized(string: str) -> Connection:
         """Decode buffer from UTF-16 optimized binary data ``string``."""
-        text = io.StringIO(string)
+        str_buffer = StringBuffer(io.StringIO(string))
 
-        def read() -> int:
-            result = text.read(1)
-            if not result:
-                return 0
-            return ord(result)
-
-        size = read() | (read() << 15)
+        size = str_buffer.read_short() | (str_buffer.read_short() << 15)
 
         buffer = Connection()
         value, bits = 0, 0
         for _ in range(len(string) - 2):
+            # Ignoring sign bit
+            value |= (str_buffer.read_short() & 0x7FFF) << bits
+            bits += 15
             while bits >= 8:
-                buffer.receive((value & 0xFF).to_bytes(length=1, byteorder="big", signed=False))
+                buffer.receive((value & 0xFF).to_bytes())
                 value >>= 8
                 bits -= 8
-            value |= (read() & 0x7FFF) << bits
-            bits += 15
 
         while buffer.remaining() < size:
-            buffer.receive((value & 0xFF).to_bytes(length=1, byteorder="big", signed=False))
+            buffer.receive((value & 0xFF).to_bytes())
             value >>= 8
             bits -= 8
         return buffer

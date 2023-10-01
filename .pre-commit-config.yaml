@@ -20,7 +20,7 @@ repos:
       - id: black
         name: Black
         description: Auto-format the code with black
-        entry: black
+        entry: poetry run black
         language: system
         types: [python]
 
@@ -29,7 +29,7 @@ repos:
       - id: ruff
         name: Ruff
         description: Run ruff checks on the code
-        entry: ruff check --force-exclude
+        entry: poetry run ruff check --force-exclude
         language: system
         types: [python]
         require_serial: true
@@ -40,7 +40,7 @@ repos:
       - id: isort
         name: ISort
         description: Sort imports with isort
-        entry: isort
+        entry: poetry run isort
         language: system
         types: [python]
 
@@ -49,7 +49,7 @@ repos:
       - id: pyright
         name: Pyright
         description: Run pyright type checker
-        entry: pyright
+        entry: poetry run pyright
         language: system
         types: [python]
         pass_filenames: false # pyright runs for the entire project, it can't run for single files
