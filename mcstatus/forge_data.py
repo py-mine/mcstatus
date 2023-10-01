@@ -246,8 +246,7 @@ class ForgeData:
                 channels.append(ForgeDataChannel.decode(buffer))
         except IOError:
             if not truncated:
-                raise
-            # Semi-expect errors if truncated, we are missing data
+                raise  # If answer wasn't truncated, we lost some data on the way
 
         return cls(
             fml_network_version=fml_network_version,
