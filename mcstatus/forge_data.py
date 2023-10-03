@@ -144,7 +144,7 @@ class ForgeDataMod:
 
 
 class StringBuffer(BaseReadSync, BaseConnection):
-    """String Buffer"""
+    """String Buffer for reading utf-16 encoded binary data."""
 
     __slots__ = ("stringio", "received")
 
@@ -166,6 +166,31 @@ class StringBuffer(BaseReadSync, BaseConnection):
             self.received.append(data.pop())
         return data
 
+    def remaining(self) -> int:
+        """Return number of reads remaining."""
+        return len(self.stringio.getvalue()) - self.stringio.tell() + len(self.received)
+
+    def read_optimized_size(self) -> int:
+        """Read encoded data length."""
+        return self.read_short() | (self.read_short() << 15)
+
+    def read_optimized_buffer(self) -> Connection:
+        """Read encoded buffer."""
+        size = self.read_optimized_size()
+
+        buffer = Connection()
+        value, bits = 0, 0
+        while buffer.remaining() < size:
+            if bits < 8 and self.remaining():
+                # Ignoring sign bit
+                value |= (self.read_short() & 0x7FFF) << bits
+                bits += 15
+            buffer.receive((value & 0xFF).to_bytes(1, "big"))
+            value >>= 8
+            bits -= 8
+
+        return buffer
+
 
 @dataclass
 class ForgeData:
@@ -181,26 +206,9 @@ class ForgeData:
     @staticmethod
     def _decode_optimized(string: str) -> Connection:
         """Decode buffer from UTF-16 optimized binary data ``string``."""
-        str_buffer = StringBuffer(io.StringIO(string))
-
-        size = str_buffer.read_short() | (str_buffer.read_short() << 15)
-
-        buffer = Connection()
-        value, bits = 0, 0
-        for _ in range(len(string) - 2):
-            # Ignoring sign bit
-            value |= (str_buffer.read_short() & 0x7FFF) << bits
-            bits += 15
-            while bits >= 8:
-                buffer.receive((value & 0xFF).to_bytes(1, "big"))
-                value >>= 8
-                bits -= 8
-
-        while buffer.remaining() < size:
-            buffer.receive((value & 0xFF).to_bytes(1, "big"))
-            value >>= 8
-            bits -= 8
-        return buffer
+        with io.StringIO(string) as text:
+            str_buffer = StringBuffer(text)
+            return str_buffer.read_optimized_buffer()
 
     @classmethod
     def build(cls, raw: RawForgeData) -> Self | None:
