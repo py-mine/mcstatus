@@ -25,7 +25,7 @@ jobs:
         id: poetry_setup
         uses: ItsDrike/setup-poetry@v1
         with:
-          python-version: 3.11
+          python-version: 3.12
 
       - name: Pre-commit Environment Caching
         uses: actions/cache@v3
