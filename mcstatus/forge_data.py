@@ -14,9 +14,9 @@ https://github.com/MinecraftForge/MinecraftForge/blob/54b08d2711a15418130694342a
 
 from __future__ import annotations
 
-import io
 from dataclasses import dataclass
-from typing import Final, IO, TYPE_CHECKING
+from io import StringIO
+from typing import Final, TYPE_CHECKING
 
 from mcstatus.protocol.connection import BaseConnection, BaseReadSync, Connection
 
@@ -148,7 +148,7 @@ class StringBuffer(BaseReadSync, BaseConnection):
 
     __slots__ = ("stringio", "received")
 
-    def __init__(self, stringio: IO[str]) -> None:
+    def __init__(self, stringio: StringIO) -> None:
         self.stringio = stringio
         self.received = bytearray()
 
@@ -206,7 +206,7 @@ class ForgeData:
     @staticmethod
     def _decode_optimized(string: str) -> Connection:
         """Decode buffer from UTF-16 optimized binary data ``string``."""
-        with io.StringIO(string) as text:
+        with StringIO(string) as text:
             str_buffer = StringBuffer(text)
             return str_buffer.read_optimized_buffer()
 
