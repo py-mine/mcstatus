@@ -56,9 +56,9 @@ class ServerQuerier:
         self.connection.write(request)
 
         response = self._read_packet()
-        return QueryResponse.build(*self.transform_connection_to_objects(response))
+        return QueryResponse.build(*self._parse_response(response))
 
-    def transform_connection_to_objects(self, response: Connection) -> tuple[RawQueryResponse, list[str]]:
+    def _parse_response(self, response: Connection) -> tuple[RawQueryResponse, list[str]]:
         """Transform the connection object (the result) into dict which is passed to the QueryResponse constructor.
 
         :return: A tuple with two elements. First is `raw` answer and second is list of players.
@@ -121,4 +121,4 @@ class AsyncServerQuerier(ServerQuerier):
         await self.connection.write(request)
 
         response = await self._read_packet()
-        return QueryResponse.build(*self.transform_connection_to_objects(response))
+        return QueryResponse.build(*self._parse_response(response))
