@@ -1,7 +1,18 @@
-from mcstatus.responses import *  # noqa: F403 # type: ignore # wildcard import
+from mcstatus.responses import (
+    BaseStatusPlayers,
+    BaseStatusResponse,
+    BaseStatusVersion,
+    BedrockStatusPlayers,
+    BedrockStatusResponse,
+    BedrockStatusVersion,
+    JavaStatusPlayer,
+    JavaStatusPlayers,
+    JavaStatusResponse,
+    JavaStatusVersion,
+)
 
 # __all__ is frozen on the moment of deprecation
-__all__ = [  # noqa: F405
+__all__ = [
     "BaseStatusPlayers",
     "BaseStatusResponse",
     "BaseStatusVersion",
