@@ -24,7 +24,7 @@ jobs:
         id: poetry_setup
         uses: ItsDrike/setup-poetry@v1
         with:
-          python-version: 3.11
+          python-version: 3.12
           install-args: "--with release"
 
       - name: Prepare pyproject.toml with dynamic version
