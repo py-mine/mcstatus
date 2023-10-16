@@ -71,7 +71,7 @@ optional = true
 
 [tool.poetry.group.release.dependencies]
 twine = "^4.0.2"
-poetry-dynamic-versioning = ">=0.25,<1.2"
+poetry-dynamic-versioning = "^1.1.0"
 
 [tool.poetry.group.workflow-tox]
 optional = true
