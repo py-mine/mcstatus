@@ -109,7 +109,7 @@ class JavaStatusResponse(BaseStatusResponse):
     """
     players: JavaStatusPlayers
     version: JavaStatusVersion
-    enforces_secure_chat: bool
+    enforces_secure_chat: bool | None
     icon: str | None
     """The icon of the server. In `Base64 <https://en.wikipedia.org/wiki/Base64>`_ encoded PNG image format.
 
@@ -133,7 +133,7 @@ class JavaStatusResponse(BaseStatusResponse):
             players=JavaStatusPlayers.build(raw["players"]),
             version=JavaStatusVersion.build(raw["version"]),
             motd=Motd.parse(raw["description"], bedrock=False),
-            enforces_secure_chat=raw.get("enforcesSecureChat", False),
+            enforces_secure_chat=raw.get("enforcesSecureChat"),
             icon=raw.get("favicon"),
             latency=latency,
         )
