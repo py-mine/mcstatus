@@ -111,12 +111,12 @@ class JavaStatusResponse(BaseStatusResponse):
     version: JavaStatusVersion
     enforces_secure_chat: bool | None
     """Whether the server enforces secure chat (every message is signed up with a key).
-    
+
     .. seealso::
         `Signed Chat explanation <https://gist.github.com/kennytv/ed783dd244ca0321bbd882c347892874>`_,
         `22w17a changelog, where this was added <https://www.minecraft.net/nl-nl/article/minecraft-snapshot-22w17a>`_.
-        
-    .. versionadded:: 11.1.0 
+
+    .. versionadded:: 11.1.0
     """
     icon: str | None
     """The icon of the server. In `Base64 <https://en.wikipedia.org/wiki/Base64>`_ encoded PNG image format.
