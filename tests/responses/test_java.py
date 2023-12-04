@@ -1,4 +1,4 @@
-from pytest import fixture
+import pytest
 
 from mcstatus.motd import Motd
 from mcstatus.responses import JavaStatusPlayer, JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
@@ -11,6 +11,7 @@ class TestJavaStatusResponse(BaseStatusResponseTest):
         "players": {"max": 20, "online": 0},
         "version": {"name": "1.8-pre1", "protocol": 44},
         "description": "A Minecraft Server",
+        "enforcesSecureChat": True,
         "favicon": "data:image/png;base64,foo",
     }
 
@@ -19,17 +20,19 @@ class TestJavaStatusResponse(BaseStatusResponseTest):
         ("version", JavaStatusVersion("1.8-pre1", 44)),
         ("motd", Motd.parse("A Minecraft Server", bedrock=False)),
         ("latency", 0),
+        ("enforces_secure_chat", True),
         ("icon", "data:image/png;base64,foo"),
         ("raw", RAW),
     ]
-    OPTIONAL_FIELDS = [("favicon", "icon")], {
+    OPTIONAL_FIELDS = [("favicon", "icon"), ("enforcesSecureChat", "enforces_secure_chat")], {
         "players": {"max": 20, "online": 0},
         "version": {"name": "1.8-pre1", "protocol": 44},
         "description": "A Minecraft Server",
+        "enforcesSecureChat": True,
         "favicon": "data:image/png;base64,foo",
     }
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self):
         return JavaStatusResponse.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
@@ -58,7 +61,7 @@ class TestJavaStatusPlayers(BaseStatusResponseTest):
         ],
     }
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self):
         return JavaStatusPlayers.build(
             {
@@ -80,7 +83,7 @@ class TestJavaStatusPlayers(BaseStatusResponseTest):
 class TestJavaStatusPlayer(BaseStatusResponseTest):
     EXPECTED_VALUES = [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")]
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self):
         return JavaStatusPlayer.build({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
 
@@ -96,6 +99,6 @@ class TestJavaStatusPlayer(BaseStatusResponseTest):
 class TestJavaStatusVersion(BaseStatusResponseTest):
     EXPECTED_VALUES = [("name", "1.8-pre1"), ("protocol", 44)]
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self):
         return JavaStatusVersion.build({"name": "1.8-pre1", "protocol": 44})
