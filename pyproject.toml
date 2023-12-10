@@ -41,7 +41,7 @@ tox-poetry = "0.5.0" # deprecated, no sense in `^`
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.0"
-pytest-asyncio = "^0.23.0"
+pytest-asyncio = "^0.23.2"
 pytest-cov = "^4.1.0"
 pytest-rerunfailures = "^13.0"
 coverage = "^7.3.0"
