@@ -521,7 +521,7 @@ class TestForgeData(BaseStatusResponseTest):
         ("truncated", False),
     ]
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self):
         return ForgeData.build(
             RawForgeData(
