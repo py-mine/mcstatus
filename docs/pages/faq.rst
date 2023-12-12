@@ -43,9 +43,9 @@ such error, you can re-encode text into UTF-8.
 .. code-block:: python
 
     >>> query = JavaServer.lookup("my-server-ip.com").query()
-    >>> query.motd
+    >>> query.motd.to_minecraft()
     'Ð\x9fÑ\x80Ð¸Ð²Ñ\x96Ñ\x82!'
-    >>> query.motd.encode("iso-8859-1").decode("utf-8")
+    >>> query.motd.to_minecraft().encode("iso-8859-1").decode("utf-8")
     'Привіт!'
 
 :attr:`query.motd <mcstatus.querier.QueryResponse.motd>` here can be anything,
