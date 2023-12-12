@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.5.0
+    rev: v4.5.0
     hooks:
       - id: check-merge-conflict
       - id: check-toml # For pyproject.toml
@@ -10,7 +10,7 @@ repos:
         args: [--markdown-linebreak-ext=md]
 
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.5.1
+    rev: v1.10.0
     hooks:
       - id: python-check-blanket-noqa # Enforce noqa annotations (noqa: F401,W203)
       - id: python-use-type-annotations # Enforce type annotations instead of type comments
