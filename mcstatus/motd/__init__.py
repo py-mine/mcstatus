@@ -4,9 +4,17 @@ import re
 import typing as t
 from dataclasses import dataclass
 
-from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
-from mcstatus.motd.simplifies import get_unused_elements, squash_nearby_strings
-from mcstatus.motd.transformers import AnsiTransformer, HtmlTransformer, MinecraftTransformer, PlainTransformer
+from mcstatus.motd.components import Formatting as Formatting
+from mcstatus.motd.components import MinecraftColor as MinecraftColor
+from mcstatus.motd.components import ParsedMotdComponent as ParsedMotdComponent
+from mcstatus.motd.components import TranslationTag as TranslationTag
+from mcstatus.motd.components import WebColor as WebColor
+from mcstatus.motd.simplifies import get_unused_elements as get_unused_elements
+from mcstatus.motd.simplifies import squash_nearby_strings as squash_nearby_strings
+from mcstatus.motd.transformers import AnsiTransformer as AnsiTransformer
+from mcstatus.motd.transformers import HtmlTransformer as HtmlTransformer
+from mcstatus.motd.transformers import MinecraftTransformer as MinecraftTransformer
+from mcstatus.motd.transformers import PlainTransformer as PlainTransformer
 
 if t.TYPE_CHECKING:
     from typing_extensions import Self
@@ -49,7 +57,7 @@ class Motd:
         """
         original_raw = raw.copy() if hasattr(raw, "copy") else raw  # type: ignore # Cannot access "copy" for type "str"
         if isinstance(raw, list):
-            raw: RawJavaResponseMotdWhenDict = {"extra": raw}
+            raw: RawJavaResponseMotdWhenDict = {"extra": raw}  # type: ignore[no-redef]
 
         if isinstance(raw, str):
             parsed = cls._parse_as_str(raw, bedrock=bedrock)
@@ -183,7 +191,7 @@ class Motd:
             parsed = [el for index, el in enumerate(parsed) if index not in unused_elements]
 
         parsed = squash_nearby_strings(parsed)
-        return __class__(parsed, self.raw, bedrock=self.bedrock)
+        return self.__class__(parsed, self.raw, bedrock=self.bedrock)
 
     def to_plain(self) -> str:
         """Get plain text from a MOTD, without any colors/formatting.

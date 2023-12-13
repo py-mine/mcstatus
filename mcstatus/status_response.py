@@ -4,7 +4,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
-from mcstatus.forge_data import ForgeData, RawForgeData
+from mcstatus.forge_data import ForgeData as ForgeData
+from mcstatus.forge_data import RawForgeData
 from mcstatus.motd import Motd
 
 if TYPE_CHECKING:
@@ -44,6 +45,7 @@ if TYPE_CHECKING:
         favicon: NotRequired[str]
         forgeData: NotRequired[RawForgeData]
         modinfo: NotRequired[RawForgeData]
+        enforcesSecureChat: NotRequired[bool]
 
 else:
     RawJavaResponsePlayer = dict
@@ -91,7 +93,7 @@ class BaseStatusResponse(ABC):
 
     @classmethod
     @abstractmethod
-    def build(cls, *args, **kwargs) -> Self:
+    def build(cls, *args: object, **kwargs: object) -> Self:
         """Build BaseStatusResponse and check is it valid.
 
         :param args: Arguments in specific realisation.

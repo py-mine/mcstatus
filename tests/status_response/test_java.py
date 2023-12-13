@@ -35,7 +35,7 @@ class TestJavaStatusResponse(BaseStatusResponseTest):
     }
 
     @pytest.fixture(scope="class")
-    def build(self):
+    def build(self) -> JavaStatusResponse:
         return JavaStatusResponse.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
 
@@ -64,7 +64,7 @@ class TestJavaStatusPlayers(BaseStatusResponseTest):
     }
 
     @pytest.fixture(scope="class")
-    def build(self):
+    def build(self) -> JavaStatusPlayers:
         return JavaStatusPlayers.build(
             {
                 "max": 20,
@@ -77,7 +77,7 @@ class TestJavaStatusPlayers(BaseStatusResponseTest):
             }
         )
 
-    def test_empty_sample_turns_into_empty_list(self):
+    def test_empty_sample_turns_into_empty_list(self) -> None:
         assert JavaStatusPlayers.build({"max": 20, "online": 0, "sample": []}).sample == []
 
 
@@ -86,10 +86,10 @@ class TestJavaStatusPlayer(BaseStatusResponseTest):
     EXPECTED_VALUES = [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")]
 
     @pytest.fixture(scope="class")
-    def build(self):
+    def build(self) -> JavaStatusPlayer:
         return JavaStatusPlayer.build({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
 
-    def test_id_field_the_same_as_uuid(self):
+    def test_id_field_the_same_as_uuid(self) -> None:
         build = JavaStatusPlayer.build({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
         assert build.id is build.uuid
 
@@ -102,7 +102,7 @@ class TestJavaStatusVersion(BaseStatusResponseTest):
     EXPECTED_VALUES = [("name", "1.8-pre1"), ("protocol", 44)]
 
     @pytest.fixture(scope="class")
-    def build(self):
+    def build(self) -> JavaStatusVersion:
         return JavaStatusVersion.build({"name": "1.8-pre1", "protocol": 44})
 
 
@@ -359,171 +359,171 @@ class TestForgeData(BaseStatusResponseTest):
         (
             "mods",
             [
-                ForgeDataMod(name="rsrequestify", version="2.2.0"),
-                ForgeDataMod(name="cyclopscore", version="1.15.1"),
-                ForgeDataMod(name="auudio", version="1.0.3"),
-                ForgeDataMod(name="auxiliaryblocks", version="1.18.2-0.0.14"),
-                ForgeDataMod(name="supermartijn642configlib", version="1.1.6"),
-                ForgeDataMod(name="alexsmobs", version="1.18.6"),
-                ForgeDataMod(name="architects_palette", version="1.1.2"),
-                ForgeDataMod(name="cagerium", version="1.18.2-1.1.0"),
-                ForgeDataMod(name="mcwwindows", version="2.0.3"),
+                ForgeDataMod(name="rsrequestify", marker="2.2.0"),
+                ForgeDataMod(name="cyclopscore", marker="1.15.1"),
+                ForgeDataMod(name="auudio", marker="1.0.3"),
+                ForgeDataMod(name="auxiliaryblocks", marker="1.18.2-0.0.14"),
+                ForgeDataMod(name="supermartijn642configlib", marker="1.1.6"),
+                ForgeDataMod(name="alexsmobs", marker="1.18.6"),
+                ForgeDataMod(name="architects_palette", marker="1.1.2"),
+                ForgeDataMod(name="cagerium", marker="1.18.2-1.1.0"),
+                ForgeDataMod(name="mcwwindows", marker="2.0.3"),
                 ForgeDataMod(
                     name="sophisticatedcore",
-                    version="1.18.2-0.5.32.179",
+                    marker="1.18.2-0.5.32.179",
                 ),
-                ForgeDataMod(name="thermal", version="1.6.3.28"),
-                ForgeDataMod(name="rftoolsbase", version="1.18-3.0.9"),
-                ForgeDataMod(name="initialinventory", version="6.0.8"),
-                ForgeDataMod(name="irongenerators", version="2.0.1"),
-                ForgeDataMod(name="xaeroworldmap", version="1.25.1"),
-                ForgeDataMod(name="cookingforblockheads", version="12.0.2"),
+                ForgeDataMod(name="thermal", marker="1.6.3.28"),
+                ForgeDataMod(name="rftoolsbase", marker="1.18-3.0.9"),
+                ForgeDataMod(name="initialinventory", marker="6.0.8"),
+                ForgeDataMod(name="irongenerators", marker="2.0.1"),
+                ForgeDataMod(name="xaeroworldmap", marker="1.25.1"),
+                ForgeDataMod(name="cookingforblockheads", marker="12.0.2"),
                 ForgeDataMod(
                     name="controlling",
-                    version="<not required for client>",
+                    marker="<not required for client>",
                 ),
-                ForgeDataMod(name="xnet", version="1.18-4.0.5"),
-                ForgeDataMod(name="placebo", version="6.4.1"),
-                ForgeDataMod(name="citadel", version="1.11.3"),
-                ForgeDataMod(name="powah", version="3.0.1-beta"),
-                ForgeDataMod(name="bookshelf", version="13.2.50"),
-                ForgeDataMod(name="lootbeams", version="1.18.1"),
+                ForgeDataMod(name="xnet", marker="1.18-4.0.5"),
+                ForgeDataMod(name="placebo", marker="6.4.1"),
+                ForgeDataMod(name="citadel", marker="1.11.3"),
+                ForgeDataMod(name="powah", marker="3.0.1-beta"),
+                ForgeDataMod(name="bookshelf", marker="13.2.50"),
+                ForgeDataMod(name="lootbeams", marker="1.18.1"),
                 ForgeDataMod(
                     name="sophisticatedbackpacks",
-                    version="1.18.2-3.18.35.752",
+                    marker="1.18.2-3.18.35.752",
                 ),
-                ForgeDataMod(name="twigs", version="1.1.4-patch1+1.18.2"),
+                ForgeDataMod(name="twigs", marker="1.1.4-patch1+1.18.2"),
                 ForgeDataMod(
                     name="buildinggadgets",
-                    version="3.13.0-build.5+mc1.18.2}",
+                    marker="3.13.0-build.5+mc1.18.2}",
                 ),
-                ForgeDataMod(name="darkutils", version="10.0.5"),
-                ForgeDataMod(name="mcwdoors", version="1.0.6"),
-                ForgeDataMod(name="waddles", version="1.18.2-0.8.19"),
-                ForgeDataMod(name="mekanismgenerators", version="10.2.5"),
-                ForgeDataMod(name="balm", version="3.2.0+0"),
-                ForgeDataMod(name="waila", version="<not required for client>"),
-                ForgeDataMod(name="jeresources", version="0.14.1.171"),
+                ForgeDataMod(name="darkutils", marker="10.0.5"),
+                ForgeDataMod(name="mcwdoors", marker="1.0.6"),
+                ForgeDataMod(name="waddles", marker="1.18.2-0.8.19"),
+                ForgeDataMod(name="mekanismgenerators", marker="10.2.5"),
+                ForgeDataMod(name="balm", marker="3.2.0+0"),
+                ForgeDataMod(name="waila", marker="<not required for client>"),
+                ForgeDataMod(name="jeresources", marker="0.14.1.171"),
                 ForgeDataMod(
                     name="cloth_config",
-                    version="<not required for client>",
+                    marker="<not required for client>",
                 ),
-                ForgeDataMod(name="shetiphiancore", version="3.10.10"),
-                ForgeDataMod(name="dummmmmmy", version="1.18-1.5.2"),
-                ForgeDataMod(name="supplementaries", version="1.18.2-1.5.13"),
-                ForgeDataMod(name="refinedstorage", version="1.10.2"),
-                ForgeDataMod(name="konkrete", version="1.3.3"),
-                ForgeDataMod(name="easy_piglins", version="1.18.2-1.0.0"),
-                ForgeDataMod(name="corpse", version="1.18.2-1.0.2"),
-                ForgeDataMod(name="packmenu", version="<not required for client>"),
-                ForgeDataMod(name="mcwbridges", version="2.0.3"),
-                ForgeDataMod(name="torchmaster", version="18.1.0"),
-                ForgeDataMod(name="compressium", version="1.4.2-build.9+mc1.18.2"),
-                ForgeDataMod(name="ping", version="1.18-1.8.0"),
-                ForgeDataMod(name="ironfurnaces", version="3.3.1"),
-                ForgeDataMod(name="mcwtrpdoors", version="1.0.6"),
-                ForgeDataMod(name="mcwfences", version="1.0.5"),
-                ForgeDataMod(name="supermartijn642corelib", version="1.0.19"),
-                ForgeDataMod(name="simplylight", version="1.18.2-1.4.2-build.31"),
-                ForgeDataMod(name="botania", version="1.18.2-434"),
-                ForgeDataMod(name="highlighter", version="ANY"),
-                ForgeDataMod(name="spark", version="<not required for client>"),
-                ForgeDataMod(name="curios", version="1.18.2-5.0.7.1"),
-                ForgeDataMod(name="patchouli", version="1.18.2-71.1"),
-                ForgeDataMod(name="camera", version="1.18.2-1.0.4"),
-                ForgeDataMod(name="blockcarpentry", version="1.18-0.3.0"),
-                ForgeDataMod(name="thermal_foundation", version="1.6.3.28"),
-                ForgeDataMod(name="thermal_expansion", version="1.6.3.13"),
-                ForgeDataMod(name="libnonymous", version="2.1.0"),
-                ForgeDataMod(name="elevatorid", version="1.18.2-1.8.4"),
-                ForgeDataMod(name="runelic", version="11.0.1"),
+                ForgeDataMod(name="shetiphiancore", marker="3.10.10"),
+                ForgeDataMod(name="dummmmmmy", marker="1.18-1.5.2"),
+                ForgeDataMod(name="supplementaries", marker="1.18.2-1.5.13"),
+                ForgeDataMod(name="refinedstorage", marker="1.10.2"),
+                ForgeDataMod(name="konkrete", marker="1.3.3"),
+                ForgeDataMod(name="easy_piglins", marker="1.18.2-1.0.0"),
+                ForgeDataMod(name="corpse", marker="1.18.2-1.0.2"),
+                ForgeDataMod(name="packmenu", marker="<not required for client>"),
+                ForgeDataMod(name="mcwbridges", marker="2.0.3"),
+                ForgeDataMod(name="torchmaster", marker="18.1.0"),
+                ForgeDataMod(name="compressium", marker="1.4.2-build.9+mc1.18.2"),
+                ForgeDataMod(name="ping", marker="1.18-1.8.0"),
+                ForgeDataMod(name="ironfurnaces", marker="3.3.1"),
+                ForgeDataMod(name="mcwtrpdoors", marker="1.0.6"),
+                ForgeDataMod(name="mcwfences", marker="1.0.5"),
+                ForgeDataMod(name="supermartijn642corelib", marker="1.0.19"),
+                ForgeDataMod(name="simplylight", marker="1.18.2-1.4.2-build.31"),
+                ForgeDataMod(name="botania", marker="1.18.2-434"),
+                ForgeDataMod(name="highlighter", marker="ANY"),
+                ForgeDataMod(name="spark", marker="<not required for client>"),
+                ForgeDataMod(name="curios", marker="1.18.2-5.0.7.1"),
+                ForgeDataMod(name="patchouli", marker="1.18.2-71.1"),
+                ForgeDataMod(name="camera", marker="1.18.2-1.0.4"),
+                ForgeDataMod(name="blockcarpentry", marker="1.18-0.3.0"),
+                ForgeDataMod(name="thermal_foundation", marker="1.6.3.28"),
+                ForgeDataMod(name="thermal_expansion", marker="1.6.3.13"),
+                ForgeDataMod(name="libnonymous", marker="2.1.0"),
+                ForgeDataMod(name="elevatorid", marker="1.18.2-1.8.4"),
+                ForgeDataMod(name="runelic", marker="11.0.1"),
                 ForgeDataMod(
                     name="worldedit",
-                    version="<not required for client>",
+                    marker="<not required for client>",
                 ),
-                ForgeDataMod(name="cfm", version="7.0.0-pre29"),
-                ForgeDataMod(name="architectury", version="4.9.84"),
-                ForgeDataMod(name="weirdinggadget", version="2.2.11"),
-                ForgeDataMod(name="mcwfurnitures", version="3.0.0"),
-                ForgeDataMod(name="trashcans", version="1.0.15"),
-                ForgeDataMod(name="mcwlights", version="1.0.3"),
-                ForgeDataMod(name="cucumber", version="5.1.2"),
-                ForgeDataMod(name="snad", version="1.18.2-1.22.04.15a"),
-                ForgeDataMod(name="jei", version="9.7.0.209"),
-                ForgeDataMod(name="ae2", version="11.1.4"),
-                ForgeDataMod(name="mekanism", version="10.2.5"),
-                ForgeDataMod(name="bdlib", version="1.19.3.7"),
-                ForgeDataMod(name="create", version="0.5.0.d"),
-                ForgeDataMod(name="waystones", version="10.1.0"),
-                ForgeDataMod(name="clumps", version="8.0.0+10"),
-                ForgeDataMod(name="shutupexperimentalsettings", version="1.0.5"),
-                ForgeDataMod(name="comforts", version="1.18.2-5.0.0.4"),
-                ForgeDataMod(name="naturescompass", version="1.18.2-1.9.7-forge"),
-                ForgeDataMod(name="storagenetwork", version="1.18.2-1.6.1"),
-                ForgeDataMod(name="framedcompactdrawers", version="1.18-4.1.0"),
-                ForgeDataMod(name="decorative_blocks", version="2.1.0"),
-                ForgeDataMod(name="botanypots", version="8.0.12"),
-                ForgeDataMod(name="ftbbackups2", version="1.0.17"),
-                ForgeDataMod(name="cofh_core", version="1.6.4.21"),
-                ForgeDataMod(name="mcjtylib", version="1.18-6.0.15"),
-                ForgeDataMod(name="ispawner", version="1.0"),
-                ForgeDataMod(name="everycomp", version="1.18.2-1.5.7"),
-                ForgeDataMod(name="jeitweaker", version="3.0.0.8"),
-                ForgeDataMod(name="terralith", version="0.0NONE"),
-                ForgeDataMod(name="mininggadgets", version="1.11.0"),
-                ForgeDataMod(name="crafttweaker", version="9.1.197"),
-                ForgeDataMod(name="akashictome", version="1.5-20"),
-                ForgeDataMod(name="forge", version="ANY"),
-                ForgeDataMod(name="colossalchests", version="1.8.3"),
-                ForgeDataMod(name="selene", version="1.18.2-1.17.9"),
-                ForgeDataMod(name="drippyloadingscreen", version="1.6.4"),
+                ForgeDataMod(name="cfm", marker="7.0.0-pre29"),
+                ForgeDataMod(name="architectury", marker="4.9.84"),
+                ForgeDataMod(name="weirdinggadget", marker="2.2.11"),
+                ForgeDataMod(name="mcwfurnitures", marker="3.0.0"),
+                ForgeDataMod(name="trashcans", marker="1.0.15"),
+                ForgeDataMod(name="mcwlights", marker="1.0.3"),
+                ForgeDataMod(name="cucumber", marker="5.1.2"),
+                ForgeDataMod(name="snad", marker="1.18.2-1.22.04.15a"),
+                ForgeDataMod(name="jei", marker="9.7.0.209"),
+                ForgeDataMod(name="ae2", marker="11.1.4"),
+                ForgeDataMod(name="mekanism", marker="10.2.5"),
+                ForgeDataMod(name="bdlib", marker="1.19.3.7"),
+                ForgeDataMod(name="create", marker="0.5.0.d"),
+                ForgeDataMod(name="waystones", marker="10.1.0"),
+                ForgeDataMod(name="clumps", marker="8.0.0+10"),
+                ForgeDataMod(name="shutupexperimentalsettings", marker="1.0.5"),
+                ForgeDataMod(name="comforts", marker="1.18.2-5.0.0.4"),
+                ForgeDataMod(name="naturescompass", marker="1.18.2-1.9.7-forge"),
+                ForgeDataMod(name="storagenetwork", marker="1.18.2-1.6.1"),
+                ForgeDataMod(name="framedcompactdrawers", marker="1.18-4.1.0"),
+                ForgeDataMod(name="decorative_blocks", marker="2.1.0"),
+                ForgeDataMod(name="botanypots", marker="8.0.12"),
+                ForgeDataMod(name="ftbbackups2", marker="1.0.17"),
+                ForgeDataMod(name="cofh_core", marker="1.6.4.21"),
+                ForgeDataMod(name="mcjtylib", marker="1.18-6.0.15"),
+                ForgeDataMod(name="ispawner", marker="1.0"),
+                ForgeDataMod(name="everycomp", marker="1.18.2-1.5.7"),
+                ForgeDataMod(name="jeitweaker", marker="3.0.0.8"),
+                ForgeDataMod(name="terralith", marker="0.0NONE"),
+                ForgeDataMod(name="mininggadgets", marker="1.11.0"),
+                ForgeDataMod(name="crafttweaker", marker="9.1.197"),
+                ForgeDataMod(name="akashictome", marker="1.5-20"),
+                ForgeDataMod(name="forge", marker="ANY"),
+                ForgeDataMod(name="colossalchests", marker="1.8.3"),
+                ForgeDataMod(name="selene", marker="1.18.2-1.17.9"),
+                ForgeDataMod(name="drippyloadingscreen", marker="1.6.4"),
                 ForgeDataMod(
                     name="craftingtweaks",
-                    version="<not required for client>",
+                    marker="<not required for client>",
                 ),
-                ForgeDataMod(name="minecraft", version="1.18.2"),
-                ForgeDataMod(name="terrablender", version="1.18.2-1.1.0.102"),
+                ForgeDataMod(name="minecraft", marker="1.18.2"),
+                ForgeDataMod(name="terrablender", marker="1.18.2-1.1.0.102"),
                 ForgeDataMod(
                     name="sophisticatedbackpacksvh",
-                    version="1.18.2-1.0.4.12",
+                    marker="1.18.2-1.0.4.12",
                 ),
-                ForgeDataMod(name="mousetweaks", version="ANY"),
-                ForgeDataMod(name="titanium", version="3.5.6"),
-                ForgeDataMod(name="jade", version="<not required for client>"),
-                ForgeDataMod(name="createtweaker", version="2.0.0.17"),
-                ForgeDataMod(name="easy_villagers", version="1.18.2-1.0.10"),
-                ForgeDataMod(name="pipez", version="1.18.2-1.1.5"),
-                ForgeDataMod(name="iceberg", version="ANY"),
-                ForgeDataMod(name="flywheel", version="<not required for client>"),
-                ForgeDataMod(name="mantle", version="1.9.27"),
-                ForgeDataMod(name="ecologics", version="1.7.3"),
-                ForgeDataMod(name="quark", version="3.2-358"),
-                ForgeDataMod(name="xaerominimap", version="22.11.1"),
-                ForgeDataMod(name="pigpen", version="8.0.1"),
-                ForgeDataMod(name="fastbench", version="6.0.2"),
-                ForgeDataMod(name="polymorph", version="1.18.2-0.44"),
-                ForgeDataMod(name="autoreglib", version="1.7-53"),
-                ForgeDataMod(name="storagedrawers", version="10.2.1"),
-                ForgeDataMod(name="fluxnetworks", version="7.0.7.8"),
-                ForgeDataMod(name="neoncraft2", version="2.2"),
-                ForgeDataMod(name="enercell", version="0.0NONE"),
-                ForgeDataMod(name="appleskin", version="2.4.0+mc1.18"),
+                ForgeDataMod(name="mousetweaks", marker="ANY"),
+                ForgeDataMod(name="titanium", marker="3.5.6"),
+                ForgeDataMod(name="jade", marker="<not required for client>"),
+                ForgeDataMod(name="createtweaker", marker="2.0.0.17"),
+                ForgeDataMod(name="easy_villagers", marker="1.18.2-1.0.10"),
+                ForgeDataMod(name="pipez", marker="1.18.2-1.1.5"),
+                ForgeDataMod(name="iceberg", marker="ANY"),
+                ForgeDataMod(name="flywheel", marker="<not required for client>"),
+                ForgeDataMod(name="mantle", marker="1.9.27"),
+                ForgeDataMod(name="ecologics", marker="1.7.3"),
+                ForgeDataMod(name="quark", marker="3.2-358"),
+                ForgeDataMod(name="xaerominimap", marker="22.11.1"),
+                ForgeDataMod(name="pigpen", marker="8.0.1"),
+                ForgeDataMod(name="fastbench", marker="6.0.2"),
+                ForgeDataMod(name="polymorph", marker="1.18.2-0.44"),
+                ForgeDataMod(name="autoreglib", marker="1.7-53"),
+                ForgeDataMod(name="storagedrawers", marker="10.2.1"),
+                ForgeDataMod(name="fluxnetworks", marker="7.0.7.8"),
+                ForgeDataMod(name="neoncraft2", marker="2.2"),
+                ForgeDataMod(name="enercell", marker="0.0NONE"),
+                ForgeDataMod(name="appleskin", marker="2.4.0+mc1.18"),
                 ForgeDataMod(
                     name="ferritecore",
-                    version="<not required for client>",
+                    marker="<not required for client>",
                 ),
-                ForgeDataMod(name="modularrouters", version="9.1.1-93"),
-                ForgeDataMod(name="refinedstorageaddons", version="0.8.2"),
-                ForgeDataMod(name="openloader", version="12.0.1"),
-                ForgeDataMod(name="the_vault", version="1.18.2-2.0.10.869"),
+                ForgeDataMod(name="modularrouters", marker="9.1.1-93"),
+                ForgeDataMod(name="refinedstorageaddons", marker="0.8.2"),
+                ForgeDataMod(name="openloader", marker="12.0.1"),
+                ForgeDataMod(name="the_vault", marker="1.18.2-2.0.10.869"),
             ],
         ),
         ("truncated", False),
     ]
 
     @pytest.fixture(scope="class")
-    def build(self):
-        return ForgeData.build(
+    def build(self) -> ForgeData:
+        value = ForgeData.build(
             RawForgeData(
                 {
                     "channels": [],
@@ -656,6 +656,8 @@ class TestForgeData(BaseStatusResponseTest):
                 }
             )
         )
+        assert value is not None
+        return value
 
 
 @BaseStatusResponseTest.construct
@@ -687,10 +689,10 @@ class TestForgeDataV1(TestJavaStatusResponse):
                 fml_network_version=1,
                 channels=[],
                 mods=[
-                    ForgeDataMod(name="minecraft", version="1.12.2"),
-                    ForgeDataMod(name="mcp", version="9.42"),
-                    ForgeDataMod(name="FML", version="8.0.99.99"),
-                    ForgeDataMod(name="forge", version="14.23.5.2859"),
+                    ForgeDataMod(name="minecraft", marker="1.12.2"),
+                    ForgeDataMod(name="mcp", marker="9.42"),
+                    ForgeDataMod(name="FML", marker="8.0.99.99"),
+                    ForgeDataMod(name="forge", marker="14.23.5.2859"),
                 ],
                 truncated=False,
             ),
@@ -730,7 +732,7 @@ class TestForgeDataV2(TestJavaStatusResponse):
                 fml_network_version=2,
                 channels=[],
                 mods=[
-                    ForgeDataMod(name="forge", version="ANY"),
+                    ForgeDataMod(name="forge", marker="ANY"),
                 ],
                 truncated=False,
             ),
@@ -781,8 +783,8 @@ class TestForgeDataV3(TestJavaStatusResponse):
                     ForgeDataChannel(name="forge:split", version="1.1", required=True),
                 ],
                 mods=[
-                    ForgeDataMod(name="minecraft", version="1.20.1"),
-                    ForgeDataMod(name="forge", version="ANY"),
+                    ForgeDataMod(name="minecraft", marker="1.20.1"),
+                    ForgeDataMod(name="forge", marker="ANY"),
                 ],
                 truncated=False,
             ),
