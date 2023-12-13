@@ -1,7 +1,7 @@
 import pytest
 
 from mcstatus.forge_data import ForgeDataChannel, ForgeDataMod, RawForgeData
-from mcstatus.motd import Formatting, Motd
+from mcstatus.motd import Motd
 from mcstatus.status_response import ForgeData, JavaStatusPlayer, JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
 from tests.status_response import BaseStatusResponseTest
 
@@ -680,7 +680,7 @@ class TestForgeDataV1(TestJavaStatusResponse):
     EXPECTED_VALUES = [
         ("players", JavaStatusPlayers(0, 20, None)),
         ("version", JavaStatusVersion("1.12.2", 340)),
-        ("motd", Motd.parse("A Minecraft Server", bedrock=False),
+        ("motd", Motd.parse("A Minecraft Server", bedrock=False)),
         ("latency", 0),
         ("raw", RAW),
         (
@@ -723,7 +723,7 @@ class TestForgeDataV2(TestJavaStatusResponse):
     EXPECTED_VALUES = [
         ("players", JavaStatusPlayers(0, 20, None)),
         ("version", JavaStatusVersion("1.13.2", 404)),
-        ("motd", Motd(parsed=["A Minecraft Server", Formatting.RESET], raw={"text": "A Minecraft Server"}, bedrock=False)),
+        ("motd", Motd.parse("A Minecraft Server", bedrock=False)),
         ("latency", 0),
         ("raw", RAW),
         (
@@ -769,7 +769,7 @@ class TestForgeDataV3(TestJavaStatusResponse):
     EXPECTED_VALUES = [
         ("players", JavaStatusPlayers(0, 20, None)),
         ("version", JavaStatusVersion("1.20.1", 763)),
-        ("motd", Motd(parsed=["A Minecraft Server", Formatting.RESET], raw={"text": "A Minecraft Server"}, bedrock=False)),
+        ("motd", Motd.parse("A Minecraft Server", bedrock=False)),
         ("latency", 0),
         ("raw", RAW),
         (

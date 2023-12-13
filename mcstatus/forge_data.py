@@ -25,7 +25,7 @@ IGNORE_SERVER_ONLY: Final = "<not required for client>"
 
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired, Self, TypedDict
+    from typing_extensions import Self, TypedDict
 
     class RawForgeDataChannel(TypedDict):
         res: str
