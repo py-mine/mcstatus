@@ -35,20 +35,20 @@ if TYPE_CHECKING:
         required: bool
         """Is this channel required for client to join?"""
 
-    class RawForgeDataMod(TypedDict):
-        modid: NotRequired[str]
-        modId: NotRequired[str]
-        modmarker: NotRequired[str]
+    class RawForgeDataMod(TypedDict, total=False):
+        modid: str
+        modId: str
+        modmarker: str
         """Mod version."""
-        version: NotRequired[str]
+        version: str
 
-    class RawForgeData(TypedDict):
-        fmlNetworkVersion: NotRequired[int]
-        channels: NotRequired[list[RawForgeDataChannel]]
-        mods: NotRequired[list[RawForgeDataMod]]
-        modList: NotRequired[list[RawForgeDataMod]]
-        d: NotRequired[str]
-        truncated: NotRequired[bool]
+    class RawForgeData(TypedDict, total=False):
+        fmlNetworkVersion: int
+        channels: list[RawForgeDataChannel]
+        mods: list[RawForgeDataMod]
+        modList: list[RawForgeDataMod]
+        d: str
+        truncated: bool
 
 else:
     RawForgeDataChannel = dict
