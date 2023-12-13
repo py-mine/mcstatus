@@ -222,7 +222,8 @@ class ForgeData:
         # see https://github.com/MinecraftForge/MinecraftForge/blob/7d0330eb08299935714e34ac651a293e2609aa86/src/main/java/net/minecraftforge/network/ServerStatusPing.java#L27-L73  # noqa: E501  # line too long
         if "d" not in raw:
             mod_list = raw.get("mods") or raw.get("modList")
-            assert mod_list is not None
+            if mod_list is None:
+                raise KeyError("Neither `mods` or `modList` keys exist.")
             return cls(
                 fml_network_version=fml_network_version,
                 channels=[ForgeDataChannel.build(channel) for channel in raw.get("channels", ())],

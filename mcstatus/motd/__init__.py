@@ -4,17 +4,9 @@ import re
 import typing as t
 from dataclasses import dataclass
 
-from mcstatus.motd.components import Formatting as Formatting
-from mcstatus.motd.components import MinecraftColor as MinecraftColor
-from mcstatus.motd.components import ParsedMotdComponent as ParsedMotdComponent
-from mcstatus.motd.components import TranslationTag as TranslationTag
-from mcstatus.motd.components import WebColor as WebColor
-from mcstatus.motd.simplifies import get_unused_elements as get_unused_elements
-from mcstatus.motd.simplifies import squash_nearby_strings as squash_nearby_strings
-from mcstatus.motd.transformers import AnsiTransformer as AnsiTransformer
-from mcstatus.motd.transformers import HtmlTransformer as HtmlTransformer
-from mcstatus.motd.transformers import MinecraftTransformer as MinecraftTransformer
-from mcstatus.motd.transformers import PlainTransformer as PlainTransformer
+from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
+from mcstatus.motd.simplifies import get_unused_elements, squash_nearby_strings
+from mcstatus.motd.transformers import AnsiTransformer, HtmlTransformer, MinecraftTransformer, PlainTransformer
 
 if t.TYPE_CHECKING:
     from typing_extensions import Self
