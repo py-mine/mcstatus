@@ -680,7 +680,7 @@ class TestForgeDataV1(TestJavaStatusResponse):
     EXPECTED_VALUES = [
         ("players", JavaStatusPlayers(0, 20, None)),
         ("version", JavaStatusVersion("1.12.2", 340)),
-        ("motd", Motd(parsed=["A Minecraft Server", Formatting.RESET], raw={"text": "A Minecraft Server"}, bedrock=False)),
+        ("motd", Motd.parse("A Minecraft Server", bedrock=False),
         ("latency", 0),
         ("raw", RAW),
         (
