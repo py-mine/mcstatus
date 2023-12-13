@@ -23,8 +23,8 @@ if TYPE_CHECKING:
         protocol: int
 
     class RawJavaResponseMotdWhenDict(TypedDict, total=False):
-        text: str  # only present if translation is set
-        translation: str  # same to the above field
+        text: str  # only present if `translate` is set
+        translate: str  # same to the above field
         extra: list[RawJavaResponseMotdWhenDict]
 
         color: str
@@ -109,6 +109,15 @@ class JavaStatusResponse(BaseStatusResponse):
     """
     players: JavaStatusPlayers
     version: JavaStatusVersion
+    enforces_secure_chat: bool | None
+    """Whether the server enforces secure chat (every message is signed up with a key).
+
+    .. seealso::
+        `Signed Chat explanation <https://gist.github.com/kennytv/ed783dd244ca0321bbd882c347892874>`_,
+        `22w17a changelog, where this was added <https://www.minecraft.net/nl-nl/article/minecraft-snapshot-22w17a>`_.
+
+    .. versionadded:: 11.1.0
+    """
     icon: str | None
     """The icon of the server. In `Base64 <https://en.wikipedia.org/wiki/Base64>`_ encoded PNG image format.
 
@@ -132,6 +141,7 @@ class JavaStatusResponse(BaseStatusResponse):
             players=JavaStatusPlayers.build(raw["players"]),
             version=JavaStatusVersion.build(raw["version"]),
             motd=Motd.parse(raw["description"], bedrock=False),
+            enforces_secure_chat=raw.get("enforcesSecureChat"),
             icon=raw.get("favicon"),
             latency=latency,
         )
@@ -305,13 +315,13 @@ class BaseStatusVersion(ABC):
     name: str
     """The version name, like ``1.19.3``.
 
-    See `Minecraft wiki <https://minecraft.fandom.com/wiki/Java_Edition_version_history#Full_release>`__
+    See `Minecraft wiki <https://minecraft.wiki/w/Java_Edition_version_history#Full_release>`__
     for complete list.
     """
     protocol: int
     """The protocol version, like ``761``.
 
-    See `Minecraft wiki <https://minecraft.fandom.com/wiki/Protocol_version#Java_Edition_2>`__.
+    See `Minecraft wiki <https://minecraft.wiki/w/Protocol_version#Java_Edition_2>`__.
     """
 
 
@@ -339,7 +349,7 @@ class BedrockStatusVersion(BaseStatusVersion):
     name: str
     """The version name, like ``1.19.60``.
 
-    See `Minecraft wiki <https://minecraft.fandom.com/wiki/Bedrock_Edition_version_history#Bedrock_Edition>`__
+    See `Minecraft wiki <https://minecraft.wiki/w/Bedrock_Edition_version_history#Bedrock_Edition>`__
     for complete list.
     """
     brand: str
