@@ -9,14 +9,15 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
-      - id: check-merge-conflict
-      - id: check-toml # For pyproject.toml
-      - id: check-yaml # For workflows
-      - id: end-of-file-fixer
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
       - id: end-of-file-fixer
+      - id: check-ast
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
       - id: mixed-line-ending
+      - id: check-case-conflict
       - id: sort-simple-yaml
         files: .pre-commit-config.yaml
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -24,38 +25,29 @@ repos:
     hooks:
       - id: python-check-blanket-noqa # Enforce noqa annotations (noqa: F401,W203)
       - id: python-use-type-annotations # Enforce type annotations instead of type comments
-  - repo: local
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 23.12.0
     hooks:
       - id: black
-        name: Black
-        description: Auto-format the code with black
-        entry: poetry run black
-        language: system
-        types: [python]
-  - repo: local
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.8
     hooks:
       - id: ruff
-        name: Ruff
-        description: Run ruff checks on the code
-        entry: poetry run ruff check --force-exclude
-        language: system
-        types: [python]
+        types: [file]
+        types_or: [python, pyi, toml]
         require_serial: true
         args: [--fix, --exit-non-zero-on-fix]
-  - repo: local
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
     hooks:
       - id: isort
-        name: ISort
-        description: Sort imports with isort
-        entry: poetry run isort
-        language: system
-        types: [python]
-  - repo: local
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.341
     hooks:
-      - id: pyright
-        name: Pyright
-        description: Run pyright type checker
-        entry: poetry run pyright
-        language: system
-        types: [python]
-        pass_filenames: false # pyright runs for the entire project, it can't run for single files
+    - id: pyright
+      types: [python]
+      pass_filenames: false # pyright runs for the entire project, it can't run for single files
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+      - id: codespell

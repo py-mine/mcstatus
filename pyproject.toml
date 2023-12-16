@@ -96,10 +96,11 @@ style = "pep440"
 [tool.ruff]
 target-version = "py38"
 line-length = 127
+fix = true
 
 select = [
     "F",     # Pyflakes
-    "W",     # Pycodestyle (warnigns)
+    "W",     # Pycodestyle (warnings)
     "E",     # Pycodestyle (errors)
     "N",     # pep8-naming
     "ANN",   # flake8-annotations
@@ -133,6 +134,9 @@ ban-relative-imports = "all"
 
 [tool.black]
 line-length = 127
+
+[tool.codespell]
+ignore-words-list = 'formattings,curios'
 
 [tool.isort]
 profile = "black"
