@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     class RawJavaResponseMotdWhenDict(TypedDict, total=False):
         text: str  # only present if `translate` is set
         translate: str  # same to the above field
-        extra: list[RawJavaResponseMotdWhenDict]
+        extra: list[RawJavaResponseMotdWhenDict | str]
 
         color: str
         bold: bool

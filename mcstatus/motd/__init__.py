@@ -49,7 +49,7 @@ class Motd:
         """
         original_raw = raw.copy() if hasattr(raw, "copy") else raw  # type: ignore # Cannot access "copy" for type "str"
         if isinstance(raw, list):
-            raw: RawJavaResponseMotdWhenDict = {"extra": raw}
+            raw: RawJavaResponseMotdWhenDict = {"extra": raw}  # type: ignore # "list[RawJavaResponseMotdWhenDict]" is not the same as "list[RawJavaResponseMotdWhenDict | str]"
 
         if isinstance(raw, str):
             parsed = cls._parse_as_str(raw, bedrock=bedrock)
@@ -139,7 +139,11 @@ class Motd:
             auto_add = list(filter(lambda e: type(e) is Formatting and e != Formatting.RESET, parsed_motd))
 
             for element in item["extra"]:
-                parsed_motd.extend(cls._parse_as_dict(element, auto_add=auto_add.copy()))
+                parsed_motd.extend(
+                    cls._parse_as_dict(element, auto_add=auto_add.copy())
+                    if isinstance(element, dict)
+                    else auto_add + cls._parse_as_str(element, bedrock=bedrock)
+                )
 
         return parsed_motd
 
