@@ -14,7 +14,7 @@ from mcstatus.protocol.connection import (
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
 from mcstatus.status_response import BedrockStatusResponse, JavaStatusResponse
-from mcstatus.utils import retry, TRIES_USED_BY_US
+from mcstatus.utils import TRIES_USED_BY_US, retry
 
 if TYPE_CHECKING:
     from typing_extensions import Self

@@ -5,7 +5,7 @@ import inspect
 import warnings
 from collections.abc import Callable, Iterable
 from functools import wraps
-from typing import Any, TYPE_CHECKING, TypeVar, cast, overload, NewType
+from typing import Any, NewType, TYPE_CHECKING, TypeVar, cast, overload
 
 if TYPE_CHECKING:
     from typing_extensions import ParamSpec, Protocol
@@ -24,7 +24,9 @@ TRIES_USED_BY_US_TYPE = NewType("_SENTINEL_T", object)
 TRIES_USED_BY_US = TRIES_USED_BY_US_TYPE(object())
 
 
-def retry(tries: int | TRIES_USED_BY_US_TYPE, exceptions: tuple[type[BaseException]] = (Exception,)) -> Callable[[Callable[P, R]], Callable[P, R]]:
+def retry(
+    tries: int | TRIES_USED_BY_US_TYPE, exceptions: tuple[type[BaseException]] = (Exception,)
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """Decorator that re-runs given function ``tries`` times if error occurs.
 
     The amount of tries will either be the value given to the decorator,
@@ -43,7 +45,7 @@ def retry(tries: int | TRIES_USED_BY_US_TYPE, exceptions: tuple[type[BaseExcepti
         @wraps(func)
         async def async_wrapper(
             *args: P.args,
-            tries: int | TRIES_USED_BY_US_TYPE = tries,
+            tries: int | TRIES_USED_BY_US_TYPE = tries,  # type: ignore # (No support for adding kw-only args)
             **kwargs: P.kwargs,
         ) -> R:
             if tries is TRIES_USED_BY_US:
@@ -52,7 +54,7 @@ def retry(tries: int | TRIES_USED_BY_US_TYPE, exceptions: tuple[type[BaseExcepti
                 warnings.warn(warn_message, category=DeprecationWarning, stacklevel=2)
 
             last_exc: BaseException
-            for _ in range(tries):
+            for _ in range(cast(int, tries)):
                 try:
                     return await func(*args, **kwargs)  # type: ignore # (We know func is awaitable here)
                 except exceptions as exc:
@@ -63,7 +65,7 @@ def retry(tries: int | TRIES_USED_BY_US_TYPE, exceptions: tuple[type[BaseExcepti
         @wraps(func)
         def sync_wrapper(
             *args: P.args,
-            tries: int | TRIES_USED_BY_US_TYPE = tries,
+            tries: int | TRIES_USED_BY_US_TYPE = tries,  # type: ignore # (No support for adding kw-only args)
             **kwargs: P.kwargs,
         ) -> R:
             if tries is TRIES_USED_BY_US:
@@ -72,7 +74,7 @@ def retry(tries: int | TRIES_USED_BY_US_TYPE, exceptions: tuple[type[BaseExcepti
                 warnings.warn(warn_message, category=DeprecationWarning, stacklevel=1)
 
             last_exc: BaseException
-            for _ in range(tries):
+            for _ in range(cast(int, tries)):
                 try:
                     return func(*args, **kwargs)
                 except exceptions as exc:

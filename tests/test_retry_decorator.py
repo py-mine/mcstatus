@@ -1,6 +1,6 @@
 import pytest
 
-from mcstatus.utils import retry,TRIES_USED_BY_US
+from mcstatus.utils import TRIES_USED_BY_US, retry
 from tests.test_async_pinger import async_decorator
 
 
@@ -68,7 +68,7 @@ def test_async_fail():
 
 def test_sync_changing_default_value_deprecated():
     @retry(tries=TRIES_USED_BY_US)
-    def func():
+    def func(**_):
         return
 
     with pytest.warns(DeprecationWarning):
