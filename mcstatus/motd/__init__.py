@@ -49,7 +49,7 @@ class Motd:
         """
         original_raw = raw.copy() if hasattr(raw, "copy") else raw  # type: ignore # Cannot access "copy" for type "str"
         if isinstance(raw, list):
-            raw: RawJavaResponseMotdWhenDict = {"extra": raw}  # type: ignore # "list[RawJavaResponseMotdWhenDict]" is not the same as "list[RawJavaResponseMotdWhenDict | str]"
+            raw: RawJavaResponseMotdWhenDict = {"extra": raw}
 
         if isinstance(raw, str):
             parsed = cls._parse_as_str(raw, bedrock=bedrock)
