@@ -1,6 +1,6 @@
 import pytest
 
-from mcstatus.utils import retry
+from mcstatus.utils import retry,TRIES_USED_BY_US
 from tests.test_async_pinger import async_decorator
 
 
@@ -64,3 +64,21 @@ def test_async_fail():
     # We should get the last exception on failure (not OSError)
     with pytest.raises(RuntimeError):
         async_decorator(func)()
+
+
+def test_sync_changing_default_value_deprecated():
+    @retry(tries=TRIES_USED_BY_US)
+    def func():
+        return
+
+    with pytest.warns(DeprecationWarning):
+        func(tries=3)
+
+
+def test_async_changing_default_value_deprecated():
+    @retry(tries=TRIES_USED_BY_US)
+    async def func():
+        return
+
+    with pytest.warns(DeprecationWarning):
+        async_decorator(func)(tries=3)
