@@ -3,14 +3,10 @@ from __future__ import annotations
 import json
 import random
 from time import perf_counter
-from typing import TYPE_CHECKING
 
 from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
 from mcstatus.status_response import JavaStatusResponse
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 
 class ServerPinger:
@@ -126,7 +122,3 @@ class AsyncServerPinger(ServerPinger):
             )
 
         return (received - sent) * 1000
-
-
-# TODO Remove this deprecation after 2023-12
-PingResponse: TypeAlias = JavaStatusResponse
