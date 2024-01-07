@@ -62,6 +62,7 @@ else:
     RawJavaResponse = dict
     RawQueryResponse = dict
 
+from mcstatus.utils import deprecated
 
 __all__ = [
     "BaseStatusPlayers",
