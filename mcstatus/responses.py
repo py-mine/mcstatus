@@ -49,6 +49,7 @@ else:
     RawJavaResponseMotdWhenDict = dict
     RawJavaResponse = dict
 
+from mcstatus.utils import deprecated
 
 __all__ = [
     "BaseStatusPlayers",
