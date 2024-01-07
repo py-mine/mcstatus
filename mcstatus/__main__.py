@@ -44,7 +44,7 @@ def json(server: JavaServer) -> None:
         query_res = server.query(tries=1)  # type: ignore[call-arg] # tries is supported with retry decorator
         data["host_ip"] = query_res.raw["hostip"]
         data["host_port"] = query_res.raw["hostport"]
-        data["map"] = query_res.map
+        data["map"] = query_res.map_name
         data["plugins"] = query_res.software.plugins
     except Exception:  # TODO: Check what this actually excepts
         pass
