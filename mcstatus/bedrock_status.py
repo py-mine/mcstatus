@@ -10,9 +10,6 @@ import asyncio_dgram
 from mcstatus.address import Address
 from mcstatus.status_response import BedrockStatusResponse
 
-# TODO Remove this useless __all__ after 2023-08
-__all__ = ("BedrockServerStatus", "BedrockStatusResponse")
-
 
 class BedrockServerStatus:
     request_status_data = bytes.fromhex(
