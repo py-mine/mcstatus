@@ -150,25 +150,33 @@ class JavaServer(MCServer):
         result = await pinger.read_status()
         return result
 
-    def query(self) -> QueryResponse:
-        """Checks the status of a Minecraft Java Edition server via the query protocol."""
+    def query(self, *, tries: int = 3) -> QueryResponse:
+        """Checks the status of a Minecraft Java Edition server via the query protocol.
+
+        :param tries: The number of times to retry if an error is encountered.
+        :return: Query information in a :class:`~mcstatus.querier.QueryResponse` instance.
+        """
         ip = str(self.address.resolve_ip())
-        return self._retry_query(Address(ip, self.address.port))
+        return self._retry_query(Address(ip, self.address.port), tries=tries)
 
     @retry(tries=3)
-    def _retry_query(self, addr: Address) -> QueryResponse:
+    def _retry_query(self, addr: Address, **_kwargs) -> QueryResponse:
         with UDPSocketConnection(addr, self.timeout) as connection:
             querier = ServerQuerier(connection)
             querier.handshake()
             return querier.read_query()
 
-    async def async_query(self) -> QueryResponse:
-        """Asynchronously checks the status of a Minecraft Java Edition server via the query protocol."""
+    async def async_query(self, *, tries: int = 3) -> QueryResponse:
+        """Asynchronously checks the status of a Minecraft Java Edition server via the query protocol.
+
+        :param tries: The number of times to retry if an error is encountered.
+        :return: Query information in a :class:`~mcstatus.querier.QueryResponse` instance.
+        """
         ip = str(await self.address.async_resolve_ip())
-        return await self._retry_async_query(Address(ip, self.address.port))
+        return await self._retry_async_query(Address(ip, self.address.port), tries=tries)
 
     @retry(tries=3)
-    async def _retry_async_query(self, address: Address) -> QueryResponse:
+    async def _retry_async_query(self, address: Address, **_kwargs) -> QueryResponse:
         async with UDPAsyncSocketConnection(address, self.timeout) as connection:
             querier = AsyncServerQuerier(connection)
             await querier.handshake()

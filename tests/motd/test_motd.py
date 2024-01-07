@@ -91,6 +91,19 @@ class TestMotdParse:
             Formatting.RESET,
         ]
 
+    def test_top_level_formatting_applies_to_string_inside_extra(self) -> None:
+        """Although, it is probably a bug in some modded cores, Minecraft supports it, and we should as well.
+
+        See `#711 <https://github.com/py-mine/mcstatus/issues/711>`_.
+        """
+        assert Motd.parse({"text": "top", "bold": True, "extra": ["not top"]}).parsed == [
+            Formatting.BOLD,
+            "top",
+            Formatting.RESET,
+            Formatting.BOLD,
+            "not top",
+        ]
+
     def test_formatting_key_set_to_false_here_without_it_being_set_to_true_before(self) -> None:
         """Some servers set the formatting keys to false here, even without it ever being set to true before.
 

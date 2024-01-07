@@ -139,7 +139,11 @@ class Motd:
             auto_add = list(filter(lambda e: type(e) is Formatting and e != Formatting.RESET, parsed_motd))
 
             for element in item["extra"]:
-                parsed_motd.extend(cls._parse_as_dict(element, auto_add=auto_add.copy()))
+                parsed_motd.extend(
+                    cls._parse_as_dict(element, auto_add=auto_add.copy())
+                    if isinstance(element, dict)
+                    else auto_add + cls._parse_as_str(element, bedrock=bedrock)
+                )
 
         return parsed_motd
 
