@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     class RawJavaResponseMotdWhenDict(TypedDict, total=False):
         text: str  # only present if `translate` is set
         translate: str  # same to the above field
-        extra: list[RawJavaResponseMotdWhenDict]
+        extra: list[RawJavaResponseMotdWhenDict | str]
 
         color: str
         bold: bool
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
         underlined: bool
         obfuscated: bool
 
-    RawJavaResponseMotd: TypeAlias = "RawJavaResponseMotdWhenDict | list[RawJavaResponseMotdWhenDict] | str"
+    RawJavaResponseMotd: TypeAlias = "RawJavaResponseMotdWhenDict | list[RawJavaResponseMotdWhenDict | str] | str"
 
     class RawJavaResponse(TypedDict):
         description: RawJavaResponseMotd
@@ -62,7 +62,6 @@ else:
     RawJavaResponse = dict
     RawQueryResponse = dict
 
-from mcstatus.utils import deprecated
 
 __all__ = [
     "BaseStatusPlayers",
@@ -160,15 +159,6 @@ class JavaStatusResponse(BaseStatusResponse):
             latency=latency,
         )
 
-    @property
-    @deprecated(replacement="icon", date="2023-12")
-    def favicon(self) -> str | None:
-        """
-        .. deprecated:: 11.0.0
-            Will be removed 2023-12, use :attr:`icon <JavaStatusResponse.icon>` instead.
-        """
-        return self.icon
-
 
 @dataclass
 class BedrockStatusResponse(BaseStatusResponse):
@@ -214,33 +204,6 @@ class BedrockStatusResponse(BaseStatusResponse):
             map_name=map_name,
             gamemode=gamemode,
         )
-
-    @property
-    @deprecated(replacement="players.online", date="2023-12")
-    def players_online(self) -> int:
-        """
-        .. deprecated:: 11.0.0
-            Will be removed 2023-12, use :attr:`players.online <BedrockStatusPlayers.online>` instead.
-        """
-        return self.players.online
-
-    @property
-    @deprecated(replacement="players.max", date="2023-12")
-    def players_max(self) -> int:
-        """
-        .. deprecated:: 11.0.0
-            Will be removed 2023-12, use :attr:`players.max <BedrockStatusPlayers.max>` instead.
-        """
-        return self.players.max
-
-    @property
-    @deprecated(replacement="map_name", date="2023-12")
-    def map(self) -> str | None:
-        """
-        .. deprecated:: 11.0.0
-            Will be removed 2023-12, use :attr:`.map_name` instead.
-        """
-        return self.map_name
 
 
 @dataclass
