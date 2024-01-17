@@ -28,7 +28,7 @@ jobs:
           python-version: 3.12
 
       - name: Pre-commit Environment Caching
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.PRE_COMMIT_HOME }}
           key: "precommit-${{ runner.os }}-${{ steps.poetry_setup.outputs.python-version }}-\
