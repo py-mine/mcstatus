@@ -11,26 +11,26 @@ jobs:
     if: github.actor == 'dependabot[bot]'
     steps:
       - name: Generate token
-        id: generate_token
-        uses: tibdex/github-app-token@v2
+        id: app-token
+        uses: actions/create-github-app-token@v1
         with:
-          app_id: ${{ secrets.CI_BOT_APP_ID }}
-          private_key: ${{ secrets.CI_BOT_PRIVATE_KEY }}
+          app-id: ${{ secrets.CI_BOT_APP_ID }}
+          private-key: ${{ secrets.CI_BOT_PRIVATE_KEY }}
 
       - name: Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v1
         with:
-          github-token: "${{ steps.generate_token.outputs.token }}"
+          github-token: "${{ steps.app-token.outputs.token }}"
 
       - name: Approve a PR
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Enable auto-merge for Dependabot PRs
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
