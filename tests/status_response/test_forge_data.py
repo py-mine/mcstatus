@@ -34,6 +34,7 @@ class TestForgeDataV1(BaseStatusResponseTest):
         ("truncated", False),
     ]
 
+    @pytest.fixture(scope="class")
     def build(self) -> ForgeData:
         return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
@@ -57,6 +58,7 @@ class TestForgeDataV2(BaseStatusResponseTest):
         ("truncated", False),
     ]
 
+    @pytest.fixture(scope="class")
     def build(self) -> ForgeData:
         return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
@@ -97,6 +99,7 @@ class TestForgeDataV3(BaseStatusResponseTest):
         ("truncated", False),
     ]
 
+    @pytest.fixture(scope="class")
     def build(self) -> ForgeData:
         return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
