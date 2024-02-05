@@ -14,11 +14,14 @@ class TestForgeDataV1(BaseStatusResponseTest):
             {"modid": "FML", "version": "8.0.99.99"},
             {"modid": "forge", "version": "14.23.5.2859"},
         ],
+        "channels": [
+            {"res": "fml:handshake", "version": "1.2.3.4", "required": True},
+        ],
     }
 
     EXPECTED_VALUES = [
         ("fml_network_version", 1),
-        ("channels", []),
+        ("channels", [ForgeDataChannel(name="fml:handshake", version="1.2.3.4", required=True)]),
         (
             "mods",
             [
@@ -39,7 +42,9 @@ class TestForgeDataV1(BaseStatusResponseTest):
 class TestForgeDataV2(BaseStatusResponseTest):
     RAW = {
         "fmlNetworkVersion": 2,
-        "channels": [],
+        "channels": [
+            {"res": "fml:handshake", "version": "1.2.3.4", "required": True},
+        ],
         "mods": [
             {"modId": "forge", "modmarker": "ANY"},
         ],
@@ -47,7 +52,7 @@ class TestForgeDataV2(BaseStatusResponseTest):
 
     EXPECTED_VALUES = [
         ("fml_network_version", 2),
-        ("channels", []),
+        ("channels", [ForgeDataChannel(name="fml:handshake", version="1.2.3.4", required=True)]),
         ("mods", [ForgeDataMod(name="forge", marker="ANY")]),
         ("truncated", False),
     ]
