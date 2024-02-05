@@ -4,8 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
-from mcstatus.forge_data import ForgeData as ForgeData
-from mcstatus.forge_data import RawForgeData
+from mcstatus.forge_data import ForgeData, RawForgeData
 from mcstatus.motd import Motd
 
 if TYPE_CHECKING:
@@ -92,7 +91,7 @@ class BaseStatusResponse(ABC):
 
     @classmethod
     @abstractmethod
-    def build(cls, *args: object, **kwargs: object) -> Self:
+    def build(cls, *args, **kwargs) -> Self:
         """Build BaseStatusResponse and check is it valid.
 
         :param args: Arguments in specific realisation.

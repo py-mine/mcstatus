@@ -49,7 +49,7 @@ class Motd:
         """
         original_raw = raw.copy() if hasattr(raw, "copy") else raw  # type: ignore # Cannot access "copy" for type "str"
         if isinstance(raw, list):
-            raw: RawJavaResponseMotdWhenDict = {"extra": raw}  # type: ignore[no-redef]
+            raw: RawJavaResponseMotdWhenDict = {"extra": raw}
 
         if isinstance(raw, str):
             parsed = cls._parse_as_str(raw, bedrock=bedrock)
@@ -187,7 +187,7 @@ class Motd:
             parsed = [el for index, el in enumerate(parsed) if index not in unused_elements]
 
         parsed = squash_nearby_strings(parsed)
-        return self.__class__(parsed, self.raw, bedrock=self.bedrock)
+        return __class__(parsed, self.raw, bedrock=self.bedrock)
 
     def to_plain(self) -> str:
         """Get plain text from a MOTD, without any colors/formatting.

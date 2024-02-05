@@ -110,12 +110,12 @@ class ForgeDataMod:
         # In FML v1, modmarker was version instead.
         mod_version = raw.get("modmarker") or raw.get("version")
         if mod_version is None:
-            raise ValueError("Mod version in Forge mod data must be provided.")
+            raise KeyError("Mod version in Forge mod data must be provided.")
 
         # In FML v2, modid was modId instead. At least one of the two should exist.
         mod_id = raw.get("modid") or raw.get("modId")
         if mod_id is None:
-            raise ValueError(f"Mod ID in Forge mod data must be provided. Mod version: {mod_version!r}.")
+            raise KeyError(f"Mod ID in Forge mod data must be provided. Mod version: {mod_version!r}.")
 
         return cls(name=mod_id, marker=mod_version)
 
@@ -224,6 +224,7 @@ class ForgeData:
             mod_list = raw.get("mods") or raw.get("modList")
             if mod_list is None:
                 raise KeyError("Neither `mods` or `modList` keys exist.")
+
             return cls(
                 fml_network_version=fml_network_version,
                 channels=[ForgeDataChannel.build(channel) for channel in raw.get("channels", ())],
