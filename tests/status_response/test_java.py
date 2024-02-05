@@ -88,11 +88,10 @@ class TestJavaStatusPlayer(BaseStatusResponseTest):
         return JavaStatusPlayer.build({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
 
     def test_id_field_the_same_as_uuid(self):
-        build = JavaStatusPlayer.build({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
+        unique = object()
+        build = JavaStatusPlayer.build({"name": "foo", "id": unique})  # type: ignore[assignment]
         assert build.id is build.uuid
-
-        build.id = unique = object()  # type: ignore[assignment]
-        assert unique is build.uuid
+        assert build.uuid is unique
 
 
 @BaseStatusResponseTest.construct
