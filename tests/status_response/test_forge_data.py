@@ -1,6 +1,6 @@
 import pytest
 
-from mcstatus.forge_data import ForgeDataChannel, ForgeDataMod, RawForgeData, ForgeData
+from mcstatus.forge_data import ForgeData, ForgeDataChannel, ForgeDataMod, RawForgeData
 from tests.status_response import BaseStatusResponseTest
 
 
@@ -32,7 +32,7 @@ class TestForgeDataV1(BaseStatusResponseTest):
     ]
 
     def build(self) -> ForgeData:
-        return ForgeData.build(self.RAW)
+        return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
 
 @BaseStatusResponseTest.construct
@@ -53,7 +53,7 @@ class TestForgeDataV2(BaseStatusResponseTest):
     ]
 
     def build(self) -> ForgeData:
-        return ForgeData.build(self.RAW)
+        return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
 
 @BaseStatusResponseTest.construct
@@ -93,7 +93,7 @@ class TestForgeDataV3(BaseStatusResponseTest):
     ]
 
     def build(self) -> ForgeData:
-        return ForgeData.build(self.RAW)
+        return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
 
 @BaseStatusResponseTest.construct
