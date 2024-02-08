@@ -2,7 +2,7 @@ from pytest import fixture, mark
 
 from mcstatus.motd import Motd
 from mcstatus.responses import BedrockStatusPlayers, BedrockStatusResponse, BedrockStatusVersion
-from tests.responses import BaseStatusResponseTest
+from tests.responses import BaseResponseTest
 
 
 @fixture(scope="module")
@@ -27,8 +27,8 @@ def build():
     )
 
 
-@BaseStatusResponseTest.construct
-class TestBedrockStatusResponse(BaseStatusResponseTest):
+@BaseResponseTest.construct
+class TestBedrockStatusResponse(BaseResponseTest):
     EXPECTED_VALUES = [
         ("motd", Motd.parse("§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r", bedrock=True)),
         ("latency", 123.0),
@@ -66,8 +66,8 @@ class TestBedrockStatusResponse(BaseStatusResponseTest):
         assert getattr(build, field) is None
 
 
-@BaseStatusResponseTest.construct
-class TestBedrockStatusPlayers(BaseStatusResponseTest):
+@BaseResponseTest.construct
+class TestBedrockStatusPlayers(BaseResponseTest):
     EXPECTED_VALUES = [("online", 1), ("max", 69)]
 
     @fixture(scope="class")
@@ -75,8 +75,8 @@ class TestBedrockStatusPlayers(BaseStatusResponseTest):
         return build.players
 
 
-@BaseStatusResponseTest.construct
-class TestBedrockStatusVersion(BaseStatusResponseTest):
+@BaseResponseTest.construct
+class TestBedrockStatusVersion(BaseResponseTest):
     EXPECTED_VALUES = [("name", "1.18.100500"), ("protocol", 422), ("brand", "MCPE")]
 
     @fixture(scope="class")

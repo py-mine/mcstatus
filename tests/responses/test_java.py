@@ -2,11 +2,11 @@ import pytest
 
 from mcstatus.motd import Motd
 from mcstatus.responses import JavaStatusPlayer, JavaStatusPlayers, JavaStatusResponse, JavaStatusVersion
-from tests.responses import BaseStatusResponseTest
+from tests.responses import BaseResponseTest
 
 
-@BaseStatusResponseTest.construct
-class TestJavaStatusResponse(BaseStatusResponseTest):
+@BaseResponseTest.construct
+class TestJavaStatusResponse(BaseResponseTest):
     RAW = {
         "players": {"max": 20, "online": 0},
         "version": {"name": "1.8-pre1", "protocol": 44},
@@ -38,8 +38,8 @@ class TestJavaStatusResponse(BaseStatusResponseTest):
         return JavaStatusResponse.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
 
-@BaseStatusResponseTest.construct
-class TestJavaStatusPlayers(BaseStatusResponseTest):
+@BaseResponseTest.construct
+class TestJavaStatusPlayers(BaseResponseTest):
     EXPECTED_VALUES = [
         ("max", 20),
         ("online", 0),
@@ -80,8 +80,8 @@ class TestJavaStatusPlayers(BaseStatusResponseTest):
         assert JavaStatusPlayers.build({"max": 20, "online": 0, "sample": []}).sample == []
 
 
-@BaseStatusResponseTest.construct
-class TestJavaStatusPlayer(BaseStatusResponseTest):
+@BaseResponseTest.construct
+class TestJavaStatusPlayer(BaseResponseTest):
     EXPECTED_VALUES = [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")]
 
     @pytest.fixture(scope="class")
@@ -96,8 +96,8 @@ class TestJavaStatusPlayer(BaseStatusResponseTest):
         assert unique is build.uuid
 
 
-@BaseStatusResponseTest.construct
-class TestJavaStatusVersion(BaseStatusResponseTest):
+@BaseResponseTest.construct
+class TestJavaStatusVersion(BaseResponseTest):
     EXPECTED_VALUES = [("name", "1.8-pre1"), ("protocol", 44)]
 
     @pytest.fixture(scope="class")

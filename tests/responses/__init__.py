@@ -5,16 +5,16 @@ from typing import Any, TypeVar, cast
 
 from mcstatus.responses import BaseStatusResponse
 
-__all__ = ["BaseStatusResponseTest"]
-_T = TypeVar("_T", bound="type[BaseStatusResponseTest]")
+__all__ = ["BaseResponseTest"]
+_T = TypeVar("_T", bound="type[BaseResponseTest]")
 
 
-class BaseStatusResponseTest(abc.ABC):
+class BaseResponseTest(abc.ABC):
     EXPECTED_VALUES: list[tuple[str, Any]] | None = None
     EXPECTED_TYPES: list[tuple[str, type]] | None = None
     ATTRIBUTES_IN: list[str] | None = None
     # if we don't specify item in raw answer, target field will be None
-    # first element is a list with fields to remove, and attribute that
+    # a first element is a list with fields to remove, and attribute that
     # must be None. a dict is a raw answer to pass into `build` method
     OPTIONAL_FIELDS: tuple[list[tuple[str, str]], dict[str, Any]] | None = None
 
@@ -89,7 +89,7 @@ class BaseStatusResponseTest(abc.ABC):
 
     @staticmethod
     def construct(class_: _T) -> _T:
-        instance: BaseStatusResponseTest = class_()  # type: ignore
+        instance: BaseResponseTest = class_()  # type: ignore
         instance._validate()
         for implementation_name, meet_dependencies in instance._dependency_table().items():
             if not meet_dependencies:

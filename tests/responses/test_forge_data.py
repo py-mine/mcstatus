@@ -1,11 +1,11 @@
 import pytest
 
 from mcstatus.forge_data import ForgeData, ForgeDataChannel, ForgeDataMod, RawForgeData
-from tests.responses import BaseStatusResponseTest
+from tests.responses import BaseResponseTest
 
 
-@BaseStatusResponseTest.construct
-class TestForgeDataV1(BaseStatusResponseTest):
+@BaseResponseTest.construct
+class TestForgeDataV1(BaseResponseTest):
     RAW = {
         "type": "FML",
         "modList": [
@@ -39,8 +39,8 @@ class TestForgeDataV1(BaseStatusResponseTest):
         return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
 
-@BaseStatusResponseTest.construct
-class TestForgeDataV2(BaseStatusResponseTest):
+@BaseResponseTest.construct
+class TestForgeDataV2(BaseResponseTest):
     RAW = {
         "fmlNetworkVersion": 2,
         "channels": [
@@ -63,8 +63,8 @@ class TestForgeDataV2(BaseStatusResponseTest):
         return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
 
-@BaseStatusResponseTest.construct
-class TestForgeDataV3(BaseStatusResponseTest):
+@BaseResponseTest.construct
+class TestForgeDataV3(BaseResponseTest):
     RAW = {
         "channels": [],
         "mods": [],
@@ -104,8 +104,8 @@ class TestForgeDataV3(BaseStatusResponseTest):
         return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
 
-@BaseStatusResponseTest.construct
-class TestForgeData(BaseStatusResponseTest):
+@BaseResponseTest.construct
+class TestForgeData(BaseResponseTest):
     EXPECTED_VALUES = [
         ("fml_network_version", 3),
         (
