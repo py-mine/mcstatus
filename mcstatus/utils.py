@@ -77,12 +77,10 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
 
 class DeprecatedReturn(Protocol):
     @overload
-    def __call__(self, __x: type[T]) -> type[T]:
-        ...
+    def __call__(self, __x: type[T]) -> type[T]: ...
 
     @overload
-    def __call__(self, __x: Callable[P, R]) -> Callable[P, R]:
-        ...
+    def __call__(self, __x: Callable[P, R]) -> Callable[P, R]: ...
 
 
 @overload
@@ -93,8 +91,7 @@ def deprecated(
     version: str | None = None,
     date: str | None = None,
     msg: str | None = None,
-) -> Callable[P, R]:
-    ...
+) -> Callable[P, R]: ...
 
 
 @overload
@@ -106,8 +103,7 @@ def deprecated(
     date: str | None = None,
     msg: str | None = None,
     methods: Iterable[str],
-) -> type[T]:
-    ...
+) -> type[T]: ...
 
 
 @overload
@@ -119,8 +115,7 @@ def deprecated(
     date: str | None = None,
     msg: str | None = None,
     methods: Iterable[str] | None = None,
-) -> DeprecatedReturn:
-    ...
+) -> DeprecatedReturn: ...
 
 
 def deprecated(
@@ -144,12 +139,10 @@ def deprecated(
         return wrapper
 
     @overload
-    def decorate(obj: Callable[P, R]) -> Callable[P, R]:
-        ...
+    def decorate(obj: Callable[P, R]) -> Callable[P, R]: ...
 
     @overload
-    def decorate(obj: type[T]) -> type[T]:
-        ...
+    def decorate(obj: type[T]) -> type[T]: ...
 
     def decorate(obj: Callable[P, R] | type[T]) -> Callable[P, R] | type[T]:
         # Construct and send the warning message
