@@ -20,7 +20,7 @@ __all__ = ["Motd"]
 MOTD_COLORS_RE = re.compile(r"([\xA7|&][0-9A-FK-OR])", re.IGNORECASE)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Motd:
     """Represents parsed MOTD."""
 
