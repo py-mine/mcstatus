@@ -70,7 +70,7 @@ poetry-dynamic-versioning = "*"  # actual version is in `release` group
 optional = true
 
 [tool.poetry.group.release.dependencies]
-twine = "^4.0.2"
+twine = ">=4.0.2,<6.0.0"
 poetry-dynamic-versioning = "^1.1.0"
 
 [tool.poetry.group.workflow-tox]
