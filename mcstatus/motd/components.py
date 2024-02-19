@@ -55,7 +55,7 @@ class MinecraftColor(Enum):
     MINECOIN_GOLD = "g"
 
 
-@dataclass
+@dataclass(frozen=True)
 class WebColor:
     """Raw HTML color from MOTD.
 
@@ -110,7 +110,7 @@ class WebColor:
                 raise ValueError(f"RGB color byte out of its 8-bit range (0-255) for {color_name} ({value=})")
 
 
-@dataclass
+@dataclass(frozen=True)
 class TranslationTag:
     """Represents a ``translate`` field in server's answer.
 
