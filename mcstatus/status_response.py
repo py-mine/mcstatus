@@ -356,7 +356,7 @@ class BedrockStatusVersion(BaseStatusVersion):
         return self.name
 
 
-@dataclass
+@dataclass(frozen=True)
 class QueryResponse:
     """The response object for :meth:`JavaServer.query() <mcstatus.server.JavaServer.query>`."""
 
@@ -409,7 +409,7 @@ class QueryResponse:
         return self.map_name
 
 
-@dataclass
+@dataclass(frozen=True)
 class QueryPlayers:
     """Class for storing information about players on the server."""
 
@@ -438,7 +438,7 @@ class QueryPlayers:
         return self.list
 
 
-@dataclass
+@dataclass(frozen=True)
 class QuerySoftware:
     """Class for storing information about software on the server."""
 
