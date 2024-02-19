@@ -1,7 +1,7 @@
 import asyncio
 
 from mcstatus import BedrockServer, JavaServer
-from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse
+from mcstatus.status_response import BedrockStatusResponse, JavaStatusResponse
 
 
 async def status(host: str) -> JavaStatusResponse | BedrockStatusResponse:

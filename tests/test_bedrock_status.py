@@ -6,7 +6,7 @@ import pytest
 
 from mcstatus.address import Address
 from mcstatus.bedrock_status import BedrockServerStatus
-from mcstatus.responses import BedrockStatusResponse
+from mcstatus.status_response import BedrockStatusResponse
 
 
 def test_bedrock_response_is_expected_type():

@@ -6,7 +6,7 @@ from time import perf_counter
 
 from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
-from mcstatus.responses import JavaStatusResponse
+from mcstatus.status_response import JavaStatusResponse
 
 
 class ServerPinger:

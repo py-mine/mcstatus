@@ -34,45 +34,45 @@ These are the classes that you get back after making a request.
 For Java Server
 ***************
 
-.. module:: mcstatus.responses
+.. module:: mcstatus.status_response
 
-.. autoclass:: mcstatus.responses.JavaStatusResponse()
+.. autoclass:: mcstatus.status_response.JavaStatusResponse()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.JavaStatusPlayers()
+.. autoclass:: mcstatus.status_response.JavaStatusPlayers()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.JavaStatusPlayer()
+.. autoclass:: mcstatus.status_response.JavaStatusPlayer()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.JavaStatusVersion()
+.. autoclass:: mcstatus.status_response.JavaStatusVersion()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.QueryResponse()
+.. autoclass:: mcstatus.status_response.QueryResponse()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.QueryPlayers()
+.. autoclass:: mcstatus.status_response.QueryPlayers()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.QuerySoftware()
+.. autoclass:: mcstatus.status_response.QuerySoftware()
     :members:
     :undoc-members:
     :inherited-members:
@@ -82,22 +82,22 @@ For Java Server
 For Bedrock Servers
 *******************
 
-.. module:: mcstatus.responses
+.. module:: mcstatus.status_response
     :noindex:
 
-.. autoclass:: mcstatus.responses.BedrockStatusResponse()
+.. autoclass:: mcstatus.status_response.BedrockStatusResponse()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.BedrockStatusPlayers()
+.. autoclass:: mcstatus.status_response.BedrockStatusPlayers()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.BedrockStatusVersion()
+.. autoclass:: mcstatus.status_response.BedrockStatusVersion()
     :members:
     :undoc-members:
     :inherited-members:

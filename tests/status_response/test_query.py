@@ -1,8 +1,8 @@
 from pytest import fixture
 
 from mcstatus.motd import Motd
-from mcstatus.responses import QueryPlayers, QueryResponse, QuerySoftware, RawQueryResponse
-from tests.responses import BaseStatusResponseTest
+from mcstatus.status_response import QueryPlayers, QueryResponse, QuerySoftware, RawQueryResponse
+from tests.status_response import BaseStatusResponseTest
 
 
 @BaseStatusResponseTest.construct

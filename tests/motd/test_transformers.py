@@ -9,7 +9,7 @@ from mcstatus.motd import Motd
 from mcstatus.motd.transformers import AnsiTransformer, HtmlTransformer, MinecraftTransformer, PlainTransformer
 
 if typing.TYPE_CHECKING:
-    from mcstatus.responses import RawJavaResponseMotd
+    from mcstatus.status_response import RawJavaResponseMotd
 
 
 class TestMotdPlain:
