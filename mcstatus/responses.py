@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
+
 from mcstatus.forge_data import ForgeData, RawForgeData
 from mcstatus.motd import Motd
 
@@ -68,7 +69,7 @@ __all__ = [
 ]
 
 
-@dataclass
+@dataclass(frozen=True)
 class BaseStatusResponse(ABC):
     """Class for storing shared data from a status response."""
 
@@ -101,7 +102,7 @@ class BaseStatusResponse(ABC):
         raise NotImplementedError("You can't use abstract methods.")
 
 
-@dataclass
+@dataclass(frozen=True)
 class JavaStatusResponse(BaseStatusResponse):
     """The response object for :meth:`JavaServer.status() <mcstatus.server.JavaServer.status>`."""
 
@@ -159,7 +160,7 @@ class JavaStatusResponse(BaseStatusResponse):
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class BedrockStatusResponse(BaseStatusResponse):
     """The response object for :meth:`BedrockServer.status() <mcstatus.server.BedrockServer.status>`."""
 
@@ -205,7 +206,7 @@ class BedrockStatusResponse(BaseStatusResponse):
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class BaseStatusPlayers(ABC):
     """Class for storing information about players on the server."""
 
@@ -215,7 +216,7 @@ class BaseStatusPlayers(ABC):
     """The maximum allowed number of players (aka server slots)."""
 
 
-@dataclass
+@dataclass(frozen=True)
 class JavaStatusPlayers(BaseStatusPlayers):
     """Class for storing information about players on the server."""
 
@@ -252,12 +253,12 @@ class JavaStatusPlayers(BaseStatusPlayers):
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class BedrockStatusPlayers(BaseStatusPlayers):
     """Class for storing information about players on the server."""
 
 
-@dataclass
+@dataclass(frozen=True)
 class JavaStatusPlayer:
     """Class with information about a single player."""
 
@@ -284,7 +285,7 @@ class JavaStatusPlayer:
         return cls(name=raw["name"], id=raw["id"])
 
 
-@dataclass
+@dataclass(frozen=True)
 class BaseStatusVersion(ABC):
     """A class for storing version information."""
 
@@ -301,7 +302,7 @@ class BaseStatusVersion(ABC):
     """
 
 
-@dataclass
+@dataclass(frozen=True)
 class JavaStatusVersion(BaseStatusVersion):
     """A class for storing version information."""
 
@@ -318,7 +319,7 @@ class JavaStatusVersion(BaseStatusVersion):
         return cls(name=raw["name"], protocol=raw["protocol"])
 
 
-@dataclass
+@dataclass(frozen=True)
 class BedrockStatusVersion(BaseStatusVersion):
     """A class for storing version information."""
 
