@@ -47,7 +47,7 @@ pytest-rerunfailures = ">=13,<15"
 coverage = "^7.3.0"
 
 [tool.poetry.group.lint.dependencies]
-ruff = "0.3.2"
+ruff = "0.3.3"
 black = ">=23.7,<25.0"
 coverage = "^7.3.0"
 isort = "^5.12.0"
