@@ -56,7 +56,7 @@ else:
     RawForgeData = dict
 
 
-@dataclass
+@dataclass(frozen=True)
 class ForgeDataChannel:
     name: str
     """Channel name and ID (for example ``fml:handshake``)."""
@@ -95,7 +95,7 @@ class ForgeDataChannel:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class ForgeDataMod:
     name: str
     marker: str
@@ -192,7 +192,7 @@ class StringBuffer(BaseReadSync, BaseConnection):
         return buffer
 
 
-@dataclass
+@dataclass(frozen=True)
 class ForgeData:
     fml_network_version: int
     """Forge Mod Loader network version."""

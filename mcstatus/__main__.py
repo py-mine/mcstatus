@@ -44,7 +44,7 @@ def json(server: JavaServer) -> None:
         query_res = server.query(tries=1)  # type: ignore[call-arg] # tries is supported with retry decorator
         data["host_ip"] = query_res.raw["hostip"]
         data["host_port"] = query_res.raw["hostport"]
-        data["map"] = query_res.map
+        data["map"] = query_res.map_name
         data["plugins"] = query_res.software.plugins
     except Exception:  # TODO: Check what this actually excepts
         pass
@@ -66,7 +66,7 @@ def query(server: JavaServer) -> None:
     print(f"software: v{response.software.version} {response.software.brand}")
     print(f"plugins: {response.software.plugins}")
     print(f'motd: "{response.motd}"')
-    print(f"players: {response.players.online}/{response.players.max} {response.players.names}")
+    print(f"players: {response.players.online}/{response.players.max} {', '.join(response.players.list)}")
 
 
 def main() -> None:
