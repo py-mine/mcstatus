@@ -5,11 +5,11 @@ import typing
 import pytest
 from _pytest.python import Function, Metafunc
 
-from tests.status_response import BaseStatusResponseTest
+from tests.responses import BaseResponseTest
 
 
 def pytest_generate_tests(metafunc: Metafunc) -> None:
-    if issubclass(typing.cast(type, metafunc.cls), BaseStatusResponseTest):
+    if issubclass(typing.cast(type, metafunc.cls), BaseResponseTest):
         instance = typing.cast(type, metafunc.cls)()
         if metafunc.definition.name not in instance._marks_table().keys():
             return
@@ -22,7 +22,7 @@ def pytest_generate_tests(metafunc: Metafunc) -> None:
 
 def pytest_collection_modifyitems(items: list[Function]) -> None:
     for item in items:
-        if isinstance(item.instance, BaseStatusResponseTest):
+        if isinstance(item.instance, BaseResponseTest):
             if item.obj.__name__ not in item.instance._marks_table().keys():
                 continue
 

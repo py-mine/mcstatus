@@ -4,7 +4,7 @@ import pytest
 
 from mcstatus.motd import Motd
 from mcstatus.motd.components import Formatting, MinecraftColor, TranslationTag, WebColor
-from mcstatus.status_response import RawJavaResponseMotdWhenDict
+from mcstatus.responses import RawJavaResponseMotdWhenDict
 
 
 class TestMotdParse:
