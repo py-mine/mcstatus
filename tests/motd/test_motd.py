@@ -11,7 +11,6 @@ class TestMotdParse:
     def test_correct_result(self, source):
         assert Motd.parse(source) == Motd(
             [
-                # fmt: off
                 "top", Formatting.RESET,
                 "1", Formatting.RESET,
                 WebColor.from_hex(hex="#b3eeff"), "2", Formatting.RESET,
@@ -35,10 +34,9 @@ class TestMotdParse:
                 MinecraftColor.MINECOIN_GOLD, "20", Formatting.RESET,
                 Formatting.RESET, "21", Formatting.RESET,
                 TranslationTag("some.random.string"), Formatting.RESET,
-                # fmt: on
             ],
             raw=source,
-        )
+        )  # fmt: skip
 
     @pytest.mark.parametrize("bedrock", (True, False))
     def test_bedrock_parameter_nothing_changes(self, bedrock: bool):
@@ -167,7 +165,6 @@ class TestMotdParse:
             }
         )
         assert motd.parsed == [
-            # fmt: off
             Formatting.RESET, Formatting.RESET, Formatting.RESET,
             "1",
             Formatting.RESET, Formatting.RESET,
@@ -187,8 +184,7 @@ class TestMotdParse:
             Formatting.RESET, Formatting.RESET,
             "9",
             Formatting.RESET,
-            # fmt: on
-        ]
+        ]  # fmt: skip
 
     def test_raw_attribute(self, source):
         motd = Motd.parse(source)

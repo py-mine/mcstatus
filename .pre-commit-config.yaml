@@ -26,16 +26,8 @@ repos:
       - id: python-use-type-annotations # Enforce type annotations instead of type comments
   - repo: local
     hooks:
-      - id: black
-        name: Black
-        description: Auto-format the code with black
-        entry: poetry run black
-        language: system
-        types: [python]
-  - repo: local
-    hooks:
       - id: ruff
-        name: Ruff
+        name: Ruff Linter
         description: Run ruff checks on the code
         entry: poetry run ruff check --force-exclude
         language: system
@@ -44,12 +36,13 @@ repos:
         args: [--fix, --exit-non-zero-on-fix]
   - repo: local
     hooks:
-      - id: isort
-        name: ISort
-        description: Sort imports with isort
-        entry: poetry run isort
+      - id: ruff-ruff
+        name: Ruff Formatter
+        description: Ruf ruff auto-formatter
+        entry: poetry run ruff format
         language: system
         types: [python]
+        require_serial: true
   - repo: local
     hooks:
       - id: pyright
