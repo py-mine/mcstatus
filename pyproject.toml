@@ -26,7 +26,7 @@ classifiers = [
 ]
 packages = [
     { include = "mcstatus" },
-    { include = "protocol", from = "mcstatus" }
+    { include = "protocol", from = "mcstatus" },
 ]
 
 [tool.poetry.dependencies]
@@ -40,17 +40,15 @@ tox = "^3.28.0"
 tox-poetry = "0.5.0" # deprecated, no sense in `^`
 
 [tool.poetry.group.test.dependencies]
-pytest = "^7.4.0"
+pytest = ">=7.4,<9.0"
 pytest-asyncio = "^0.23.2"
-pytest-cov = "^4.1.0"
-pytest-rerunfailures = "^13.0"
+pytest-cov = ">=4.1,<6.0"
+pytest-rerunfailures = ">=13,<15"
 coverage = "^7.3.0"
 
 [tool.poetry.group.lint.dependencies]
-ruff = "0.2.2"
-black = ">=23.7,<25.0"
+ruff = "0.3.4"
 coverage = "^7.3.0"
-isort = "^5.12.0"
 pyright = "^1.1.322"
 typing-extensions = "^4.7.1"
 
@@ -63,7 +61,7 @@ sphinx-autodoc-typehints = ">=1.24,<3.0"
 furo = ">=2022.12.7"
 m2r2 = "^0.3.3"
 tomli = { version = "^2.0.1", markers = "python_version < '3.11'" }
-packaging = "23.2"
+packaging = "24.0"
 poetry-dynamic-versioning = "*"  # actual version is in `release` group
 
 [tool.poetry.group.release]
@@ -97,6 +95,7 @@ style = "pep440"
 target-version = "py38"
 line-length = 127
 
+[tool.ruff.lint]
 select = [
     "F",     # Pyflakes
     "W",     # Pycodestyle (warnigns)
@@ -118,9 +117,24 @@ ignore = [
     "ANN204", # Missing return type annotation for special method
     "B904",   # Exception raised within try-except should use raise ... from exc
     "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+
+    # Redundant rules with ruff-format:
+    "E111",   # Indentation of a non-multiple of 4 spaces
+    "E114",   # Comment with indentation  of a non-multiple of 4 spaces
+    "E117",   # Cheks for over-indented code
+    "D206",   # Checks for docstrings indented with tabs
+    "D300",   # Checks for docstring that use ''' instead of """
+    "Q000",   # Checks of inline strings that use wrong quotes (' instead of ")
+    "Q001",   # Multiline string that use wrong quotes (''' instead of """)
+    "Q002",   # Checks for docstrings that use wrong quotes (''' instead of """)
+    "Q003",   # Checks for avoidable escaped quotes ("\"" -> '"')
+    "COM812", # Missing trailing comma (in multi-line lists/tuples/...)
+    "COM819", # Prohibited trailing comma (in single-line lists/tuples/...)
+    "ISC001", # Single line implicit string concatenation ("hi" "hey" -> "hihey")
+    "ISC002", # Multi line implicit string concatenation
 ]
 
-[tool.ruff.extend-per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "test_*.py" = [
     "ANN", # flake8-annotations
 ]
@@ -128,18 +142,23 @@ ignore = [
     "FA",  # flake8-future-annotations
 ]
 
-[tool.ruff.flake8-tidy-imports]
+[tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
 
-[tool.black]
-line-length = 127
+[tool.ruff.lint.isort]
+order-by-type = false
+case-sensitive = true
+combine-as-imports = true
 
-[tool.isort]
-profile = "black"
-line_length = 127
-order_by_type = false
-case_sensitive = true
-skip = [".venv", ".git", ".cache", ".tox"]
+# Redundant rules with ruff-format
+force-single-line = false       # forces all imports to appear on their own line
+force-wrap-aliases = false      # Split imports with multiple members and at least one alias
+lines-after-imports = -1        # The number of blank lines to place after imports
+lines-between-types = 0         # Number of lines to place between "direct" and import from imports
+split-on-trailing-comma = false # if last member of multiline import has a comma, don't fold it to single line
+
+[tool.ruff-formatter]
+line-ending = "lf"
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]

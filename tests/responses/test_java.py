@@ -25,13 +25,16 @@ class TestJavaStatusResponse(BaseResponseTest):
         ("raw", RAW),
         ("forge_data", None),
     ]
-    OPTIONAL_FIELDS = [("favicon", "icon"), ("enforcesSecureChat", "enforces_secure_chat")], {
-        "players": {"max": 20, "online": 0},
-        "version": {"name": "1.8-pre1", "protocol": 44},
-        "description": "A Minecraft Server",
-        "enforcesSecureChat": True,
-        "favicon": "data:image/png;base64,foo",
-    }
+    OPTIONAL_FIELDS = (
+        [("favicon", "icon"), ("enforcesSecureChat", "enforces_secure_chat")],
+        {
+            "players": {"max": 20, "online": 0},
+            "version": {"name": "1.8-pre1", "protocol": 44},
+            "description": "A Minecraft Server",
+            "enforcesSecureChat": True,
+            "favicon": "data:image/png;base64,foo",
+        },
+    )
 
     @pytest.fixture(scope="class")
     def build(self) -> JavaStatusResponse:
@@ -52,15 +55,18 @@ class TestJavaStatusPlayers(BaseResponseTest):
             ],
         ),
     ]
-    OPTIONAL_FIELDS = [("sample", "sample")], {
-        "max": 20,
-        "online": 0,
-        "sample": [
-            {"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"},
-            {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"},
-            {"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4"},
-        ],
-    }
+    OPTIONAL_FIELDS = (
+        [("sample", "sample")],
+        {
+            "max": 20,
+            "online": 0,
+            "sample": [
+                {"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"},
+                {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"},
+                {"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4"},
+            ],
+        },
+    )
 
     @pytest.fixture(scope="class")
     def build(self) -> JavaStatusPlayers:
