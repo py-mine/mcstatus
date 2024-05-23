@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+# Cancel already running workflows if new ones are scheduled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validation:
+    uses: ./.github/workflows/validation.yml
+
+  unit-tests:
+    uses: ./.github/workflows/tox-test.yml
+
+  # Produce a pull request payload artifact with various data about the
+  # pull-request event (such as the PR number, title, author, ...).
+  # This data is then be picked up by status-embed.yml action.
+  pr_artifact:
+    name: Produce Pull Request payload artifact
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Prepare Pull Request Payload artifact
+        id: prepare-artifact
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        run: cat $GITHUB_EVENT_PATH | jq '.pull_request' > pull_request_payload.json
+
+      - name: Upload a Build Artifact
+        if: always() && steps.prepare-artifact.outcome == 'success'
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: pull-request-payload
+          path: pull_request_payload.json
