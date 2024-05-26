@@ -28,11 +28,12 @@ jobs:
           python-version: 3.12
 
       - name: Pre-commit Environment Caching
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.PRE_COMMIT_HOME }}
-          key: "precommit-${{ runner.os }}-${{ steps.poetry_setup.outputs.python-version }}-\
-                ${{ hashFiles('./.pre-commit-config.yaml') }}"
+          key:
+            "precommit-${{ runner.os }}-${{ steps.poetry_setup.outputs.python-version }}-\
+            ${{ hashFiles('./.pre-commit-config.yaml') }}"
           # Restore keys allows us to perform a cache restore even if the full cache key wasn't matched.
           # That way we still end up saving new cache, but we can still make use of the cache from previous
           # version.
@@ -41,17 +42,14 @@ jobs:
       - name: Run pre-commit hooks
         run: SKIP=black,isort,ruff,pyright pre-commit run --all-files
 
-      - name: Run black formatter check
-        run: black --check --diff .
+      - name: Run ruff linter
+        run: ruff check --output-format=full --show-fixes --exit-non-zero-on-fix .
 
-      - name: Run isort import formatter check
-        run: isort --check .
+      - name: Run ruff formatter
+        run: ruff format --diff .
 
       - name: Run pyright type checker
         run: pyright .
-
-      - name: Run ruff linter
-        run: ruff check --show-source .
 
       # Steps below are here to generate and upload an artifact from
       # this workflow so that we can have the data about author and some

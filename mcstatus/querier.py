@@ -92,7 +92,7 @@ class AsyncServerQuerier(ServerQuerier):
 class QueryResponse:
     """Documentation for this class is written by hand, without docstrings.
 
-    This is because the class is not supposted to be auto-documented.
+    This is because the class is not supposed to be auto-documented.
 
     Please see https://mcstatus.readthedocs.io/en/latest/api/basic/#mcstatus.querier.QueryResponse
     for the actual documentation.

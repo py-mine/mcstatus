@@ -23,17 +23,21 @@ class TestJavaStatusResponse(BaseStatusResponseTest):
         ("enforces_secure_chat", True),
         ("icon", "data:image/png;base64,foo"),
         ("raw", RAW),
+        ("forge_data", None),
     ]
-    OPTIONAL_FIELDS = [("favicon", "icon"), ("enforcesSecureChat", "enforces_secure_chat")], {
-        "players": {"max": 20, "online": 0},
-        "version": {"name": "1.8-pre1", "protocol": 44},
-        "description": "A Minecraft Server",
-        "enforcesSecureChat": True,
-        "favicon": "data:image/png;base64,foo",
-    }
+    OPTIONAL_FIELDS = (
+        [("favicon", "icon"), ("enforcesSecureChat", "enforces_secure_chat")],
+        {
+            "players": {"max": 20, "online": 0},
+            "version": {"name": "1.8-pre1", "protocol": 44},
+            "description": "A Minecraft Server",
+            "enforcesSecureChat": True,
+            "favicon": "data:image/png;base64,foo",
+        },
+    )
 
     @pytest.fixture(scope="class")
-    def build(self):
+    def build(self) -> JavaStatusResponse:
         return JavaStatusResponse.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
 
@@ -51,18 +55,21 @@ class TestJavaStatusPlayers(BaseStatusResponseTest):
             ],
         ),
     ]
-    OPTIONAL_FIELDS = [("sample", "sample")], {
-        "max": 20,
-        "online": 0,
-        "sample": [
-            {"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"},
-            {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"},
-            {"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4"},
-        ],
-    }
+    OPTIONAL_FIELDS = (
+        [("sample", "sample")],
+        {
+            "max": 20,
+            "online": 0,
+            "sample": [
+                {"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"},
+                {"name": "bar", "id": "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"},
+                {"name": "baz", "id": "40e8d003-8872-412d-b09a-4431a5afcbd4"},
+            ],
+        },
+    )
 
     @pytest.fixture(scope="class")
-    def build(self):
+    def build(self) -> JavaStatusPlayers:
         return JavaStatusPlayers.build(
             {
                 "max": 20,
@@ -75,7 +82,7 @@ class TestJavaStatusPlayers(BaseStatusResponseTest):
             }
         )
 
-    def test_empty_sample_turns_into_empty_list(self):
+    def test_empty_sample_turns_into_empty_list(self) -> None:
         assert JavaStatusPlayers.build({"max": 20, "online": 0, "sample": []}).sample == []
 
 
@@ -84,15 +91,14 @@ class TestJavaStatusPlayer(BaseStatusResponseTest):
     EXPECTED_VALUES = [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")]
 
     @pytest.fixture(scope="class")
-    def build(self):
+    def build(self) -> JavaStatusPlayer:
         return JavaStatusPlayer.build({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
 
-    def test_id_field_the_same_as_uuid(self):
-        build = JavaStatusPlayer.build({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
+    def test_id_field_the_same_as_uuid(self) -> None:
+        unique = object()
+        build = JavaStatusPlayer.build({"name": "foo", "id": unique})  # type: ignore[assignment]
         assert build.id is build.uuid
-
-        build.id = unique = object()  # type: ignore[assignment]
-        assert unique is build.uuid
+        assert build.uuid is unique
 
 
 @BaseStatusResponseTest.construct
@@ -100,5 +106,5 @@ class TestJavaStatusVersion(BaseStatusResponseTest):
     EXPECTED_VALUES = [("name", "1.8-pre1"), ("protocol", 44)]
 
     @pytest.fixture(scope="class")
-    def build(self):
+    def build(self) -> JavaStatusVersion:
         return JavaStatusVersion.build({"name": "1.8-pre1", "protocol": 44})
