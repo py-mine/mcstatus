@@ -3,8 +3,7 @@ name: Status Embed
 on:
   workflow_run:
     workflows:
-      - Validation
-      - Tox test
+      - CI
     types:
       - completed
 
@@ -14,7 +13,7 @@ concurrency:
 
 jobs:
   status_embed:
-    name:  Send Status Embed to Discord
+    name: Send Status Embed to Discord
     runs-on: ubuntu-latest
     steps:
       # A workflow_run event does not contain all the information
@@ -27,13 +26,13 @@ jobs:
           curl -s -H "Authorization: token $GITHUB_TOKEN" ${{ github.event.workflow_run.artifacts_url }} > artifacts.json
           DOWNLOAD_URL=$(cat artifacts.json | jq -r '.artifacts[] | select(.name == "pull-request-payload") | .archive_download_url')
           [ -z "$DOWNLOAD_URL" ] && exit 1
-          wget --quiet --header="Authorization: token $GITHUB_TOKEN" -O pull_request_payload.zip $DOWNLOAD_URL || exit 2
+          curl -sSL -H "Authorization: token $GITHUB_TOKEN" -o pull_request_payload.zip $DOWNLOAD_URL || exit 2
           unzip -p pull_request_payload.zip > pull_request_payload.json
           [ -s pull_request_payload.json ] || exit 3
-          echo "::set-output name=pr_author_login::$(jq -r '.user.login // empty' pull_request_payload.json)"
-          echo "::set-output name=pr_number::$(jq -r '.number // empty' pull_request_payload.json)"
-          echo "::set-output name=pr_title::$(jq -r '.title // empty' pull_request_payload.json)"
-          echo "::set-output name=pr_source::$(jq -r '.head.label // empty' pull_request_payload.json)"
+          echo "pr_author_login=$(jq -r '.user.login // empty' pull_request_payload.json)" >> $GITHUB_OUTPUT
+          echo "pr_number=$(jq -r '.number // empty' pull_request_payload.json)" >> $GITHUB_OUTPUT
+          echo "pr_title=$(jq -r '.title // empty' pull_request_payload.json)" >> $GITHUB_OUTPUT
+          echo "pr_source=$(jq -r '.head.label // empty' pull_request_payload.json)" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -45,7 +44,7 @@ jobs:
         uses: SebastiaanZ/github-status-embed-for-discord@v0.3.0
         with:
           # Our GitHub Actions webhook
-          webhook_id: '942940470059892796'
+          webhook_id: "942940470059892796"
           webhook_token: ${{ secrets.webhook_token }}
 
           # We need to provide the information of the workflow that
@@ -61,8 +60,3 @@ jobs:
           pr_number: ${{ steps.pr_info.outputs.pr_number }}
           pr_title: ${{ steps.pr_info.outputs.pr_title }}
           pr_source: ${{ steps.pr_info.outputs.pr_source }}
-
-          # And some additional details
-          actor: ${{ github.actor }}
-          repository:  ${{ github.repository }}
-          ref: ${{ github.ref }}

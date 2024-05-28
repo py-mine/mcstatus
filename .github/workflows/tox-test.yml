@@ -1,21 +1,13 @@
 name: Tox test
 
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-  workflow_dispatch:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+on: workflow_call
 
 jobs:
   tox-test:
     runs-on: ${{ matrix.platform }}
 
     strategy:
+      fail-fast: false # Allows for matrix sub-jobs to fail without cancelling the rest
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.8", "3.12"]
@@ -35,30 +27,24 @@ jobs:
         shell: bash
         run: poetry run tox
         env:
-          PIP_USER: 0  # We want tox to use it's environments, not user installs
+          PIP_USER: 0 # We want tox to use it's environments, not user installs
 
-      # Steps below are here to generate and upload an artifact from
-      # this workflow so that we can have the data about author and some
-      # other things accessible from the status_embed workflow.
+  # This job is used purely to provide a workflow status, which we can mark as a
+  # required action in branch protection rules. This is a better option than marking
+  # the tox-test jobs manually, since their names cnange as the supported python
+  # versions change. This job provides an easy single action that can be marked required.
+  tests-done:
+    needs: [tox-test]
+    if: always() && !cancelled()
+    runs-on: ubuntu-latest
 
-      # Prepare the pull request payload artifact. If this fails, we
-      # fail silently using the `continue-on-error` option, since failure
-      # doesn't mean that the checks in this workflow have failed.
-      - name: Prepare Pull Request Payload artifact
-        id: prepare-artifact
-        if: always() && github.event_name == 'pull_request'
-        continue-on-error: true
-        run: cat $GITHUB_EVENT_PATH | jq '.pull_request' > pull_request_payload.json
-        shell: bash
-
-      # This only makes sense if the previous step succeeded. To
-      # get the original outcome of the previous step before the
-      # `continue-on-error` conclusion is applied, we use the
-      # `.outcome` value. This step also fails silently.
-      - name: Upload a Build Artifact
-        if: always() && steps.prepare-artifact.outcome == 'success'
-        continue-on-error: true
-        uses: actions/upload-artifact@v4
-        with:
-          name: pull-request-payload
-          path: pull_request_payload.json
+    steps:
+      - name: Set status based on required jobs
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          for result in $RESULTS; do
+            if [ "$result" != "success" ]; then
+              exit 1
+            fi
+          done
