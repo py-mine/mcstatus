@@ -11,7 +11,7 @@ from mcstatus.motd.transformers import AnsiTransformer, HtmlTransformer, Minecra
 if t.TYPE_CHECKING:
     from typing_extensions import Self
 
-    from mcstatus.status_response import RawJavaResponseMotd, RawJavaResponseMotdWhenDict  # circular import
+    from mcstatus.responses import RawJavaResponseMotd, RawJavaResponseMotdWhenDict  # circular import
 else:
     RawJavaResponseMotdWhenDict = dict
 
