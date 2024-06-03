@@ -49,17 +49,17 @@ versions. They are only documented here for linkable reference to them.
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: mcstatus.status_response.BaseStatusResponse
+.. autoclass:: mcstatus.responses.BaseStatusResponse
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: mcstatus.status_response.BaseStatusPlayers
+.. autoclass:: mcstatus.responses.BaseStatusPlayers
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: mcstatus.status_response.BaseStatusVersion
+.. autoclass:: mcstatus.responses.BaseStatusVersion
     :members:
     :undoc-members:
     :show-inheritance:
