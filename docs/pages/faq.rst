@@ -57,7 +57,7 @@ How to get server image?
 
 On Bedrock, only official servers have a server image. There is no way to get
 or set an icon to a custom server. For Java servers, you can use
-:attr:`status.icon <mcstatus.status_response.JavaStatusResponse.icon>`
+:attr:`status.icon <mcstatus.responses.JavaStatusResponse.icon>`
 attribute. It will return `Base64 <https://en.wikipedia.org/wiki/Base64>`_
 encoded PNG image. If you wish to save this image into a file, this is how:
 
