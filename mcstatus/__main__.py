@@ -31,7 +31,7 @@ def json(server: JavaServer) -> None:
         status_res = server.status(tries=1)
         data["version"] = status_res.version.name
         data["protocol"] = status_res.version.protocol
-        data["motd"] = status_res.motd
+        data["motd"] = status_res.motd.raw
         data["player_count"] = status_res.players.online
         data["player_max"] = status_res.players.max
         data["players"] = []
