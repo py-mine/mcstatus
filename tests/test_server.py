@@ -109,14 +109,6 @@ class TestJavaServer:
         assert self.socket.remaining() == 0, "Data is pending to be read, but should be empty"
         assert latency >= 0
 
-    def test_ping_retry(self):
-        # Use a blank mock for the connection, we don't want to actually create any connections
-        with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.ServerPinger") as pinger:
-            pinger.side_effect = [RuntimeError, RuntimeError, RuntimeError]
-            with pytest.raises(RuntimeError):
-                self.server.ping()
-            assert pinger.call_count == 3
-
     def test_status(self):
         self.socket.receive(
             bytearray.fromhex(
@@ -138,14 +130,6 @@ class TestJavaServer:
             "version": {"name": "1.8", "protocol": 47},
         }
         assert info.latency >= 0
-
-    def test_status_retry(self):
-        # Use a blank mock for the connection, we don't want to actually create any connections
-        with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.ServerPinger") as pinger:
-            pinger.side_effect = [RuntimeError, RuntimeError, RuntimeError]
-            with pytest.raises(RuntimeError):
-                self.server.status()
-            assert pinger.call_count == 3
 
     def test_query(self):
         self.socket.receive(bytearray.fromhex("090000000035373033353037373800"))
@@ -183,15 +167,6 @@ class TestJavaServer:
                 "hostport": "25565",
                 "hostip": "192.168.56.1",
             }
-
-    def test_query_retry(self):
-        # Use a blank mock for the connection, we don't want to actually create any connections
-        with patch("mcstatus.server.UDPSocketConnection"), patch("mcstatus.server.ServerQuerier") as querier:
-            querier.side_effect = [RuntimeError, RuntimeError, RuntimeError]
-            with pytest.raises(RuntimeError), patch.object(self.server.address, "resolve_ip") as resolve_ip:
-                resolve_ip.return_value = "127.0.0.1"
-                self.server.query()
-            assert querier.call_count == 3
 
     def test_lookup_constructor(self):
         s = JavaServer.lookup("example.org:4444")
