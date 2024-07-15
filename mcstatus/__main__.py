@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     SupportedServers = JavaServer | BedrockServer
 
 def ping(server: SupportedServers) -> int:
-    print(f"{server.ping():.2f}ms")
+    print(f"{server.ping():.2f}")
     return 0
 
 
@@ -22,14 +22,19 @@ def status(server: SupportedServers) -> int:
 
     java_res = response if isinstance(response, JavaStatusResponse) else None
 
-    if java_res and java_res.players.sample is not None:
-        player_sample = [f"{player.name} ({player.id})" for player in java_res.players.sample]
+    if not java_res:
+        player_sample = ""
+    elif java_res.players.sample is not None:
+        player_sample = str([f"{player.name} ({player.id})" for player in java_res.players.sample])
     else:
         player_sample = "No players online"
 
-    print(f"version: v{response.version.name} (protocol {response.version.protocol})")
+    if player_sample:
+        player_sample = " " + player_sample
+
+    print(f"version: {server.kind()} {response.version.name} (protocol {response.version.protocol})")
     print(f'motd: {response.motd.to_ansi()}')
-    print(f"players: {response.players.online}/{response.players.max} {player_sample}")
+    print(f"players: {response.players.online}/{response.players.max}{player_sample}")
     print(f"ping: {response.latency:.2f} ms")
     return 0
 
@@ -37,6 +42,7 @@ def status(server: SupportedServers) -> int:
 def json(server: SupportedServers) -> int:
     data = {}
     data["online"] = False
+    data["kind"] = server.kind()
     # Build data with responses and quit on exception
     try:
         status_res = server.status(tries=1)
@@ -102,7 +108,7 @@ def main(argv: list[str]) -> int:
     )
 
     parser.add_argument("address", help="The address of the server.")
-    parser.add_argument('--bedrock', help="Server is a Bedrock server (default: Java).",
+    parser.add_argument('--bedrock', help="Specifies that 'address' is a Bedrock server (default: Java).",
                         action='store_true')
 
     subparsers = parser.add_subparsers(title='commands', description="Command to run, defaults to 'status'.")
@@ -124,7 +130,11 @@ def main(argv: list[str]) -> int:
     lookup = JavaServer.lookup if not args.bedrock else BedrockServer.lookup
     server = lookup(args.address)
 
-    return args.func(server)
+    try:
+        return args.func(server)
+    except Exception as e:
+        print("Error:", e, file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
