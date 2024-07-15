@@ -81,7 +81,9 @@ def main() -> None:
 
     parser.add_argument("address", help="The address of the server.")
 
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(title='commands', description="Command to run, defaults to 'status'.")
+    parser.set_defaults(func=status)
+
     subparsers.add_parser("ping", help="Ping server for latency.").set_defaults(func=ping)
     subparsers.add_parser(
         "status", help="Prints server status. Supported by all Minecraft servers that are version 1.7 or higher."
