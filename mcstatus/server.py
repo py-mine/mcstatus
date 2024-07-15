@@ -188,6 +188,9 @@ class BedrockServer(MCServer):
 
     DEFAULT_PORT = 19132
 
+    def ping(self) -> float:
+        return self.status().latency
+
     @retry(tries=3)
     def status(self, **kwargs) -> BedrockStatusResponse:
         """Checks the status of a Minecraft Bedrock Edition server.
