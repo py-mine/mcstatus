@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     SupportedServers = JavaServer | BedrockServer
 
 def ping(server: SupportedServers) -> int:
-    print(f"{server.ping():.2f}")
+    print(f"{server.status().latency}")  # XXX: JavaServer.ping() not working?
     return 0
 
 
