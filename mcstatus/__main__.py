@@ -135,8 +135,9 @@ def main(argv: list[str]) -> int:
 
     try:
         return args.func(server)
-    except Exception as e:
-        print("Error:", e, file=sys.stderr)
+    except (socket.timeout, socket.gaierror, ValueError) as e:
+        # catch and hide traceback for expected user-facing errors
+        print(f"Error: {e}", file=sys.stderr)
         return 1
 
 
