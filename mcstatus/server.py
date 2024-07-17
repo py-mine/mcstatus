@@ -200,9 +200,6 @@ class BedrockServer(MCServer):
     def kind(cls) -> str:
         return "Bedrock"
 
-    def ping(self) -> float:
-        return self.status().latency
-
     @retry(tries=3)
     def status(self, **kwargs) -> BedrockStatusResponse:
         """Checks the status of a Minecraft Bedrock Edition server.
