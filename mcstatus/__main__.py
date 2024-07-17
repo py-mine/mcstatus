@@ -14,7 +14,10 @@ if TYPE_CHECKING:
 
 
 def ping(server: SupportedServers) -> int:
-    print(f"{server.status().latency}")  # XXX: JavaServer.ping() not working?
+    # this method supports both Java and Bedrock.
+    # only Java supports the `ping` packet, and even then not always:
+    # https://github.com/py-mine/mcstatus/issues/850
+    print(f"{server.status().latency}")
     return 0
 
 
