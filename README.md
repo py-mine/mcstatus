@@ -69,11 +69,6 @@ See the [documentation](https://mcstatus.readthedocs.io) to find what you can do
 
 This only works with Java servers; Bedrock is not yet supported. Use `mcstatus -h` to see helpful information on how to use this script.
 
-## Contributing
-
-This project is built with the Poetry package manager.
-For more details, including testing and linting, see [the documentation page](https://mcstatus.readthedocs.io/en/stable/pages/contributing/).
-
 ## License
 
 Mcstatus is licensed under the Apache 2.0 license. See LICENSE for full text.
