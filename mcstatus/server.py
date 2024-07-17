@@ -53,7 +53,6 @@ class MCServer(ABC):
         addr = Address.parse_address(address, default_port=cls.DEFAULT_PORT)
         return cls(addr.host, addr.port, timeout=timeout)
 
-
     @classmethod
     @abstractmethod
     def kind(cls) -> str: ...

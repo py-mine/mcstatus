@@ -12,6 +12,7 @@ from mcstatus.responses import JavaStatusResponse
 if TYPE_CHECKING:
     SupportedServers = JavaServer | BedrockServer
 
+
 def ping(server: SupportedServers) -> int:
     print(f"{server.status().latency}")  # XXX: JavaServer.ping() not working?
     return 0
@@ -33,7 +34,7 @@ def status(server: SupportedServers) -> int:
         player_sample = " " + player_sample
 
     print(f"version: {server.kind()} {response.version.name} (protocol {response.version.protocol})")
-    print(f'motd: {response.motd.to_ansi()}')
+    print(f"motd: {response.motd.to_ansi()}")
     print(f"players: {response.players.online}/{response.players.max}{player_sample}")
     print(f"ping: {response.latency:.2f} ms")
     return 0
@@ -92,7 +93,7 @@ def query(server: SupportedServers) -> int:
     print(f"host: {response.raw['hostip']}:{response.raw['hostport']}")
     print(f"software: v{response.software.version} {response.software.brand}")
     print(f"plugins: {response.software.plugins}")
-    print(f'motd: {response.motd.to_ansi()}')
+    print(f"motd: {response.motd.to_ansi()}")
     print(f"players: {response.players.online}/{response.players.max} {response.players.names}")
     return 0
 
@@ -108,10 +109,9 @@ def main(argv: list[str]) -> int:
     )
 
     parser.add_argument("address", help="The address of the server.")
-    parser.add_argument('--bedrock', help="Specifies that 'address' is a Bedrock server (default: Java).",
-                        action='store_true')
+    parser.add_argument("--bedrock", help="Specifies that 'address' is a Bedrock server (default: Java).", action="store_true")
 
-    subparsers = parser.add_subparsers(title='commands', description="Command to run, defaults to 'status'.")
+    subparsers = parser.add_subparsers(title="commands", description="Command to run, defaults to 'status'.")
     parser.set_defaults(func=status)
 
     subparsers.add_parser("ping", help="Ping server for latency.").set_defaults(func=ping)
@@ -135,6 +135,7 @@ def main(argv: list[str]) -> int:
     except Exception as e:
         print("Error:", e, file=sys.stderr)
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
