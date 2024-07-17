@@ -65,8 +65,8 @@ def json(server: SupportedServers) -> int:
 
         if isinstance(server, JavaServer):
             query_res = server.query(tries=1)
-            data["host_ip"] = query_res.raw["hostip"]
-            data["host_port"] = query_res.raw["hostport"]
+            data["host_ip"] = query_res.hostip
+            data["host_port"] = query_res.hostport
             data["map"] = query_res.map
             data["plugins"] = query_res.software.plugins
     except Exception:  # TODO: Check what this actually excepts
@@ -93,7 +93,7 @@ def query(server: SupportedServers) -> int:
         )
         return 1
 
-    print(f"host: {response.raw['hostip']}:{response.raw['hostport']}")
+    print(f"host: {response.hostip}:{response.hostport}")
     print(f"software: v{response.software.version} {response.software.brand}")
     print(f"plugins: {response.software.plugins}")
     print(f"motd: {response.motd.to_ansi()}")

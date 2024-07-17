@@ -132,6 +132,8 @@ class QueryResponse:
     map: str
     players: Players
     software: Software
+    hostip: str
+    hostport: int
 
     def __init__(self, raw: dict[str, str], players: list[str]):
         try:
@@ -140,8 +142,10 @@ class QueryResponse:
             self.map = raw["map"]
             self.players = QueryResponse.Players(raw["numplayers"], raw["maxplayers"], players)
             self.software = QueryResponse.Software(raw["version"], raw["plugins"])
-        except KeyError:
-            raise ValueError("The provided data is not valid")
+            self.hostip = raw["hostip"]
+            self.hostport = int(raw["hostport"])
+        except KeyError as e:
+            raise ValueError("The provided data is not valid") from e
 
     @classmethod
     def from_connection(cls, response: Connection) -> Self:
