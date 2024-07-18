@@ -47,7 +47,7 @@ pytest-rerunfailures = ">=13,<15"
 coverage = "^7.3.0"
 
 [tool.poetry.group.lint.dependencies]
-ruff = "0.4.7"
+ruff = "0.5.2"
 coverage = "^7.3.0"
 pyright = "^1.1.322"
 typing-extensions = "^4.7.1"
@@ -61,7 +61,7 @@ sphinx-autodoc-typehints = ">=1.24,<3.0"
 furo = ">=2022.12.7"
 m2r2 = "^0.3.3"
 tomli = { version = "^2.0.1", markers = "python_version < '3.11'" }
-packaging = "24.0"
+packaging = "24.1"
 poetry-dynamic-versioning = "*"  # actual version is in `release` group
 
 [tool.poetry.group.release]
