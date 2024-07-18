@@ -5,7 +5,7 @@ import re
 import struct
 
 from mcstatus.protocol.connection import Connection, UDPAsyncSocketConnection, UDPSocketConnection
-from mcstatus.status_response import QueryResponse, RawQueryResponse
+from mcstatus.responses import QueryResponse, RawQueryResponse
 
 
 class ServerQuerier:

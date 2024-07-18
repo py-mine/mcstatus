@@ -1,12 +1,12 @@
 from pytest import fixture
 
 from mcstatus.motd import Motd
-from mcstatus.status_response import QueryPlayers, QueryResponse, QuerySoftware, RawQueryResponse
-from tests.status_response import BaseStatusResponseTest
+from mcstatus.responses import QueryPlayers, QueryResponse, QuerySoftware, RawQueryResponse
+from tests.responses import BaseResponseTest
 
 
-@BaseStatusResponseTest.construct
-class TestQueryResponse(BaseStatusResponseTest):
+@BaseResponseTest.construct
+class TestQueryResponse(BaseResponseTest):
     RAW: RawQueryResponse = RawQueryResponse(
         **{  # type: ignore # str cannot be assigned to Literal
             "hostname": "A Minecraft Server",
@@ -40,8 +40,8 @@ class TestQueryResponse(BaseStatusResponseTest):
         return QueryResponse.build(raw=self.RAW, players_list=self.RAW_PLAYERS)
 
 
-@BaseStatusResponseTest.construct
-class TestQueryPlayers(BaseStatusResponseTest):
+@BaseResponseTest.construct
+class TestQueryPlayers(BaseResponseTest):
     EXPECTED_VALUES = [
         ("online", 3),
         ("max", 20),

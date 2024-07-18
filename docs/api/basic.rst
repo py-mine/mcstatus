@@ -60,19 +60,19 @@ For Java Server
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.status_response.QueryResponse()
+.. autoclass:: mcstatus.responses.QueryResponse()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.status_response.QueryPlayers()
+.. autoclass:: mcstatus.responses.QueryPlayers()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.status_response.QuerySoftware()
+.. autoclass:: mcstatus.responses.QuerySoftware()
     :members:
     :undoc-members:
     :inherited-members:
