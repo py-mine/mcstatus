@@ -21,17 +21,13 @@ class ServerQuerier:
     def __init__(self, connection: UDPSocketConnection):
         self.connection = connection
         self.challenge = 0
-
-    @staticmethod
-    def _generate_session_id() -> int:
-        # minecraft only supports lower 4 bits
-        return random.randint(0, 2**31) & 0x0F0F0F0F
+        self.session = random.randint(0, 2**31) & 0x0F0F0F0F
 
     def _create_packet(self) -> Connection:
         packet = Connection()
         packet.write(self.MAGIC_PREFIX)
         packet.write(struct.pack("!B", self.PACKET_TYPE_QUERY))
-        packet.write_uint(self._generate_session_id())
+        packet.write_uint(self.session)
         packet.write_int(self.challenge)
         packet.write(self.PADDING)
         return packet
@@ -40,7 +36,7 @@ class ServerQuerier:
         packet = Connection()
         packet.write(self.MAGIC_PREFIX)
         packet.write(struct.pack("!B", self.PACKET_TYPE_CHALLENGE))
-        packet.write_uint(self._generate_session_id())
+        packet.write_uint(self.session)
         return packet
 
     def _read_packet(self) -> Connection:
