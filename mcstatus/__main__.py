@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dns.resolver
 import sys
 import json as _json
 import argparse
@@ -143,11 +144,11 @@ def main(argv: list[str]) -> int:
 
     args = parser.parse_args(argv)
     lookup = JavaServer.lookup if not args.bedrock else BedrockServer.lookup
-    server = lookup(args.address)
 
     try:
+        server = lookup(args.address)
         return args.func(server)
-    except (socket.timeout, socket.gaierror, ValueError) as e:
+    except (socket.timeout, socket.gaierror, dns.resolver.NoNameservers) as e:
         # catch and hide traceback for expected user-facing errors
         print(f"Error: {e}", file=sys.stderr)
         return 1
