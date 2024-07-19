@@ -8,9 +8,17 @@ from json import dumps as json_dumps
 
 from mcstatus import JavaServer, BedrockServer
 from mcstatus.responses import JavaStatusResponse
+from mcstatus.motd import Motd
 
 if TYPE_CHECKING:
     SupportedServers = JavaServer | BedrockServer
+
+
+def _motd(motd: Motd) -> str:
+    """Formats MOTD for human-readable output, with leading line break
+    if multiline."""
+    s = motd.to_ansi()
+    return f"\n{s}" if "\n" in s else f" {s}"
 
 
 def ping(server: SupportedServers) -> int:
@@ -37,9 +45,7 @@ def status(server: SupportedServers) -> int:
         player_sample = " " + player_sample
 
     print(f"version: {server.kind()} {response.version.name} (protocol {response.version.protocol})")
-    motd = response.motd.to_ansi()
-    motd = f"\n{motd}" if "\n" in motd else f" {motd}"
-    print(f"motd:{motd}")
+    print(f"motd:{_motd(response.motd)}")
     print(f"players: {response.players.online}/{response.players.max}{player_sample}")
     print(f"ping: {response.latency:.2f} ms")
     return 0
@@ -97,10 +103,8 @@ def query(server: SupportedServers) -> int:
 
     print(f"host: {response.raw['hostip']}:{response.raw['hostport']}")
     print(f"software: v{response.software.version} {response.software.brand}")
+    print(f"motd:{_motd(response.motd)}")
     print(f"plugins: {response.software.plugins}")
-    motd = response.motd.to_ansi()
-    motd = f"\n{motd}" if "\n" in motd else f" {motd}"
-    print(f"motd:{motd}")
     print(f"players: {response.players.online}/{response.players.max} {response.players.names}")
     return 0
 
