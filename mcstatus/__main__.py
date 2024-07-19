@@ -55,7 +55,7 @@ def json(server: SupportedServers) -> int:
         java_res = status_res if isinstance(status_res, JavaStatusResponse) else None
         data["version"] = status_res.version.name
         data["protocol"] = status_res.version.protocol
-        data["motd"] = status_res.motd.raw
+        data["motd"] = status_res.motd.to_minecraft()
         data["player_count"] = status_res.players.online
         data["player_max"] = status_res.players.max
         data["players"] = []
