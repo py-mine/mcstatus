@@ -37,7 +37,9 @@ def status(server: SupportedServers) -> int:
         player_sample = " " + player_sample
 
     print(f"version: {server.kind()} {response.version.name} (protocol {response.version.protocol})")
-    print(f"motd: {response.motd.to_ansi()}")
+    motd = response.motd.to_ansi()
+    motd = f"\n{motd}" if "\n" in motd else f" {motd}"
+    print(f"motd:{motd}")
     print(f"players: {response.players.online}/{response.players.max}{player_sample}")
     print(f"ping: {response.latency:.2f} ms")
     return 0
@@ -96,7 +98,9 @@ def query(server: SupportedServers) -> int:
     print(f"host: {response.hostip}:{response.hostport}")
     print(f"software: v{response.software.version} {response.software.brand}")
     print(f"plugins: {response.software.plugins}")
-    print(f"motd: {response.motd.to_ansi()}")
+    motd = response.motd.to_ansi()
+    motd = f"\n{motd}" if "\n" in motd else f" {motd}"
+    print(f"motd:{motd}")
     print(f"players: {response.players.online}/{response.players.max} {response.players.names}")
     return 0
 
