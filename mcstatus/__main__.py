@@ -103,8 +103,8 @@ def json(server: SupportedServers) -> int:
         # TODO: QueryResponse is not (yet?) a dataclass
         data["query"] = qdata = {}
 
-        qdata["host_ip"] = query_res.raw["hostip"]
-        qdata["host_port"] = query_res.raw["hostport"]
+        qdata["ip"] = query_res.raw["hostip"]
+        qdata["port"] = query_res.raw["hostport"]
         qdata["map"] = query_res.map
         qdata["plugins"] = query_res.software.plugins
         qdata["raw"] = query_res.raw
