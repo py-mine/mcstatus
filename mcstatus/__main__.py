@@ -5,6 +5,7 @@ import sys
 import json as _json
 import argparse
 import socket
+import warnings
 import dataclasses
 from typing import TYPE_CHECKING
 
@@ -24,10 +25,33 @@ def _motd(motd: Motd) -> str:
 
 
 def ping(server: SupportedServers) -> int:
-    # this method supports both Java and Bedrock.
-    # only Java supports the `ping` packet, and even then not always:
-    # https://github.com/py-mine/mcstatus/issues/850
-    print(f"{server.status().latency}")
+    notsup = "notsup"
+
+    # handle java and bedrock differences, as well as non-conformant servers
+    # which require a 'status' packet.
+
+    try:
+        ping_res = server.ping() if isinstance(server, JavaServer) else notsup
+    except Exception as e:
+        ping_res = e
+
+    # at this point, ping_res is NOTSUP for Bedrock, otherwise it is either a float or an Exception.
+
+    if isinstance(ping_res, (float, int)):
+        latency = ping_res
+    else:
+        latency = server.status().latency
+
+        if ping_res != notsup:
+            addr = f"{server.address.host}:{server.address.port}"
+            warnings.warn(
+                f"contacting {addr} failed with a 'ping' packet but succeeded with a 'status' packet,\n  "
+                f"this is likely a bug in the server-side implementation.\n  "
+                f"for more details, see: https://mcstatus.readthedocs.io/en/stable/pages/faq/\n",
+                stacklevel=1,
+            )
+
+    print(f"{latency}")
     return 0
 
 
