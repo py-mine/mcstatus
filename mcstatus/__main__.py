@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import sys
+import json as _json
 import argparse
 import socket
+import dataclasses
 from typing import TYPE_CHECKING
-from json import dumps as json_dumps
 
 from mcstatus import JavaServer, BedrockServer
 from mcstatus.responses import JavaStatusResponse
@@ -52,35 +53,38 @@ def status(server: SupportedServers) -> int:
 
 
 def json(server: SupportedServers) -> int:
-    data = {}
-    data["online"] = False
-    data["kind"] = server.kind()
-    # Build data with responses and quit on exception
+    data = {"online": False, "kind": server.kind()}
+
+    status_res = query_res = None
     try:
         status_res = server.status(tries=1)
-        java_res = status_res if isinstance(status_res, JavaStatusResponse) else None
-        data["version"] = status_res.version.name
-        data["protocol"] = status_res.version.protocol
-        data["motd"] = status_res.motd.to_minecraft()
-        data["player_count"] = status_res.players.online
-        data["player_max"] = status_res.players.max
-        data["players"] = []
-        if java_res and java_res.players.sample is not None:
-            data["players"] = [{"name": player.name, "id": player.id} for player in java_res.players.sample]
-
-        data["ping"] = status_res.latency
-        data["online"] = True
-
         if isinstance(server, JavaServer):
             query_res = server.query(tries=1)
-            data["host_ip"] = query_res.raw["hostip"]
-            data["host_port"] = query_res.raw["hostport"]
-            data["map"] = query_res.map
-            data["plugins"] = query_res.software.plugins
-    except Exception:  # TODO: Check what this actually excepts
-        pass
+    except Exception as e:
+        if status_res is None:
+            data["error"] = str(e)
 
-    print(json_dumps(data))
+    # construct 'data' dict outside try/except to ensure data processing errors
+    # are noticed.
+    data["online"] = bool(status_res or query_res)
+    if status_res is not None:
+        data["status"] = dataclasses.asdict(status_res)
+
+        # XXX: hack to fixup MOTD serialisation. should be implemented elsewhere.
+        assert "motd" in data["status"]
+        data["status"]["motd"] = {"raw": status_res.motd.to_minecraft()}
+
+    if query_res is not None:
+        # TODO: QueryResponse is not (yet?) a dataclass
+        data["query"] = qdata = {}
+
+        qdata["host_ip"] = query_res.raw["hostip"]
+        qdata["host_port"] = query_res.raw["hostport"]
+        qdata["map"] = query_res.map
+        qdata["plugins"] = query_res.software.plugins
+        qdata["raw"] = query_res.raw
+
+    _json.dump(data, sys.stdout)
     return 0
 
 
