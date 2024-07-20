@@ -24,6 +24,15 @@ def _motd(motd: Motd) -> str:
     return f"\n{s}" if "\n" in s else f" {s}"
 
 
+def _kind(serv: SupportedServers) -> str:
+    if isinstance(serv, JavaServer):
+        return "Java"
+    elif isinstance(serv, BedrockServer):
+        return "Bedrock"
+    else:
+        raise ValueError(f"unsupported server for kind: {serv}")
+
+
 def ping(server: SupportedServers) -> int:
     notsup = "notsup"
 
@@ -70,7 +79,7 @@ def status(server: SupportedServers) -> int:
     if player_sample:
         player_sample = " " + player_sample
 
-    print(f"version: {server.kind()} {response.version.name} (protocol {response.version.protocol})")
+    print(f"version: {_kind(server)} {response.version.name} (protocol {response.version.protocol})")
     print(f"motd:{_motd(response.motd)}")
     print(f"players: {response.players.online}/{response.players.max}{player_sample}")
     print(f"ping: {response.latency:.2f} ms")
@@ -78,7 +87,7 @@ def status(server: SupportedServers) -> int:
 
 
 def json(server: SupportedServers) -> int:
-    data = {"online": False, "kind": server.kind()}
+    data = {"online": False, "kind": _kind(server)}
 
     status_res = query_res = None
     try:

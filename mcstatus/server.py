@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import TYPE_CHECKING
 
 from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
@@ -53,19 +53,11 @@ class MCServer(ABC):
         addr = Address.parse_address(address, default_port=cls.DEFAULT_PORT)
         return cls(addr.host, addr.port, timeout=timeout)
 
-    @classmethod
-    @abstractmethod
-    def kind(cls) -> str: ...
-
 
 class JavaServer(MCServer):
     """Base class for a Minecraft Java Edition server."""
 
     DEFAULT_PORT = 25565
-
-    @classmethod
-    def kind(cls) -> str:
-        return "Java"
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
@@ -195,10 +187,6 @@ class BedrockServer(MCServer):
     """Base class for a Minecraft Bedrock Edition server."""
 
     DEFAULT_PORT = 19132
-
-    @classmethod
-    def kind(cls) -> str:
-        return "Bedrock"
 
     @retry(tries=3)
     def status(self, **kwargs) -> BedrockStatusResponse:
