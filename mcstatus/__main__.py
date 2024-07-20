@@ -104,7 +104,7 @@ def json(server: SupportedServers) -> int:
     if status_res is not None:
         data["status"] = dataclasses.asdict(status_res)
 
-        # XXX: hack to fixup MOTD serialisation. should be implemented elsewhere.
+        # XXX: hack to fixup MOTD serialisation. proper JSON serialisation for the Motd class should be implemented elsewhere.
         assert "motd" in data["status"]
         data["status"]["motd"] = {"raw": status_res.motd.to_minecraft()}
 
