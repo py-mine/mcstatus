@@ -140,7 +140,7 @@ def query(server: SupportedServers) -> int:
         return 1
 
     print(f"host: {response.raw['hostip']}:{response.raw['hostport']}")
-    print(f"software: v{response.software.version} {response.software.brand}")
+    print(f"software: {_kind(server)} {response.software.version} {response.software.brand}")
     print(f"motd:{_motd(response.motd)}")
     print(f"plugins: {response.software.plugins}")
     print(f"players: {response.players.online}/{response.players.max} {response.players.names}")
