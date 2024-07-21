@@ -19,7 +19,7 @@ def resolve_a_record(hostname: str, lifetime: float | None = None) -> str:
         Most notably this will be :exc:`dns.exception.Timeout`, :exc:`dns.resolver.NXDOMAIN`
         and :exc:`dns.resolver.NoAnswer`
     """
-    answers = dns.resolver.resolve(hostname, RdataType.A, lifetime=lifetime)
+    answers = dns.resolver.resolve(hostname, RdataType.A, lifetime=lifetime, search=True)
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
     answer = cast(ARecordAnswer, answers[0])
@@ -32,7 +32,7 @@ async def async_resolve_a_record(hostname: str, lifetime: float | None = None) -
 
     For more details, check it.
     """
-    answers = await dns.asyncresolver.resolve(hostname, RdataType.A, lifetime=lifetime)
+    answers = await dns.asyncresolver.resolve(hostname, RdataType.A, lifetime=lifetime, search=True)
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
     answer = cast(ARecordAnswer, answers[0])
@@ -50,7 +50,7 @@ def resolve_srv_record(query_name: str, lifetime: float | None = None) -> tuple[
         Most notably this will be :exc:`dns.exception.Timeout`, :exc:`dns.resolver.NXDOMAIN`
         and :exc:`dns.resolver.NoAnswer`
     """
-    answers = dns.resolver.resolve(query_name, RdataType.SRV, lifetime=lifetime)
+    answers = dns.resolver.resolve(query_name, RdataType.SRV, lifetime=lifetime, search=True)
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
     answer = cast(SRVRecordAnswer, answers[0])
@@ -64,7 +64,7 @@ async def async_resolve_srv_record(query_name: str, lifetime: float | None = Non
 
     For more details, check it.
     """
-    answers = await dns.asyncresolver.resolve(query_name, RdataType.SRV, lifetime=lifetime)
+    answers = await dns.asyncresolver.resolve(query_name, RdataType.SRV, lifetime=lifetime, search=True)
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
     answer = cast(SRVRecordAnswer, answers[0])
