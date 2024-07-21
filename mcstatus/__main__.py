@@ -106,7 +106,7 @@ def json(server: SupportedServers) -> int:
 
         # XXX: hack to fixup MOTD serialisation. proper JSON serialisation for the Motd class should be implemented elsewhere.
         assert "motd" in data["status"]
-        data["status"]["motd"] = {"raw": status_res.motd.to_minecraft()}
+        data["status"]["motd"] = {"raw": status_res.motd.simplify().to_minecraft()}
 
     if query_res is not None:
         # TODO: QueryResponse is not (yet?) a dataclass
