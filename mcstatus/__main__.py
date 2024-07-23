@@ -105,10 +105,7 @@ def json(server: SupportedServers) -> int:
         data["status"] = dataclasses.asdict(status_res)
 
         assert "motd" in data["status"]
-        data["status"]["motd"] = {
-            "raw": status_res.motd.to_minecraft(),
-            "simplified": status_res.motd.simplify().to_minecraft(),
-        }
+        data["status"]["motd"] = status_res.motd.simplify().to_minecraft()
 
     if query_res is not None:
         # TODO: QueryResponse is not (yet?) a dataclass
