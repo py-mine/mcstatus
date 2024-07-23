@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Any, TYPE_CHECKING
 
 from mcstatus.forge_data import ForgeData, RawForgeData
@@ -100,6 +100,25 @@ class BaseStatusResponse(ABC):
         :return: :class:`BaseStatusResponse` object.
         """
         raise NotImplementedError("You can't use abstract methods.")
+
+    def as_dict(self) -> dict[str, Any]:
+        """Return the dataclass as JSON-serializable :class:`dict`.
+
+        Do note that this method doesn't return :class:`string <str>` but
+        :class:`dict`, so you can do some processing on returned value.
+
+        Difference from
+        :attr:`~mcstatus.responses.JavaStatusResponse.raw` is in that,
+        :attr:`~mcstatus.responses.JavaStatusResponse.raw` returns raw response
+        in the same format as we got it. This method returns the response
+        in a more user-friendly JSON serializable format (for example,
+        :attr:`~mcstatus.responses.BaseStatusResponse.motd` is returned as a
+        :func:`Minecraft string <mcstatus.motd.Motd.to_minecraft>` and not
+        :class:`dict`).
+        """
+        as_dict = asdict(self)
+        as_dict["motd"] = self.motd.simplify().to_minecraft()
+        return as_dict
 
 
 @dataclass(frozen=True)
