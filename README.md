@@ -68,31 +68,8 @@ See the [documentation](https://mcstatus.readthedocs.io) to find what you can do
 ### Command Line Interface
 
 The mcstatus library includes a simple CLI. Once installed, it can be used through:
-```console
-$ python3 -m mcstatus --help
-usage: mcstatus [-h] [--bedrock] address {ping,status,query,json} ...
-
-mcstatus provides an easy way to query Minecraft servers for any information they can
-expose. It provides three modes of access: query, status, ping and json.
-
-positional arguments:
-  address               The address of the server.
-
-options:
-  -h, --help            show this help message and exit
-  --bedrock             Specifies that 'address' is a Bedrock server (default: Java).
-
-commands:
-  Command to run, defaults to 'status'.
-
-  {ping,status,query,json}
-    ping                Ping server for latency.
-    status              Prints server status. Supported by all Minecraft servers that
-                        are version 1.7 or higher.
-    query               Prints detailed server information. Must be enabled in servers'
-                        server.properties file.
-    json                Prints server status and query in json. Supported by all
-                        Minecraft servers that are version 1.7 or higher.
+```bash
+python3 -m mcstatus --help
 ```
 
 ## License
