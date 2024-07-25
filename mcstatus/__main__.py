@@ -146,7 +146,7 @@ def query(server: SupportedServers) -> int:
     return 0
 
 
-def main(argv: list[str]) -> int:
+def main(argv: list[str] = sys.argv[1:]) -> int:
     parser = argparse.ArgumentParser(
         "mcstatus",
         description="""
@@ -187,4 +187,4 @@ def main(argv: list[str]) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(main())
