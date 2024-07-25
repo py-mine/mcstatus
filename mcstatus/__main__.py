@@ -100,7 +100,7 @@ def json_cmd(server: SupportedServers) -> int:
             query_res = server.query(tries=1)
     except Exception as e:
         exn = exn or e
-    
+
     # construct 'data' dict outside try/except to ensure data processing errors
     # are noticed.
     data["online"] = bool(status_res or query_res)
