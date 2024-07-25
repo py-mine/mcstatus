@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dns.resolver
 import sys
-import json as _json
+import json
 import argparse
 import socket
 import warnings
@@ -59,12 +59,12 @@ def _ping_with_fallback(server: SupportedServers) -> float:
     return latency
 
 
-def ping(server: SupportedServers) -> int:
+def ping_cmd(server: SupportedServers) -> int:
     print(_ping_with_fallback(server))
     return 0
 
 
-def status(server: SupportedServers) -> int:
+def status_cmd(server: SupportedServers) -> int:
     response = server.status()
 
     java_res = response if isinstance(response, JavaStatusResponse) else None
@@ -86,7 +86,7 @@ def status(server: SupportedServers) -> int:
     return 0
 
 
-def json(server: SupportedServers) -> int:
+def json_cmd(server: SupportedServers) -> int:
     data = {"online": False, "kind": _kind(server)}
 
     status_res = query_res = None
@@ -117,11 +117,11 @@ def json(server: SupportedServers) -> int:
         qdata["plugins"] = query_res.software.plugins
         qdata["raw"] = query_res.raw
 
-    _json.dump(data, sys.stdout)
+    json.dump(data, sys.stdout)
     return 0
 
 
-def query(server: SupportedServers) -> int:
+def query_cmd(server: SupportedServers) -> int:
     if not isinstance(server, JavaServer):
         print("The 'query' protocol is only supported by Java servers.", file=sys.stderr)
         return 1
@@ -160,19 +160,19 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     parser.add_argument("--bedrock", help="Specifies that 'address' is a Bedrock server (default: Java).", action="store_true")
 
     subparsers = parser.add_subparsers(title="commands", description="Command to run, defaults to 'status'.")
-    parser.set_defaults(func=status)
+    parser.set_defaults(func=status_cmd)
 
     subparsers.add_parser("ping", help="Ping server for latency.").set_defaults(func=ping)
     subparsers.add_parser(
         "status", help="Prints server status. Supported by all Minecraft servers that are version 1.7 or higher."
-    ).set_defaults(func=status)
+    ).set_defaults(func=status_cmd)
     subparsers.add_parser(
         "query", help="Prints detailed server information. Must be enabled in servers' server.properties file."
-    ).set_defaults(func=query)
+    ).set_defaults(func=query_cmd)
     subparsers.add_parser(
         "json",
         help="Prints server status and query in json. Supported by all Minecraft servers that are version 1.7 or higher.",
-    ).set_defaults(func=json)
+    ).set_defaults(func=json_cmd)
 
     args = parser.parse_args(argv)
     lookup = JavaServer.lookup if not args.bedrock else BedrockServer.lookup
