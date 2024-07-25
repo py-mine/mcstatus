@@ -48,12 +48,12 @@ def _ping_with_fallback(server: SupportedServers) -> float:
     latency = server.status().latency
 
     address = f"{server.address.host}:{server.address.port}"
-    warnings.warn(
-        f"contacting {address} failed with a 'ping' packet but succeeded with a 'status' packet,\n"
-        f"  this is likely a bug in the server-side implementation.\n"
-        f'  (note: ping packet failed due to "{ping_exc}")\n'
-        f"  for more details, see: https://mcstatus.readthedocs.io/en/stable/pages/faq/\n",
-        stacklevel=1,
+    print(
+        f"warning: contacting {address} failed with a 'ping' packet but succeeded with a 'status' packet,\n"
+        f"         this is likely a bug in the server-side implementation.\n"
+        f'         (note: ping packet failed due to "{ping_exc}")\n'
+        f"         for more details, see: https://mcstatus.readthedocs.io/en/stable/pages/faq/\n",
+        file=sys.stderr,
     )
 
     return latency
@@ -89,22 +89,30 @@ def status_cmd(server: SupportedServers) -> int:
 def json_cmd(server: SupportedServers) -> int:
     data = {"online": False, "kind": _kind(server)}
 
-    status_res = query_res = None
+    status_res = query_res = exn = None
     try:
         status_res = server.status(tries=1)
+    except Exception as e:
+        exn = exn or e
+
+    try:
         if isinstance(server, JavaServer):
             query_res = server.query(tries=1)
     except Exception as e:
-        if status_res is None:
-            data["error"] = str(e)
-
+        exn = exn or e
+    
     # construct 'data' dict outside try/except to ensure data processing errors
     # are noticed.
     data["online"] = bool(status_res or query_res)
+    if not data["online"]:
+        assert exn, "server offline but no exception?"
+        data["error"] = str(exn)
+
     if status_res is not None:
         data["status"] = dataclasses.asdict(status_res)
 
-        assert "motd" in data["status"]
+        # ensure we are overwriting the motd and not making a new dict field
+        assert "motd" in data["status"], "motd field missing. has it been renamed?"
         data["status"]["motd"] = status_res.motd.simplify().to_minecraft()
 
     if query_res is not None:
