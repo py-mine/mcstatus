@@ -60,7 +60,7 @@ def _ping_with_fallback(server: SupportedServers) -> float:
 
 
 def ping(server: SupportedServers) -> int:
-    print(f"{_ping_with_fallback(server)}")
+    print(_ping_with_fallback(server))
     return 0
 
 
