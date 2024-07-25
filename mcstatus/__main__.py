@@ -162,7 +162,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     subparsers = parser.add_subparsers(title="commands", description="Command to run, defaults to 'status'.")
     parser.set_defaults(func=status_cmd)
 
-    subparsers.add_parser("ping", help="Ping server for latency.").set_defaults(func=ping)
+    subparsers.add_parser("ping", help="Ping server for latency.").set_defaults(func=ping_cmd)
     subparsers.add_parser(
         "status", help="Prints server status. Supported by all Minecraft servers that are version 1.7 or higher."
     ).set_defaults(func=status_cmd)
