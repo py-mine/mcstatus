@@ -5,7 +5,6 @@ import sys
 import json
 import argparse
 import socket
-import warnings
 import dataclasses
 from typing import TYPE_CHECKING
 
