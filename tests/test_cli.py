@@ -98,7 +98,7 @@ def test_status_bedrock():
     assert err.getvalue() == ""
 
 
-@skip("demo.mcstatus.io erroneously rejects our query packets. " "see: https://github.com/mcstatus-io/demo-server/issues/1")
+@skip("demo.mcstatus.io erroneously rejects our query packets. see: https://github.com/mcstatus-io/demo-server/issues/1")
 def test_query():
     with patch_stdout_stderr() as (out, err):
         assert main_under_test([DEMO_SERVER, "query"]) == 0
