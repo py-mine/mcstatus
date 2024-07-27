@@ -187,7 +187,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     try:
         server = lookup(args.address)
         return args.func(server)
-    except (socket.timeout, socket.gaierror, dns.resolver.NoNameservers) as e:
+    except (socket.timeout, socket.gaierror, dns.resolver.NoNameservers, ConnectionError) as e:
         # catch and hide traceback for expected user-facing errors
         print(f"Error: {e}", file=sys.stderr)
         return 1
