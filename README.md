@@ -67,7 +67,10 @@ See the [documentation](https://mcstatus.readthedocs.io) to find what you can do
 
 ### Command Line Interface
 
-This only works with Java servers; Bedrock is not yet supported. Use `mcstatus -h` to see helpful information on how to use this script.
+The mcstatus library includes a simple CLI. Once installed, it can be used through:
+```bash
+python3 -m mcstatus --help
+```
 
 ## License
 
