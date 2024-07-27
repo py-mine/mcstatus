@@ -11,6 +11,7 @@ from mcstatus.__main__ import main as main_under_test
 DEMO_SERVER = "demo.mcstatus.io"
 
 # XXX: if updating this, be sure to change other occurences of this help text!
+# to update, use: `COLUMNS=1000 poetry run mcstatus --help`
 EXPECTED_HELP_OUTPUT = """
 usage: mcstatus [-h] [--bedrock] address {ping,status,query,json} ...
 
@@ -42,6 +43,21 @@ def patch_stdout_stderr():
         yield out, err
 
 
+def normalise_help_output(s: str) -> str:
+    """
+    Normalises the output of `mcstatus --help`, to work around
+    some discrepancies between Python versions while still retaining
+    meaningful information for comparison.
+    """
+
+    elided = "[...]:"
+
+    s = s.strip()
+
+    # drop lines which end in ":". these argparse section headings vary between python versions.
+    return "\n".join(ln if not ln.endswith(":") else elided for ln in s.splitlines())
+
+
 # NOTE: for premature exits in argparse, we must catch SystemExit.
 # for ordinary exits in the CLI code, we can simply inspect the return value.
 
@@ -68,7 +84,7 @@ def test_help_matches_recorded_output():
     with patch_stdout_stderr() as (out, err), raises(SystemExit):
         main_under_test(["--help"])
 
-    assert out.getvalue().strip() == EXPECTED_HELP_OUTPUT.strip()
+    assert normalise_help_output(out.getvalue()) == normalise_help_output(EXPECTED_HELP_OUTPUT)
     assert err.getvalue() == ""
 
 
