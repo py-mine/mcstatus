@@ -5,7 +5,7 @@
 [![current PyPI version](https://img.shields.io/pypi/v/mcstatus.svg)](https://pypi.org/project/mcstatus/)
 [![Docs](https://img.shields.io/readthedocs/mcstatus?label=Docs)](https://mcstatus.readthedocs.io/)
 [![Validation](https://github.com/py-mine/mcstatus/actions/workflows/validation.yml/badge.svg)](https://github.com/py-mine/mcstatus/actions/workflows/validation.yml)
-[![Tox test](https://github.com/py-mine/mcstatus/actions/workflows/tox-test.yml/badge.svg)](https://github.com/py-mine/mcstatus/actions/workflows/tox-test.yml)
+[![Test](https://github.com/py-mine/mcstatus/actions/workflows/test.yml/badge.svg)](https://github.com/py-mine/mcstatus/actions/workflows/test.yml)
 
 Mcstatus provides an API and command line script to fetch publicly available data from Minecraft servers. Specifically, mcstatus retrieves data by using these protocols: [Server List Ping](https://wiki.vg/Server_List_Ping) and [Query](https://wiki.vg/Query). Because of mcstatus, you do not need to fully understand those protocols and can instead skip straight to retrieving minecraft server data quickly in your own programs.
 

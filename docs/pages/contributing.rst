@@ -8,12 +8,10 @@ Setup
 
    pipx install poetry
    pipx inject poetry poetry-dynamic-versioning
-   pipx install tox
-   pipx inject tox tox-poetry
+   poetry install --with=docs
    poetry run pre-commit install
 
-In addition to those tools, you may also want to install flake8 and black
-plugins for your IDE.
+In addition to those tools, you may also want to install plugins for your IDE that interact with flake8, pyright, and ruff.
 
 Expectations
 ------------
@@ -35,32 +33,31 @@ Once you have all the checks passing and any new behavior changes are tested,
 feel free to open a pull request. Pull requests are how GitHub allows forks to
 submit branches for consideration to be merged into the original repo.
 
-Running all the checks
-----------------------
+Common development tasks
+------------------------
 
 .. code-block:: sh
 
-   tox
+   poetry shell  # Activates the poetry virtual environment to avoid `poetry run` in front of every command
+   poe docs  # Renders documentation from docs/ folder
+   poe format  # Executes automatic formatter for style consistency
+   poe lint  # Executes linting tools that help increase code quality
+   poe test  # Executes unit tests
 
-Running a specific list of checks
----------------------------------
-
-.. code-block:: sh
-
-   tox -e lint,py37,py38
-
-Listing all the specific names that can be passed to ``-e``
------------------------------------------------------------
-
-.. code-block:: sh
-
-   tox -a
-
-Being fancy with pytest
+Listing available tasks
 -----------------------
 
-Any options you want to pass directly to pytest can be done after a double dash ``--``:
+.. code-block:: sh
+
+   poe
+
+Being fancy with tasks
+----------------------
+
+You may pass extra arguments to the underlying tasks. Here's an example that
+tells the underlying ``pytest`` to execute only the query tests with maximum
+verbosity.
 
 .. code-block:: sh
 
-   tox -e py37 -- -vvv -k TestQuery
+   poe test -vvv -k TestQuery
