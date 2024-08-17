@@ -15,6 +15,20 @@ from mcstatus.motd import Motd
 if TYPE_CHECKING:
     SupportedServers = JavaServer | BedrockServer
 
+PING_PACKET_FAIL_WARNING = (
+    "warning: contacting {address} failed with a 'ping' packet but succeeded with a 'status' packet,\n"
+    "         this is likely a bug in the server-side implementation.\n"
+    '         (note: ping packet failed due to "{ping_exc}")\n'
+    "         for more details, see: https://mcstatus.readthedocs.io/en/stable/pages/faq/\n"
+)
+
+QUERY_FAIL_WARNING = (
+    "The server did not respond to the query protocol."
+    "\nPlease ensure that the server has enable-query turned on,"
+    " and that the necessary port (same as server-port unless query-port is set) is open in any firewall(s)."
+    "\nSee https://wiki.vg/Query for further information."
+)
+
 
 def _motd(motd: Motd) -> str:
     """Formats MOTD for human-readable output, with leading line break
@@ -48,10 +62,7 @@ def _ping_with_fallback(server: SupportedServers) -> float:
 
     address = f"{server.address.host}:{server.address.port}"
     print(
-        f"warning: contacting {address} failed with a 'ping' packet but succeeded with a 'status' packet,\n"
-        f"         this is likely a bug in the server-side implementation.\n"
-        f'         (note: ping packet failed due to "{ping_exc}")\n'
-        f"         for more details, see: https://mcstatus.readthedocs.io/en/stable/pages/faq/\n",
+        PING_PACKET_FAIL_WARNING.format(address=address, ping_exc=ping_exc),
         file=sys.stderr,
     )
 
@@ -136,13 +147,7 @@ def query_cmd(server: SupportedServers) -> int:
     try:
         response = server.query()
     except socket.timeout:
-        print(
-            "The server did not respond to the query protocol."
-            "\nPlease ensure that the server has enable-query turned on,"
-            " and that the necessary port (same as server-port unless query-port is set) is open in any firewall(s)."
-            "\nSee https://wiki.vg/Query for further information.",
-            file=sys.stderr,
-        )
+        print(QUERY_FAIL_WARNING, file=sys.stderr)
         return 1
 
     print(f"host: {response.raw['hostip']}:{response.raw['hostport']}")
