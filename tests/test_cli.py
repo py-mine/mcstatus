@@ -94,9 +94,8 @@ def mock_network_requests():
         patch("mcstatus.server.JavaServer.ping", return_value=0), \
         patch("mcstatus.server.JavaServer.status", return_value=JavaStatusResponse.build(JAVA_RAW_RESPONSE)), \
         patch("mcstatus.server.JavaServer.query", return_value=QueryResponse(*QUERY_RAW_RESPONSE)), \
-        patch("mcstatus.server.BedrockServer.ping", return_value=123), \
         patch("mcstatus.server.BedrockServer.lookup", return_value=BedrockServer("example.com", port=25565)), \
-        patch("mcstatus.server.BedrockServer.status", return_value=BedrockStatusResponse.build(BEDROCK_RAW_RESPONSE, latency=0)
+        patch("mcstatus.server.BedrockServer.status", return_value=BedrockStatusResponse.build(BEDROCK_RAW_RESPONSE, latency=123)
     ):  # fmt: skip # multiline with was added in Python 3.10
         yield
 
@@ -183,7 +182,7 @@ def test_status_bedrock(mock_network_requests):
         "y\x1b[0m\x1b[0m\x1b[38;2;0;170;0mB\x1b[0m\x1b[0m\x1b[38;2;0;0;170mo\x1b[0m\x1b[0m\x1b[38;2;85;85;255mw\x1b[0m\x1b[0m"
         "\x1b[38;2;255;85;255ms\x1b[0m\x1b[0m\x1b[38;2;170;0;0me\x1b[0m\x1b[0m\x1b[38;2;255;170;0mr\x1b[0m\n"
         "players: 1/69\n"
-        "ping: 0.00 ms\n"
+        "ping: 123.00 ms\n"
     ) == out.getvalue()
     assert err.getvalue() == ""
 
