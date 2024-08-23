@@ -94,6 +94,7 @@ def mock_network_requests():
         patch("mcstatus.server.JavaServer.ping", return_value=0), \
         patch("mcstatus.server.JavaServer.status", return_value=JavaStatusResponse.build(JAVA_RAW_RESPONSE)), \
         patch("mcstatus.server.JavaServer.query", return_value=QueryResponse(*QUERY_RAW_RESPONSE)), \
+        patch("mcstatus.server.BedrockServer.ping", return_value=123), \
         patch("mcstatus.server.BedrockServer.lookup", return_value=BedrockServer("example.com", port=25565)), \
         patch("mcstatus.server.BedrockServer.status", return_value=BedrockStatusResponse.build(BEDROCK_RAW_RESPONSE, latency=0)
     ):  # fmt: skip # multiline with was added in Python 3.10
@@ -120,10 +121,11 @@ def normalise_help_output(s: str) -> str:
 
 
 def test_no_args():
-    with patch_stdout_stderr() as (out, _), pytest.raises(SystemExit) as exn:
+    with patch_stdout_stderr() as (out, err), pytest.raises(SystemExit) as exn:
         main_under_test([])
 
     assert out.getvalue() == ""
+    assert "usage: " in err.getvalue()
     assert exn.value.code != 0
 
 
@@ -274,7 +276,7 @@ def test_ping_bedrock(mock_network_requests):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "--bedrock", "ping"]) == 0
 
-    assert float(out.getvalue()) == 0
+    assert float(out.getvalue()) == 123
     assert err.getvalue() == ""
 
 
