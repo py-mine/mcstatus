@@ -95,7 +95,9 @@ def mock_network_requests():
         patch("mcstatus.server.JavaServer.status", return_value=JavaStatusResponse.build(JAVA_RAW_RESPONSE)), \
         patch("mcstatus.server.JavaServer.query", return_value=QueryResponse(*QUERY_RAW_RESPONSE)), \
         patch("mcstatus.server.BedrockServer.lookup", return_value=BedrockServer("example.com", port=25565)), \
-        patch("mcstatus.server.BedrockServer.status", return_value=BedrockStatusResponse.build(BEDROCK_RAW_RESPONSE, latency=123)
+        patch("mcstatus.server.BedrockServer.status", return_value=(
+            BedrockStatusResponse.build(BEDROCK_RAW_RESPONSE, latency=123)
+        )
     ):  # fmt: skip # multiline with was added in Python 3.10
         yield
 
