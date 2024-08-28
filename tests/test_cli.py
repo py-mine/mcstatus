@@ -190,7 +190,7 @@ def test_status_bedrock(mock_network_requests):
 
 
 def test_status_offline(mock_network_requests):
-    with patch_stdout_stderr() as (out, err), patch("mcstatus.server.JavaServer.status", side_effect=socket.timeout):
+    with patch_stdout_stderr() as (out, err), patch("mcstatus.server.JavaServer.status", side_effect=TimeoutError):
         assert main_under_test(["example.com", "status"]) == 1
 
     assert out.getvalue() == ""
