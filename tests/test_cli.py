@@ -192,7 +192,7 @@ def test_status_offline(mock_network_requests):
         assert main_under_test(["example.com", "status"]) == 1
 
     assert out.getvalue() == ""
-    assert err.getvalue() == "Error: \n"
+    assert err.getvalue() == "Error: TimeoutError()\n"
 
 
 def test_query(mock_network_requests):
