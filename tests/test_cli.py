@@ -114,6 +114,7 @@ def normalise_help_output(s: str) -> str:
     s = s.strip()
 
     # drop lines which end in ":". these argparse section headings vary between python versions.
+    # it is just a small style change, so it doesn't matter so much to do `sys.version_info` check
     return "\n".join(ln if not ln.endswith(":") else elided for ln in s.splitlines())
 
 
