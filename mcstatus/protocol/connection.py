@@ -457,7 +457,7 @@ class BaseAsyncConnection(BaseConnection, BaseReadAsync, BaseWriteAsync):
 class Connection(BaseSyncConnection):
     """Base connection class."""
 
-    __slots__ = ("sent", "received")
+    __slots__ = ("received", "sent")
 
     def __init__(self) -> None:
         self.sent = bytearray()
@@ -596,7 +596,7 @@ class UDPSocketConnection(SocketConnection):
 class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
     """Asynchronous TCP Connection class"""
 
-    __slots__ = ("reader", "writer", "timeout", "_addr")
+    __slots__ = ("_addr", "reader", "timeout", "writer")
 
     def __init__(self, addr: Address, timeout: float = 3) -> None:
         # These will only be None until connect is called, ignore the None type assignment
@@ -644,7 +644,7 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
 class UDPAsyncSocketConnection(BaseAsyncConnection):
     """Asynchronous UDP Connection class"""
 
-    __slots__ = ("stream", "timeout", "_addr")
+    __slots__ = ("_addr", "stream", "timeout")
 
     def __init__(self, addr: Address, timeout: float = 3) -> None:
         # This will only be None until connect is called, ignore the None type assignment

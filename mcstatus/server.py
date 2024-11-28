@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = ["MCServer", "JavaServer", "BedrockServer"]
+__all__ = ["BedrockServer", "JavaServer", "MCServer"]
 
 
 class MCServer(ABC):
