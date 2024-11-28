@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = ("Address", "minecraft_srv_address_lookup", "async_minecraft_srv_address_lookup")
+__all__ = ("Address", "async_minecraft_srv_address_lookup", "minecraft_srv_address_lookup")
 
 
 def _valid_urlparse(address: str) -> tuple[str, int | None]:

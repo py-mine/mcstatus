@@ -146,7 +146,7 @@ class ForgeDataMod:
 class StringBuffer(BaseReadSync, BaseConnection):
     """String Buffer for reading utf-16 encoded binary data."""
 
-    __slots__ = ("stringio", "received")
+    __slots__ = ("received", "stringio")
 
     def __init__(self, stringio: StringIO) -> None:
         self.stringio = stringio
