@@ -112,8 +112,6 @@ select = [
 ignore = [
     "ANN002", # Missing type annotation for *args
     "ANN003", # Missing type annotation for **kwargs
-    "ANN101", # Missing type annotation for self in method
-    "ANN102", # Missing type annotation for cls in classmethod
     "ANN204", # Missing return type annotation for special method
     "B904",   # Exception raised within try-except should use raise ... from exc
     "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
