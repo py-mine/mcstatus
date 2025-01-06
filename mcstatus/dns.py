@@ -5,7 +5,7 @@ from typing import cast
 import dns.asyncresolver
 import dns.resolver
 from dns.rdatatype import RdataType
-from dns.rdtypes.IN.A import A as ARecordAnswer  # noqa: N811 # constant imported as non constant (it's class)
+from dns.rdtypes.IN.A import A as ARecordAnswer
 from dns.rdtypes.IN.SRV import SRV as SRVRecordAnswer  # noqa: N811 # constant imported as non constant (it's class)
 
 
