@@ -7,13 +7,14 @@ import argparse
 import socket
 import dataclasses
 from typing import TYPE_CHECKING
+from typing_extensions import TypeAlias
 
 from mcstatus import JavaServer, BedrockServer
 from mcstatus.responses import JavaStatusResponse
 from mcstatus.motd import Motd
 
 if TYPE_CHECKING:
-    SupportedServers = JavaServer | BedrockServer
+    SupportedServers: TypeAlias = "JavaServer | BedrockServer"
 
 
 def _motd(motd: Motd) -> str:
