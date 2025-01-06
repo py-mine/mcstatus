@@ -1295,21 +1295,23 @@ tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 
 [[package]]
 name = "pyright"
-version = "1.1.334"
+version = "1.1.391"
 description = "Command line wrapper for pyright"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.334-py3-none-any.whl", hash = "sha256:dcb13e8358e021189672c4d6ebcad192ab061e4c7225036973ec493183c6da68"},
-    {file = "pyright-1.1.334.tar.gz", hash = "sha256:3adaf10f1f4209575dc022f9c897f7ef024639b7ea5b3cbe49302147e6949cd4"},
+    {file = "pyright-1.1.391-py3-none-any.whl", hash = "sha256:54fa186f8b3e8a55a44ebfa842636635688670c6896dcf6cf4a7fc75062f4d15"},
+    {file = "pyright-1.1.391.tar.gz", hash = "sha256:66b2d42cdf5c3cbab05f2f4b76e8bec8aa78e679bfa0b6ad7b923d9e027cadb2"},
 ]
 
 [package.dependencies]
 nodeenv = ">=1.6.0"
+typing-extensions = ">=4.1"
 
 [package.extras]
-all = ["twine (>=3.4.1)"]
+all = ["nodejs-wheel-binaries", "twine (>=3.4.1)"]
 dev = ["twine (>=3.4.1)"]
+nodejs = ["nodejs-wheel-binaries"]
 
 [[package]]
 name = "pytest"
