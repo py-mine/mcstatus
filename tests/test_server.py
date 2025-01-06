@@ -162,9 +162,10 @@ class TestJavaServer:
         with patch("mcstatus.protocol.connection.Connection.remaining") as mock_remaining:
             mock_remaining.side_effect = [15, 208]
 
-            with patch("mcstatus.server.UDPSocketConnection") as connection, patch.object(
-                self.server.address, "resolve_ip"
-            ) as resolve_ip:
+            with (
+                patch("mcstatus.server.UDPSocketConnection") as connection,
+                patch.object(self.server.address, "resolve_ip") as resolve_ip,
+            ):
                 connection.return_value.__enter__.return_value = self.socket
                 resolve_ip.return_value = "127.0.0.1"
                 info = self.server.query()
