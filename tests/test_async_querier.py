@@ -4,10 +4,10 @@ from tests.test_async_pinger import async_decorator
 
 
 class FakeUDPAsyncConnection(Connection):
-    async def read(self, length):
+    async def read(self, length):  # pyright: ignore[reportIncompatibleMethodOverride]
         return super().read(length)
 
-    async def write(self, data):
+    async def write(self, data):  # pyright: ignore[reportIncompatibleMethodOverride]
         return super().write(data)
 
 

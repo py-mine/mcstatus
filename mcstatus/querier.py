@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from abc import abstractmethod
+from dataclasses import dataclass, field
 import random
 import re
 import struct
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar, final
+from collections.abc import Awaitable
 
 from mcstatus.motd import Motd
 from mcstatus.protocol.connection import Connection, UDPAsyncSocketConnection, UDPSocketConnection
@@ -12,15 +15,15 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-class ServerQuerier:
-    MAGIC_PREFIX = bytearray.fromhex("FEFD")
-    PADDING = bytearray.fromhex("00000000")
-    PACKET_TYPE_CHALLENGE = 9
-    PACKET_TYPE_QUERY = 0
+@dataclass
+class _BaseServerQuerier:
+    MAGIC_PREFIX: ClassVar = bytearray.fromhex("FEFD")
+    PADDING: ClassVar = bytearray.fromhex("00000000")
+    PACKET_TYPE_CHALLENGE: ClassVar = 9
+    PACKET_TYPE_QUERY: ClassVar = 0
 
-    def __init__(self, connection: UDPSocketConnection):
-        self.connection = connection
-        self.challenge = 0
+    connection: UDPSocketConnection | UDPAsyncSocketConnection
+    challenge: int = field(init=False, default=0)
 
     @staticmethod
     def _generate_session_id() -> int:
@@ -43,6 +46,24 @@ class ServerQuerier:
         packet.write_uint(self._generate_session_id())
         return packet
 
+    @abstractmethod
+    def _read_packet(self) -> Connection | Awaitable[Connection]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def handshake(self) -> None | Awaitable[None]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def read_query(self) -> QueryResponse | Awaitable[QueryResponse]:
+        raise NotImplementedError
+
+
+@final
+@dataclass
+class ServerQuerier(_BaseServerQuerier):
+    connection: UDPSocketConnection  # pyright: ignore[reportIncompatibleVariableOverride]
+
     def _read_packet(self) -> Connection:
         packet = Connection()
         packet.receive(self.connection.read(self.connection.remaining()))
@@ -63,11 +84,10 @@ class ServerQuerier:
         return QueryResponse.from_connection(response)
 
 
-class AsyncServerQuerier(ServerQuerier):
-    def __init__(self, connection: UDPAsyncSocketConnection):
-        # We do this to inform python about self.connection type (it's async)
-        super().__init__(connection)  # type: ignore[arg-type]
-        self.connection: UDPAsyncSocketConnection
+@final
+@dataclass
+class AsyncServerQuerier(_BaseServerQuerier):
+    connection: UDPAsyncSocketConnection  # pyright: ignore[reportIncompatibleVariableOverride]
 
     async def _read_packet(self) -> Connection:
         packet = Connection()

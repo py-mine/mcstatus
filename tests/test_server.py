@@ -15,7 +15,7 @@ class MockProtocolFactory(asyncio.Protocol):
         self.data_expected_to_receive = data_expected_to_receive
         self.data_to_respond_with = data_to_respond_with
 
-    def connection_made(self, transport: asyncio.Transport):
+    def connection_made(self, transport: asyncio.Transport):  # pyright: ignore[reportIncompatibleMethodOverride]
         print("connection_made")
         self.transport = transport
 
