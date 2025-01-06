@@ -136,7 +136,7 @@ class ForgeDataMod:
         if not is_server:
             mod_version = buffer.read_utf()
 
-        channels = []
+        channels: list[ForgeDataChannel] = []
         for _ in range(channel_count):
             channels.append(ForgeDataChannel.decode(buffer, mod_id))
 
