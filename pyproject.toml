@@ -35,7 +35,7 @@ asyncio-dgram = "^2.1.2"
 dnspython = "^2.4.2"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.3.3"
+pre-commit = ">=3.3.3,<5.0.0"
 tox = "^3.28.0"
 tox-poetry = "0.5.0" # deprecated, no sense in `^`
 
