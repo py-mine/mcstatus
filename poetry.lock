@@ -1162,13 +1162,13 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "poetry"
-version = "2.0.0"
+version = "2.0.1"
 description = "Python dependency management and packaging made easy."
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "poetry-2.0.0-py3-none-any.whl", hash = "sha256:d099fe8b3ee4d21f32d55fe85194f004ea2492749e8fc071980f20a8c65c9416"},
-    {file = "poetry-2.0.0.tar.gz", hash = "sha256:9416b1e3657ed02cda9599ae73b604bd68f187adaa2d8d1bcc804dacfa9bcd1f"},
+    {file = "poetry-2.0.1-py3-none-any.whl", hash = "sha256:eb780a8acbd6eec4bc95e8ba104058c5129ea5a44115fc9b1fc0a2235412734d"},
+    {file = "poetry-2.0.1.tar.gz", hash = "sha256:a2987c3162f6ded6db890701a6fc657d2cfcc702e9421ef4c345211c8bffc5d5"},
 ]
 
 [package.dependencies]
@@ -1183,7 +1183,7 @@ keyring = ">=25.1.0,<26.0.0"
 packaging = ">=24.0"
 pkginfo = ">=1.12,<2.0"
 platformdirs = ">=3.0.0,<5"
-poetry-core = "2.0.0"
+poetry-core = "2.0.1"
 pyproject-hooks = ">=1.0.0,<2.0.0"
 requests = ">=2.26,<3.0"
 requests-toolbelt = ">=1.0.0,<2.0.0"
@@ -1196,13 +1196,13 @@ xattr = {version = ">=1.0.0,<2.0.0", markers = "sys_platform == \"darwin\""}
 
 [[package]]
 name = "poetry-core"
-version = "2.0.0"
+version = "2.0.1"
 description = "Poetry PEP 517 Build Backend"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "poetry_core-2.0.0-py3-none-any.whl", hash = "sha256:1da7dd9279c5af8ed63f05c87a743dcadbf048dfe78f21c436710829cfff95fe"},
-    {file = "poetry_core-2.0.0.tar.gz", hash = "sha256:3317a3cc3932011a61114236b2d49883f4fb1403d2f5e97771ac0d077cfa396f"},
+    {file = "poetry_core-2.0.1-py3-none-any.whl", hash = "sha256:a3c7009536522cda4eb0fb3805c9dc935b5537f8727dd01efb9c15e51a17552b"},
+    {file = "poetry_core-2.0.1.tar.gz", hash = "sha256:10177c2772469d9032a49f0d8707af761b1c597cea3b4fb31546e5cd436eb157"},
 ]
 
 [[package]]
