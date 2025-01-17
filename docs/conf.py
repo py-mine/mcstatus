@@ -32,7 +32,7 @@ sys.path.insert(0, os.path.abspath(".."))
 
 def _get_project_meta() -> dict[str, str]:
     with open("../pyproject.toml", "rb") as pyproject:
-        return toml_parse(pyproject)["tool"]["poetry"]  # type: ignore[no-any-return]
+        return toml_parse(pyproject)["project"]  # type: ignore[no-any-return]
 
 
 pkg_meta = _get_project_meta()

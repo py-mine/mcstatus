@@ -29,7 +29,7 @@ repos:
       - id: ruff
         name: Ruff Linter
         description: Run ruff checks on the code
-        entry: poetry run ruff check --force-exclude
+        entry: ruff check --force-exclude
         language: system
         types: [python]
         require_serial: true
@@ -39,7 +39,7 @@ repos:
       - id: ruff-ruff
         name: Ruff Formatter
         description: Ruf ruff auto-formatter
-        entry: poetry run ruff format
+        entry: ruff format
         language: system
         types: [python]
         require_serial: true
@@ -48,7 +48,7 @@ repos:
       - id: pyright
         name: Pyright
         description: Run pyright type checker
-        entry: poetry run pyright
+        entry: pyright
         language: system
         types: [python]
         pass_filenames: false # pyright runs for the entire project, it can't run for single files
