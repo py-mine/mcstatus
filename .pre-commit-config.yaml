@@ -18,6 +18,7 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: sort-simple-yaml
+
   - repo: local
     hooks:
       - id: ruff
@@ -28,6 +29,7 @@ repos:
         types: [python]
         require_serial: true
         args: [--fix, --exit-non-zero-on-fix]
+
   - repo: local
     hooks:
       - id: ruff-ruff
@@ -37,6 +39,7 @@ repos:
         language: system
         types: [python]
         require_serial: true
+
   - repo: local
     hooks:
       - id: pyright
@@ -46,6 +49,7 @@ repos:
         language: system
         types: [python]
         pass_filenames: false # pyright runs for the entire project, it can't run for single files
+
   - repo: local
     hooks:
       - id: uv-lockfile
