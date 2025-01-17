@@ -66,7 +66,7 @@ docs = [
   "m2r2>=0.3.3",
   "tomli>=2.0.1",
   "packaging>=24.2",
-  "docutils>=0.18.1,<0.21", # temporary fix for https://github.com/CrossNox/m2r2/issues/68
+  "docutils>=0.18.1,<0.21",              # temporary fix for https://github.com/CrossNox/m2r2/issues/68
 ]
 
 [tool.poe.tasks]
@@ -106,6 +106,14 @@ help = "Runs the unit tests"
 minversion = "6.0"
 addopts = "--strict-markers --doctest-modules --cov=mcstatus --cov-append --cov-branch --cov-report=term-missing -vvv --no-cov-on-fail --asyncio-mode=strict"
 testpaths = ["tests"]
+
+[tool.pyright]
+pythonPlatform = "All"
+pythonVersion = "3.9"
+typeCheckingMode = "standard"
+
+disableBytesTypePromotions = false
+extend_exclude = ["docs/conf.py"]
 
 [tool.ruff]
 target-version = "py39"
