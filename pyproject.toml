@@ -1,95 +1,77 @@
-[tool.poetry]
+[project]
 name = "mcstatus"
-version = "0.0.0" # version is handled by git tags and poetry-dynamic-versioning
-description = "A library to query Minecraft Servers for their status and capabilities."
-authors = ["Nathan Adams <dinnerbone@dinnerbone.com>"]
+version = "11.1.1"
 license = "Apache-2.0"
+description = "A library to query Minecraft Servers for their status and capabilities."
 readme = "README.md"
-repository = "https://github.com/py-mine/mcstatus"
+authors = [
+  { name = "Nathan Adams", email = "dinnerbone@dinnerbone.com" },
+  { name = "Kevin Tindall", email = "kevinkjt2000@gmail.com" },
+  { name = "ItsDrike", email = "itsdrike@protonmail.com" },
+  { name = "PerchunPak", email = "perchunpak@gmail.com" },
+]
+maintainers = [
+  { name = "Kevin Tindall", email = "kevinkjt2000@gmail.com" },
+  { name = "ItsDrike", email = "itsdrike@protonmail.com" },
+  { name = "PerchunPak", email = "perchunpak@gmail.com" },
+]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
-    "Natural Language :: English",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Topic :: Games/Entertainment",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: System :: Monitoring",
-    "Typing :: Typed",
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Games/Entertainment",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: System :: Monitoring",
+  "Typing :: Typed",
 ]
-packages = [
-    { include = "mcstatus" },
-    { include = "protocol", from = "mcstatus" },
+keywords = ["minecraft", "protocol"]
+requires-python = ">=3.9"
+dependencies = ["asyncio-dgram>=2.1.2", "dnspython>=2.4.2"]
+
+[project.urls]
+Documentation = "https://mcstatus.readthedocs.io"
+"Source code" = "https://github.com/py-mine/mcstatus"
+
+[tool.uv]
+default-groups = ["dev", "lint", "test", "docs"]
+
+[dependency-groups]
+dev = []
+lint = [
+  "pre-commit>=3.3.3",
+  "ruff>=0.11.2",
+  "pyright>=1.1.322",
+  "typing-extensions>=4.7.1",
 ]
-
-[tool.poetry.dependencies]
-python = ">=3.9,<4"
-asyncio-dgram = "^2.1.2"
-dnspython = "^2.4.2"
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = ">=3.3.3,<5.0.0"
-tox = "^3.28.0"
-tox-poetry = "0.5.0" # deprecated, no sense in `^`
-
-[tool.poetry.group.test.dependencies]
-pytest = ">=7.4,<9.0"
-pytest-asyncio = ">=0.23.2,<0.27.0"
-pytest-cov = ">=4.1,<7.0"
-pytest-rerunfailures = ">=13,<16"
-coverage = "^7.3.0"
-
-[tool.poetry.group.lint.dependencies]
-ruff = "0.11.2"
-coverage = "^7.3.0"
-pyright = "^1.1.322"
-typing-extensions = "^4.7.1"
-
-[tool.poetry.group.docs]
-optional = true
-
-[tool.poetry.group.docs.dependencies]
-sphinx = "^7.1.2"
-sphinx-autodoc-typehints = ">=1.24,<3.0"
-furo = ">=2022.12.7"
-m2r2 = "^0.3.3"
-tomli = { version = "^2.0.1", markers = "python_version < '3.11'" }
-packaging = "24.2"
-poetry-dynamic-versioning = "*"  # actual version is in `release` group
-
-[tool.poetry.group.release]
-optional = true
-
-[tool.poetry.group.release.dependencies]
-twine = ">=4.0.2,<7.0.0"
-poetry-dynamic-versioning = "^1.1.0"
-
-[tool.poetry.group.workflow-tox]
-optional = true
-
-[tool.poetry.group.workflow-tox.dependencies]
-tox-gh-actions = "^2.12.0"
-poetry = ">=1.5.1,<3.0.0"
-
-[tool.poetry.scripts]
-mcstatus = 'mcstatus.__main__:main'
+test = [
+  "pytest>=7.4,<9.0",
+  "pytest-asyncio>=0.23.2,<0.27.0",
+  "pytest-cov>=4.1,<7.0",
+  "pytest-rerunfailures>=13,<16",
+  "coverage>=7.3.0",
+]
+docs = [
+  "sphinx>=7.1.2",
+  "sphinx-autodoc-typehints>=1.24,<3.0",
+  "furo>=2022.12.7",
+  "m2r2>=0.3.3",
+  "tomli>=2.0.1",
+  "packaging>=24.2",
+]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "--strict-markers --doctest-modules --cov=mcstatus --cov-append --cov-branch --cov-report=term-missing -vvv --no-cov-on-fail --asyncio-mode=strict"
 testpaths = ["tests"]
-
-[tool.poetry-dynamic-versioning]
-bump = true
-enable = true
-style = "pep440"
 
 [tool.ruff]
 target-version = "py39"
@@ -97,47 +79,47 @@ line-length = 127
 
 [tool.ruff.lint]
 select = [
-    "F",     # Pyflakes
-    "W",     # Pycodestyle (warnigns)
-    "E",     # Pycodestyle (errors)
-    "N",     # pep8-naming
-    "ANN",   # flake8-annotations
-    "B",     # flake8-bugbear
-    "FA",    # flake8-future-annotations
-    "TID",   # flake8-tidy-imports
-    "UP007", # flake8-new-union-types equivalent rule
-    "RUF",   # ruff's custom rules
+  "F",     # Pyflakes
+  "W",     # Pycodestyle (warnigns)
+  "E",     # Pycodestyle (errors)
+  "N",     # pep8-naming
+  "ANN",   # flake8-annotations
+  "B",     # flake8-bugbear
+  "FA",    # flake8-future-annotations
+  "TID",   # flake8-tidy-imports
+  "UP007", # flake8-new-union-types equivalent rule
+  "RUF",   # ruff's custom rules
 ]
 
 ignore = [
-    "ANN002", # Missing type annotation for *args
-    "ANN003", # Missing type annotation for **kwargs
-    "ANN204", # Missing return type annotation for special method
-    "B904",   # Exception raised within try-except should use raise ... from exc
-    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+  "ANN002", # Missing type annotation for *args
+  "ANN003", # Missing type annotation for **kwargs
+  "ANN204", # Missing return type annotation for special method
+  "B904",   # Exception raised within try-except should use raise ... from exc
+  "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
 
-    # Redundant rules with ruff-format:
-    "E111",   # Indentation of a non-multiple of 4 spaces
-    "E114",   # Comment with indentation  of a non-multiple of 4 spaces
-    "E117",   # Cheks for over-indented code
-    "D206",   # Checks for docstrings indented with tabs
-    "D300",   # Checks for docstring that use ''' instead of """
-    "Q000",   # Checks of inline strings that use wrong quotes (' instead of ")
-    "Q001",   # Multiline string that use wrong quotes (''' instead of """)
-    "Q002",   # Checks for docstrings that use wrong quotes (''' instead of """)
-    "Q003",   # Checks for avoidable escaped quotes ("\"" -> '"')
-    "COM812", # Missing trailing comma (in multi-line lists/tuples/...)
-    "COM819", # Prohibited trailing comma (in single-line lists/tuples/...)
-    "ISC001", # Single line implicit string concatenation ("hi" "hey" -> "hihey")
-    "ISC002", # Multi line implicit string concatenation
+  # Redundant rules with ruff-format:
+  "E111",   # Indentation of a non-multiple of 4 spaces
+  "E114",   # Comment with indentation  of a non-multiple of 4 spaces
+  "E117",   # Cheks for over-indented code
+  "D206",   # Checks for docstrings indented with tabs
+  "D300",   # Checks for docstring that use ''' instead of """
+  "Q000",   # Checks of inline strings that use wrong quotes (' instead of ")
+  "Q001",   # Multiline string that use wrong quotes (''' instead of """)
+  "Q002",   # Checks for docstrings that use wrong quotes (''' instead of """)
+  "Q003",   # Checks for avoidable escaped quotes ("\"" -> '"')
+  "COM812", # Missing trailing comma (in multi-line lists/tuples/...)
+  "COM819", # Prohibited trailing comma (in single-line lists/tuples/...)
+  "ISC001", # Single line implicit string concatenation ("hi" "hey" -> "hihey")
+  "ISC002", # Multi line implicit string concatenation
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "test_*.py" = [
-    "ANN", # flake8-annotations
+  "ANN", # flake8-annotations
 ]
 "docs/examples/code/**" = [
-    "FA",  # flake8-future-annotations
+  "FA", # flake8-future-annotations
 ]
 
 [tool.ruff.lint.flake8-tidy-imports]
@@ -159,5 +141,5 @@ split-on-trailing-comma = false # if last member of multiline import has a comma
 line-ending = "lf"
 
 [build-system]
-requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
-build-backend = "poetry_dynamic_versioning.backend"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
