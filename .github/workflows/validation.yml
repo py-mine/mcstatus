@@ -47,7 +47,7 @@ jobs:
           restore-keys: "precommit-${{ runner.os }}-${{ steps.poetry_setup.outputs-python-version}}-"
 
       - name: Run pre-commit hooks
-        run: SKIP=black,isort,ruff,pyright pre-commit run --all-files
+        run: SKIP=black,isort,ruff,pyright,uv-lockfile pre-commit run --all-files
 
       - name: Run ruff linter
         run: ruff check --output-format=github --show-fixes --exit-non-zero-on-fix .
@@ -57,3 +57,6 @@ jobs:
 
       - name: Run pyright type checker
         run: pyright .
+
+      - name: Check UV Lockfile
+        run: uv lock --check
