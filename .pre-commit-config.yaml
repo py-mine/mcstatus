@@ -52,3 +52,12 @@ repos:
         language: system
         types: [python]
         pass_filenames: false # pyright runs for the entire project, it can't run for single files
+  - repo: local
+    hooks:
+      - id: uv-lockfile
+        name: UV Lockfile
+        description: Check if the UV lockfile is up to date with pyproject.toml
+        entry: uv lock --check
+        language: system
+        files: '^pyproject\.toml$|^uv\.lock$'
+        pass_filenames: false
