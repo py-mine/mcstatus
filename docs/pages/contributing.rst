@@ -6,14 +6,20 @@ Setup
 
 .. code-block:: sh
 
-   pipx install poetry
-   pipx inject poetry poetry-dynamic-versioning
-   pipx install tox
-   pipx inject tox tox-poetry
-   poetry run pre-commit install
+   pipx install uv
+   uv sync
 
-In addition to those tools, you may also want to install flake8 and black
-plugins for your IDE.
+   # The following command will depend on your operating system and shell.
+   # For MacOS/Linux:
+   . .venv/bin/activate
+   # For Windows CMD:
+   venv\Scripts\activate.bat
+   # For Windows PowerShell:
+   venv\Scripts\Activate.ps1
+
+   pre-commit install
+
+In addition to this, you may also want to install ruff and pyright (pylance) plugins for your IDE.
 
 Expectations
 ------------
@@ -35,32 +41,39 @@ Once you have all the checks passing and any new behavior changes are tested,
 feel free to open a pull request. Pull requests are how GitHub allows forks to
 submit branches for consideration to be merged into the original repo.
 
-Running all the checks
-----------------------
+Common development tasks
+------------------------
 
 .. code-block:: sh
 
-   tox
+   # Activating the virtual environment, allowing you to work with the project's dependencies
+   # installed there by uv. This command is OS and shell dependent.
+   # For MacOS/Linux:
+   . .venv/bin/activate
+   # For Windows CMD:
+   venv\Scripts\activate.bat
+   # For Windows PowerShell:
+   venv\Scripts\Activate.ps1
 
-Running a specific list of checks
----------------------------------
+   poe docs  # Renders documentation from docs/ folder
+   poe format  # Executes automatic formatter for style consistency
+   poe lint  # Executes linting tools that help increase code quality
+   poe test  # Executes unit tests
 
-.. code-block:: sh
-
-   tox -e lint,py37,py38
-
-Listing all the specific names that can be passed to ``-e``
------------------------------------------------------------
-
-.. code-block:: sh
-
-   tox -a
-
-Being fancy with pytest
+Listing available tasks
 -----------------------
 
-Any options you want to pass directly to pytest can be done after a double dash ``--``:
+.. code-block:: sh
+
+   poe
+
+Being fancy with tasks
+----------------------
+
+You may pass extra arguments to the underlying tasks. Here's an example that
+tells the underlying ``pytest`` to execute only the query tests with maximum
+verbosity.
 
 .. code-block:: sh
 
-   tox -e py37 -- -vvv -k TestQuery
+   poe test -vvv -k TestQuery

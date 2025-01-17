@@ -45,7 +45,7 @@ Documentation = "https://mcstatus.readthedocs.io"
 default-groups = ["dev", "lint", "test", "docs"]
 
 [dependency-groups]
-dev = []
+dev = ["poethepoet>=0.32.1"]
 lint = [
   "pre-commit>=3.3.3",
   "ruff>=0.11.2",
@@ -67,6 +67,39 @@ docs = [
   "tomli>=2.0.1",
   "packaging>=24.2",
 ]
+
+[tool.poe.tasks]
+_lint_ruff = "ruff check --show-source ."
+_lint_pyright = "pyright ."
+
+[tool.poe.tasks.build]
+cmd = "uv build"
+help = "Builds the whl and tar.gz distributions"
+
+[tool.poe.tasks.docs]
+cmd = "make -C docs/ html"
+help = "Generates documentation locally in html format"
+
+[tool.poe.tasks.format]
+cmd = "ruff format"
+help = "Runs automatic formatting tools"
+
+[tool.poe.tasks.lint]
+sequence = ["_lint_pyright", "_lint_ruff"]
+help = "Runs linter tools"
+
+[tool.poe.tasks.pre-commit]
+cmd = "pre-commit run --all-files"
+help = "Executes commit hook checks on all files"
+
+[tool.poe.tasks.release]
+cmd = "uv publish"
+deps = ["pre-commit", "test", "build"]
+help = "Requires all the checks to pass before building and publishing"
+
+[tool.poe.tasks.test]
+cmd = "pytest"
+help = "Runs the unit tests"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
