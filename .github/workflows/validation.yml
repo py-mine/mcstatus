@@ -39,7 +39,7 @@ jobs:
         with:
           path: ${{ env.PRE_COMMIT_HOME }}
           key:
-            "precommit-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ steps.precommit_version.outputs.version }}\
+            "precommit-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ steps.precommit_version.outputs.version }}-\
             ${{ hashFiles('./.pre-commit-config.yaml') }}"
           # Restore keys allows us to perform a cache restore even if the full cache key wasn't matched.
           # That way we still end up saving new cache, but we can still make use of the cache from previous
