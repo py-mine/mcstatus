@@ -66,11 +66,11 @@ docs = [
   "m2r2>=0.3.3",
   "tomli>=2.0.1",
   "packaging>=24.2",
-  "docutils>=0.18.1,<0.21",              # temporary fix for https://github.com/CrossNox/m2r2/issues/68
+  "docutils>=0.18.1,<0.21", # temporary fix for https://github.com/CrossNox/m2r2/issues/68
 ]
 
 [tool.poe.tasks]
-_lint_ruff = "ruff check --show-source ."
+_lint_ruff = "ruff check ."
 _lint_pyright = "pyright ."
 
 [tool.poe.tasks.build]
