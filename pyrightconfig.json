@@ -13,5 +13,7 @@
         // Documentation configuration files do not require type checking
         "docs/conf.py"
     ],
-    "pythonVersion": "3.10"
+    "pythonVersion": "3.9",
+    // allow bytes -> bytearray promotions
+    "disableBytesTypePromotions": false
 }

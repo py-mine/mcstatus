@@ -136,7 +136,7 @@ class ForgeDataMod:
         if not is_server:
             mod_version = buffer.read_utf()
 
-        channels = []
+        channels: list[ForgeDataChannel] = []
         for _ in range(channel_count):
             channels.append(ForgeDataChannel.decode(buffer, mod_id))
 
@@ -146,7 +146,7 @@ class ForgeDataMod:
 class StringBuffer(BaseReadSync, BaseConnection):
     """String Buffer for reading utf-16 encoded binary data."""
 
-    __slots__ = ("stringio", "received")
+    __slots__ = ("received", "stringio")
 
     def __init__(self, stringio: StringIO) -> None:
         self.stringio = stringio

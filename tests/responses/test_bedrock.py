@@ -41,7 +41,7 @@ class TestBedrockStatusResponse(BaseResponseTest):
     ]
 
     @fixture(scope="class")
-    def build(self, build):
+    def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
         return build
 
     @mark.parametrize("field,pop_index", [("map_name", 7), ("gamemode", 7), ("gamemode", 8)])
@@ -71,7 +71,7 @@ class TestBedrockStatusPlayers(BaseResponseTest):
     EXPECTED_VALUES = [("online", 1), ("max", 69)]
 
     @fixture(scope="class")
-    def build(self, build):
+    def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
         return build.players
 
 
@@ -80,5 +80,5 @@ class TestBedrockStatusVersion(BaseResponseTest):
     EXPECTED_VALUES = [("name", "1.18.100500"), ("protocol", 422), ("brand", "MCPE")]
 
     @fixture(scope="class")
-    def build(self, build):
+    def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
         return build.version

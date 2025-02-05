@@ -18,7 +18,7 @@ def async_decorator(f):
 
 
 class FakeAsyncConnection(Connection):
-    async def read_buffer(self):
+    async def read_buffer(self):  # pyright: ignore[reportIncompatibleMethodOverride]
         return super().read_buffer()
 
 

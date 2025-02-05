@@ -3,20 +3,24 @@ from __future__ import annotations
 import random
 import re
 import struct
+from abc import abstractmethod
+from collections.abc import Awaitable
+from dataclasses import dataclass, field
+from typing import ClassVar, final
 
 from mcstatus.protocol.connection import Connection, UDPAsyncSocketConnection, UDPSocketConnection
 from mcstatus.responses import QueryResponse, RawQueryResponse
 
 
-class ServerQuerier:
-    MAGIC_PREFIX = bytearray.fromhex("FEFD")
-    PADDING = bytearray.fromhex("00000000")
-    PACKET_TYPE_CHALLENGE = 9
-    PACKET_TYPE_QUERY = 0
+@dataclass
+class _BaseServerQuerier:
+    MAGIC_PREFIX: ClassVar = bytearray.fromhex("FEFD")
+    PADDING: ClassVar = bytearray.fromhex("00000000")
+    PACKET_TYPE_CHALLENGE: ClassVar = 9
+    PACKET_TYPE_QUERY: ClassVar = 0
 
-    def __init__(self, connection: UDPSocketConnection):
-        self.connection = connection
-        self.challenge = 0
+    connection: UDPSocketConnection | UDPAsyncSocketConnection
+    challenge: int = field(init=False, default=0)
 
     @staticmethod
     def _generate_session_id() -> int:
@@ -39,24 +43,17 @@ class ServerQuerier:
         packet.write_uint(self._generate_session_id())
         return packet
 
-    def _read_packet(self) -> Connection:
-        packet = Connection()
-        packet.receive(self.connection.read(self.connection.remaining()))
-        packet.read(1 + 4)
-        return packet
+    @abstractmethod
+    def _read_packet(self) -> Connection | Awaitable[Connection]:
+        raise NotImplementedError
 
-    def handshake(self) -> None:
-        self.connection.write(self._create_handshake_packet())
+    @abstractmethod
+    def handshake(self) -> None | Awaitable[None]:
+        raise NotImplementedError
 
-        packet = self._read_packet()
-        self.challenge = int(packet.read_ascii())
-
-    def read_query(self) -> QueryResponse:
-        request = self._create_packet()
-        self.connection.write(request)
-
-        response = self._read_packet()
-        return QueryResponse.build(*self._parse_response(response))
+    @abstractmethod
+    def read_query(self) -> QueryResponse | Awaitable[QueryResponse]:
+        raise NotImplementedError
 
     def _parse_response(self, response: Connection) -> tuple[RawQueryResponse, list[str]]:
         """Transform the connection object (the result) into dict which is passed to the QueryResponse constructor.
@@ -98,11 +95,35 @@ class ServerQuerier:
         return RawQueryResponse(**data), players_list
 
 
-class AsyncServerQuerier(ServerQuerier):
-    def __init__(self, connection: UDPAsyncSocketConnection):
-        # We do this to inform python about self.connection type (it's async)
-        super().__init__(connection)  # type: ignore[arg-type]
-        self.connection: UDPAsyncSocketConnection
+@final
+@dataclass
+class ServerQuerier(_BaseServerQuerier):
+    connection: UDPSocketConnection  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    def _read_packet(self) -> Connection:
+        packet = Connection()
+        packet.receive(self.connection.read(self.connection.remaining()))
+        packet.read(1 + 4)
+        return packet
+
+    def handshake(self) -> None:
+        self.connection.write(self._create_handshake_packet())
+
+        packet = self._read_packet()
+        self.challenge = int(packet.read_ascii())
+
+    def read_query(self) -> QueryResponse:
+        request = self._create_packet()
+        self.connection.write(request)
+
+        response = self._read_packet()
+        return QueryResponse.build(*self._parse_response(response))
+
+
+@final
+@dataclass
+class AsyncServerQuerier(_BaseServerQuerier):
+    connection: UDPAsyncSocketConnection  # pyright: ignore[reportIncompatibleVariableOverride]
 
     async def _read_packet(self) -> Connection:
         packet = Connection()

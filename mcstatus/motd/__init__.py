@@ -187,7 +187,7 @@ class Motd:
             parsed = [el for index, el in enumerate(parsed) if index not in unused_elements]
 
         parsed = squash_nearby_strings(parsed)
-        return __class__(parsed, self.raw, bedrock=self.bedrock)
+        return self.__class__(parsed, self.raw, bedrock=self.bedrock)
 
     def to_plain(self) -> str:
         """Get plain text from a MOTD, without any colors/formatting.

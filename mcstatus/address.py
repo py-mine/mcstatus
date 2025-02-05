@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = ("Address", "minecraft_srv_address_lookup", "async_minecraft_srv_address_lookup")
+__all__ = ("Address", "async_minecraft_srv_address_lookup", "minecraft_srv_address_lookup")
 
 
 def _valid_urlparse(address: str) -> tuple[str, int | None]:
@@ -57,9 +57,11 @@ class Address(_AddressBase):
         The class is not a part of a Public API, but attributes :attr:`host` and :attr:`port` are a part of Public API.
     """
 
-    def __init__(self, *a, **kw):
-        # We don't call super's __init__, because NamedTuples handle everything
-        # from __new__ and the passed self already has all of the parameters set.
+    def __init__(self, host: str, port: int):
+        # We don't pass the host & port args to super's __init__, because NamedTuples handle
+        # everything from __new__ and the passed self already has all of the parameters set.
+        super().__init__()
+
         self._cached_ip: ipaddress.IPv4Address | ipaddress.IPv6Address | None = None
 
         # Make sure the address is valid
