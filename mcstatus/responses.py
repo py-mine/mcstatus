@@ -351,7 +351,7 @@ class BedrockStatusVersion(BaseStatusVersion):
     def version(self) -> str:
         """
         .. deprecated:: 12.0.0
-            Will be removed 2023-12, use :attr:`.name` instead.
+            Will be removed 2025-08, use :attr:`.name` instead.
         """
         return self.name
 
