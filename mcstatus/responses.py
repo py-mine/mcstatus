@@ -350,7 +350,7 @@ class BedrockStatusVersion(BaseStatusVersion):
     @deprecated(replacement="name", date="2023-12")
     def version(self) -> str:
         """
-        .. deprecated:: 11.0.0
+        .. deprecated:: 12.0.0
             Will be removed 2023-12, use :attr:`.name` instead.
         """
         return self.name
@@ -403,7 +403,7 @@ class QueryResponse:
     @deprecated(replacement="map_name", date="2025-08")
     def map(self) -> str | None:
         """
-        .. deprecated:: 11.0.0
+        .. deprecated:: 12.0.0
             Will be removed 2025-08, use :attr:`.map_name` instead.
         """
         return self.map_name
@@ -432,7 +432,7 @@ class QueryPlayers:
     @deprecated(replacement="'list' attribute", date="2025-08")
     def names(self) -> list[str]:
         """
-        .. deprecated:: 11.0.0
+        .. deprecated:: 12.0.0
             Will be removed 2025-08, use :attr:`.list` instead.
         """
         return self.list
