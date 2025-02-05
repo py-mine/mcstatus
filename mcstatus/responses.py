@@ -347,11 +347,11 @@ class BedrockStatusVersion(BaseStatusVersion):
     """``MCPE`` or ``MCEE`` for Education Edition."""
 
     @property
-    @deprecated(replacement="name", date="2025-08")
+    @deprecated(replacement="name", date="2023-12")
     def version(self) -> str:
         """
         .. deprecated:: 11.0.0
-            Will be removed 2026-08, use :attr:`.name` instead.
+            Will be removed 2023-12, use :attr:`.name` instead.
         """
         return self.name
 
@@ -400,11 +400,11 @@ class QueryResponse:
         )
 
     @property
-    @deprecated(replacement="map_name", date="2023-12")
+    @deprecated(replacement="map_name", date="2025-08")
     def map(self) -> str | None:
         """
         .. deprecated:: 11.0.0
-            Will be removed 2023-12, use :attr:`.map_name` instead.
+            Will be removed 2025-08, use :attr:`.map_name` instead.
         """
         return self.map_name
 
@@ -429,11 +429,11 @@ class QueryPlayers:
         )
 
     @property
-    @deprecated(replacement="'list' attribute", date="2023-12")
+    @deprecated(replacement="'list' attribute", date="2025-08")
     def names(self) -> list[str]:
         """
         .. deprecated:: 11.0.0
-            Will be removed 2023-12, use :attr:`.list` instead.
+            Will be removed 2025-08, use :attr:`.list` instead.
         """
         return self.list
 
