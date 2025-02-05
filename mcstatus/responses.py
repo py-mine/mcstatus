@@ -347,11 +347,11 @@ class BedrockStatusVersion(BaseStatusVersion):
     """``MCPE`` or ``MCEE`` for Education Edition."""
 
     @property
-    @deprecated(replacement="name", date="2023-12")
+    @deprecated(replacement="name", date="2025-08")
     def version(self) -> str:
         """
         .. deprecated:: 11.0.0
-            Will be removed 2023-12, use :attr:`.name` instead.
+            Will be removed 2026-08, use :attr:`.name` instead.
         """
         return self.name
 
