@@ -60,7 +60,7 @@ class _BaseServerQuerier:
 
         :return: A tuple with two elements. First is `raw` answer and second is list of players.
         """
-        response.read(len("splitnum") + 1 + 1 + 1)
+        response.read(len("splitnum") + 3)
         data = {}
 
         while True:
@@ -83,7 +83,7 @@ class _BaseServerQuerier:
                 value = response.read_ascii()
                 data[key] = value
 
-        response.read(len("player_") + 1 + 1)
+        response.read(len("player_") + 2)
 
         players_list = []
         while True:
