@@ -31,6 +31,10 @@ jobs:
           enable-cache: true
           cache-suffix: "publish-ci"
 
+      - name: Install dependencies
+        run: |
+          uv sync --no-default-groups
+
       - name: Make sure pyproject.toml version matches git version
         run: |
           git_version=$(git describe)
