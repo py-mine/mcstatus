@@ -24,9 +24,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Install the lint, test & docs dependency groups + the project's core deps.
           # We need the test & docs groups to allow pyright to type-check the code in tests/ & docs/
-          uv sync --no-group dev
+          uv sync --no-default-groups --group lint --group test --group docs
 
       - name: Get precommit version
         id: precommit_version
