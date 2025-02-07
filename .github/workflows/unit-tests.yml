@@ -26,8 +26,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Only install the test group dependencies + the project itself
-          uv sync --no-group dev --no-group lint --no-group docs
+          uv sync --no-default-groups --group test
 
       - name: Run pytest
         shell: bash
