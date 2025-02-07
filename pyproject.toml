@@ -64,7 +64,7 @@ docs = [
   "sphinx-autodoc-typehints>=1.24,<3.0",
   "furo>=2022.12.7",
   "m2r2>=0.3.3",
-  "tomli>=2.0.1",
+  "tomli>=2.0.1; python_version < '3.11'",
   "packaging>=24.2",
   "docutils>=0.18.1,<0.21", # temporary fix for https://github.com/CrossNox/m2r2/issues/68
 ]
