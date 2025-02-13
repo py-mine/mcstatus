@@ -8,7 +8,6 @@ on:
       - "v*"
 
 permissions:
-  id-token: write # Used to authenticate to PyPI via OIDC.
   contents: read
 
 env:
@@ -17,7 +16,6 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: release
 
     steps:
       - name: Checkout repository
@@ -49,6 +47,30 @@ jobs:
 
       - name: Build package
         run: uv build
+
+      - name: Upload build files
+        uses: actions/upload-artifact@v4
+        with:
+          name: "dist"
+          path: "dist/"
+          if-no-files-found: error
+          retention-days: 5
+
+  publish-pypi:
+    name: "Publish to PyPI"
+    needs: build
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      # Used to authenticate to PyPI via OIDC.
+      id-token: write
+
+    steps:
+      - name: Download the distribution files from PR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: "dist"
+          path: "dist/"
 
       # This uses PyPI's trusted publishing, so no token is required
       - name: Publish package distributions to PyPI
