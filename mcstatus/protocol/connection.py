@@ -609,6 +609,9 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         """Use :mod:`asyncio` to open a connection to address. Timeout is in seconds."""
         conn = asyncio.open_connection(*self._addr)
         self.reader, self.writer = await asyncio.wait_for(conn, timeout=self.timeout)
+        if self.writer is not None:  # it might be None in unittest
+            sock: socket.socket = self.writer.transport.get_extra_info("socket")
+            sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     async def read(self, length: int) -> bytearray:
         """Read up to ``length`` bytes from :attr:`.reader`."""
