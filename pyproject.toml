@@ -47,7 +47,7 @@ pytest-rerunfailures = ">=13,<16"
 coverage = "^7.3.0"
 
 [tool.poetry.group.lint.dependencies]
-ruff = "0.9.10"
+ruff = "0.11.0"
 coverage = "^7.3.0"
 pyright = "^1.1.322"
 typing-extensions = "^4.7.1"
