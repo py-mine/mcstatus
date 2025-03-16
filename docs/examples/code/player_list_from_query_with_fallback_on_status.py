@@ -3,8 +3,8 @@ from mcstatus import JavaServer
 server = JavaServer.lookup("play.hypixel.net")
 query = server.query()
 
-if query.players.names:
-    print("Players online:", ", ".join(query.players.names))
+if query.players.list:
+    print("Players online:", ", ".join(query.players.list))
 else:
     status = server.status()
 
