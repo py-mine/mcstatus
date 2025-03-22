@@ -6,7 +6,6 @@ description = "A library to query Minecraft Servers for their status and capabil
 readme = "README.md"
 authors = [
   { name = "Nathan Adams", email = "dinnerbone@dinnerbone.com" },
-  { name = "Kevin Tindall", email = "kevinkjt2000@gmail.com" },
   { name = "ItsDrike", email = "itsdrike@protonmail.com" },
   { name = "PerchunPak", email = "perchunpak@gmail.com" },
 ]
