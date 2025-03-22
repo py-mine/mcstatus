@@ -48,4 +48,4 @@ class TestMinecraftAsyncQuerier:
             "hostport": "25565",
             "hostip": "192.168.56.1",
         }
-        assert response.players.names == ["Dinnerbone", "Djinnibone", "Steve"]
+        assert response.players.list == ["Dinnerbone", "Djinnibone", "Steve"]
