@@ -53,7 +53,6 @@ else:
     RawJavaResponseMotdWhenDict = dict
     RawJavaResponse = dict
 
-from mcstatus.utils import deprecated
 
 __all__ = [
     "BaseStatusPlayers",
@@ -331,12 +330,3 @@ class BedrockStatusVersion(BaseStatusVersion):
     """
     brand: str
     """``MCPE`` or ``MCEE`` for Education Edition."""
-
-    @property
-    @deprecated(replacement="name", date="2023-12")
-    def version(self) -> str:
-        """
-        .. deprecated:: 11.0.0
-            Will be removed 2023-12, use :attr:`.name` instead.
-        """
-        return self.name
