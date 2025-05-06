@@ -152,7 +152,7 @@ class JavaStatusResponse(BaseStatusResponse):
             raw=raw,
             players=JavaStatusPlayers.build(raw["players"]),
             version=JavaStatusVersion.build(raw["version"]),
-            motd=Motd.parse(raw["description"], bedrock=False),
+            motd=Motd.parse(raw.get("description", ""), bedrock=False),
             enforces_secure_chat=raw.get("enforcesSecureChat"),
             icon=raw.get("favicon"),
             latency=latency,
