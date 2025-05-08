@@ -76,7 +76,7 @@ commands:
     status              Prints server status. Supported by all Minecraft servers that are version 1.7 or higher.
     query               Prints detailed server information. Must be enabled in servers' server.properties file.
     json                Prints server status and query in json. Supported by all Minecraft servers that are version 1.7 or higher.
-"""  # noqa: E501(line length)
+"""  # noqa: E501 (line length)
 
 
 @contextlib.contextmanager
