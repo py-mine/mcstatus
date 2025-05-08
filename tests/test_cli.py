@@ -59,7 +59,9 @@ BEDROCK_RAW_RESPONSE = [
 EXPECTED_HELP_OUTPUT = """
 usage: mcstatus [-h] [--bedrock] address {ping,status,query,json} ...
 
-mcstatus provides an easy way to query Minecraft servers for any information they can expose. It provides three modes of access: query, status, ping and json.
+mcstatus provides an easy way to query 1.7 or newer Minecraft servers for any
+information they can expose. It provides three modes of access: query, status,
+ping and json.
 
 positional arguments:
   address               The address of the server.
@@ -73,9 +75,9 @@ commands:
 
   {ping,status,query,json}
     ping                Ping server for latency.
-    status              Prints server status. Supported by all Minecraft servers that are version 1.7 or higher.
+    status              Prints server status.
     query               Prints detailed server information. Must be enabled in servers' server.properties file.
-    json                Prints server status and query in json. Supported by all Minecraft servers that are version 1.7 or higher.
+    json                Prints server status and query in json.
 """  # noqa: E501(line length)
 
 
