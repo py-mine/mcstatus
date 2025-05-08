@@ -23,6 +23,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
           cache-suffix: "test-ci"
+          activate-environment: true
 
       - name: Install dependencies
         run: |

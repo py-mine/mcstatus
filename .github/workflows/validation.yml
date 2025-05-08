@@ -21,6 +21,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           enable-cache: true
           cache-suffix: "validation-ci"
+          activate-environment: true
 
       - name: Install dependencies
         run: |
