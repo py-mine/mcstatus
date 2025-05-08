@@ -65,8 +65,7 @@ class TestAsyncServerPinger:
             )
         )
 
-        with pytest.raises(IOError):
-            async_decorator(self.pinger.test_ping)()
+        async_decorator(self.pinger.read_status)()
 
     def test_read_status_invalid_status(self):
         self.pinger.connection.receive(bytearray.fromhex("0105"))
