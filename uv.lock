@@ -476,6 +476,7 @@ test = [
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
     { name = "pytest-rerunfailures" },
+    { name = "typing-extensions" },
 ]
 
 [package.metadata]
@@ -507,6 +508,7 @@ test = [
     { name = "pytest-asyncio", specifier = ">=0.23.2,<0.27.0" },
     { name = "pytest-cov", specifier = ">=4.1,<7.0" },
     { name = "pytest-rerunfailures", specifier = ">=13,<16" },
+    { name = "typing-extensions", specifier = ">=4.12.2" },
 ]
 
 [[package]]
