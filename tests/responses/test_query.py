@@ -39,6 +39,42 @@ class TestQueryResponse(BaseResponseTest):
     def build(self):
         return QueryResponse.build(raw=self.RAW, players_list=self.RAW_PLAYERS)
 
+    def test_as_dict(self, build: QueryResponse):
+        assert build.as_dict() == {
+            "game_id": "GAME ID",
+            "game_type": "GAME TYPE",
+            "ip": "192.168.56.1",
+            "map_name": "world",
+            "motd": "A Minecraft Server",
+            "players": {
+                "list": [
+                    "Dinnerbone",
+                    "Djinnibone",
+                    "Steve",
+                ],
+                "max": 20,
+                "online": 3,
+            },
+            "port": 9999,
+            "raw": {
+                "game_id": "GAME ID",
+                "gametype": "GAME TYPE",
+                "hostip": "192.168.56.1",
+                "hostname": "A Minecraft Server",
+                "hostport": "9999",
+                "map": "world",
+                "maxplayers": "20",
+                "numplayers": "3",
+                "plugins": "",
+                "version": "1.8",
+            },
+            "software": {
+                "brand": "vanilla",
+                "plugins": [],
+                "version": "1.8",
+            },
+        }
+
 
 @BaseResponseTest.construct
 class TestQueryPlayers(BaseResponseTest):
