@@ -1,4 +1,4 @@
 # Devops & CI workflows
-.github/dependabot.yml      @ItsDrike @py-mine-ci-bot
-.github/workflows/**        @ItsDrike @py-mine-ci-bot
+.github/dependabot.yml      @ItsDrike
+.github/workflows/**        @ItsDrike
 .pre-commit-config.yaml     @ItsDrike
