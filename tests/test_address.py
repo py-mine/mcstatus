@@ -3,6 +3,7 @@ from __future__ import annotations
 import ipaddress
 import sys
 from pathlib import Path
+from typing import cast
 from unittest.mock import MagicMock, Mock, patch
 
 import dns.resolver
@@ -18,7 +19,7 @@ class TestSRVLookup:
         with patch("dns.resolver.resolve") as resolve:
             resolve.side_effect = [exception]
             address = minecraft_srv_address_lookup("example.org", default_port=25565, lifetime=3)
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3)
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3, search=True)
 
         assert address.host == "example.org"
         assert address.port == 25565
@@ -31,7 +32,7 @@ class TestSRVLookup:
             resolve.return_value = [answer]
 
             address = minecraft_srv_address_lookup("example.org", lifetime=3)
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3)
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3, search=True)
         assert address.host == "different.example.org"
         assert address.port == 12345
 
@@ -41,7 +42,7 @@ class TestSRVLookup:
         with patch("dns.asyncresolver.resolve") as resolve:
             resolve.side_effect = [exception]
             address = await async_minecraft_srv_address_lookup("example.org", default_port=25565, lifetime=3)
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3)
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3, search=True)
 
         assert address.host == "example.org"
         assert address.port == 25565
@@ -55,7 +56,7 @@ class TestSRVLookup:
             resolve.return_value = [answer]
 
             address = await async_minecraft_srv_address_lookup("example.org", lifetime=3)
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3)
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3, search=True)
         assert address.host == "different.example.org"
         assert address.port == 12345
 
@@ -152,12 +153,12 @@ class TestAddressIPResolving:
     def test_ip_resolver_with_hostname(self):
         with patch("dns.resolver.resolve") as resolve:
             answer = MagicMock()
-            answer.__str__.return_value = "48.225.1.104."
+            cast(MagicMock, answer.__str__).return_value = "48.225.1.104."
             resolve.return_value = [answer]
 
             resolved_ip = self.host_addr.resolve_ip(lifetime=3)
 
-            resolve.assert_called_once_with(self.host_addr.host, RdataType.A, lifetime=3)
+            resolve.assert_called_once_with(self.host_addr.host, RdataType.A, lifetime=3, search=True)
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == "48.225.1.104"
 
@@ -165,12 +166,12 @@ class TestAddressIPResolving:
     async def test_async_ip_resolver_with_hostname(self):
         with patch("dns.asyncresolver.resolve") as resolve:
             answer = MagicMock()
-            answer.__str__.return_value = "48.225.1.104."
+            cast(MagicMock, answer.__str__).return_value = "48.225.1.104."
             resolve.return_value = [answer]
 
             resolved_ip = await self.host_addr.async_resolve_ip(lifetime=3)
 
-            resolve.assert_called_once_with(self.host_addr.host, RdataType.A, lifetime=3)
+            resolve.assert_called_once_with(self.host_addr.host, RdataType.A, lifetime=3, search=True)
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == "48.225.1.104"
 

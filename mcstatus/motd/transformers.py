@@ -138,7 +138,7 @@ class HtmlTransformer(PlainTransformer):
 
     def __init__(self, *, bedrock: bool = False) -> None:
         self.bedrock = bedrock
-        self.on_reset = []
+        self.on_reset: list[str] = []
 
     def transform(self, motd_components: Sequence[ParsedMotdComponent]) -> str:
         self.on_reset = []

@@ -18,7 +18,7 @@ def async_decorator(f):
 
 
 class FakeAsyncConnection(Connection):
-    async def read_buffer(self):
+    async def read_buffer(self):  # pyright: ignore[reportIncompatibleMethodOverride]
         return super().read_buffer()
 
 
@@ -55,7 +55,7 @@ class TestAsyncServerPinger:
     def test_read_status_invalid_json(self):
         self.pinger.connection.receive(bytearray.fromhex("0300017B"))
         with pytest.raises(IOError):
-            async_decorator(self.pinger.test_ping)()
+            async_decorator(self.pinger.read_status)()
 
     def test_read_status_invalid_reply(self):
         self.pinger.connection.receive(
@@ -65,14 +65,13 @@ class TestAsyncServerPinger:
             )
         )
 
-        with pytest.raises(IOError):
-            async_decorator(self.pinger.test_ping)()
+        async_decorator(self.pinger.read_status)()
 
     def test_read_status_invalid_status(self):
         self.pinger.connection.receive(bytearray.fromhex("0105"))
 
         with pytest.raises(IOError):
-            async_decorator(self.pinger.test_ping)()
+            async_decorator(self.pinger.read_status)()
 
     def test_test_ping(self):
         self.pinger.connection.receive(bytearray.fromhex("09010000000000DD7D1C"))

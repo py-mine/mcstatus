@@ -15,7 +15,7 @@ class MockProtocolFactory(asyncio.Protocol):
         self.data_expected_to_receive = data_expected_to_receive
         self.data_to_respond_with = data_to_respond_with
 
-    def connection_made(self, transport: asyncio.Transport):
+    def connection_made(self, transport: asyncio.Transport):  # pyright: ignore[reportIncompatibleMethodOverride]
         print("connection_made")
         self.transport = transport
 
@@ -38,7 +38,8 @@ class MockProtocolFactory(asyncio.Protocol):
 
 
 @pytest_asyncio.fixture()
-async def create_mock_packet_server(event_loop):
+async def create_mock_packet_server():
+    event_loop = asyncio.get_running_loop()
     servers = []
 
     async def create_server(port, data_expected_to_receive, data_to_respond_with):
@@ -146,9 +147,10 @@ class TestJavaServer:
         with patch("mcstatus.protocol.connection.Connection.remaining") as mock_remaining:
             mock_remaining.side_effect = [15, 208]
 
-            with patch("mcstatus.server.UDPSocketConnection") as connection, patch.object(
-                self.server.address, "resolve_ip"
-            ) as resolve_ip:
+            with (
+                patch("mcstatus.server.UDPSocketConnection") as connection,
+                patch.object(self.server.address, "resolve_ip") as resolve_ip,
+            ):
                 connection.return_value.__enter__.return_value = self.socket
                 resolve_ip.return_value = "127.0.0.1"
                 info = self.server.query()

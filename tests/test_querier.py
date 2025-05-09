@@ -1,6 +1,6 @@
 from mcstatus.motd import Motd
 from mcstatus.protocol.connection import Connection
-from mcstatus.querier import QueryResponse, ServerQuerier
+from mcstatus.querier import ServerQuerier
 
 
 class TestMinecraftQuerier:
@@ -41,7 +41,7 @@ class TestMinecraftQuerier:
             "hostport": "25565",
             "hostip": "192.168.56.1",
         }
-        assert response.players.names == ["Dinnerbone", "Djinnibone", "Steve"]
+        assert response.players.list == ["Dinnerbone", "Djinnibone", "Steve"]
 
     def test_query_handles_unorderd_map_response(self):
         self.querier.connection.receive(
@@ -89,53 +89,3 @@ class TestMinecraftQuerier:
         assert response.motd == Motd.parse("\x00other")  # "\u2a00other" is actually what is expected,
         # but the query protocol for vanilla has a bug when it comes to unicode handling.
         # The status protocol correctly shows "⨀other".
-
-
-class TestQueryResponse:
-    def setup_method(self):
-        self.raw = {
-            "hostname": "A Minecraft Server",
-            "gametype": "SMP",
-            "game_id": "MINECRAFT",
-            "version": "1.8",
-            "plugins": "",
-            "map": "world",
-            "numplayers": "3",
-            "maxplayers": "20",
-            "hostport": "25565",
-            "hostip": "192.168.56.1",
-        }
-        self.players = ["Dinnerbone", "Djinnibone", "Steve"]
-
-    def test_valid(self):
-        response = QueryResponse(self.raw, self.players)
-        assert response.motd == Motd.parse("A Minecraft Server")
-        assert response.map == "world"
-        assert response.players.online == 3
-        assert response.players.max == 20
-        assert response.players.names == ["Dinnerbone", "Djinnibone", "Steve"]
-        assert response.software.brand == "vanilla"
-        assert response.software.version == "1.8"
-        assert response.software.plugins == []
-
-    def test_valid2(self):
-        players = QueryResponse.Players(5, 20, ["Dinnerbone", "Djinnibone", "Steve"])
-        assert players.online == 5
-        assert players.max == 20
-        assert players.names == ["Dinnerbone", "Djinnibone", "Steve"]
-
-    def test_vanilla(self):
-        software = QueryResponse.Software("1.8", "")
-        assert software.brand == "vanilla"
-        assert software.version == "1.8"
-        assert software.plugins == []
-
-    def test_modded(self):
-        software = QueryResponse.Software("1.8", "A modded server: Foo 1.0; Bar 2.0; Baz 3.0")
-        assert software.brand == "A modded server"
-        assert software.plugins == ["Foo 1.0", "Bar 2.0", "Baz 3.0"]
-
-    def test_modded_no_plugins(self):
-        software = QueryResponse.Software("1.8", "A modded server")
-        assert software.brand == "A modded server"
-        assert software.plugins == []

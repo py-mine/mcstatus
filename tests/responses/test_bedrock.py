@@ -41,7 +41,7 @@ class TestBedrockStatusResponse(BaseResponseTest):
     ]
 
     @fixture(scope="class")
-    def build(self, build):
+    def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
         return build
 
     @mark.parametrize("field,pop_index", [("map_name", 7), ("gamemode", 7), ("gamemode", 8)])
@@ -65,13 +65,23 @@ class TestBedrockStatusResponse(BaseResponseTest):
         build = BedrockStatusResponse.build(parameters, 123.0)
         assert getattr(build, field) is None
 
+    def test_as_dict(self, build: BedrockStatusResponse):
+        assert build.as_dict() == {
+            "gamemode": "Default",
+            "latency": 123.0,
+            "map_name": "map name here",
+            "motd": "§4G§6a§ey§2B§1o§9w§ds§4e§6r",
+            "players": {"max": 69, "online": 1},
+            "version": {"brand": "MCPE", "name": "1.18.100500", "protocol": 422},
+        }
+
 
 @BaseResponseTest.construct
 class TestBedrockStatusPlayers(BaseResponseTest):
     EXPECTED_VALUES = [("online", 1), ("max", 69)]
 
     @fixture(scope="class")
-    def build(self, build):
+    def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
         return build.players
 
 
@@ -80,5 +90,5 @@ class TestBedrockStatusVersion(BaseResponseTest):
     EXPECTED_VALUES = [("name", "1.18.100500"), ("protocol", 422), ("brand", "MCPE")]
 
     @fixture(scope="class")
-    def build(self, build):
+    def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
         return build.version

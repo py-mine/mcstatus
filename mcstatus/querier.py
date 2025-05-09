@@ -3,24 +3,24 @@ from __future__ import annotations
 import random
 import re
 import struct
-from typing import TYPE_CHECKING
+from abc import abstractmethod
+from collections.abc import Awaitable
+from dataclasses import dataclass, field
+from typing import ClassVar, final
 
-from mcstatus.motd import Motd
 from mcstatus.protocol.connection import Connection, UDPAsyncSocketConnection, UDPSocketConnection
-
-if TYPE_CHECKING:
-    from typing_extensions import Self
+from mcstatus.responses import QueryResponse, RawQueryResponse
 
 
-class ServerQuerier:
-    MAGIC_PREFIX = bytearray.fromhex("FEFD")
-    PADDING = bytearray.fromhex("00000000")
-    PACKET_TYPE_CHALLENGE = 9
-    PACKET_TYPE_QUERY = 0
+@dataclass
+class _BaseServerQuerier:
+    MAGIC_PREFIX: ClassVar = bytearray.fromhex("FEFD")
+    PADDING: ClassVar = bytearray.fromhex("00000000")
+    PACKET_TYPE_CHALLENGE: ClassVar = 9
+    PACKET_TYPE_QUERY: ClassVar = 0
 
-    def __init__(self, connection: UDPSocketConnection):
-        self.connection = connection
-        self.challenge = 0
+    connection: UDPSocketConnection | UDPAsyncSocketConnection
+    challenge: int = field(init=False, default=0)
 
     @staticmethod
     def _generate_session_id() -> int:
@@ -43,109 +43,24 @@ class ServerQuerier:
         packet.write_uint(self._generate_session_id())
         return packet
 
-    def _read_packet(self) -> Connection:
-        packet = Connection()
-        packet.receive(self.connection.read(self.connection.remaining()))
-        packet.read(1 + 4)
-        return packet
+    @abstractmethod
+    def _read_packet(self) -> Connection | Awaitable[Connection]:
+        raise NotImplementedError
 
-    def handshake(self) -> None:
-        self.connection.write(self._create_handshake_packet())
+    @abstractmethod
+    def handshake(self) -> None | Awaitable[None]:
+        raise NotImplementedError
 
-        packet = self._read_packet()
-        self.challenge = int(packet.read_ascii())
+    @abstractmethod
+    def read_query(self) -> QueryResponse | Awaitable[QueryResponse]:
+        raise NotImplementedError
 
-    def read_query(self) -> QueryResponse:
-        request = self._create_packet()
-        self.connection.write(request)
+    def _parse_response(self, response: Connection) -> tuple[RawQueryResponse, list[str]]:
+        """Transform the connection object (the result) into dict which is passed to the QueryResponse constructor.
 
-        response = self._read_packet()
-        return QueryResponse.from_connection(response)
-
-
-class AsyncServerQuerier(ServerQuerier):
-    def __init__(self, connection: UDPAsyncSocketConnection):
-        # We do this to inform python about self.connection type (it's async)
-        super().__init__(connection)  # type: ignore[arg-type]
-        self.connection: UDPAsyncSocketConnection
-
-    async def _read_packet(self) -> Connection:
-        packet = Connection()
-        packet.receive(await self.connection.read(self.connection.remaining()))
-        packet.read(1 + 4)
-        return packet
-
-    async def handshake(self) -> None:
-        await self.connection.write(self._create_handshake_packet())
-
-        packet = await self._read_packet()
-        self.challenge = int(packet.read_ascii())
-
-    async def read_query(self) -> QueryResponse:
-        request = self._create_packet()
-        await self.connection.write(request)
-
-        response = await self._read_packet()
-        return QueryResponse.from_connection(response)
-
-
-class QueryResponse:
-    """Documentation for this class is written by hand, without docstrings.
-
-    This is because the class is not supposed to be auto-documented.
-
-    Please see https://mcstatus.readthedocs.io/en/latest/api/basic/#mcstatus.querier.QueryResponse
-    for the actual documentation.
-    """
-
-    # THIS IS SO UNPYTHONIC
-    # it's staying just because the tests depend on this structure
-    class Players:
-        online: int
-        max: int
-        names: list[str]
-
-        # TODO: It's a bit weird that we accept str for number parameters, just to convert them in init
-        def __init__(self, online: str | int, max: str | int, names: list[str]):
-            self.online = int(online)
-            self.max = int(max)
-            self.names = names
-
-    class Software:
-        version: str
-        brand: str
-        plugins: list[str]
-
-        def __init__(self, version: str, plugins: str):
-            self.version = version
-            self.brand = "vanilla"
-            self.plugins = []
-
-            if plugins:
-                parts = plugins.split(":", 1)
-                self.brand = parts[0].strip()
-
-                if len(parts) == 2:
-                    self.plugins = [s.strip() for s in parts[1].split(";")]
-
-    motd: Motd
-    map: str
-    players: Players
-    software: Software
-
-    def __init__(self, raw: dict[str, str], players: list[str]):
-        try:
-            self.raw = raw
-            self.motd = Motd.parse(raw["hostname"], bedrock=False)
-            self.map = raw["map"]
-            self.players = QueryResponse.Players(raw["numplayers"], raw["maxplayers"], players)
-            self.software = QueryResponse.Software(raw["version"], raw["plugins"])
-        except KeyError:
-            raise ValueError("The provided data is not valid")
-
-    @classmethod
-    def from_connection(cls, response: Connection) -> Self:
-        response.read(len("splitnum") + 1 + 1 + 1)
+        :return: A tuple with two elements. First is `raw` answer and second is list of players.
+        """
+        response.read(len("splitnum") + 3)
         data = {}
 
         while True:
@@ -168,13 +83,63 @@ class QueryResponse:
                 value = response.read_ascii()
                 data[key] = value
 
-        response.read(len("player_") + 1 + 1)
+        response.read(len("player_") + 2)
 
-        players = []
+        players_list = []
         while True:
             player = response.read_ascii()
             if len(player) == 0:
                 break
-            players.append(player)
+            players_list.append(player)
 
-        return cls(data, players)
+        return RawQueryResponse(**data), players_list
+
+
+@final
+@dataclass
+class ServerQuerier(_BaseServerQuerier):
+    connection: UDPSocketConnection  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    def _read_packet(self) -> Connection:
+        packet = Connection()
+        packet.receive(self.connection.read(self.connection.remaining()))
+        packet.read(1 + 4)
+        return packet
+
+    def handshake(self) -> None:
+        self.connection.write(self._create_handshake_packet())
+
+        packet = self._read_packet()
+        self.challenge = int(packet.read_ascii())
+
+    def read_query(self) -> QueryResponse:
+        request = self._create_packet()
+        self.connection.write(request)
+
+        response = self._read_packet()
+        return QueryResponse.build(*self._parse_response(response))
+
+
+@final
+@dataclass
+class AsyncServerQuerier(_BaseServerQuerier):
+    connection: UDPAsyncSocketConnection  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    async def _read_packet(self) -> Connection:
+        packet = Connection()
+        packet.receive(await self.connection.read(self.connection.remaining()))
+        packet.read(1 + 4)
+        return packet
+
+    async def handshake(self) -> None:
+        await self.connection.write(self._create_handshake_packet())
+
+        packet = await self._read_packet()
+        self.challenge = int(packet.read_ascii())
+
+    async def read_query(self) -> QueryResponse:
+        request = self._create_packet()
+        await self.connection.write(request)
+
+        response = await self._read_packet()
+        return QueryResponse.build(*self._parse_response(response))

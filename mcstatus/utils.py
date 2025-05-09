@@ -155,10 +155,10 @@ def deprecated(
         return wrapper
 
     @overload
-    def decorate(obj: Callable[P, R]) -> Callable[P, R]: ...
+    def decorate(obj: type[T]) -> type[T]: ...
 
     @overload
-    def decorate(obj: type[T]) -> type[T]: ...
+    def decorate(obj: Callable[P, R]) -> Callable[P, R]: ...
 
     def decorate(obj: Callable[P, R] | type[T]) -> Callable[P, R] | type[T]:
         # Construct and send the warning message
@@ -190,7 +190,6 @@ def deprecated(
             return obj
 
         # Regular function deprecation
-        obj = cast("Callable[P, R]", obj)
         if methods is not None:
             raise ValueError("Methods can only be specified when decorating a class, not a function")
         return decorate_func(obj, warn_message)

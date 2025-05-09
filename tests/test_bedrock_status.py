@@ -29,9 +29,10 @@ def test_latency_is_real_number():
         return mock.DEFAULT
 
     pinger = BedrockServerStatus(Address("localhost", 25565))
-    with mock.patch.object(pinger, "_read_status") as mocked_read, mock.patch.object(
-        pinger, "parse_response"
-    ) as mocked_parse_response:
+    with (
+        mock.patch.object(pinger, "_read_status") as mocked_read,
+        mock.patch.object(pinger, "parse_response") as mocked_parse_response,
+    ):
         mocked_read.side_effect = mocked_read_status
 
         pinger.read_status()
@@ -50,9 +51,10 @@ async def test_async_latency_is_real_number():
         return mock.DEFAULT
 
     pinger = BedrockServerStatus(Address("localhost", 25565))
-    with mock.patch.object(pinger, "_read_status_async") as mocked_read, mock.patch.object(
-        pinger, "parse_response"
-    ) as mocked_parse_response:
+    with (
+        mock.patch.object(pinger, "_read_status_async") as mocked_read,
+        mock.patch.object(pinger, "parse_response") as mocked_parse_response,
+    ):
         mocked_read.side_effect = mocked_read_status
 
         await pinger.read_status_async()

@@ -3,6 +3,7 @@ name: Validation
 on: workflow_call
 
 env:
+  PYTHON_VERSION: "3.13"
   PRE_COMMIT_HOME: "/home/runner/.cache/pre-commit"
 
 jobs:
@@ -13,18 +14,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup poetry
-        id: poetry_setup
-        uses: ItsDrike/setup-poetry@v1
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: 3.12
+          version: "latest"
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+          cache-suffix: "validation-ci"
+
+      - name: Install dependencies
+        run: |
+          # We need the test & docs groups to allow pyright to type-check the code in tests/ & docs/
+          uv sync --no-default-groups --group lint --group test --group docs
+
+      - name: Get precommit version
+        id: precommit_version
+        run: |
+          PACKAGE_VERSION=$(pip show pre-commit | grep -i "version:" | awk '{print $2}')
+          echo "version=$PACKAGE_VERSION" >> $GITHUB_ENV
 
       - name: Pre-commit Environment Caching
         uses: actions/cache@v4
         with:
           path: ${{ env.PRE_COMMIT_HOME }}
           key:
-            "precommit-${{ runner.os }}-${{ steps.poetry_setup.outputs.python-version }}-\
+            "precommit-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ steps.precommit_version.outputs.version }}-\
             ${{ hashFiles('./.pre-commit-config.yaml') }}"
           # Restore keys allows us to perform a cache restore even if the full cache key wasn't matched.
           # That way we still end up saving new cache, but we can still make use of the cache from previous
@@ -32,7 +46,7 @@ jobs:
           restore-keys: "precommit-${{ runner.os }}-${{ steps.poetry_setup.outputs-python-version}}-"
 
       - name: Run pre-commit hooks
-        run: SKIP=black,isort,ruff,pyright pre-commit run --all-files
+        run: SKIP=black,isort,ruff,pyright,uv-lockfile pre-commit run --all-files
 
       - name: Run ruff linter
         run: ruff check --output-format=github --show-fixes --exit-non-zero-on-fix .
@@ -42,3 +56,6 @@ jobs:
 
       - name: Run pyright type checker
         run: pyright .
+
+      - name: Check UV Lockfile
+        run: uv lock --check

@@ -4,10 +4,10 @@ from tests.test_async_pinger import async_decorator
 
 
 class FakeUDPAsyncConnection(Connection):
-    async def read(self, length):
+    async def read(self, length):  # pyright: ignore[reportIncompatibleMethodOverride]
         return super().read(length)
 
-    async def write(self, data):
+    async def write(self, data):  # pyright: ignore[reportIncompatibleMethodOverride]
         return super().write(data)
 
 
@@ -48,4 +48,4 @@ class TestMinecraftAsyncQuerier:
             "hostport": "25565",
             "hostip": "192.168.56.1",
         }
-        assert response.players.names == ["Dinnerbone", "Djinnibone", "Steve"]
+        assert response.players.list == ["Dinnerbone", "Djinnibone", "Steve"]
