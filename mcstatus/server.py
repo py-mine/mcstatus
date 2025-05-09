@@ -70,6 +70,7 @@ class JavaServer(MCServer):
         if query_port is None:
             query_port = port or self.DEFAULT_PORT
         self.query_port = query_port
+        _ = Address(host, self.query_port)  # Ensure query_port is valid
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
