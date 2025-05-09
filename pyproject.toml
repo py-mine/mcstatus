@@ -1,6 +1,6 @@
 [project]
 name = "mcstatus"
-version = "11.1.1"
+version = "12.0.0"
 license = "Apache-2.0"
 description = "A library to query Minecraft Servers for their status and capabilities."
 readme = "README.md"
@@ -122,7 +122,7 @@ line-length = 127
 [tool.ruff.lint]
 select = [
   "F",     # Pyflakes
-  "W",     # Pycodestyle (warnigns)
+  "W",     # Pycodestyle (warnings)
   "E",     # Pycodestyle (errors)
   "N",     # pep8-naming
   "ANN",   # flake8-annotations
@@ -143,7 +143,7 @@ ignore = [
   # Redundant rules with ruff-format:
   "E111",   # Indentation of a non-multiple of 4 spaces
   "E114",   # Comment with indentation  of a non-multiple of 4 spaces
-  "E117",   # Cheks for over-indented code
+  "E117",   # Checks for over-indented code
   "D206",   # Checks for docstrings indented with tabs
   "D300",   # Checks for docstring that use ''' instead of """
   "Q000",   # Checks of inline strings that use wrong quotes (' instead of ")
