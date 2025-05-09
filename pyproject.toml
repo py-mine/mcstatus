@@ -57,6 +57,7 @@ test = [
   "pytest-cov>=4.1,<7.0",
   "pytest-rerunfailures>=13,<16",
   "coverage>=7.3.0",
+  "typing-extensions>=4.12.2",
 ]
 docs = [
   "sphinx>=7.1.2",
