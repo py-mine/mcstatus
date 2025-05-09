@@ -68,7 +68,7 @@ class JavaServer(MCServer):
         """
         super().__init__(host, port, timeout)
         if query_port is None:
-            query_port = self.DEFAULT_PORT
+            query_port = port or self.DEFAULT_PORT
         self.query_port = query_port
 
     @classmethod
