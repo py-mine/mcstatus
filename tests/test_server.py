@@ -38,7 +38,8 @@ class MockProtocolFactory(asyncio.Protocol):
 
 
 @pytest_asyncio.fixture()
-async def create_mock_packet_server(event_loop):
+async def create_mock_packet_server():
+    event_loop = asyncio.get_running_loop()
     servers = []
 
     async def create_server(port, data_expected_to_receive, data_to_respond_with):

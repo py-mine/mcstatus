@@ -40,6 +40,24 @@ class TestJavaStatusResponse(BaseResponseTest):
     def build(self) -> JavaStatusResponse:
         return JavaStatusResponse.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
 
+    def test_as_dict(self, build: JavaStatusResponse):
+        assert build.as_dict() == {
+            "enforces_secure_chat": True,
+            "forge_data": None,
+            "icon": "data:image/png;base64,foo",
+            "latency": 0,
+            "motd": "A Minecraft Server",
+            "players": {"max": 20, "online": 0, "sample": None},
+            "raw": {
+                "description": "A Minecraft Server",
+                "enforcesSecureChat": True,
+                "favicon": "data:image/png;base64,foo",
+                "players": {"max": 20, "online": 0},
+                "version": {"name": "1.8-pre1", "protocol": 44},
+            },
+            "version": {"name": "1.8-pre1", "protocol": 44},
+        }
+
 
 @BaseResponseTest.construct
 class TestJavaStatusPlayers(BaseResponseTest):
