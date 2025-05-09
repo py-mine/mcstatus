@@ -60,92 +60,30 @@ For Java Server
     :inherited-members:
     :exclude-members: build
 
-.. module:: mcstatus.querier
+.. autoclass:: mcstatus.responses.QueryResponse()
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: build
 
-.. class:: QueryResponse
-    :canonical: mcstatus.querier.QueryResponse
+.. autoclass:: mcstatus.responses.QueryPlayers()
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: build
 
-    The response object for :meth:`JavaServer.query() <mcstatus.server.JavaServer.query>`.
-
-    .. class:: Players
-        :canonical: mcstatus.querier.QueryResponse.Players
-
-        Class for storing information about players on the server.
-
-        .. attribute:: online
-            :type: int
-            :canonical: mcstatus.querier.QueryResponse.Players.online
-
-            The number of online players.
-
-        .. attribute:: max
-            :type: int
-            :canonical: mcstatus.querier.QueryResponse.Players.max
-
-            The maximum allowed number of players (server slots).
-
-        .. attribute:: names
-            :type: list[str]
-            :canonical: mcstatus.querier.QueryResponse.Players.names
-
-            The list of online players.
-
-    .. class:: Software
-        :canonical: mcstatus.querier.QueryResponse.Software
-
-        Class for storing information about software on the server.
-
-        .. attribute:: version
-            :type: str
-            :canonical: mcstatus.querier.QueryResponse.Software.version
-
-            The version of the software.
-
-        .. attribute:: brand
-            :type: str
-            :value: "vanilla"
-            :canonical: mcstatus.querier.QueryResponse.Software.brand
-
-            The brand of the software. Like `Paper <https://papermc.io>`_ or `Spigot <https://www.spigotmc.org>`_.
-
-        .. attribute:: plugins
-            :type: list[str]
-            :canonical: mcstatus.querier.QueryResponse.Software.plugins
-
-            The list of plugins. Can be empty if hidden.
-
-    .. attribute:: motd
-        :type: ~mcstatus.motd.Motd
-        :canonical: mcstatus.querier.QueryResponse.motd
-
-        The MOTD of the server. Also known as description.
-
-        .. seealso:: :doc:`/api/motd_parsing`.
-
-    .. attribute:: map
-        :type: str
-        :canonical: mcstatus.querier.QueryResponse.map
-
-        The name of the map.
-
-    .. attribute:: players
-        :type: ~QueryResponse.Players
-        :canonical: mcstatus.querier.QueryResponse.players
-
-        The players information.
-
-    .. attribute:: software
-        :type: ~QueryResponse.Software
-        :canonical: mcstatus.querier.QueryResponse.software
-
-        The software information.
+.. autoclass:: mcstatus.responses.QuerySoftware()
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: build
 
 
 For Bedrock Servers
 *******************
 
 .. module:: mcstatus.responses
-    :noindex:
+    :no-index:
 
 .. autoclass:: mcstatus.responses.BedrockStatusResponse()
     :members:

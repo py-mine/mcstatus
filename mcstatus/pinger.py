@@ -54,7 +54,7 @@ class _BaseServerPinger(ABC):
             latency_ms = (end - start) * 1000
             return JavaStatusResponse.build(raw, latency=latency_ms)
         except KeyError as e:
-            raise IOError(f"Received invalid status response: {e}")
+            raise IOError(f"Received invalid status response: {e!r}")
 
     def _handle_ping_response(self, response: Connection, start: float, end: float) -> float:
         """Given a ping response buffer, validate token and compute latency."""

@@ -1,9 +1,9 @@
-name: Tox test
+name: Unit-Tests
 
 on: workflow_call
 
 jobs:
-  tox-test:
+  unit-tests:
     runs-on: ${{ matrix.platform }}
 
     strategy:
@@ -16,25 +16,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup poetry
-        id: poetry_setup
-        uses: ItsDrike/setup-poetry@v1
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
         with:
-          install-args: "--with workflow-tox --without lint"
-          python-version: "${{ matrix.python-version }}"
+          version: "latest"
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-suffix: "test-ci"
 
-      - name: Test with tox
+      - name: Install dependencies
+        run: |
+          uv sync --no-default-groups --group test
+
+      - name: Run pytest
         shell: bash
-        run: poetry run tox
-        env:
-          PIP_USER: 0 # We want tox to use it's environments, not user installs
+        run: pytest -vv
 
   # This job is used purely to provide a workflow status, which we can mark as a
   # required action in branch protection rules. This is a better option than marking
   # the tox-test jobs manually, since their names cnange as the supported python
   # versions change. This job provides an easy single action that can be marked required.
   tests-done:
-    needs: [tox-test]
+    needs: [unit-tests]
     if: always() && !cancelled()
     runs-on: ubuntu-latest
 

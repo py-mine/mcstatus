@@ -18,37 +18,44 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: sort-simple-yaml
-        files: .pre-commit-config.yaml
-  - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.10.0
-    hooks:
-      - id: python-check-blanket-noqa # Enforce noqa annotations (noqa: F401,W203)
-      - id: python-use-type-annotations # Enforce type annotations instead of type comments
+
   - repo: local
     hooks:
       - id: ruff
         name: Ruff Linter
         description: Run ruff checks on the code
-        entry: poetry run ruff check --force-exclude
+        entry: ruff check --force-exclude
         language: system
         types: [python]
         require_serial: true
         args: [--fix, --exit-non-zero-on-fix]
+
   - repo: local
     hooks:
       - id: ruff-ruff
         name: Ruff Formatter
         description: Ruf ruff auto-formatter
-        entry: poetry run ruff format
+        entry: ruff format
         language: system
         types: [python]
         require_serial: true
+
   - repo: local
     hooks:
       - id: pyright
         name: Pyright
         description: Run pyright type checker
-        entry: poetry run pyright
+        entry: pyright
         language: system
         types: [python]
         pass_filenames: false # pyright runs for the entire project, it can't run for single files
+
+  - repo: local
+    hooks:
+      - id: uv-lockfile
+        name: UV Lockfile
+        description: Check if the UV lockfile is up to date with pyproject.toml
+        entry: uv lock --check
+        language: system
+        files: '^pyproject\.toml$|^uv\.lock$'
+        pass_filenames: false

@@ -46,14 +46,14 @@ class TestServerPinger:
 
     def test_read_status_invalid_reply(self):
         self.pinger.connection.receive(
+            # no motd, see also #922
             bytearray.fromhex(
                 "4F004D7B22706C6179657273223A7B226D6178223A32302C226F6E6C696E65223A307D2C2276657273696F6E223A7B226E616"
                 "D65223A22312E382D70726531222C2270726F746F636F6C223A34347D7D"
             )
         )
 
-        with pytest.raises(IOError):
-            self.pinger.read_status()
+        self.pinger.read_status()
 
     def test_read_status_invalid_status(self):
         self.pinger.connection.receive(bytearray.fromhex("0105"))
