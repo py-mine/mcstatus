@@ -59,6 +59,18 @@ class JavaServer(MCServer):
 
     DEFAULT_PORT = 25565
 
+    def __init__(self, host: str, port: int | None = None, timeout: float = 3, query_port: int | None = None):
+        """
+        :param host: The host/ip of the minecraft server.
+        :param port: The port that the server is on.
+        :param timeout: The timeout in seconds before failing to connect.
+        :param query_port: Typically the same as ``port`` but can be different.
+        """
+        super().__init__(host, port, timeout)
+        if query_port is None:
+            query_port = self.DEFAULT_PORT
+        self.query_port = query_port
+
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Mimics minecraft's server address field.
@@ -157,7 +169,7 @@ class JavaServer(MCServer):
         :return: Query information in a :class:`~mcstatus.querier.QueryResponse` instance.
         """
         ip = str(self.address.resolve_ip())
-        return self._retry_query(Address(ip, self.address.port), tries=tries)
+        return self._retry_query(Address(ip, self.query_port), tries=tries)
 
     @retry(tries=3)
     def _retry_query(self, addr: Address, **_kwargs) -> QueryResponse:
