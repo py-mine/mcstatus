@@ -86,6 +86,11 @@ class JavaServer(MCServer):
     def ping(self, **kwargs) -> float:
         """Checks the latency between a Minecraft Java Edition server and the client (you).
 
+        Note that most non-vanilla implementations fail to respond to a ping
+        packet unless a status packet is sent first. Expect ``OSError: Server
+        did not respond with any information!`` in those cases. The workaround
+        is to use the latency provided with :meth:`.status` as ping time.
+
         :param kwargs: Passed to a :class:`~mcstatus.pinger.ServerPinger` instance.
         :return: The latency between the Minecraft Server and you.
         """
@@ -101,6 +106,11 @@ class JavaServer(MCServer):
 
     async def async_ping(self, **kwargs) -> float:
         """Asynchronously checks the latency between a Minecraft Java Edition server and the client (you).
+
+        Note that most non-vanilla implementations fail to respond to a ping
+        packet unless a status packet is sent first. Expect ``OSError: Server
+        did not respond with any information!`` in those cases. The workaround
+        is to use the latency provided with :meth:`.async_status` as ping time.
 
         :param kwargs: Passed to a :class:`~mcstatus.pinger.AsyncServerPinger` instance.
         :return: The latency between the Minecraft Server and you.
