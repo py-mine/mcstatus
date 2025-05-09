@@ -83,7 +83,7 @@ For Bedrock Servers
 *******************
 
 .. module:: mcstatus.responses
-    :noindex:
+    :no-index:
 
 .. autoclass:: mcstatus.responses.BedrockStatusResponse()
     :members:
