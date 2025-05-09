@@ -418,6 +418,27 @@ class QueryResponse:
             game_id=raw["game_id"],
         )
 
+    def as_dict(self) -> dict[str, Any]:
+        """Return the dataclass as JSON-serializable :class:`dict`.
+
+        Do note that this method doesn't return :class:`string <str>` but
+        :class:`dict`, so you can do some processing on returned value.
+
+        Difference from
+        :attr:`~mcstatus.responses.JavaStatusResponse.raw` is in that,
+        :attr:`~mcstatus.responses.JavaStatusResponse.raw` returns raw response
+        in the same format as we got it. This method returns the response
+        in a more user-friendly JSON serializable format (for example,
+        :attr:`~mcstatus.responses.BaseStatusResponse.motd` is returned as a
+        :func:`Minecraft string <mcstatus.motd.Motd.to_minecraft>` and not
+        :class:`dict`).
+        """
+        as_dict = asdict(self)
+        as_dict["motd"] = self.motd.simplify().to_minecraft()
+        as_dict["players"] = asdict(self.players)
+        as_dict["software"] = asdict(self.software)
+        return as_dict
+
     @property
     @deprecated(replacement="map_name", date="2025-08")
     def map(self) -> str | None:
