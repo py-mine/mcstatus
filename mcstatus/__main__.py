@@ -163,9 +163,9 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     parser = argparse.ArgumentParser(
         "mcstatus",
         description="""
-        mcstatus provides an easy way to query Minecraft servers for
-        any information they can expose. It provides three modes of
-        access: query, status, ping and json.
+        mcstatus provides an easy way to query 1.7 or newer Minecraft servers for any
+        information they can expose. It provides three modes of access: query, status,
+        ping and json.
         """,
     )
 
@@ -176,15 +176,13 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     parser.set_defaults(func=status_cmd)
 
     subparsers.add_parser("ping", help="Ping server for latency.").set_defaults(func=ping_cmd)
-    subparsers.add_parser(
-        "status", help="Prints server status. Supported by all Minecraft servers that are version 1.7 or higher."
-    ).set_defaults(func=status_cmd)
+    subparsers.add_parser("status", help="Prints server status.").set_defaults(func=status_cmd)
     subparsers.add_parser(
         "query", help="Prints detailed server information. Must be enabled in servers' server.properties file."
     ).set_defaults(func=query_cmd)
     subparsers.add_parser(
         "json",
-        help="Prints server status and query in json. Supported by all Minecraft servers that are version 1.7 or higher.",
+        help="Prints server status and query in json.",
     ).set_defaults(func=json_cmd)
 
     args = parser.parse_args(argv)

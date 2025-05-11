@@ -1,10 +1,11 @@
 import asyncio
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 import pytest
 import pytest_asyncio
 
 from mcstatus.protocol.connection import Connection
+from mcstatus.address import Address
 from mcstatus.server import BedrockServer, JavaServer
 
 
@@ -89,6 +90,14 @@ class TestAsyncJavaServer:
         s = await JavaServer.async_lookup("example.org:3333")
         assert s.address.host == "example.org"
         assert s.address.port == 3333
+
+
+def test_java_server_with_query_port():
+    with patch("mcstatus.server.JavaServer._retry_query") as patched_query_func:
+        server = JavaServer("localhost", query_port=12345)
+        server.query()
+        assert server.query_port == 12345
+        assert patched_query_func.call_args == call(Address("127.0.0.1", port=12345), tries=3)
 
 
 class TestJavaServer:
