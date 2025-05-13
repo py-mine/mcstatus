@@ -107,6 +107,9 @@ minversion = "6.0"
 addopts = "--strict-markers --doctest-modules --cov=mcstatus --cov-append --cov-branch --cov-report=term-missing -vvv --no-cov-on-fail --asyncio-mode=strict"
 testpaths = ["tests"]
 
+# Remove deprecation warning
+asyncio_default_fixture_loop_scope = "function"
+
 [tool.pyright]
 pythonPlatform = "All"
 pythonVersion = "3.9"
