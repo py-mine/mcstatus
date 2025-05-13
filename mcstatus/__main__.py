@@ -132,7 +132,7 @@ def json_cmd(server: SupportedServers) -> int:
 
         qdata["ip"] = query_res.raw["hostip"]
         qdata["port"] = query_res.raw["hostport"]
-        qdata["map"] = query_res.map
+        qdata["map"] = query_res.map_name
         qdata["plugins"] = query_res.software.plugins
         qdata["raw"] = query_res.raw
 
@@ -155,7 +155,7 @@ def query_cmd(server: SupportedServers) -> int:
     print(f"software: {_kind(server)} {response.software.version} {response.software.brand}")
     print(f"motd:{_motd(response.motd)}")
     print(f"plugins: {response.software.plugins}")
-    print(f"players: {response.players.online}/{response.players.max} {response.players.names}")
+    print(f"players: {response.players.online}/{response.players.max} {response.players.list}")
     return 0
 
 
