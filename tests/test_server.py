@@ -100,6 +100,15 @@ def test_java_server_with_query_port():
         assert patched_query_func.call_args == call(Address("127.0.0.1", port=12345), tries=3)
 
 
+@pytest.mark.asyncio
+async def test_java_server_with_query_port_async():
+    with patch("mcstatus.server.JavaServer._retry_async_query") as patched_query_func:
+        server = JavaServer("localhost", query_port=12345)
+        await server.async_query()
+        assert server.query_port == 12345
+        assert patched_query_func.call_args == call(Address("127.0.0.1", port=12345), tries=3)
+
+
 class TestJavaServer:
     def setup_method(self):
         self.socket = Connection()
