@@ -16,14 +16,11 @@ from __future__ import annotations
 import os
 import sys
 from datetime import date
-from typing import TYPE_CHECKING
 
 from packaging.version import parse as parse_version
 
 # Since pyright assumes lowest supported version, it would default to using tomli
-# which we don't want, as it's only installed if on <3.11 and pyright usually runs
-# on latest versions. For that reason, we include or TYPE_CHECKING in the condition.
-if sys.version_info >= (3, 11) or TYPE_CHECKING:
+if sys.version_info >= (3, 11):
     from tomllib import load as toml_parse
 else:
     from tomli import load as toml_parse
