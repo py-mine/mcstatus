@@ -196,7 +196,7 @@ class JavaServer(MCServer):
         :return: Query information in a :class:`~mcstatus.querier.QueryResponse` instance.
         """
         ip = str(await self.address.async_resolve_ip())
-        return await self._retry_async_query(Address(ip, self.address.port), tries=tries)
+        return await self._retry_async_query(Address(ip, self.query_port), tries=tries)
 
     @retry(tries=3)
     async def _retry_async_query(self, address: Address, **_kwargs) -> QueryResponse:
