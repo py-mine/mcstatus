@@ -1,6 +1,6 @@
 [project]
 name = "mcstatus"
-version = "12.0.0"
+version = "12.0.1"
 license = "Apache-2.0"
 description = "A library to query Minecraft Servers for their status and capabilities."
 readme = "README.md"
