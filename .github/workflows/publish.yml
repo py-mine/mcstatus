@@ -6,6 +6,12 @@ on:
       # This pattern is not a typical regular expression, see:
       # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Git Tag to use for the release
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -18,8 +24,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Get Tag
+        id: get_tag
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            # For push events, the tag is in GITHUB_REF
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # For workflow_dispatch, the tag is in the input
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # Checkout the specific tag
+          ref: ${{ steps.get_tag.outputs.tag }}
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v6
