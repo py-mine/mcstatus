@@ -41,8 +41,6 @@ jobs:
           # Checkout the specific tag
           ref: ${{ steps.get_tag.outputs.tag }}
 
-      - run: git tag
-
       - name: Setup uv
         uses: astral-sh/setup-uv@v6
         with:
@@ -59,9 +57,10 @@ jobs:
       - name: Make sure pyproject.toml version matches git version
         run: |
           git_version=$(git describe)
+          git_version="${git_version:1}" # first character is always `v`
           pyproject_version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
 
-          if [ "$git_verson" != "$pyproject_version" ]; then
+          if [ "$git_version" != "$pyproject_version" ]; then
             echo "The version specified in pyproject.toml ($pyproject_version) doesn't match the git version ($git_verson)"
             echo "You most likely forgot to update pyproject.toml when publishing the release tag"
             echo "You can fix this by updating the pyproject version and overwriting the git tag"
@@ -89,7 +88,6 @@ jobs:
       id-token: write
 
     steps:
-      - run: exit 1
       - name: Download the distribution files from PR artifact
         uses: actions/download-artifact@v4
         with:
