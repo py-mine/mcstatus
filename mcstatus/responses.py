@@ -42,8 +42,8 @@ if TYPE_CHECKING:
         players: RawJavaResponsePlayers
         version: RawJavaResponseVersion
         favicon: NotRequired[str]
-        forgeData: NotRequired[RawForgeData]
-        modinfo: NotRequired[RawForgeData]
+        forgeData: NotRequired[RawForgeData | None]
+        modinfo: NotRequired[RawForgeData | None]
         enforcesSecureChat: NotRequired[bool]
 
     class RawQueryResponse(TypedDict):
