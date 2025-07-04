@@ -1,6 +1,6 @@
 [project]
 name = "mcstatus"
-version = "12.0.2"
+dynamic = ["version"]
 license = "Apache-2.0"
 description = "A library to query Minecraft Servers for their status and capabilities."
 readme = "README.md"
@@ -67,6 +67,10 @@ docs = [
   "tomli>=2.0.1; python_version < '3.11'",
   "packaging>=24.2",
   "docutils>=0.18.1,<0.21", # temporary fix for https://github.com/CrossNox/m2r2/issues/68
+  "uv-dynamic-versioning", # actual version is in `release` group
+]
+release = [
+  "uv-dynamic-versioning>=0.8.2",
 ]
 
 [tool.poe.tasks]
@@ -187,5 +191,8 @@ split-on-trailing-comma = false # if last member of multiline import has a comma
 line-ending = "lf"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
