@@ -169,6 +169,7 @@ ignore = [
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
+banned-module-level-imports = ["typing_extensions"]
 
 [tool.ruff.lint.isort]
 order-by-type = false
