@@ -9,7 +9,7 @@ from tests.responses import BaseResponseTest
 
 
 def pytest_generate_tests(metafunc: Metafunc) -> None:
-    if issubclass(typing.cast(type, metafunc.cls), BaseResponseTest):
+    if metafunc.cls is not None and issubclass(typing.cast(type, metafunc.cls), BaseResponseTest):
         instance = typing.cast(type, metafunc.cls)()
         if metafunc.definition.name not in instance._marks_table().keys():
             return

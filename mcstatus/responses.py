@@ -42,8 +42,8 @@ if TYPE_CHECKING:
         players: RawJavaResponsePlayers
         version: RawJavaResponseVersion
         favicon: NotRequired[str]
-        forgeData: NotRequired[RawForgeData]
-        modinfo: NotRequired[RawForgeData]
+        forgeData: NotRequired[RawForgeData | None]
+        modinfo: NotRequired[RawForgeData | None]
         enforcesSecureChat: NotRequired[bool]
 
     class RawQueryResponse(TypedDict):
@@ -176,9 +176,7 @@ class JavaStatusResponse(BaseStatusResponse):
         :return: :class:`JavaStatusResponse` object.
         """
         forge_data: ForgeData | None = None
-        if "forgeData" in raw or "modinfo" in raw:
-            raw_forge = raw.get("forgeData") or raw.get("modinfo")
-            assert raw_forge is not None
+        if (raw_forge := raw.get("forgeData") or raw.get("modinfo")) and raw_forge is not None:
             forge_data = ForgeData.build(raw_forge)
 
         return cls(

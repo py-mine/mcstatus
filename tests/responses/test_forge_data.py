@@ -1,7 +1,36 @@
 import pytest
 
 from mcstatus.forge_data import ForgeData, ForgeDataChannel, ForgeDataMod, RawForgeData
+from mcstatus.responses import JavaStatusResponse
 from tests.responses import BaseResponseTest
+
+
+def test_forge_data_is_null():
+    # should not raise
+    JavaStatusResponse.build(
+        {
+            "forgeData": None,
+            "players": {"max": 20, "online": 0},
+            "version": {"name": "1.8-pre1", "protocol": 44},
+            "description": "A Minecraft Server",
+            "enforcesSecureChat": True,
+            "favicon": "data:image/png;base64,foo",
+        }
+    )
+
+
+def test_modinfo_is_null():
+    # should not raise
+    JavaStatusResponse.build(
+        {
+            "modinfo": None,
+            "players": {"max": 20, "online": 0},
+            "version": {"name": "1.8-pre1", "protocol": 44},
+            "description": "A Minecraft Server",
+            "enforcesSecureChat": True,
+            "favicon": "data:image/png;base64,foo",
+        }
+    )
 
 
 @BaseResponseTest.construct
