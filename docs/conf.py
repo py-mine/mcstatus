@@ -13,12 +13,13 @@ http://www.sphinx-doc.org/en/master/config
 
 from __future__ import annotations
 
+import json
 import os
+import subprocess
 import sys
-from datetime import date
 from typing import TYPE_CHECKING
 
-from packaging.version import parse as parse_version
+from packaging.version import Version, parse as parse_version
 
 # Since pyright assumes lowest supported version, it would default to using tomli
 # which we don't want, as it's only installed if on <3.11 and pyright usually runs
@@ -34,17 +35,19 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 
-def _get_project_meta() -> dict[str, str]:
-    with open("../pyproject.toml", "rb") as pyproject:
-        return toml_parse(pyproject)["project"]  # type: ignore[no-any-return]
+def _get_version() -> Version:
+    packages_list = json.loads(subprocess.check_output(["uv", "pip", "list", "--format", "json"]))
+    for package in packages_list:
+        if package["name"] == "mcstatus":
+            return parse_version(package["version"])
+    raise ValueError("Could not find package version!")
 
 
-pkg_meta = _get_project_meta()
-project = str(pkg_meta["name"])
-copyright = str(date.today().year) + ", py-mine"
+project = "mcstatus"
+copyright = "mcstatus, py-mine"
 author = "Dinnerbone"
 
-parsed_version = parse_version(pkg_meta["version"])
+parsed_version = _get_version()
 
 # The short X.Y version
 version = parsed_version.base_version
