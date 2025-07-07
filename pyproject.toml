@@ -189,3 +189,6 @@ line-ending = "lf"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[project.scripts]
+mcstatus = "mcstatus.__main__:main"
