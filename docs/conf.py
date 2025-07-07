@@ -17,17 +17,9 @@ import json
 import os
 import subprocess
 import sys
-from typing import TYPE_CHECKING
 
 from packaging.version import Version, parse as parse_version
 
-# Since pyright assumes lowest supported version, it would default to using tomli
-# which we don't want, as it's only installed if on <3.11 and pyright usually runs
-# on latest versions. For that reason, we include or TYPE_CHECKING in the condition.
-if sys.version_info >= (3, 11) or TYPE_CHECKING:
-    from tomllib import load as toml_parse
-else:
-    from tomli import load as toml_parse
 
 sys.path.insert(0, os.path.abspath(".."))
 
