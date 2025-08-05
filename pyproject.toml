@@ -53,7 +53,7 @@ lint = [
 ]
 test = [
   "pytest>=7.4,<9.0",
-  "pytest-asyncio>=0.23.2,<1.2.0",
+  "pytest-asyncio>=0.23.2,<0.27.0",
   "pytest-cov>=4.1,<7.0",
   "pytest-rerunfailures>=13,<16",
   "coverage>=7.3.0",
