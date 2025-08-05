@@ -567,16 +567,16 @@ wheels = [
 
 [[package]]
 name = "poethepoet"
-version = "0.32.1"
+version = "0.36.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pastel" },
     { name = "pyyaml" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d1/10/11f929bad564b2dbc5c119ecf0f37456ac24538bb4a70c76f140a2aa695a/poethepoet-0.32.1.tar.gz", hash = "sha256:471e1a025812dcd3d2997e30989681be5ab0a49232ee5fba94859629671c9584", size = 61391, upload-time = "2025-01-09T21:35:12.858Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cf/ac/311c8a492dc887f0b7a54d0ec3324cb2f9538b7b78ea06e5f7ae1f167e52/poethepoet-0.36.0.tar.gz", hash = "sha256:2217b49cb4e4c64af0b42ff8c4814b17f02e107d38bc461542517348ede25663", size = 66854, upload-time = "2025-06-29T19:54:50.444Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/85/a5/fc26dd508f33809bdd3823a0170e492fe44ad7e097c32c4a52e16cf3ecb0/poethepoet-0.32.1-py3-none-any.whl", hash = "sha256:d1e0a52a2f677870fac17dfb26bfe4910242756ac821443ef31f90ad26227c2d", size = 81729, upload-time = "2025-01-09T21:35:09.739Z" },
+    { url = "https://files.pythonhosted.org/packages/03/29/dedb3a6b7e17ea723143b834a2da428a7d743c80d5cd4d22ed28b5e8c441/poethepoet-0.36.0-py3-none-any.whl", hash = "sha256:693e3c1eae9f6731d3613c3c0c40f747d3c5c68a375beda42e590a63c5623308", size = 88031, upload-time = "2025-06-29T19:54:48.884Z" },
 ]
 
 [[package]]
