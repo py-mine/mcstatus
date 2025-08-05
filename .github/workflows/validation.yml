@@ -44,7 +44,7 @@ jobs:
           # Restore keys allows us to perform a cache restore even if the full cache key wasn't matched.
           # That way we still end up saving new cache, but we can still make use of the cache from previous
           # version.
-          restore-keys: "precommit-${{ runner.os }}-${{ steps.poetry_setup.outputs-python-version}}-"
+          restore-keys: "precommit-${{ runner.os }}-${{ env.PYTHON_VERSION }}-"
 
       - name: Run pre-commit hooks
         run: SKIP=black,isort,ruff,pyright,uv-lockfile pre-commit run --all-files
