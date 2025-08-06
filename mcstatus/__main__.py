@@ -28,7 +28,7 @@ QUERY_FAIL_WARNING = (
     "The server did not respond to the query protocol."
     "\nPlease ensure that the server has enable-query turned on,"
     " and that the necessary port (same as server-port unless query-port is set) is open in any firewall(s)."
-    "\nSee https://wiki.vg/Query for further information."
+    "\nSee https://minecraft.wiki/w/Query for further information."
 )
 
 
