@@ -159,7 +159,8 @@ class Motd:
                 # a formatting, and it resets both color and other formatting, so we use
                 # `Formatting.RESET` here.
                 #
-                # see https://wiki.vg/Chat#Shared_between_all_components, `color` field
+                # see `color` field in
+                # https://minecraft.wiki/w/Java_Edition_protocol/Chat?oldid=2763811#Shared_between_all_components
                 return Formatting.RESET
 
             # Last attempt: try parsing as HTML (hex rgb) color. Some servers use these to

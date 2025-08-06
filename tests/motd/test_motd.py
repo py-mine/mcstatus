@@ -65,7 +65,7 @@ class TestMotdParse:
         assert Motd.parse(input).parsed == expected
 
     def test_top_level_formatting_applies_to_all_in_extra(self) -> None:
-        """As described `here <https://wiki.vg/Chat#Inheritance>`_."""
+        """As described `here <https://minecraft.wiki/w/Java_Edition_protocol/Chat?direction=prev&oldid=2763844#Inheritance>`_."""
         assert Motd.parse({"text": "top", "bold": True, "extra": [{"color": "red", "text": "not top"}]}).parsed == [
             Formatting.BOLD,
             "top",
@@ -77,7 +77,7 @@ class TestMotdParse:
         ]
 
     def test_top_level_formatting_can_be_overwrote(self) -> None:
-        """As described `here <https://wiki.vg/Chat#Inheritance>`_."""
+        """As described `here <https://minecraft.wiki/w/Java_Edition_protocol/Chat?direction=prev&oldid=2763844#Inheritance>`_."""
         assert Motd.parse(
             {"text": "bold", "bold": True, "extra": [{"color": "red", "bold": False, "text": "not bold"}]}
         ).parsed == [

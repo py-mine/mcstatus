@@ -7,7 +7,7 @@
 [![Validation](https://github.com/py-mine/mcstatus/actions/workflows/validation.yml/badge.svg)](https://github.com/py-mine/mcstatus/actions/workflows/validation.yml)
 [![Unit Tests](https://github.com/py-mine/mcstatus/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/py-mine/mcstatus/actions/workflows/unit-tests.yml)
 
-Mcstatus provides an API and command line script to fetch publicly available data from Minecraft servers. Specifically, mcstatus retrieves data by using these protocols: [Server List Ping](https://wiki.vg/Server_List_Ping) and [Query](https://wiki.vg/Query). Because of mcstatus, you do not need to fully understand those protocols and can instead skip straight to retrieving minecraft server data quickly in your own programs.
+Mcstatus provides an API and command line script to fetch publicly available data from Minecraft servers. Specifically, mcstatus retrieves data by using these protocols: [Server List Ping](https://minecraft.wiki/w/Java_Edition_protocol/Server_List_Ping) and [Query](https://minecraft.wiki/w/Query). Because of mcstatus, you do not need to fully understand those protocols and can instead skip straight to retrieving minecraft server data quickly in your own programs.
 
 ## Installation
 

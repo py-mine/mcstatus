@@ -13,7 +13,7 @@ from mcstatus.responses import BedrockStatusResponse
 
 class BedrockServerStatus:
     request_status_data = bytes.fromhex(
-        # see https://wiki.vg/Raknet_Protocol#Unconnected_Ping
+        # see https://minecraft.wiki/w/RakNet#Unconnected_Ping
         "01" + "0000000000000000" + "00ffff00fefefefefdfdfdfd12345678" + "0000000000000000"
     )
 
