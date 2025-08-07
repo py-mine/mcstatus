@@ -70,6 +70,7 @@ docs = [
   "uv-dynamic-versioning", # actual version is in `release` group
 ]
 release = [
+  "hatchling>=1.27.0",
   "uv-dynamic-versioning>=0.8.2",
 ]
 
@@ -199,3 +200,4 @@ build-backend = "hatchling.build"
 
 [tool.hatch.version]
 source = "uv-dynamic-versioning"
+metadata = false

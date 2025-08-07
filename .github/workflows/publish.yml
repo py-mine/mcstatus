@@ -1,4 +1,5 @@
-name: Publish to PyPi
+---
+name: Publish to PyPI
 
 on:
   push:
@@ -6,12 +7,10 @@ on:
       # This pattern is not a typical regular expression, see:
       # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
       - "v*"
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: Git Tag to use for the release
-        required: true
-        type: string
+    branches:
+      # Also run on every commit to main. This allows us to test the build & release pipeline and eventually leads to a
+      # Test PyPI release. Unlike with a tag push, this will not release a full PyPI release, nor create a GitHub release.
+      - main
 
 permissions:
   contents: read
@@ -21,41 +20,56 @@ env:
 
 jobs:
   build:
+    name: "Build the project"
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Get Tag
-        id: get_tag
-        run: |
-          if [[ "${{ github.event_name }}" == "push" ]]; then
-            # For push events, the tag is in GITHUB_REF
-            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            # For workflow_dispatch, the tag is in the input
-            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-          fi
+    outputs:
+      version: ${{ steps.check-version.outputs.version }}
+      tagged_release: ${{ steps.check-version.outputs.tagged_release }}
 
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Checkout the specific tag
-          ref: ${{ steps.get_tag.outputs.tag }}
+          # Do a full clone for uv-dynamic-versioning to pick up the git version
+          fetch-depth: 0
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v6
         with:
           version: "latest"
           python-version: ${{ env.PYTHON_VERSION }}
-          enable-cache: true
-          cache-suffix: "publish-ci"
           activate-environment: true
+          enable-cache: true
+          cache-suffix: "build"
 
       - name: Install dependencies
         run: |
-          uv sync --no-default-groups
+          uv sync --no-default-groups --group release
 
-      - name: Build package
-        run: uv build
+      - name: Check version status
+        id: check-version
+        run: |
+          version="$(hatchling version)"
+
+          echo "Project version: $version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          # Determine whether we're doing a tagged release e.g. this workflow
+          # was triggered by a git tag ref that matches the project's current
+          # version, so a full PyPI release should be made, alongside all of
+          # the other release steps. If this isn't the case, only a Test PyPI
+          # release will be performed.
+          if [[ "${GITHUB_REF}" == "refs/tags/v${version}" ]]; then
+            echo "This is a new tagged release"
+            echo "tagged_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "This is an untagged dev release"
+            echo "tagged_release=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build project for distribution
+        run: uv build --all-packages
 
       - name: Upload build files
         uses: actions/upload-artifact@v4
@@ -65,22 +79,48 @@ jobs:
           if-no-files-found: error
           retention-days: 5
 
-  publish-pypi:
-    name: "Publish to PyPI"
+  publish-test-pypi:
+    name: "Publish to Test PyPI"
+    # No if condition here, publish both tagged and untagged releases to Test PyPI.
     needs: build
     runs-on: ubuntu-latest
-    environment: release
+    environment: test-pypi # no approval
+    permissions:
+      # Used to authenticate to Test PyPI via OIDC.
+      id-token: write
+
+    steps:
+      - name: Download the distribution files from build artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: "dist"
+          path: "dist/"
+
+      - name: Upload to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # the "legacy" in the URL doesn't mean it's deprecated
+          repository-url: https://test.pypi.org/legacy/
+          # Enable verbose mode for easy debugging
+          verbose: true
+
+  publish-pypi:
+    name: "Publish to PyPI"
+    if: needs.build.outputs.tagged_release == 'true' # only publish to PyPI on tagged releases
+    needs: build
+    runs-on: ubuntu-latest
+    environment: release # requires approval
     permissions:
       # Used to authenticate to PyPI via OIDC.
       id-token: write
 
     steps:
-      - name: Download the distribution files from PR artifact
+      - name: Download the distribution files from build artifact
         uses: actions/download-artifact@v5
         with:
           name: "dist"
           path: "dist/"
 
       # This uses PyPI's trusted publishing, so no token is required
-      - name: Publish package distributions to PyPI
+      - name: Release to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
