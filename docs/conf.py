@@ -19,6 +19,7 @@ import subprocess
 import sys
 
 from packaging.version import Version, parse as parse_version
+from importlib.metadata import version as importlib_version
 
 
 sys.path.insert(0, os.path.abspath(".."))
@@ -28,11 +29,7 @@ sys.path.insert(0, os.path.abspath(".."))
 
 
 def _get_version() -> Version:
-    packages_list = json.loads(subprocess.check_output(["uv", "pip", "list", "--format", "json"]))
-    for package in packages_list:
-        if package["name"] == "mcstatus":
-            return parse_version(package["version"])
-    raise ValueError("Could not find package version!")
+    return parse_version(importlib_version("mcstatus"))
 
 
 project = "mcstatus"

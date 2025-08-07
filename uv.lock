@@ -537,7 +537,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [{ name = "poethepoet", specifier = ">=0.32.1" }]
 docs = [
-    { name = "docutils", specifier = ">=0.18.1,<0.21" },
+    { name = "docutils", specifier = ">=0.18.1,<0.23" },
     { name = "furo", specifier = ">=2022.12.7" },
     { name = "m2r2", specifier = ">=0.3.3" },
     { name = "packaging", specifier = ">=24.2" },
@@ -556,7 +556,7 @@ release = [{ name = "uv-dynamic-versioning", specifier = ">=0.8.2" }]
 test = [
     { name = "coverage", specifier = ">=7.3.0" },
     { name = "pytest", specifier = ">=7.4,<9.0" },
-    { name = "pytest-asyncio", specifier = ">=0.23.2,<0.27.0" },
+    { name = "pytest-asyncio", specifier = ">=0.23.2,<1.2.0" },
     { name = "pytest-cov", specifier = ">=4.1,<7.0" },
     { name = "pytest-rerunfailures", specifier = ">=13,<16" },
     { name = "typing-extensions", specifier = ">=4.12.2" },
