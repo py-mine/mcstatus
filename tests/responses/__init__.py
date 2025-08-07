@@ -3,6 +3,8 @@ from __future__ import annotations
 import abc
 from typing import Any, TypeVar, cast
 
+import pytest
+
 from mcstatus.responses import BaseStatusResponse
 
 __all__ = ["BaseResponseTest"]
@@ -40,8 +42,8 @@ class BaseResponseTest(abc.ABC):
                     raise ValueError("You can't test the type availability, if already testing its value/type.")
 
     @abc.abstractmethod
-    def build(self) -> Any:  # noqa: ANN401
-        ...
+    @pytest.fixture(scope="class")
+    def build(self) -> BaseStatusResponse: ...
 
     # implementations for tests
 
