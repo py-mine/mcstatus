@@ -43,8 +43,7 @@ class BaseResponseTest(abc.ABC):
 
     @abc.abstractmethod
     @pytest.fixture(scope="class")
-    def build(self) -> Any:  # noqa: ANN401
-        ...
+    def build(self) -> BaseStatusResponse: ...
 
     # implementations for tests
 
