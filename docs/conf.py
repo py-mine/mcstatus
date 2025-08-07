@@ -13,9 +13,7 @@ http://www.sphinx-doc.org/en/master/config
 
 from __future__ import annotations
 
-import json
 import os
-import subprocess
 import sys
 
 from packaging.version import Version, parse as parse_version
