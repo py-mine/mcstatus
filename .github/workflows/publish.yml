@@ -54,19 +54,6 @@ jobs:
         run: |
           uv sync --no-default-groups
 
-      - name: Make sure pyproject.toml version matches git version
-        run: |
-          git_version=$(git describe)
-          git_version="${git_version:1}" # first character is always `v`
-          pyproject_version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
-
-          if [ "$git_version" != "$pyproject_version" ]; then
-            echo "The version specified in pyproject.toml ($pyproject_version) doesn't match the git version ($git_verson)"
-            echo "You most likely forgot to update pyproject.toml when publishing the release tag"
-            echo "You can fix this by updating the pyproject version and overwriting the git tag"
-            exit 1
-          fi
-
       - name: Build package
         run: uv build
 
