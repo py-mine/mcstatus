@@ -190,6 +190,9 @@ split-on-trailing-comma = false # if last member of multiline import has a comma
 [tool.ruff-formatter]
 line-ending = "lf"
 
+[project.scripts]
+mcstatus = "mcstatus.__main__:main"
+
 [build-system]
 requires = ["hatchling", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
