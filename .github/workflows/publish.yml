@@ -8,9 +8,9 @@ on:
       # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
       - "v*"
     branches:
-      # Also run on every commit to main. This allows us to test the build & release pipeline and eventually leads to a
+      # Also run on every commit to master. This allows us to test the build & release pipeline and eventually leads to a
       # Test PyPI release. Unlike with a tag push, this will not release a full PyPI release, nor create a GitHub release.
-      - main
+      - master
 
 permissions:
   contents: read
