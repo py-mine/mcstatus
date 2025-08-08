@@ -530,6 +530,7 @@ lint = [
     { name = "typing-extensions" },
 ]
 release = [
+    { name = "hatchling" },
     { name = "uv-dynamic-versioning" },
 ]
 test = [
@@ -565,7 +566,10 @@ lint = [
     { name = "ruff", specifier = ">=0.11.2" },
     { name = "typing-extensions", specifier = ">=4.7.1" },
 ]
-release = [{ name = "uv-dynamic-versioning", specifier = ">=0.8.2" }]
+release = [
+    { name = "hatchling", specifier = ">=1.27.0" },
+    { name = "uv-dynamic-versioning", specifier = ">=0.8.2" },
+]
 test = [
     { name = "coverage", specifier = ">=7.3.0" },
     { name = "pytest", specifier = ">=7.4,<9.0" },
