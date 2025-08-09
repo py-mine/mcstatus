@@ -200,4 +200,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.version]
 source = "uv-dynamic-versioning"
+
+[tool.uv-dynamic-versioning]
 metadata = false
