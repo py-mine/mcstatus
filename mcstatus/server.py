@@ -14,7 +14,7 @@ from mcstatus.protocol.connection import (
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
 from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse
-from mcstatus.utils import retry
+from mcstatus.utils import TRIES_USED_BY_US, retry
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -111,7 +111,7 @@ class JavaServer(MCServer):
         with TCPSocketConnection(self.address, self.timeout) as connection:
             return self._retry_ping(connection, **kwargs)
 
-    @retry(tries=3)
+    @retry(tries=TRIES_USED_BY_US)
     def _retry_ping(self, connection: TCPSocketConnection, **kwargs) -> float:
         pinger = ServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
@@ -132,7 +132,7 @@ class JavaServer(MCServer):
         async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
             return await self._retry_async_ping(connection, **kwargs)
 
-    @retry(tries=3)
+    @retry(tries=TRIES_USED_BY_US)
     async def _retry_async_ping(self, connection: TCPAsyncSocketConnection, **kwargs) -> float:
         pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
@@ -149,7 +149,7 @@ class JavaServer(MCServer):
         with TCPSocketConnection(self.address, self.timeout) as connection:
             return self._retry_status(connection, **kwargs)
 
-    @retry(tries=3)
+    @retry(tries=TRIES_USED_BY_US)
     def _retry_status(self, connection: TCPSocketConnection, **kwargs) -> JavaStatusResponse:
         pinger = ServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
@@ -166,7 +166,7 @@ class JavaServer(MCServer):
         async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
             return await self._retry_async_status(connection, **kwargs)
 
-    @retry(tries=3)
+    @retry(tries=TRIES_USED_BY_US)
     async def _retry_async_status(self, connection: TCPAsyncSocketConnection, **kwargs) -> JavaStatusResponse:
         pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
         pinger.handshake()
@@ -182,7 +182,7 @@ class JavaServer(MCServer):
         ip = str(self.address.resolve_ip())
         return self._retry_query(Address(ip, self.query_port), tries=tries)
 
-    @retry(tries=3)
+    @retry(tries=TRIES_USED_BY_US)
     def _retry_query(self, addr: Address, **_kwargs) -> QueryResponse:
         with UDPSocketConnection(addr, self.timeout) as connection:
             querier = ServerQuerier(connection)
@@ -198,7 +198,7 @@ class JavaServer(MCServer):
         ip = str(await self.address.async_resolve_ip())
         return await self._retry_async_query(Address(ip, self.query_port), tries=tries)
 
-    @retry(tries=3)
+    @retry(tries=TRIES_USED_BY_US)
     async def _retry_async_query(self, address: Address, **_kwargs) -> QueryResponse:
         async with UDPAsyncSocketConnection(address, self.timeout) as connection:
             querier = AsyncServerQuerier(connection)
@@ -211,7 +211,7 @@ class BedrockServer(MCServer):
 
     DEFAULT_PORT = 19132
 
-    @retry(tries=3)
+    @retry(tries=TRIES_USED_BY_US)
     def status(self, **kwargs) -> BedrockStatusResponse:
         """Checks the status of a Minecraft Bedrock Edition server.
 
@@ -220,7 +220,7 @@ class BedrockServer(MCServer):
         """
         return BedrockServerStatus(self.address, self.timeout, **kwargs).read_status()
 
-    @retry(tries=3)
+    @retry(tries=TRIES_USED_BY_US)
     async def async_status(self, **kwargs) -> BedrockStatusResponse:
         """Asynchronously checks the status of a Minecraft Bedrock Edition server.
 
