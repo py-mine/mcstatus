@@ -275,8 +275,8 @@ class JavaStatusPlayers(BaseStatusPlayers):
         :return: :class:`JavaStatusPlayers` object.
         """
         sample = None
-        if raw.get("sample") is not None:
-            sample = [JavaStatusPlayer.build(player) for player in raw["sample"]]
+        if (sample := raw.get("sample")) is not None:
+            sample = [JavaStatusPlayer.build(player) for player in sample]
         return cls(
             online=raw["online"],
             max=raw["max"],
