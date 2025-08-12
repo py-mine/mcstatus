@@ -275,7 +275,7 @@ class JavaStatusPlayers(BaseStatusPlayers):
         :return: :class:`JavaStatusPlayers` object.
         """
         sample = None
-        if "sample" in raw:
+        if "sample" in raw and raw["sample"] is not None:
             sample = [JavaStatusPlayer.build(player) for player in raw["sample"]]
         return cls(
             online=raw["online"],
