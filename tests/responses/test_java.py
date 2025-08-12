@@ -103,6 +103,19 @@ class TestJavaStatusPlayers(BaseResponseTest):
     def test_empty_sample_turns_into_empty_list(self) -> None:
         assert JavaStatusPlayers.build({"max": 20, "online": 0, "sample": []}).sample == []
 
+    def test_java_status_players_sample_is_none(self) -> None:
+        # should not raise
+        assert (
+            JavaStatusPlayers.build(
+                {
+                    "online": 1,
+                    "max": 123,
+                    "sample": None,
+                }
+            ).sample
+            is None
+        )
+
 
 @BaseResponseTest.construct
 class TestJavaStatusPlayer(BaseResponseTest):

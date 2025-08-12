@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     class RawJavaResponsePlayers(TypedDict):
         online: int
         max: int
-        sample: NotRequired[list[RawJavaResponsePlayer]]
+        sample: NotRequired[list[RawJavaResponsePlayer] | None]
 
     class RawJavaResponseVersion(TypedDict):
         name: str
@@ -275,8 +275,8 @@ class JavaStatusPlayers(BaseStatusPlayers):
         :return: :class:`JavaStatusPlayers` object.
         """
         sample = None
-        if "sample" in raw:
-            sample = [JavaStatusPlayer.build(player) for player in raw["sample"]]
+        if (sample := raw.get("sample")) is not None:
+            sample = [JavaStatusPlayer.build(player) for player in sample]
         return cls(
             online=raw["online"],
             max=raw["max"],
