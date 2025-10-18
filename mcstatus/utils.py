@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import inspect
 import warnings
 from collections.abc import Callable, Iterable
@@ -68,7 +67,7 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
 
         # We cast here since pythons typing doesn't support adding keyword-only arguments to signature
         # (Support for this was a rejected idea https://peps.python.org/pep-0612/#concatenating-keyword-parameters)
-        if asyncio.iscoroutinefunction(func):
+        if inspect.iscoroutinefunction(func):
             return cast("Callable[P, R]", async_wrapper)
         return cast("Callable[P, R]", sync_wrapper)
 
