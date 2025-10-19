@@ -1,7 +1,20 @@
+import pytest
+
 from mcstatus.utils import or_none
 
 
-def test_or_none_docstring():
-    mydict = {"a": ""}
-    assert (mydict.get("a") or mydict.get("b")) is None
-    assert or_none(mydict.get("a"), mydict.get("b")) == ""
+@pytest.mark.parametrize(
+    "a,b,result",
+    [
+        (None, None, None),
+        (None, "", ""),
+        ("", None, ""),
+        ("a", "b", "a"),
+    ],
+)
+def test_or_none(a, b, result):
+    assert or_none(a, b) == result
+
+
+def test_or_none_many_arguments():
+    assert or_none(*([None] * 100 + ["value"])) == "value"
