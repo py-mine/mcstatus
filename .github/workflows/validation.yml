@@ -3,7 +3,7 @@ name: Validation
 on: workflow_call
 
 env:
-  PYTHON_VERSION: "3.13"
+  PYTHON_VERSION: "3.14"
   PRE_COMMIT_HOME: "/home/runner/.cache/pre-commit"
 
 jobs:
