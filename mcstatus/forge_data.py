@@ -19,6 +19,7 @@ from io import StringIO
 from typing import Final, TYPE_CHECKING
 
 from mcstatus.protocol.connection import BaseConnection, BaseReadSync, Connection
+from mcstatus.utils import or_none
 
 VERSION_FLAG_IGNORE_SERVER_ONLY: Final = 0b1
 IGNORE_SERVER_ONLY: Final = "<not required for client>"
@@ -108,14 +109,14 @@ class ForgeDataMod:
         :return: :class:`ForgeDataMod` object.
         """
         # In FML v1, modmarker was version instead.
-        mod_version = raw.get("modmarker") or raw.get("version")
+        mod_version = or_none(raw.get("modmarker"), raw.get("version"))
         if mod_version is None:
-            raise KeyError("Mod version in Forge mod data must be provided.")
+            raise KeyError(f"Mod version in Forge mod data must be provided. Mod info: {raw}")
 
         # In FML v2, modid was modId instead. At least one of the two should exist.
-        mod_id = raw.get("modid") or raw.get("modId")
+        mod_id = or_none(raw.get("modid"), raw.get("modId"))
         if mod_id is None:
-            raise KeyError(f"Mod ID in Forge mod data must be provided. Mod version: {mod_version!r}.")
+            raise KeyError(f"Mod ID in Forge mod data must be provided. Mod info: {raw}.")
 
         return cls(name=mod_id, marker=mod_version)
 

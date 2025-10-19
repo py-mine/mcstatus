@@ -77,13 +77,14 @@ class TestForgeDataV2(BaseResponseTest):
         ],
         "mods": [
             {"modId": "forge", "modmarker": "ANY"},
+            {"modId": "fusion", "modmarker": ""},
         ],
     }
 
     EXPECTED_VALUES = [
         ("fml_network_version", 2),
         ("channels", [ForgeDataChannel(name="fml:handshake", version="1.2.3.4", required=True)]),
-        ("mods", [ForgeDataMod(name="forge", marker="ANY")]),
+        ("mods", [ForgeDataMod(name="forge", marker="ANY"), ForgeDataMod(name="fusion", marker="")]),
         ("truncated", False),
     ]
 
@@ -243,7 +244,7 @@ class TestForgeData(BaseResponseTest):
                     required=True,
                 ),
                 ForgeDataChannel(name="botania:main", version="0", required=False),
-                ForgeDataChannel(name="curios:main", version="1", required=False),
+                ForgeDataChannel(name="curios:main", version="1", required=False),  # codespell:ignore curios
                 ForgeDataChannel(name="patchouli:main", version="1", required=False),
                 ForgeDataChannel(name="camera:default", version="1.0.0", required=True),
                 ForgeDataChannel(
@@ -455,7 +456,7 @@ class TestForgeData(BaseResponseTest):
                 ForgeDataMod(name="botania", marker="1.18.2-434"),
                 ForgeDataMod(name="highlighter", marker="ANY"),
                 ForgeDataMod(name="spark", marker="<not required for client>"),
-                ForgeDataMod(name="curios", marker="1.18.2-5.0.7.1"),
+                ForgeDataMod(name="curios", marker="1.18.2-5.0.7.1"),  # codespell:ignore curios
                 ForgeDataMod(name="patchouli", marker="1.18.2-71.1"),
                 ForgeDataMod(name="camera", marker="1.18.2-1.0.4"),
                 ForgeDataMod(name="blockcarpentry", marker="1.18-0.3.0"),

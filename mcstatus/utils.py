@@ -16,6 +16,7 @@ else:
     P = []
 
 T = TypeVar("T")
+T2 = TypeVar("T2")
 R = TypeVar("R")
 R2 = TypeVar("R2")
 
@@ -183,3 +184,21 @@ def deprecated(
     if obj:
         return decorate(obj)
     return decorate
+
+
+def or_none(a: T, b: T2) -> T | T2 | None:
+    """Do inline ``or`` operation, but consider falsely values valid.
+
+    Example:
+        .. code-block:: py
+            >>> mydict = {"a": ""}
+            >>> mydict.get("a") or mydict.get("b")
+            None  # expected ""!
+            >>> or_none(mydict.get("a"), mydict.get("b"))
+            ''
+    """
+    if a is not None:
+        return a
+    if b is not None:
+        return b
+    return None
