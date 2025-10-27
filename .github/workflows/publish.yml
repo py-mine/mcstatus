@@ -91,7 +91,7 @@ jobs:
 
     steps:
       - name: Download the distribution files from build artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: "dist"
           path: "dist/"
@@ -116,7 +116,7 @@ jobs:
 
     steps:
       - name: Download the distribution files from build artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: "dist"
           path: "dist/"
