@@ -35,7 +35,7 @@ jobs:
           echo "version=$PACKAGE_VERSION" >> $GITHUB_ENV
 
       - name: Pre-commit Environment Caching
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.PRE_COMMIT_HOME }}
           key:
