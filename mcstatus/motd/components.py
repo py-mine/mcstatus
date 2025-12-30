@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 if t.TYPE_CHECKING:
-    from typing_extensions import Self, TypeAlias
+    from typing_extensions import Self
 
 
 class Formatting(Enum):
@@ -123,4 +123,4 @@ class TranslationTag:
     id: str
 
 
-ParsedMotdComponent: TypeAlias = "Formatting | MinecraftColor | WebColor | TranslationTag | str"
+ParsedMotdComponent: t.TypeAlias = "Formatting | MinecraftColor | WebColor | TranslationTag | str"
