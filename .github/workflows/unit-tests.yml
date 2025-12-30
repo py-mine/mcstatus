@@ -10,7 +10,7 @@ jobs:
       fail-fast: false # Allows for matrix sub-jobs to fail without cancelling the rest
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.9", "3.13"]
+        python-version: ["3.10", "3.13"]
 
     steps:
       - name: Checkout repository
@@ -35,7 +35,7 @@ jobs:
 
   # This job is used purely to provide a workflow status, which we can mark as a
   # required action in branch protection rules. This is a better option than marking
-  # the tox-test jobs manually, since their names cnange as the supported python
+  # the tox-test jobs manually, since their names change as the supported python
   # versions change. This job provides an easy single action that can be marked required.
   tests-done:
     needs: [unit-tests]
