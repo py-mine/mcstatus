@@ -8,14 +8,14 @@ import socket
 import dataclasses
 from typing import TYPE_CHECKING
 
-from mcstatus import JavaServer, BedrockServer
+from mcstatus import JavaServer, LegacyServer, BedrockServer
 from mcstatus.responses import JavaStatusResponse
 from mcstatus.motd import Motd
 
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias
 
-    SupportedServers: TypeAlias = "JavaServer | BedrockServer"
+    SupportedServers: TypeAlias = "JavaServer | LegacyServer | BedrockServer"
 
 PING_PACKET_FAIL_WARNING = (
     "warning: contacting {address} failed with a 'ping' packet but succeeded with a 'status' packet,\n"
@@ -42,6 +42,8 @@ def _motd(motd: Motd) -> str:
 def _kind(serv: SupportedServers) -> str:
     if isinstance(serv, JavaServer):
         return "Java"
+    elif isinstance(serv, LegacyServer):
+        return "Java (pre-1.7)"
     elif isinstance(serv, BedrockServer):
         return "Bedrock"
     else:
@@ -49,8 +51,8 @@ def _kind(serv: SupportedServers) -> str:
 
 
 def _ping_with_fallback(server: SupportedServers) -> float:
-    # bedrock doesn't have ping method
-    if isinstance(server, BedrockServer):
+    # only Java has ping method
+    if not isinstance(server, JavaServer):
         return server.status().latency
 
     # try faster ping packet first, falling back to status with a warning.
@@ -164,14 +166,17 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     parser = argparse.ArgumentParser(
         "mcstatus",
         description="""
-        mcstatus provides an easy way to query 1.7 or newer Minecraft servers for any
-        information they can expose. It provides three modes of access: query, status,
-        ping and json.
+        mcstatus provides an easy way to query Minecraft servers for any information
+        they can expose. It provides three modes of access: query, status, ping and json.
         """,
     )
 
     parser.add_argument("address", help="The address of the server.")
-    parser.add_argument("--bedrock", help="Specifies that 'address' is a Bedrock server (default: Java).", action="store_true")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--bedrock", help="Specifies that 'address' is a Bedrock server (default: Java).", action="store_true")
+    group.add_argument(
+        "--legacy", help="Specifies that 'address' is a pre-1.7 Java server (default: 1.7+).", action="store_true"
+    )
 
     subparsers = parser.add_subparsers(title="commands", description="Command to run, defaults to 'status'.")
     parser.set_defaults(func=status_cmd)
@@ -187,7 +192,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     ).set_defaults(func=json_cmd)
 
     args = parser.parse_args(argv)
-    lookup = JavaServer.lookup if not args.bedrock else BedrockServer.lookup
+    lookup = (JavaServer.lookup if not args.legacy else LegacyServer.lookup) if not args.bedrock else BedrockServer.lookup
 
     try:
         server = lookup(args.address)

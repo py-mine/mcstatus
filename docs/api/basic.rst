@@ -20,6 +20,11 @@ These are classes, that you use to send a request to server.
     :undoc-members:
     :show-inheritance:
 
+.. autoclass:: mcstatus.server.LegacyServer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. autoclass:: mcstatus.server.BedrockServer
     :members:
     :undoc-members:
@@ -31,8 +36,8 @@ Response Objects
 
 These are the classes that you get back after making a request.
 
-For Java Server
-***************
+For Java Server (1.7+)
+**********************
 
 .. module:: mcstatus.responses
 
@@ -73,6 +78,31 @@ For Java Server
     :exclude-members: build
 
 .. autoclass:: mcstatus.responses.QuerySoftware()
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: build
+
+
+For Java Server (pre-1.7)
+*************************
+
+.. module:: mcstatus.responses
+    :no-index:
+
+.. autoclass:: mcstatus.responses.LegacyStatusResponse()
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: build
+
+.. autoclass:: mcstatus.responses.LegacyStatusPlayers()
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: build
+
+.. autoclass:: mcstatus.responses.LegacyStatusVersion()
     :members:
     :undoc-members:
     :inherited-members:

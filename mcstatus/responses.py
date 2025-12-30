@@ -79,6 +79,9 @@ __all__ = [
     "JavaStatusPlayers",
     "JavaStatusResponse",
     "JavaStatusVersion",
+    "LegacyStatusPlayers",
+    "LegacyStatusResponse",
+    "LegacyStatusVersion",
     "QueryResponse",
 ]
 
@@ -192,6 +195,36 @@ class JavaStatusResponse(BaseStatusResponse):
 
 
 @dataclass(frozen=True)
+class LegacyStatusResponse(BaseStatusResponse):
+    """The response object for :meth:`LegacyServerStatus.status() <mcstatus.server.LegacyServer.status>`."""
+
+    players: LegacyStatusPlayers
+    version: LegacyStatusVersion
+
+    @classmethod
+    def build(cls, decoded_data: list[str], latency: float) -> Self:
+        """Build BaseStatusResponse and check is it valid.
+
+        :param decoded_data: Raw decoded response object.
+        :param latency: Latency of the request.
+        :return: :class:`LegacyStatusResponse` object.
+        """
+
+        return cls(
+            players=LegacyStatusPlayers(
+                online=int(decoded_data[3]),
+                max=int(decoded_data[4]),
+            ),
+            version=LegacyStatusVersion(
+                name=decoded_data[1],
+                protocol=int(decoded_data[0]),
+            ),
+            motd=Motd.parse(decoded_data[2]),
+            latency=latency,
+        )
+
+
+@dataclass(frozen=True)
 class BedrockStatusResponse(BaseStatusResponse):
     """The response object for :meth:`BedrockServer.status() <mcstatus.server.BedrockServer.status>`."""
 
@@ -285,6 +318,11 @@ class JavaStatusPlayers(BaseStatusPlayers):
 
 
 @dataclass(frozen=True)
+class LegacyStatusPlayers(BaseStatusPlayers):
+    """Class for storing information about players on the server."""
+
+
+@dataclass(frozen=True)
 class BedrockStatusPlayers(BaseStatusPlayers):
     """Class for storing information about players on the server."""
 
@@ -348,6 +386,11 @@ class JavaStatusVersion(BaseStatusVersion):
         :return: :class:`JavaStatusVersion` object.
         """
         return cls(name=raw["name"], protocol=raw["protocol"])
+
+
+@dataclass(frozen=True)
+class LegacyStatusVersion(BaseStatusVersion):
+    """A class for storing version information."""
 
 
 @dataclass(frozen=True)
