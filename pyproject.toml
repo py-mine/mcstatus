@@ -43,34 +43,33 @@ Documentation = "https://mcstatus.readthedocs.io"
 default-groups = ["dev", "lint", "test", "docs"]
 
 [dependency-groups]
-dev = ["poethepoet>=0.32.1"]
+dev = ["poethepoet~=0.36.0"]
 lint = [
-  "pre-commit>=3.3.3",
-  "ruff>=0.11.2",
-  "pyright>=1.1.322",
-  "typing-extensions>=4.7.1",
+  "pre-commit~=4.0.1",
+  "ruff~=0.12.7",
+  "pyright==1.1.403",
+  "typing-extensions~=4.14.1",
 ]
 test = [
-  "pytest>=7.4,<9.0",
-  "pytest-asyncio>=0.23.2,<0.27.0",
-  "pytest-cov>=4.1,<7.0",
-  "pytest-rerunfailures>=13,<16",
-  "coverage>=7.3.0",
-  "typing-extensions>=4.12.2",
+  "pytest~=8.4.1",
+  "pytest-asyncio~=0.24.0",
+  "pytest-cov~=6.2.1",
+  "pytest-rerunfailures~=15.1",
+  "coverage~=7.6.10",
+  "typing-extensions~=4.14.1",
 ]
 docs = [
-  "sphinx>=7.1.2",
-  "sphinx-autodoc-typehints>=1.24,<3.0",
-  "furo>=2022.12.7",
-  "m2r2>=0.3.3",
-  "tomli>=2.0.1; python_version < '3.11'",
-  "packaging>=24.2",
-  "docutils>=0.18.1,<0.21", # temporary fix for https://github.com/CrossNox/m2r2/issues/68
+  "sphinx~=8.1.3",
+  "sphinx-autodoc-typehints~=2.5.0",
+  "furo>=2025.7.19",
+  "m2r2~=0.3.4",
+  "tomli~=2.2.1; python_version < '3.11'",
+  "packaging~=25.0",
   "uv-dynamic-versioning", # actual version is in `release` group
 ]
 release = [
-  "hatchling>=1.27.0",
-  "uv-dynamic-versioning>=0.8.2",
+  "hatchling~=1.27.0",
+  "uv-dynamic-versioning~=0.8.2",
 ]
 
 [tool.poe.tasks]

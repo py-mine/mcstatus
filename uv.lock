@@ -438,7 +438,6 @@ dev = [
     { name = "poethepoet" },
 ]
 docs = [
-    { name = "docutils" },
     { name = "furo" },
     { name = "m2r2" },
     { name = "packaging" },
@@ -473,34 +472,33 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "poethepoet", specifier = ">=0.32.1" }]
+dev = [{ name = "poethepoet", specifier = "~=0.36.0" }]
 docs = [
-    { name = "docutils", specifier = ">=0.18.1,<0.21" },
-    { name = "furo", specifier = ">=2022.12.7" },
-    { name = "m2r2", specifier = ">=0.3.3" },
-    { name = "packaging", specifier = ">=24.2" },
-    { name = "sphinx", specifier = ">=7.1.2" },
-    { name = "sphinx-autodoc-typehints", specifier = ">=1.24,<3.0" },
-    { name = "tomli", marker = "python_full_version < '3.11'", specifier = ">=2.0.1" },
+    { name = "furo", specifier = ">=2025.7.19" },
+    { name = "m2r2", specifier = "~=0.3.4" },
+    { name = "packaging", specifier = "~=25.0" },
+    { name = "sphinx", specifier = "~=8.1.3" },
+    { name = "sphinx-autodoc-typehints", specifier = "~=2.5.0" },
+    { name = "tomli", marker = "python_full_version < '3.11'", specifier = "~=2.2.1" },
     { name = "uv-dynamic-versioning" },
 ]
 lint = [
-    { name = "pre-commit", specifier = ">=3.3.3" },
-    { name = "pyright", specifier = ">=1.1.322" },
-    { name = "ruff", specifier = ">=0.11.2" },
-    { name = "typing-extensions", specifier = ">=4.7.1" },
+    { name = "pre-commit", specifier = "~=4.0.1" },
+    { name = "pyright", specifier = "==1.1.403" },
+    { name = "ruff", specifier = "~=0.12.7" },
+    { name = "typing-extensions", specifier = "~=4.14.1" },
 ]
 release = [
-    { name = "hatchling", specifier = ">=1.27.0" },
-    { name = "uv-dynamic-versioning", specifier = ">=0.8.2" },
+    { name = "hatchling", specifier = "~=1.27.0" },
+    { name = "uv-dynamic-versioning", specifier = "~=0.8.2" },
 ]
 test = [
-    { name = "coverage", specifier = ">=7.3.0" },
-    { name = "pytest", specifier = ">=7.4,<9.0" },
-    { name = "pytest-asyncio", specifier = ">=0.23.2,<0.27.0" },
-    { name = "pytest-cov", specifier = ">=4.1,<7.0" },
-    { name = "pytest-rerunfailures", specifier = ">=13,<16" },
-    { name = "typing-extensions", specifier = ">=4.12.2" },
+    { name = "coverage", specifier = "~=7.6.10" },
+    { name = "pytest", specifier = "~=8.4.1" },
+    { name = "pytest-asyncio", specifier = "~=0.24.0" },
+    { name = "pytest-cov", specifier = "~=6.2.1" },
+    { name = "pytest-rerunfailures", specifier = "~=15.1" },
+    { name = "typing-extensions", specifier = "~=4.14.1" },
 ]
 
 [[package]]
