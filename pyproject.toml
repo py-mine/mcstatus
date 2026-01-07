@@ -48,7 +48,7 @@ dev = ["poethepoet~=0.36.0"]
 lint = [
   "pre-commit~=4.0.1",
   "ruff~=0.12.7",
-  "pyright==1.1.403",
+  "pyright==1.1.407",
   "typing-extensions~=4.14.1",
 ]
 test = [
@@ -120,7 +120,6 @@ pythonVersion = "3.10"
 typeCheckingMode = "standard"
 
 disableBytesTypePromotions = false
-extend_exclude = ["docs/conf.py"]
 
 [tool.ruff]
 target-version = "py310"
