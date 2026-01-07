@@ -22,7 +22,6 @@ classifiers = [
   "Operating System :: OS Independent",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -33,7 +32,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 keywords = ["minecraft", "protocol"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = ["asyncio-dgram>=2.1.2", "dnspython>=2.4.2"]
 
 [project.urls]
@@ -117,14 +116,14 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.pyright]
 pythonPlatform = "All"
-pythonVersion = "3.9"
+pythonVersion = "3.10"
 typeCheckingMode = "standard"
 
 disableBytesTypePromotions = false
 extend_exclude = ["docs/conf.py"]
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py310"
 line-length = 127
 
 [tool.ruff.lint]
