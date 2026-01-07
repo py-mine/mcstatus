@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
-from typing import Any, Literal, TYPE_CHECKING
+from typing import Any, Literal, TYPE_CHECKING, TypeAlias
 
 from mcstatus.forge_data import ForgeData, RawForgeData
 from mcstatus.motd import Motd
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired, Self, TypeAlias, TypedDict
+    from typing_extensions import NotRequired, Self, TypedDict
 
     class RawJavaResponsePlayer(TypedDict):
         name: str

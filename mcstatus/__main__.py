@@ -6,16 +6,13 @@ import json
 import argparse
 import socket
 import dataclasses
-from typing import TYPE_CHECKING
+from typing import TypeAlias
 
 from mcstatus import JavaServer, LegacyServer, BedrockServer
 from mcstatus.responses import JavaStatusResponse
 from mcstatus.motd import Motd
 
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
-    SupportedServers: TypeAlias = "JavaServer | LegacyServer | BedrockServer"
+SupportedServers: TypeAlias = "JavaServer | LegacyServer | BedrockServer"
 
 PING_PACKET_FAIL_WARNING = (
     "warning: contacting {address} failed with a 'ping' packet but succeeded with a 'status' packet,\n"

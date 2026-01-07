@@ -13,9 +13,9 @@ Setup
    # For MacOS/Linux:
    . .venv/bin/activate
    # For Windows CMD:
-   venv\Scripts\activate.bat
+   .venv\Scripts\activate.bat
    # For Windows PowerShell:
-   venv\Scripts\Activate.ps1
+   .venv\Scripts\Activate.ps1
 
    pre-commit install
 
@@ -51,9 +51,9 @@ Common development tasks
    # For MacOS/Linux:
    . .venv/bin/activate
    # For Windows CMD:
-   venv\Scripts\activate.bat
+   .venv\Scripts\activate.bat
    # For Windows PowerShell:
-   venv\Scripts\Activate.ps1
+   .venv\Scripts\Activate.ps1
 
    poe docs  # Renders documentation from docs/ folder
    poe format  # Executes automatic formatter for style consistency

@@ -11,14 +11,14 @@ from ctypes import c_int64 as signed_int64
 from ctypes import c_uint32 as unsigned_int32
 from ctypes import c_uint64 as unsigned_int64
 from ipaddress import ip_address
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, TypeAlias
 
 import asyncio_dgram
 
 from mcstatus.address import Address
 
 if TYPE_CHECKING:
-    from typing_extensions import Self, SupportsIndex, TypeAlias
+    from typing_extensions import Self, SupportsIndex
 
     BytesConvertable: TypeAlias = "SupportsIndex | Iterable[SupportsIndex]"
 
