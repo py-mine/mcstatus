@@ -45,9 +45,9 @@ class AsyncLegacyServerStatus(_BaseLegacyServerStatus):
         start = perf_counter()
         self.connection.write(self.request_status_data)
         id = await self.connection.read(1)
-        end = perf_counter()
         if id != b"\xff":
             raise IOError("Received invalid packet ID")
         length = await self.connection.read_ushort()
         data = await self.connection.read(length * 2)
+        end = perf_counter()
         return self.parse_response(data, (end - start) * 1000)

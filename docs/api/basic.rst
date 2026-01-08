@@ -15,6 +15,11 @@ These are classes, that you use to send a request to server.
     :undoc-members:
     :show-inheritance:
 
+.. autoclass:: mcstatus.server.BaseJavaServer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. autoclass:: mcstatus.server.JavaServer
     :members:
     :undoc-members:
@@ -86,6 +91,8 @@ For Java Server (1.7+)
 
 For Java Server (pre-1.7)
 *************************
+
+.. versionadded:: 12.1.0
 
 .. module:: mcstatus.responses
     :no-index:

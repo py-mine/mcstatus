@@ -56,7 +56,9 @@ class MCServer(ABC):
 
 
 class BaseJavaServer(MCServer):
-    """Base class for a Minecraft Java Edition server."""
+    """Base class for a Minecraft Java Edition server.
+
+    .. versionadded:: 12.1.0"""
 
     DEFAULT_PORT = 25565
 
@@ -212,7 +214,10 @@ class JavaServer(BaseJavaServer):
 
 
 class LegacyServer(BaseJavaServer):
-    """Base class for a pre-1.7 Minecraft Java Edition server."""
+    """Base class for a pre-1.7 Minecraft Java Edition server.
+
+    .. versionadded:: 12.1.0
+    """
 
     @retry(tries=3)
     def status(self, **kwargs) -> LegacyStatusResponse:
