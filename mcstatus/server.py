@@ -58,7 +58,8 @@ class MCServer(ABC):
 class BaseJavaServer(MCServer):
     """Base class for a Minecraft Java Edition server.
 
-    .. versionadded:: 12.1.0"""
+    .. versionadded:: 12.1.0
+    """
 
     DEFAULT_PORT = 25565
 

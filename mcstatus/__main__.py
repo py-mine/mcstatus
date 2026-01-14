@@ -189,7 +189,12 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     ).set_defaults(func=json_cmd)
 
     args = parser.parse_args(argv)
-    lookup = (JavaServer.lookup if not args.legacy else LegacyServer.lookup) if not args.bedrock else BedrockServer.lookup
+    if args.bedrock:
+        lookup = BedrockServer.lookup
+    elif args.legacy:
+        lookup = LegacyServer.lookup
+    else:
+        lookup = JavaServer.lookup
 
     try:
         server = lookup(args.address)
