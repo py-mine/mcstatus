@@ -89,7 +89,7 @@ For Java Server (1.7+)
     :exclude-members: build
 
 
-For Java Server (pre-1.7)
+For Java Server (1.4-1.6)
 *************************
 
 .. versionadded:: 12.1.0

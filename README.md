@@ -48,7 +48,7 @@ query = server.query()
 print(f"The server has the following players online: {', '.join(query.players.names)}")
 ```
 
-#### Java Edition (pre-1.7)
+#### Java Edition (1.4-1.6)
 
 ```python
 from mcstatus import LegacyServer

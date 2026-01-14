@@ -28,11 +28,11 @@ class LegacyServerStatus(_BaseLegacyServerStatus):
         start = perf_counter()
         self.connection.write(self.request_status_data)
         id = self.connection.read(1)
-        end = perf_counter()
         if id != b"\xff":
             raise IOError("Received invalid packet ID")
         length = self.connection.read_ushort()
         data = self.connection.read(length * 2)
+        end = perf_counter()
         return self.parse_response(data, (end - start) * 1000)
 
 
