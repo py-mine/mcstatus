@@ -21,7 +21,7 @@ python3 -m pip install mcstatus
 
 ### Python API
 
-#### Java Edition
+#### Java Edition (1.7+)
 
 ```python
 from mcstatus import JavaServer
@@ -46,6 +46,20 @@ print(f"The server replied in {latency} ms")
 # It may give more information than a ping, such as a full player list or mod information.
 query = server.query()
 print(f"The server has the following players online: {', '.join(query.players.names)}")
+```
+
+#### Java Edition (1.4-1.6)
+
+```python
+from mcstatus import LegacyServer
+
+# You can pass the same address you'd enter into the address field in minecraft into the 'lookup' function
+# If you know the host and port, you may skip this and use LegacyServer("example.org", 1234)
+server = LegacyServer.lookup("example.org:1234")
+
+# 'status' is supported by all Minecraft servers.
+status = server.status()
+print(f"The server has {status.players.online} player(s) online and replied in {status.latency} ms")
 ```
 
 #### Bedrock Edition

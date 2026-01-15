@@ -16,6 +16,16 @@ versions. They are only documented here for linkable reference to them.
     :undoc-members:
     :show-inheritance:
 
+.. autoclass:: mcstatus.legacy_status.LegacyServerStatus
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: mcstatus.legacy_status.AsyncLegacyServerStatus
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. autoclass:: mcstatus.bedrock_status.BedrockServerStatus
     :members:
     :undoc-members:

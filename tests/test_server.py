@@ -1,12 +1,56 @@
+from __future__ import annotations
+
 import asyncio
+from collections.abc import Iterable
 from unittest.mock import call, patch
+from typing import SupportsIndex, TypeAlias
 
 import pytest
 import pytest_asyncio
 
-from mcstatus.protocol.connection import Connection
+from mcstatus.protocol.connection import BaseAsyncReadSyncWriteConnection, Connection
 from mcstatus.address import Address
-from mcstatus.server import BedrockServer, JavaServer
+from mcstatus.server import BedrockServer, JavaServer, LegacyServer
+
+BytesConvertable: TypeAlias = "SupportsIndex | Iterable[SupportsIndex]"
+
+
+class AsyncConnection(BaseAsyncReadSyncWriteConnection):
+    def __init__(self) -> None:
+        self.sent = bytearray()
+        self.received = bytearray()
+
+    async def read(self, length: int) -> bytearray:
+        """Return :attr:`.received` up to length bytes, then cut received up to that point."""
+        if len(self.received) < length:
+            raise IOError(f"Not enough data to read! {len(self.received)} < {length}")
+
+        result = self.received[:length]
+        self.received = self.received[length:]
+        return result
+
+    def write(self, data: Connection | str | bytearray | bytes) -> None:
+        """Extend :attr:`.sent` from ``data``."""
+        if isinstance(data, Connection):
+            data = data.flush()
+        if isinstance(data, str):
+            data = bytearray(data, "utf-8")
+        self.sent.extend(data)
+
+    def receive(self, data: BytesConvertable | bytearray) -> None:
+        """Extend :attr:`.received` with ``data``."""
+        if not isinstance(data, bytearray):
+            data = bytearray(data)
+        self.received.extend(data)
+
+    def remaining(self) -> int:
+        """Return length of :attr:`.received`."""
+        return len(self.received)
+
+    def flush(self) -> bytearray:
+        """Return :attr:`.sent`, also clears :attr:`.sent`."""
+        result, self.sent = self.sent, bytearray()
+        return result
 
 
 class MockProtocolFactory(asyncio.Protocol):
@@ -217,3 +261,80 @@ class TestJavaServer:
         s = JavaServer.lookup("example.org:4444")
         assert s.address.host == "example.org"
         assert s.address.port == 4444
+
+
+class TestLegacyServer:
+    def setup_method(self):
+        self.socket = Connection()
+        self.server = LegacyServer("localhost")
+
+    def test_default_port(self):
+        assert self.server.address.port == 25565
+
+    def test_lookup_constructor(self):
+        s = LegacyServer.lookup("example.org:4444")
+        assert s.address.host == "example.org"
+        assert s.address.port == 4444
+
+    def test_status(self):
+        self.socket.receive(
+            bytearray.fromhex(
+                "ff002300a70031000000340037000000"
+                "31002e0034002e003200000041002000"
+                "4d0069006e0065006300720061006600"
+                "74002000530065007200760065007200"
+                "000030000000320030"
+            )
+        )
+
+        with patch("mcstatus.server.TCPSocketConnection") as connection:
+            connection.return_value.__enter__.return_value = self.socket
+            info = self.server.status()
+
+        assert self.socket.flush() == bytearray.fromhex("fe01fa")
+        assert self.socket.remaining() == 0, "Data is pending to be read, but should be empty"
+        assert info.as_dict() == {
+            "latency": info.latency,
+            "motd": "A Minecraft Server",
+            "players": {"max": 20, "online": 0},
+            "version": {"name": "1.4.2", "protocol": 47},
+        }
+        assert info.latency >= 0
+
+
+class TestAsyncLegacyServer:
+    def setup_method(self):
+        self.socket = AsyncConnection()
+        self.server = LegacyServer("localhost")
+
+    @pytest.mark.asyncio
+    async def test_async_lookup_constructor(self):
+        s = await LegacyServer.async_lookup("example.org:3333")
+        assert s.address.host == "example.org"
+        assert s.address.port == 3333
+
+    @pytest.mark.asyncio
+    async def test_async_status(self):
+        self.socket.receive(
+            bytearray.fromhex(
+                "ff002300a70031000000340037000000"
+                "31002e0034002e003200000041002000"
+                "4d0069006e0065006300720061006600"
+                "74002000530065007200760065007200"
+                "000030000000320030"
+            )
+        )
+
+        with patch("mcstatus.server.TCPAsyncSocketConnection") as connection:
+            connection.return_value.__aenter__.return_value = self.socket
+            info = await self.server.async_status()
+
+        assert self.socket.flush() == bytearray.fromhex("fe01fa")
+        assert self.socket.remaining() == 0, "Data is pending to be read, but should be empty"
+        assert info.as_dict() == {
+            "latency": info.latency,
+            "motd": "A Minecraft Server",
+            "players": {"max": 20, "online": 0},
+            "version": {"name": "1.4.2", "protocol": 47},
+        }
+        assert info.latency >= 0

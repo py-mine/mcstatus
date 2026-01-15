@@ -1,8 +1,8 @@
 import io
 import socket
 
-from mcstatus import JavaServer, BedrockServer
-from mcstatus.responses import JavaStatusResponse, BedrockStatusResponse, RawJavaResponse
+from mcstatus import JavaServer, LegacyServer, BedrockServer
+from mcstatus.responses import JavaStatusResponse, LegacyStatusResponse, BedrockStatusResponse, RawJavaResponse
 from mcstatus.querier import QueryResponse
 
 import os
@@ -38,6 +38,14 @@ QUERY_RAW_RESPONSE = [
     ["Dinnerbone", "Djinnibone", "Steve"],
 ]
 
+LEGACY_RAW_RESPONSE = [
+    "47",
+    "1.4.2",
+    "A Minecraft Server",
+    "0",
+    "20",
+]
+
 BEDROCK_RAW_RESPONSE = [
     "MCPE",
     "§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r",
@@ -57,9 +65,9 @@ BEDROCK_RAW_RESPONSE = [
 # NOTE: if updating this, be sure to change other occurrences of this help text!
 # to update, use: `COLUMNS=100000 poetry run mcstatus --help`
 EXPECTED_HELP_OUTPUT = """
-usage: mcstatus [-h] [--bedrock] address {ping,status,query,json} ...
+usage: mcstatus [-h] [--bedrock | --legacy] address {ping,status,query,json} ...
 
-mcstatus provides an easy way to query 1.7 or newer Minecraft servers for any information they can expose. It provides three modes of access: query, status, ping and json.
+mcstatus provides an easy way to query Minecraft servers for any information they can expose. It provides three modes of access: query, status, ping and json.
 
 positional arguments:
   address               The address of the server.
@@ -67,6 +75,7 @@ positional arguments:
 options:
   -h, --help            show this help message and exit
   --bedrock             Specifies that 'address' is a Bedrock server (default: Java).
+  --legacy              Specifies that 'address' is a pre-1.7 Java server (default: 1.7+).
 
 commands:
   Command to run, defaults to 'status'.
@@ -94,6 +103,10 @@ def mock_network_requests():
         patch("mcstatus.server.JavaServer.ping", return_value=0),
         patch("mcstatus.server.JavaServer.status", return_value=JavaStatusResponse.build(JAVA_RAW_RESPONSE)),
         patch("mcstatus.server.JavaServer.query", return_value=QueryResponse.build(*QUERY_RAW_RESPONSE)),
+        patch("mcstatus.server.LegacyServer.lookup", return_value=LegacyServer("example.com", port=25565)),
+        patch(
+            "mcstatus.server.LegacyServer.status", return_value=LegacyStatusResponse.build(LEGACY_RAW_RESPONSE, latency=123)
+        ),
         patch("mcstatus.server.BedrockServer.lookup", return_value=BedrockServer("example.com", port=25565)),
         patch(
             "mcstatus.server.BedrockServer.status",
@@ -191,6 +204,16 @@ def test_status_bedrock(mock_network_requests):
     assert err.getvalue() == ""
 
 
+def test_status_legacy(mock_network_requests):
+    with patch_stdout_stderr() as (out, err):
+        assert main_under_test(["example.com", "--legacy", "status"]) == 0
+
+    assert (
+        "version: Java (pre-1.7) 1.4.2 (protocol 47)\nmotd: \x1b[0mA Minecraft Server\x1b[0m\nplayers: 0/20\nping: 123.00 ms\n"
+    ) == out.getvalue()
+    assert err.getvalue() == ""
+
+
 def test_status_offline(mock_network_requests):
     with patch_stdout_stderr() as (out, err), patch("mcstatus.server.JavaServer.status", side_effect=TimeoutError):
         assert main_under_test(["example.com", "status"]) == 1
@@ -278,6 +301,14 @@ def test_ping(mock_network_requests):
 def test_ping_bedrock(mock_network_requests):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "--bedrock", "ping"]) == 0
+
+    assert float(out.getvalue()) == 123
+    assert err.getvalue() == ""
+
+
+def test_ping_legacy(mock_network_requests):
+    with patch_stdout_stderr() as (out, err):
+        assert main_under_test(["example.com", "--legacy", "ping"]) == 0
 
     assert float(out.getvalue()) == 123
     assert err.getvalue() == ""

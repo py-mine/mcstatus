@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus.bedrock_status import BedrockServerStatus
+from mcstatus.legacy_status import AsyncLegacyServerStatus, LegacyServerStatus
 from mcstatus.pinger import AsyncServerPinger, ServerPinger
 from mcstatus.protocol.connection import (
     TCPAsyncSocketConnection,
@@ -13,14 +14,14 @@ from mcstatus.protocol.connection import (
     UDPSocketConnection,
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
-from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse
+from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse
 from mcstatus.utils import retry
 
 if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-__all__ = ["BedrockServer", "JavaServer", "MCServer"]
+__all__ = ["BedrockServer", "JavaServer", "LegacyServer", "MCServer"]
 
 
 class MCServer(ABC):
@@ -54,23 +55,13 @@ class MCServer(ABC):
         return cls(addr.host, addr.port, timeout=timeout)
 
 
-class JavaServer(MCServer):
-    """Base class for a Minecraft Java Edition server."""
+class BaseJavaServer(MCServer):
+    """Base class for a Minecraft Java Edition server.
+
+    .. versionadded:: 12.1.0
+    """
 
     DEFAULT_PORT = 25565
-
-    def __init__(self, host: str, port: int | None = None, timeout: float = 3, query_port: int | None = None):
-        """
-        :param host: The host/ip of the minecraft server.
-        :param port: The port that the server is on.
-        :param timeout: The timeout in seconds before failing to connect.
-        :param query_port: Typically the same as ``port`` but can be different.
-        """
-        super().__init__(host, port, timeout)
-        if query_port is None:
-            query_port = port or self.DEFAULT_PORT
-        self.query_port = query_port
-        _ = Address(host, self.query_port)  # Ensure query_port is valid
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
@@ -95,6 +86,23 @@ class JavaServer(MCServer):
         """
         addr = await async_minecraft_srv_address_lookup(address, default_port=cls.DEFAULT_PORT, lifetime=timeout)
         return cls(addr.host, addr.port, timeout=timeout)
+
+
+class JavaServer(BaseJavaServer):
+    """Base class for a 1.7+ Minecraft Java Edition server."""
+
+    def __init__(self, host: str, port: int | None = None, timeout: float = 3, query_port: int | None = None):
+        """
+        :param host: The host/ip of the minecraft server.
+        :param port: The port that the server is on.
+        :param timeout: The timeout in seconds before failing to connect.
+        :param query_port: Typically the same as ``port`` but can be different.
+        """
+        super().__init__(host, port, timeout)
+        if query_port is None:
+            query_port = port or self.DEFAULT_PORT
+        self.query_port = query_port
+        _ = Address(host, self.query_port)  # Ensure query_port is valid
 
     def ping(self, **kwargs) -> float:
         """Checks the latency between a Minecraft Java Edition server and the client (you).
@@ -204,6 +212,33 @@ class JavaServer(MCServer):
             querier = AsyncServerQuerier(connection)
             await querier.handshake()
             return await querier.read_query()
+
+
+class LegacyServer(BaseJavaServer):
+    """Base class for a pre-1.7 Minecraft Java Edition server.
+
+    .. versionadded:: 12.1.0
+    """
+
+    @retry(tries=3)
+    def status(self, **kwargs) -> LegacyStatusResponse:
+        """Checks the status of a pre-1.7 Minecraft Java Edition server.
+
+        :param kwargs: Passed to a :class:`~mcstatus.legacy_status.LegacyServerStatus` instance.
+        :return: Status information in a :class:`~mcstatus.responses.LegacyStatusResponse` instance.
+        """
+        with TCPSocketConnection(self.address, self.timeout) as connection:
+            return LegacyServerStatus(connection, **kwargs).read_status()
+
+    @retry(tries=3)
+    async def async_status(self, **kwargs) -> LegacyStatusResponse:
+        """Asynchronously check the status of a pre-1.7 Minecraft Java Edition server.
+
+        :param kwargs: Passed to a :class:`~mcstatus.legacy_status.AsyncLegacyServerStatus` instance.
+        :return: Status information in a :class:`~mcstatus.responses.LegacyStatusResponse` instance.
+        """
+        async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
+            return await AsyncLegacyServerStatus(connection, **kwargs).read_status()
 
 
 class BedrockServer(MCServer):
