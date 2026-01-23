@@ -28,4 +28,7 @@
       "matchCategories": ["python"],
     },
   ],
+  "lockFileMaintenance": {
+    "enable": true,
+  },
 }
