@@ -8,7 +8,6 @@
     ":ignoreModulesAndTests",
     ":prHourlyLimitNone",
     ":semanticCommitsDisabled",
-    ":semanticPrefixFixDepsChoreOthers",
     "group:allNonMajor",
     "mergeConfidence:all-badges",
     "replacements:all",
