@@ -666,7 +666,7 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
 
     async def read(self, length: int) -> bytearray:
         """Read from :attr:`.stream`. Length does nothing here."""
-        data, remote_addr = await asyncio.wait_for(self.stream.recv(), timeout=self.timeout)
+        data, _remote_addr = await asyncio.wait_for(self.stream.recv(), timeout=self.timeout)
         return bytearray(data)
 
     async def write(self, data: Connection | str | bytes | bytearray) -> None:
