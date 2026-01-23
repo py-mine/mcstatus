@@ -21,11 +21,11 @@
     {
       "groupName": "GitHub Actions",
       "matchManagers": ["github-actions"],
-      "labels": ["a: devops"],
+      "addLables": ["a: devops"],
     },
     {
       "groupName": "Python Dependencies",
-      "matchManagers": ["pep621"],
+      "matchCategories": ["python"],
     },
   ],
 }
