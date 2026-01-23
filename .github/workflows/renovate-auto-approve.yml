@@ -6,9 +6,9 @@ permissions:
   pull-requests: write
 
 jobs:
-  dependabot:
+  renovate:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
+    if: github.actor == 'renovate[bot]'
     steps:
       - name: Generate token
         id: app-token
