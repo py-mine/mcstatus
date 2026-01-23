@@ -21,7 +21,7 @@
     {
       "groupName": "GitHub Actions",
       "matchManagers": ["github-actions"],
-      "addLables": ["a: devops"],
+      "addLabels": ["a: devops"],
     },
     {
       "groupName": "Python Dependencies",
@@ -29,6 +29,6 @@
     },
   ],
   "lockFileMaintenance": {
-    "enable": true,
+    "enabled": true,
   },
 }
