@@ -1,0 +1,34 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    ":automergeMinor",
+    ":automergePr",
+    ":combinePatchMinorReleases",
+    ":configMigration",
+    ":dependencyDashboard",
+    ":ignoreModulesAndTests",
+    ":prHourlyLimitNone",
+    ":semanticCommitsDisabled",
+    "group:allNonMajor",
+    "mergeConfidence:all-badges",
+    "replacements:all",
+    "schedule:daily",
+    "workarounds:all",
+  ],
+
+  "labels": ["a: dependencies"],
+  "packageRules": [
+    {
+      "groupName": "GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "addLables": ["a: devops"],
+    },
+    {
+      "groupName": "Python Dependencies",
+      "matchCategories": ["python"],
+    },
+  ],
+  "lockFileMaintenance": {
+    "enable": true,
+  },
+}
