@@ -8,8 +8,8 @@ from mcstatus.responses import RawJavaResponseMotdWhenDict
 
 
 class TestMotdParse:
-    def test_correct_result(self, source):
-        assert Motd.parse(source) == Motd(
+    def test_correct_result(self, source_bedrock):
+        assert Motd.parse(source_bedrock) == Motd(
             [
                 "top", Formatting.RESET,
                 "1", Formatting.RESET,
@@ -32,10 +32,21 @@ class TestMotdParse:
                 MinecraftColor.YELLOW, "18", Formatting.RESET,
                 MinecraftColor.WHITE, "19", Formatting.RESET,
                 MinecraftColor.MINECOIN_GOLD, "20", Formatting.RESET,
-                Formatting.RESET, "21", Formatting.RESET,
+                MinecraftColor.MATERIAL_QUARTZ, "21", Formatting.RESET,
+                MinecraftColor.MATERIAL_IRON, "22", Formatting.RESET,
+                MinecraftColor.MATERIAL_NETHERITE, "23", Formatting.RESET,
+                MinecraftColor.MATERIAL_REDSTONE, "24", Formatting.RESET,
+                MinecraftColor.MATERIAL_COPPER, "25", Formatting.RESET,
+                MinecraftColor.MATERIAL_GOLD, "26", Formatting.RESET,
+                MinecraftColor.MATERIAL_EMERALD, "27", Formatting.RESET,
+                MinecraftColor.MATERIAL_DIAMOND, "28", Formatting.RESET,
+                MinecraftColor.MATERIAL_LAPIS, "29", Formatting.RESET,
+                MinecraftColor.MATERIAL_AMETHYST, "30", Formatting.RESET,
+                MinecraftColor.MATERIAL_RESIN, "31", Formatting.RESET,
+                Formatting.RESET, "32", Formatting.RESET,
                 TranslationTag("some.random.string"), Formatting.RESET,
             ],
-            raw=source,
+            raw=source_bedrock,
         )  # fmt: skip
 
     @pytest.mark.parametrize("bedrock", (True, False))
@@ -53,7 +64,7 @@ class TestMotdParse:
 
     def test_parse_incorrect_color_passes(self):
         """See `https://github.com/py-mine/mcstatus/pull/335#discussion_r985084188`_."""
-        assert Motd.parse("&j").parsed == ["&j"]
+        assert Motd.parse("&z").parsed == ["&z"]
 
     def test_parse_uppercase_passes(self):
         assert Motd.parse("&A").parsed == ["", MinecraftColor.GREEN, ""]
@@ -186,6 +197,6 @@ class TestMotdParse:
             Formatting.RESET,
         ]  # fmt: skip
 
-    def test_raw_attribute(self, source):
-        motd = Motd.parse(source)
-        assert motd.raw == source
+    def test_raw_attribute(self, source_bedrock):
+        motd = Motd.parse(source_bedrock)
+        assert motd.raw == source_bedrock

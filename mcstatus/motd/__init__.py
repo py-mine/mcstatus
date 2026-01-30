@@ -173,7 +173,7 @@ class Motd:
     def simplify(self) -> Self:
         """Create new MOTD without unused elements.
 
-        After parsing, the MOTD may contain some unused elements, like empty strings, or formattings/colors
+        After parsing, the MOTD may contain some unused elements, like empty strings, or formatting/colors
         that don't apply to anything. This method is responsible for creating a new motd with all such elements
         removed, providing a much cleaner representation.
 
@@ -222,4 +222,4 @@ class Motd:
 
         .. seealso:: https://en.wikipedia.org/wiki/ANSI_escape_code
         """
-        return AnsiTransformer().transform(self.parsed)
+        return AnsiTransformer(bedrock=self.bedrock).transform(self.parsed)

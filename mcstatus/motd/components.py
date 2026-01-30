@@ -53,6 +53,17 @@ class MinecraftColor(Enum):
 
     # Only for bedrock
     MINECOIN_GOLD = "g"
+    MATERIAL_QUARTZ = "h"
+    MATERIAL_IRON = "i"
+    MATERIAL_NETHERITE = "j"
+    MATERIAL_REDSTONE = "m"
+    MATERIAL_COPPER = "n"
+    MATERIAL_GOLD = "p"
+    MATERIAL_EMERALD = "q"
+    MATERIAL_DIAMOND = "s"
+    MATERIAL_LAPIS = "t"
+    MATERIAL_AMETHYST = "u"
+    MATERIAL_RESIN = "v"
 
 
 @dataclass(frozen=True)
