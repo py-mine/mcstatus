@@ -28,24 +28,28 @@ _SHARED_MINECRAFT_COLOR_TO_RGB = {
     MinecraftColor.YELLOW: ((255, 255, 85), (63, 63, 21)),
     MinecraftColor.WHITE: ((255, 255, 255), (63, 63, 63)),
 }
-MINECRAFT_COLOR_TO_RGB_JAVA = _SHARED_MINECRAFT_COLOR_TO_RGB | {
-    MinecraftColor.GRAY: ((170, 170, 170), (42, 42, 42)),
-}
-MINECRAFT_COLOR_TO_RGB_BEDROCK = _SHARED_MINECRAFT_COLOR_TO_RGB | {
-    MinecraftColor.GRAY: ((198, 198, 198), (49, 49, 49)),
-    MinecraftColor.MINECOIN_GOLD: ((221, 214, 5), (55, 53, 1)),
-    MinecraftColor.MATERIAL_QUARTZ: ((227, 212, 209), (56, 53, 52)),
-    MinecraftColor.MATERIAL_IRON: ((206, 202, 202), (51, 50, 50)),
-    MinecraftColor.MATERIAL_NETHERITE: ((68, 58, 59), (17, 14, 14)),
-    MinecraftColor.MATERIAL_REDSTONE: ((151, 22, 7), (37, 5, 1)),
-    MinecraftColor.MATERIAL_COPPER: ((180, 104, 77), (45, 26, 19)),
-    MinecraftColor.MATERIAL_GOLD: ((222, 177, 45), (55, 44, 11)),
-    MinecraftColor.MATERIAL_EMERALD: ((17, 159, 54), (4, 40, 13)),
-    MinecraftColor.MATERIAL_DIAMOND: ((44, 186, 168), (11, 46, 42)),
-    MinecraftColor.MATERIAL_LAPIS: ((33, 73, 123), (8, 18, 30)),
-    MinecraftColor.MATERIAL_AMETHYST: ((154, 92, 198), (38, 23, 49)),
-    MinecraftColor.MATERIAL_RESIN: ((235, 114, 20), (59, 29, 5)),
-}
+
+MINECRAFT_COLOR_TO_RGB_JAVA = _SHARED_MINECRAFT_COLOR_TO_RGB.copy()
+MINECRAFT_COLOR_TO_RGB_JAVA[MinecraftColor.GRAY] = ((170, 170, 170), (42, 42, 42))
+
+MINECRAFT_COLOR_TO_RGB_BEDROCK = _SHARED_MINECRAFT_COLOR_TO_RGB.copy()
+MINECRAFT_COLOR_TO_RGB_BEDROCK.update(
+    {
+        MinecraftColor.GRAY: ((198, 198, 198), (49, 49, 49)),
+        MinecraftColor.MINECOIN_GOLD: ((221, 214, 5), (55, 53, 1)),
+        MinecraftColor.MATERIAL_QUARTZ: ((227, 212, 209), (56, 53, 52)),
+        MinecraftColor.MATERIAL_IRON: ((206, 202, 202), (51, 50, 50)),
+        MinecraftColor.MATERIAL_NETHERITE: ((68, 58, 59), (17, 14, 14)),
+        MinecraftColor.MATERIAL_REDSTONE: ((151, 22, 7), (37, 5, 1)),
+        MinecraftColor.MATERIAL_COPPER: ((180, 104, 77), (45, 26, 19)),
+        MinecraftColor.MATERIAL_GOLD: ((222, 177, 45), (55, 44, 11)),
+        MinecraftColor.MATERIAL_EMERALD: ((17, 159, 54), (4, 40, 13)),
+        MinecraftColor.MATERIAL_DIAMOND: ((44, 186, 168), (11, 46, 42)),
+        MinecraftColor.MATERIAL_LAPIS: ((33, 73, 123), (8, 18, 30)),
+        MinecraftColor.MATERIAL_AMETHYST: ((154, 92, 198), (38, 23, 49)),
+        MinecraftColor.MATERIAL_RESIN: ((235, 114, 20), (59, 29, 5)),
+    }
+)
 
 
 class BaseTransformer(abc.ABC, t.Generic[_HOOK_RETURN_TYPE, _END_RESULT_TYPE]):
