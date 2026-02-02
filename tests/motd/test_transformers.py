@@ -6,19 +6,15 @@ from collections.abc import Callable
 import pytest
 
 from mcstatus.motd import Motd
-from mcstatus.motd.transformers import AnsiTransformer, HtmlTransformer, MinecraftTransformer, PlainTransformer
 
 if typing.TYPE_CHECKING:
     from mcstatus.responses import RawJavaResponseMotd
 
 
 class TestMotdPlain:
-    @pytest.fixture(scope="class", params=["attribute", "function"])
-    def result(self, request) -> Callable[[str | RawJavaResponseMotd], str]:
-        if request.param == "attribute":
-            return lambda text: Motd.parse(text).to_plain()
-        else:
-            return lambda text: PlainTransformer().transform(Motd.parse(text).parsed)
+    @pytest.fixture(scope="class")
+    def result(self) -> Callable[[str | RawJavaResponseMotd], str]:
+        return lambda text: Motd.parse(text).to_plain()
 
     def test_plain_text(self, result):
         assert result("plain") == "plain"
@@ -34,12 +30,9 @@ class TestMotdPlain:
 
 
 class TestMotdMinecraft:
-    @pytest.fixture(scope="class", params=["attribute", "function"])
-    def result(self, request) -> Callable[[str | RawJavaResponseMotd], str]:
-        if request.param == "attribute":
-            return lambda text: Motd.parse(text).to_minecraft()
-        else:
-            return lambda text: MinecraftTransformer().transform(Motd.parse(text).parsed)
+    @pytest.fixture(scope="class")
+    def result(self) -> Callable[[str | RawJavaResponseMotd], str]:
+        return lambda text: Motd.parse(text).to_minecraft()
 
     @pytest.mark.parametrize("motd", ["&1&2&3", "§123§5bc", "§1§2§3"])
     def test_return_the_same(self, motd: str, result):
@@ -50,12 +43,9 @@ class TestMotdMinecraft:
 
 
 class TestMotdHTML:
-    @pytest.fixture(scope="class", params=["attribute", "class"])
-    def result(self, request) -> Callable[[str, bool], str]:
-        if request.param == "attribute":
-            return lambda text, bedrock: Motd.parse(text, bedrock=bedrock).to_html()
-        else:
-            return lambda text, bedrock: HtmlTransformer(bedrock=bedrock).transform(Motd.parse(text, bedrock=bedrock).parsed)
+    @pytest.fixture(scope="class")
+    def result(self) -> Callable[[str, bool], str]:
+        return lambda text, bedrock: Motd.parse(text, bedrock=bedrock).to_html()
 
     @pytest.mark.parametrize("bedrock", (True, False))
     def test_correct_output(self, result: Callable[["str | dict", bool], str], source, bedrock: bool):
@@ -120,12 +110,9 @@ class TestMotdAnsi:
             "\033[0m\033[0m"
         )
 
-    @pytest.fixture(scope="class", params=["attribute", "class"])
-    def result(self, request) -> Callable[[str, bool], str]:
-        if request.param == "attribute":
-            return lambda text, bedrock: Motd.parse(text, bedrock=bedrock).to_ansi()
-        else:
-            return lambda text, bedrock: AnsiTransformer().transform(Motd.parse(text, bedrock=bedrock).parsed)
+    @pytest.fixture(scope="class")
+    def result(self) -> Callable[[str, bool], str]:
+        return lambda text, bedrock: Motd.parse(text, bedrock=bedrock).to_ansi()
 
     def test_correct_output(self, result: Callable[[str | dict, bool], str], source, bedrock, expected_result):
         assert result(source, bedrock) == expected_result
