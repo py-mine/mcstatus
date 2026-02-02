@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 import typing as t
+import warnings
 from collections.abc import Callable, Sequence
 
 from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
@@ -207,7 +208,17 @@ class AnsiTransformer(PlainTransformer):
         key: foreground for key, (foreground, _background) in MINECRAFT_COLOR_TO_RGB_BEDROCK.items()
     }
 
-    def __init__(self, *, bedrock: bool = False) -> None:
+    def __init__(self, *, bedrock: bool | None = None) -> None:
+        if bedrock is None:
+            bedrock = True
+            warnings.warn(
+                "Calling `AnsiTransformer` without an argument is deprecated,"
+                + " transformers are no longer a part of public API. Use"
+                + " `Motd.to_ansi()` instead. This will raise an error after 14.0.0",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+
         self.bedrock = bedrock
 
     def ansi_color(self, color: tuple[int, int, int] | MinecraftColor) -> str:

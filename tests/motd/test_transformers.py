@@ -191,3 +191,7 @@ class TestMotdAnsi:
             "32\033[0m"
             "\033[0m\033[0m"
         )
+
+    def test_no_bedrock_argument_deprecation(self):
+        with pytest.deprecated_call(match="without an argument is deprecated"):
+            AnsiTransformer()
