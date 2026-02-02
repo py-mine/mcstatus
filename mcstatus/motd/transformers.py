@@ -147,6 +147,9 @@ class HtmlTransformer(PlainTransformer):
     def _format_output(self, results: list[str]) -> str:
         return "<p>" + super()._format_output(results) + "".join(self.on_reset) + "</p>"
 
+    def _handle_str(self, element: str, /) -> str:
+        return element.replace("\n", "<br>")
+
     def _handle_minecraft_color(self, element: MinecraftColor, /) -> str:
         color_map = self.MINECRAFT_COLOR_TO_RGB_BEDROCK if self.bedrock else self.MINECRAFT_COLOR_TO_RGB_JAVA
         fg_color, bg_color = color_map[element]
