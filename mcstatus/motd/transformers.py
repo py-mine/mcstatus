@@ -87,19 +87,11 @@ class NothingTransformer(BaseTransformer[str, str]):
 
 
 class PlainTransformer(NothingTransformer):
-    """Transforms MOTD to a plain string, without any formatting characters.
-
-    Example:
-        ``&0Hello &oWorld`` turns into ``Hello World``.
-    """
-
     def _handle_str(self, element: str, /) -> str:
         return element
 
 
 class MinecraftTransformer(PlainTransformer):
-    """Transforms MOTD to the Minecraft format, e.g. ``&0Hello &oWorld``."""
-
     def _handle_component(self, component: ParsedMotdComponent) -> tuple[str, str] | tuple[str]:
         result = super()._handle_component(component)
         if len(result) == 2:
@@ -114,54 +106,6 @@ class MinecraftTransformer(PlainTransformer):
 
 
 class HtmlTransformer(PlainTransformer):
-    """Transforms MOTD to the HTML format.
-
-    The result is always wrapped in a ``<p>`` tag, if you need to remove it,
-    just do ``result.removeprefix("<p>").removesuffix("</p>")``.
-
-    .. note::
-        You should implement the "obfuscated" CSS class yourself using this snippet:
-
-        .. code-block:: javascript
-
-            const obfuscatedCharacters =
-              "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()-_=+[]\\"';:<>,./?";
-            const obfuscatedElems = document.querySelectorAll(".obfuscated");
-
-            if (obfuscatedElems !== undefined) {
-              const render = () => {
-                obfuscatedElems.forEach((elem) => {
-                  let value = "";
-
-                  for (let i = 0, l = elem.innerText.length; i < l; i++) {
-                    value += obfuscatedCharacters.charAt(
-                      Math.floor(Math.random() * obfuscatedCharacters.length),
-                    );
-                  }
-
-                  elem.innerText = value;
-                });
-                setTimeout(render, 50);
-              };
-              render();
-            }
-
-        Also do note that this formatting does not make sense with
-        non-monospace fonts.
-
-    Example:
-        ``&6Hello&o from &rAnother &kWorld`` turns into
-
-        .. code-block:: html
-
-            <!-- there are no new lines in the actual output, those are added for readability -->
-            <p>
-             <span style='color:rgb(255, 170, 0);text-shadow:0 0 1px rgb(42, 42, 0)'>
-              Hello<i> from </span></i>
-              Another <span class=obfuscated>World</span>
-            </p>
-    """
-
     FORMATTING_TO_HTML_TAGS = {
         Formatting.BOLD: "b",
         Formatting.STRIKETHROUGH: "s",
@@ -228,14 +172,6 @@ class HtmlTransformer(PlainTransformer):
 
 
 class AnsiTransformer(PlainTransformer):
-    """Transform MOTD to the ANSI format.
-
-    ANSI is mostly used for printing colored text in the terminal. See also
-    https://en.wikipedia.org/wiki/ANSI_escape_code.
-
-    "Obfuscated" formatting (``&k``) is shown as a blinking one.
-    """
-
     FORMATTING_TO_ANSI_TAGS = {
         Formatting.BOLD: "1",
         Formatting.STRIKETHROUGH: "9",

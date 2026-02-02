@@ -25,31 +25,3 @@ Those are used in :attr:`~mcstatus.motd.Motd.parsed` field.
 
     .. py:type:: ParsedMotdComponent
       :canonical: Formatting | MinecraftColor | WebColor | TranslationTag | str
-
-
-Transformers
-------------
-
-These are basic transformers, that you can use to show a MOTD in different
-places (like browser or even terminal). Here is an example on how to use them:
-
-.. code-block:: python
-
-    PlainTransformer().transform(status.motd.parsed)
-    # or you can also use
-    status.motd.to_plain()
-
-But you should generally prefer :meth:`~mcstatus.motd.Motd.to_plain`,
-:meth:`~mcstatus.motd.Motd.to_minecraft`, :meth:`~mcstatus.motd.Motd.to_html` or
-:meth:`~mcstatus.motd.Motd.to_ansi`.
-
-.. module:: mcstatus.motd.transformers
-    :no-index:
-
-    .. autoclass:: PlainTransformer
-
-    .. autoclass:: MinecraftTransformer
-
-    .. autoclass:: HtmlTransformer
-
-    .. autoclass:: AnsiTransformer

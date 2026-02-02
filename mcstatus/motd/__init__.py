@@ -193,33 +193,80 @@ class Motd:
     def to_plain(self) -> str:
         """Get plain text from a MOTD, without any colors/formatting.
 
-        This is just a shortcut to :class:`~mcstatus.motd.transformers.PlainTransformer`.
+        Example:
+            ``&0Hello &oWorld`` turns into ``Hello World``.
         """
         return PlainTransformer().transform(self.parsed)
 
     def to_minecraft(self) -> str:
-        """Get Minecraft variant from a MOTD.
-
-        This is just a shortcut to :class:`~mcstatus.motd.transformers.MinecraftTransformer`.
+        """Transform MOTD to the Minecraft representation.
 
         .. note:: This will always use ``§``, even if in original MOTD used ``&``.
+
+        Example:
+            .. code-block:: python
+
+                >>> Motd.parse("&0Hello &oWorld")
+                "§0Hello §oWorld"
         """
         return MinecraftTransformer().transform(self.parsed)
 
     def to_html(self) -> str:
-        """Get HTML from a MOTD.
+        """Transforms MOTD to the HTML format.
 
-        This is just a shortcut to :class:`~mcstatus.motd.transformers.HtmlTransformer`.
+        The result is always wrapped in a ``<p>`` tag, if you need to remove it,
+        just do ``result.removeprefix("<p>").removesuffix("</p>")``.
+
+        .. note::
+            You should implement the "obfuscated" CSS class yourself using this snippet:
+
+            .. code-block:: javascript
+
+                const obfuscatedCharacters =
+                  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()-_=+[]\\"';:<>,./?";
+                const obfuscatedElems = document.querySelectorAll(".obfuscated");
+
+                if (obfuscatedElems !== undefined) {
+                  const render = () => {
+                    obfuscatedElems.forEach((elem) => {
+                      let value = "";
+
+                      for (let i = 0, l = elem.innerText.length; i < l; i++) {
+                        value += obfuscatedCharacters.charAt(
+                          Math.floor(Math.random() * obfuscatedCharacters.length),
+                        );
+                      }
+
+                      elem.innerText = value;
+                    });
+                    setTimeout(render, 50);
+                  };
+                  render();
+                }
+
+            Also do note that this formatting does not make sense with
+            non-monospace fonts.
+
+        Example:
+            ``&6Hello&o from &rAnother &kWorld`` turns into
+
+            .. code-block:: html
+
+                <!-- there are no new lines in the actual output, those are added for readability -->
+                <p>
+                 <span style='color:rgb(255, 170, 0);text-shadow:0 0 1px rgb(42, 42, 0)'>
+                  Hello<i> from </span></i>
+                  Another <span class=obfuscated>World</span>
+                </p>
         """
         return HtmlTransformer(bedrock=self.bedrock).transform(self.parsed)
 
     def to_ansi(self) -> str:
-        """Get ANSI variant from a MOTD.
+        """Transform MOTD to the ANSI format.
 
-        This is just a shortcut to :class:`~mcstatus.motd.transformers.AnsiTransformer`.
+        ANSI is mostly used for printing colored text in the terminal. See also
+        https://en.wikipedia.org/wiki/ANSI_escape_code.
 
-        .. note:: We support only ANSI 24 bit colors, please implement your own transformer if you need other standards.
-
-        .. seealso:: https://en.wikipedia.org/wiki/ANSI_escape_code
+        "Obfuscated" formatting (``&k``) is shown as a blinking one.
         """
         return AnsiTransformer().transform(self.parsed)
