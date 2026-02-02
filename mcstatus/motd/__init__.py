@@ -30,9 +30,9 @@ class Motd:
     Bases on this attribute, you can easily write your own MOTD-to-something parser.
     """
     raw: RawJavaResponseMotd
-    """MOTD in raw format, just like the server gave."""
+    """MOTD in raw format, just what the server sent us."""
     bedrock: bool = False
-    """Is server Bedrock Edition? Some details may change in work of this class."""
+    """Is the server Bedrock Edition?"""
 
     @classmethod
     def parse(
@@ -173,7 +173,7 @@ class Motd:
     def simplify(self) -> Self:
         """Create new MOTD without unused elements.
 
-        After parsing, the MOTD may contain some unused elements, like empty strings, or formattings/colors
+        After parsing, the MOTD may contain some unused elements, like empty strings, or formatting/colors
         that don't apply to anything. This method is responsible for creating a new motd with all such elements
         removed, providing a much cleaner representation.
 

@@ -23,26 +23,33 @@ Those are used in :attr:`~mcstatus.motd.Motd.parsed` field.
     :members:
     :undoc-members:
 
+    .. py:type:: ParsedMotdComponent
+      :canonical: Formatting | MinecraftColor | WebColor | TranslationTag | str
+
 
 Transformers
 ------------
 
-These are basic transformers, that you can use to show a MOTD in different places (like browser or even terminal).
+These are basic transformers, that you can use to show a MOTD in different
+places (like browser or even terminal). Here is an example on how to use them:
 
-.. automodule:: mcstatus.motd.transformers
-    :members:
-    :undoc-members:
-    :private-members:
-    :exclude-members: HtmlTransformer, AnsiTransformer, _abc_impl
+.. code-block:: python
 
-        .. autoclass:: HtmlTransformer
-            :members:
-            :undoc-members:
-            :private-members:
-            :exclude-members: _abc_impl, FORMATTING_TO_HTML_TAGS, MINECRAFT_COLOR_TO_RGB_BEDROCK, MINECRAFT_COLOR_TO_RGB_JAVA
+    PlainTransformer().transform(status.motd.parsed)
+    # or you can also use
+    status.motd.to_plain()
 
-        .. autoclass:: AnsiTransformer
-            :members:
-            :undoc-members:
-            :private-members:
-            :exclude-members: _abc_impl, FORMATTING_TO_ANSI_TAGS, MINECRAFT_COLOR_TO_RGB
+But you should generally prefer :meth:`~mcstatus.motd.Motd.to_plain`,
+:meth:`~mcstatus.motd.Motd.to_minecraft`, :meth:`~mcstatus.motd.Motd.to_html` or
+:meth:`~mcstatus.motd.Motd.to_ansi`.
+
+.. module:: mcstatus.motd.transformers
+    :no-index:
+
+    .. autoclass:: PlainTransformer
+
+    .. autoclass:: MinecraftTransformer
+
+    .. autoclass:: HtmlTransformer
+
+    .. autoclass:: AnsiTransformer
