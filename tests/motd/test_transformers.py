@@ -86,6 +86,10 @@ class TestMotdHTML:
             "21</p>"
         )
 
+    def test_new_line_is_br_tag(self):
+        motd = Motd.parse("Some cool\ntext")
+        assert motd.to_html() == "<p>Some cool<br>text</p>"
+
 
 class TestMotdAnsi:
     @pytest.fixture(scope="class", params=[True, False])
