@@ -270,4 +270,4 @@ class Motd:
 
         "Obfuscated" formatting (``&k``) is shown as a blinking one.
         """
-        return AnsiTransformer().transform(self.parsed)
+        return AnsiTransformer(bedrock=self.bedrock).transform(self.parsed)

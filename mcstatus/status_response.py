@@ -29,7 +29,7 @@ __all__ = [
 import warnings
 
 warnings.warn(
-    "`mcstatus.status_response` is deprecated, and will be removed at 2025-12, use `mcstatus.responses` instead",
+    "`mcstatus.status_response` is deprecated, and will be removed in 13.0.0, use `mcstatus.responses` instead",
     DeprecationWarning,
     stacklevel=2,
 )

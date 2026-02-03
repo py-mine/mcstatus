@@ -2,12 +2,55 @@ from __future__ import annotations
 
 import abc
 import typing as t
+import warnings
 from collections.abc import Callable, Sequence
 
 from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
 
 _HOOK_RETURN_TYPE = t.TypeVar("_HOOK_RETURN_TYPE")
 _END_RESULT_TYPE = t.TypeVar("_END_RESULT_TYPE")
+
+# MinecraftColor: (foreground, background)
+_SHARED_MINECRAFT_COLOR_TO_RGB = {
+    MinecraftColor.BLACK: ((0, 0, 0), (0, 0, 0)),
+    MinecraftColor.DARK_BLUE: ((0, 0, 170), (0, 0, 42)),
+    MinecraftColor.DARK_GREEN: ((0, 170, 0), (0, 42, 0)),
+    MinecraftColor.DARK_AQUA: ((0, 170, 170), (0, 42, 42)),
+    MinecraftColor.DARK_RED: ((170, 0, 0), (42, 0, 0)),
+    MinecraftColor.DARK_PURPLE: ((170, 0, 170), (42, 0, 42)),
+    MinecraftColor.GOLD: ((255, 170, 0), (64, 42, 0)),
+    MinecraftColor.GRAY: ((170, 170, 170), (42, 42, 42)),
+    MinecraftColor.DARK_GRAY: ((85, 85, 85), (21, 21, 21)),
+    MinecraftColor.BLUE: ((85, 85, 255), (21, 21, 63)),
+    MinecraftColor.GREEN: ((85, 255, 85), (21, 63, 21)),
+    MinecraftColor.AQUA: ((85, 255, 255), (21, 63, 63)),
+    MinecraftColor.RED: ((255, 85, 85), (63, 21, 21)),
+    MinecraftColor.LIGHT_PURPLE: ((255, 85, 255), (63, 21, 63)),
+    MinecraftColor.YELLOW: ((255, 255, 85), (63, 63, 21)),
+    MinecraftColor.WHITE: ((255, 255, 255), (63, 63, 63)),
+}
+
+MINECRAFT_COLOR_TO_RGB_JAVA = _SHARED_MINECRAFT_COLOR_TO_RGB.copy()
+MINECRAFT_COLOR_TO_RGB_JAVA[MinecraftColor.GRAY] = ((170, 170, 170), (42, 42, 42))
+
+MINECRAFT_COLOR_TO_RGB_BEDROCK = _SHARED_MINECRAFT_COLOR_TO_RGB.copy()
+MINECRAFT_COLOR_TO_RGB_BEDROCK.update(
+    {
+        MinecraftColor.GRAY: ((198, 198, 198), (49, 49, 49)),
+        MinecraftColor.MINECOIN_GOLD: ((221, 214, 5), (55, 53, 1)),
+        MinecraftColor.MATERIAL_QUARTZ: ((227, 212, 209), (56, 53, 52)),
+        MinecraftColor.MATERIAL_IRON: ((206, 202, 202), (51, 50, 50)),
+        MinecraftColor.MATERIAL_NETHERITE: ((68, 58, 59), (17, 14, 14)),
+        MinecraftColor.MATERIAL_REDSTONE: ((151, 22, 7), (37, 5, 1)),
+        MinecraftColor.MATERIAL_COPPER: ((180, 104, 77), (45, 26, 19)),
+        MinecraftColor.MATERIAL_GOLD: ((222, 177, 45), (55, 44, 11)),
+        MinecraftColor.MATERIAL_EMERALD: ((17, 159, 54), (4, 40, 13)),
+        MinecraftColor.MATERIAL_DIAMOND: ((44, 186, 168), (11, 46, 42)),
+        MinecraftColor.MATERIAL_LAPIS: ((33, 73, 123), (8, 18, 30)),
+        MinecraftColor.MATERIAL_AMETHYST: ((154, 92, 198), (38, 23, 49)),
+        MinecraftColor.MATERIAL_RESIN: ((235, 114, 20), (59, 29, 5)),
+    }
+)
 
 
 class BaseTransformer(abc.ABC, t.Generic[_HOOK_RETURN_TYPE, _END_RESULT_TYPE]):
@@ -110,27 +153,6 @@ class HtmlTransformer(PlainTransformer):
         Formatting.ITALIC: "i",
         Formatting.UNDERLINED: "u",
     }
-    MINECRAFT_COLOR_TO_RGB_BEDROCK = {
-        MinecraftColor.BLACK: ((0, 0, 0), (0, 0, 0)),
-        MinecraftColor.DARK_BLUE: ((0, 0, 170), (0, 0, 42)),
-        MinecraftColor.DARK_GREEN: ((0, 170, 0), (0, 42, 0)),
-        MinecraftColor.DARK_AQUA: ((0, 170, 170), (0, 42, 42)),
-        MinecraftColor.DARK_RED: ((170, 0, 0), (42, 0, 0)),
-        MinecraftColor.DARK_PURPLE: ((170, 0, 170), (42, 0, 42)),
-        MinecraftColor.GOLD: ((255, 170, 0), (64, 42, 0)),
-        MinecraftColor.GRAY: ((170, 170, 170), (42, 42, 42)),
-        MinecraftColor.DARK_GRAY: ((85, 85, 85), (21, 21, 21)),
-        MinecraftColor.BLUE: ((85, 85, 255), (21, 21, 63)),
-        MinecraftColor.GREEN: ((85, 255, 85), (21, 63, 21)),
-        MinecraftColor.AQUA: ((85, 255, 255), (21, 63, 63)),
-        MinecraftColor.RED: ((255, 85, 85), (63, 21, 21)),
-        MinecraftColor.LIGHT_PURPLE: ((255, 85, 255), (63, 21, 63)),
-        MinecraftColor.YELLOW: ((255, 255, 85), (63, 63, 21)),
-        MinecraftColor.WHITE: ((255, 255, 255), (63, 63, 63)),
-        MinecraftColor.MINECOIN_GOLD: ((221, 214, 5), (55, 53, 1)),
-    }
-    MINECRAFT_COLOR_TO_RGB_JAVA = MINECRAFT_COLOR_TO_RGB_BEDROCK.copy()
-    MINECRAFT_COLOR_TO_RGB_JAVA[MinecraftColor.GOLD] = ((255, 170, 0), (42, 42, 0))
 
     def __init__(self, *, bedrock: bool = False) -> None:
         self.bedrock = bedrock
@@ -143,8 +165,11 @@ class HtmlTransformer(PlainTransformer):
     def _format_output(self, results: list[str]) -> str:
         return "<p>" + super()._format_output(results) + "".join(self.on_reset) + "</p>"
 
+    def _handle_str(self, element: str, /) -> str:
+        return element.replace("\n", "<br>")
+
     def _handle_minecraft_color(self, element: MinecraftColor, /) -> str:
-        color_map = self.MINECRAFT_COLOR_TO_RGB_BEDROCK if self.bedrock else self.MINECRAFT_COLOR_TO_RGB_JAVA
+        color_map = MINECRAFT_COLOR_TO_RGB_BEDROCK if self.bedrock else MINECRAFT_COLOR_TO_RGB_JAVA
         fg_color, bg_color = color_map[element]
 
         self.on_reset.append("</span>")
@@ -177,30 +202,29 @@ class AnsiTransformer(PlainTransformer):
         Formatting.UNDERLINED: "4",
         Formatting.OBFUSCATED: "5",
     }
-    MINECRAFT_COLOR_TO_RGB = {
-        MinecraftColor.BLACK: (0, 0, 0),
-        MinecraftColor.DARK_BLUE: (0, 0, 170),
-        MinecraftColor.DARK_GREEN: (0, 170, 0),
-        MinecraftColor.DARK_AQUA: (0, 170, 170),
-        MinecraftColor.DARK_RED: (170, 0, 0),
-        MinecraftColor.DARK_PURPLE: (170, 0, 170),
-        MinecraftColor.GOLD: (255, 170, 0),
-        MinecraftColor.GRAY: (170, 170, 170),
-        MinecraftColor.DARK_GRAY: (85, 85, 85),
-        MinecraftColor.BLUE: (85, 85, 255),
-        MinecraftColor.GREEN: (85, 255, 85),
-        MinecraftColor.AQUA: (85, 255, 255),
-        MinecraftColor.RED: (255, 85, 85),
-        MinecraftColor.LIGHT_PURPLE: (255, 85, 255),
-        MinecraftColor.YELLOW: (255, 255, 85),
-        MinecraftColor.WHITE: (255, 255, 255),
-        MinecraftColor.MINECOIN_GOLD: (221, 214, 5),
+    MINECRAFT_COLOR_TO_RGB_JAVA = {key: foreground for key, (foreground, _background) in MINECRAFT_COLOR_TO_RGB_JAVA.items()}
+    MINECRAFT_COLOR_TO_RGB_BEDROCK = {
+        key: foreground for key, (foreground, _background) in MINECRAFT_COLOR_TO_RGB_BEDROCK.items()
     }
+
+    def __init__(self, *, bedrock: bool | None = None) -> None:
+        if bedrock is None:
+            bedrock = True
+            warnings.warn(
+                "Calling `AnsiTransformer` without an argument is deprecated,"
+                + " transformers are no longer a part of public API. Use"
+                + " `Motd.to_ansi()` instead. This will raise an error after 14.0.0",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+
+        self.bedrock = bedrock
 
     def ansi_color(self, color: tuple[int, int, int] | MinecraftColor) -> str:
         """Transform RGB color to ANSI color code."""
         if isinstance(color, MinecraftColor):
-            color = self.MINECRAFT_COLOR_TO_RGB[color]
+            color_to_rgb = self.MINECRAFT_COLOR_TO_RGB_BEDROCK if self.bedrock else self.MINECRAFT_COLOR_TO_RGB_JAVA
+            color = color_to_rgb[color]
 
         return "\033[38;2;{0};{1};{2}m".format(*color)
 
