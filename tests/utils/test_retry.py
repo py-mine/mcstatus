@@ -1,6 +1,6 @@
 import pytest
 
-from mcstatus.utils import retry
+from mcstatus.utils.retry import retry
 from tests.test_async_pinger import async_decorator
 
 
