@@ -18,8 +18,6 @@ class BaseTransformer(abc.ABC, t.Generic[_HOOK_RETURN_TYPE, _END_RESULT_TYPE]):
 
     The methods ``_handle_*`` handle each
     :type:`~mcstatus.motd.components.ParsedMotdComponent` individually.
-
-    ``_HOOK_RETURN_TYPE`` and ``_END_RESULT_TYPE`` are just type vars.
     """
 
     def transform(self, motd_components: Sequence[ParsedMotdComponent]) -> _END_RESULT_TYPE:

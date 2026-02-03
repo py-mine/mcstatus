@@ -30,7 +30,7 @@ class Motd:
     Bases on this attribute, you can easily write your own MOTD-to-something parser.
     """
     raw: RawJavaResponseMotd
-    """MOTD in raw format, just what the server sent us."""
+    """MOTD in raw format, returning back the received server response unmodified."""
     bedrock: bool = False
     """Is the server Bedrock Edition?"""
 
@@ -262,10 +262,11 @@ class Motd:
         return HtmlTransformer(bedrock=self.bedrock).transform(self.parsed)
 
     def to_ansi(self) -> str:
-        """Transform MOTD to the ANSI format.
+        """Transform MOTD to the ANSI 24-bit format.
 
-        ANSI is mostly used for printing colored text in the terminal. See also
-        https://en.wikipedia.org/wiki/ANSI_escape_code.
+        ANSI is mostly used for printing colored text in the terminal.
+
+        .. seealso:: https://en.wikipedia.org/wiki/ANSI_escape_code.
 
         "Obfuscated" formatting (``&k``) is shown as a blinking one.
         """
