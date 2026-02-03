@@ -197,5 +197,5 @@ class TestMotdAnsi:
         )
 
     def test_no_bedrock_argument_deprecation(self):
-        with pytest.deprecated_call(match="without an argument is deprecated"):
+        with pytest.deprecated_call(match="AnsiTransformer .*without bedrock argument.*"):
             AnsiTransformer()

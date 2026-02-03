@@ -1,6 +1,6 @@
 import pytest
 
-from mcstatus.utils import or_none
+from mcstatus.utils.general import or_none
 
 
 @pytest.mark.parametrize(
