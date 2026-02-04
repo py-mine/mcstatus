@@ -174,7 +174,16 @@ class HtmlTransformer(PlainTransformer):
         Formatting.UNDERLINED: "u",
     }
 
-    def __init__(self, *, bedrock: bool = False, _is_called_directly: bool = True) -> None:
+    def __init__(self, *, bedrock: bool | None = None, _is_called_directly: bool = True) -> None:
+        if bedrock is None:
+            bedrock = False
+            warnings.warn(
+                "Calling `HtmlTransformer` without an argument is deprecated,"
+                + " transformers are no longer a part of public API. Use"
+                + " `Motd.to_html()` instead. This will raise an error after 14.0.0",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
         if _is_called_directly:
             warnings.warn(
                 "Calling transformers directly is deprecated,"
