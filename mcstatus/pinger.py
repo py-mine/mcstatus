@@ -17,6 +17,7 @@ from mcstatus.responses import JavaStatusResponse, RawJavaResponse
 class _BaseServerPinger(ABC):
     connection: TCPSocketConnection | TCPAsyncSocketConnection
     address: Address
+    # keep in sync with server.py
     version: int = 47
     ping_token: int = field(default_factory=lambda: random.randint(0, (1 << 63) - 1))
 
