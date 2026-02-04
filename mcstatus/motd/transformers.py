@@ -133,7 +133,7 @@ class PlainTransformer(NothingTransformer):
             warnings.warn(
                 "Calling transformers directly is deprecated,"
                 + " transformers are no longer a part of public API. Use"
-                + " `Motd.to_plain()` instead. This will raise an error after 14.0.0",
+                + " `Motd.to_plain()` instead. This will raise an error after 13.0.0",
                 category=DeprecationWarning,
                 stacklevel=2,
             )
@@ -148,7 +148,7 @@ class MinecraftTransformer(PlainTransformer):
             warnings.warn(
                 "Calling transformers directly is deprecated,"
                 + " transformers are no longer a part of public API. Use"
-                + " `Motd.to_minecraft()` instead. This will raise an error after 14.0.0",
+                + " `Motd.to_minecraft()` instead. This will raise an error after 13.0.0",
                 category=DeprecationWarning,
                 stacklevel=2,
             )
@@ -180,7 +180,7 @@ class HtmlTransformer(PlainTransformer):
             warnings.warn(
                 "Calling `HtmlTransformer` without an argument is deprecated,"
                 + " transformers are no longer a part of public API. Use"
-                + " `Motd.to_html()` instead. This will raise an error after 14.0.0",
+                + " `Motd.to_html()` instead. This will raise an error after 13.0.0",
                 category=DeprecationWarning,
                 stacklevel=2,
             )
@@ -188,7 +188,7 @@ class HtmlTransformer(PlainTransformer):
             warnings.warn(
                 "Calling transformers directly is deprecated,"
                 + " transformers are no longer a part of public API. Use"
-                + " `Motd.to_html()` instead. This will raise an error after 14.0.0",
+                + " `Motd.to_html()` instead. This will raise an error after 13.0.0",
                 category=DeprecationWarning,
                 stacklevel=2,
             )
@@ -251,7 +251,7 @@ class AnsiTransformer(PlainTransformer):
             warnings.warn(
                 "Calling `AnsiTransformer` without an argument is deprecated,"
                 + " transformers are no longer a part of public API. Use"
-                + " `Motd.to_ansi()` instead. This will raise an error after 14.0.0",
+                + " `Motd.to_ansi()` instead. This will raise an error after 13.0.0",
                 category=DeprecationWarning,
                 stacklevel=2,
             )
@@ -259,7 +259,7 @@ class AnsiTransformer(PlainTransformer):
             warnings.warn(
                 "Calling transformers directly is deprecated,"
                 + " transformers are no longer a part of public API. Use"
-                + " `Motd.to_ansi()` instead. This will raise an error after 14.0.0",
+                + " `Motd.to_ansi()` instead. This will raise an error after 13.0.0",
                 category=DeprecationWarning,
                 stacklevel=2,
             )
