@@ -196,7 +196,7 @@ class Motd:
         Example:
             ``&0Hello &oWorld`` turns into ``Hello World``.
         """
-        return PlainTransformer().transform(self.parsed)
+        return PlainTransformer(_is_called_directly=False).transform(self.parsed)
 
     def to_minecraft(self) -> str:
         """Transform MOTD to the Minecraft representation.
@@ -209,7 +209,7 @@ class Motd:
                 >>> Motd.parse("&0Hello &oWorld")
                 "§0Hello §oWorld"
         """
-        return MinecraftTransformer().transform(self.parsed)
+        return MinecraftTransformer(_is_called_directly=False).transform(self.parsed)
 
     def to_html(self) -> str:
         """Transforms MOTD to the HTML format.
@@ -259,7 +259,7 @@ class Motd:
                   Another <span class=obfuscated>World</span>
                 </p>
         """
-        return HtmlTransformer(bedrock=self.bedrock).transform(self.parsed)
+        return HtmlTransformer(bedrock=self.bedrock, _is_called_directly=False).transform(self.parsed)
 
     def to_ansi(self) -> str:
         """Transform MOTD to the ANSI 24-bit format.
@@ -270,4 +270,4 @@ class Motd:
 
         "Obfuscated" formatting (``&k``) is shown as a blinking one.
         """
-        return AnsiTransformer(bedrock=self.bedrock).transform(self.parsed)
+        return AnsiTransformer(bedrock=self.bedrock, _is_called_directly=False).transform(self.parsed)

@@ -6,7 +6,7 @@ from collections.abc import Callable
 import pytest
 
 from mcstatus.motd import Motd
-from mcstatus.motd.transformers import AnsiTransformer
+from mcstatus.motd.transformers import AnsiTransformer, HtmlTransformer, MinecraftTransformer, PlainTransformer
 
 if typing.TYPE_CHECKING:
     from mcstatus.responses import RawJavaResponseMotd
@@ -186,4 +186,15 @@ class TestMotdAnsi:
 
     def test_no_bedrock_argument_deprecation(self):
         with pytest.deprecated_call(match="without an argument is deprecated"):
-            AnsiTransformer()
+            AnsiTransformer(_is_called_directly=False)
+
+
+@pytest.mark.parametrize("transformer", [PlainTransformer, MinecraftTransformer, HtmlTransformer, AnsiTransformer])
+def test_is_calling_directly(transformer: type):
+    kwargs = {}
+    # avoid another deprecation warning
+    if transformer in (HtmlTransformer, AnsiTransformer):
+        kwargs["bedrock"] = True
+
+    with pytest.deprecated_call(match="Calling transformers directly is deprecated"):
+        transformer(**kwargs)
