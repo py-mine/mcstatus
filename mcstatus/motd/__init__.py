@@ -266,8 +266,8 @@ class Motd:
 
         ANSI is mostly used for printing colored text in the terminal.
 
-        .. seealso:: https://en.wikipedia.org/wiki/ANSI_escape_code.
-
         "Obfuscated" formatting (``&k``) is shown as a blinking one.
+
+        .. seealso:: https://en.wikipedia.org/wiki/ANSI_escape_code.
         """
         return AnsiTransformer(bedrock=self.bedrock, _is_called_directly=False).transform(self.parsed)
