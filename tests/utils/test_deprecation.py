@@ -5,7 +5,7 @@ from functools import wraps
 
 import pytest
 
-from mcstatus.utils.deprecation import deprecated, deprecation_warn
+from mcstatus.utils.deprecation import deprecated, deprecation_warn, _get_project_version
 
 LIB_NAME = "mcstatus"
 
@@ -27,6 +27,7 @@ def _patch_project_version(monkeypatch: pytest.MonkeyPatch, version: str | None)
             return version
         return orig_version_func(distribution_name)
 
+    _get_project_version.cache_clear()
     monkeypatch.setattr(importlib.metadata, "version", patched_version_func)
 
 
