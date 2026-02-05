@@ -554,7 +554,6 @@ source = { editable = "." }
 dependencies = [
     { name = "asyncio-dgram" },
     { name = "dnspython" },
-    { name = "packaging" },
 ]
 
 [package.dev-dependencies]
@@ -587,7 +586,6 @@ test = [
 requires-dist = [
     { name = "asyncio-dgram", specifier = ">=2.1.2" },
     { name = "dnspython", specifier = ">=2.4.2" },
-    { name = "packaging", specifier = ">=26.0" },
 ]
 
 [package.metadata.requires-dev]
