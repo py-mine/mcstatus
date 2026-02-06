@@ -117,12 +117,8 @@ class JavaServer(BaseJavaServer):
         :param ping_token: Token of the packet, default is a random number.
         :return: The latency between the Minecraft Server and you.
         """
-        kwargs = {"version": version, "tries": tries}
-        if ping_token is not None:
-            kwargs["ping_token"] = ping_token
-
         with TCPSocketConnection(self.address, self.timeout) as connection:
-            return self._retry_ping(connection, **kwargs)
+            return self._retry_ping(connection, tries=tries, version=version, ping_token=ping_token)
 
     @retry(tries=3)
     def _retry_ping(self, connection: TCPSocketConnection, **kwargs) -> float:
@@ -143,12 +139,8 @@ class JavaServer(BaseJavaServer):
         :param ping_token: Token of the packet, default is a random number.
         :return: The latency between the Minecraft Server and you.
         """
-        kwargs = {"version": version, "tries": tries}
-        if ping_token is not None:
-            kwargs["ping_token"] = ping_token
-
         async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
-            return await self._retry_async_ping(connection, **kwargs)
+            return await self._retry_async_ping(connection, tries=tries, version=version, ping_token=ping_token)
 
     @retry(tries=3)
     async def _retry_async_ping(self, connection: TCPAsyncSocketConnection, **kwargs) -> float:
@@ -165,12 +157,8 @@ class JavaServer(BaseJavaServer):
         :param ping_token: Token of the packet, default is a random number.
         :return: Status information in a :class:`~mcstatus.responses.JavaStatusResponse` instance.
         """
-        kwargs = {"version": version, "tries": tries}
-        if ping_token is not None:
-            kwargs["ping_token"] = ping_token
-
         with TCPSocketConnection(self.address, self.timeout) as connection:
-            return self._retry_status(connection, **kwargs)
+            return self._retry_status(connection, tries=tries, version=version, ping_token=ping_token)
 
     @retry(tries=3)
     def _retry_status(self, connection: TCPSocketConnection, **kwargs) -> JavaStatusResponse:
@@ -187,12 +175,8 @@ class JavaServer(BaseJavaServer):
         :param ping_token: Token of the packet, default is a random number.
         :return: Status information in a :class:`~mcstatus.responses.JavaStatusResponse` instance.
         """
-        kwargs = {"version": version, "tries": tries}
-        if ping_token is not None:
-            kwargs["ping_token"] = ping_token
-
         async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
-            return await self._retry_async_status(connection, **kwargs)
+            return await self._retry_async_status(connection, tries=tries, version=version, ping_token=ping_token)
 
     @retry(tries=3)
     async def _retry_async_status(self, connection: TCPAsyncSocketConnection, **kwargs) -> JavaStatusResponse:
