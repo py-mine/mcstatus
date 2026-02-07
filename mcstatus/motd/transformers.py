@@ -128,7 +128,7 @@ class NothingTransformer(BaseTransformer[str, str]):
 
 
 class PlainTransformer(NothingTransformer):
-    def __init__(self, *, bedrock: bool = False, _is_called_directly: bool = True) -> None:
+    def __init__(self, *, _is_called_directly: bool = True) -> None:
         if _is_called_directly:
             deprecation_warn(
                 obj_name="Calling HtmlTransformer directly",
@@ -170,16 +170,9 @@ class HtmlTransformer(PlainTransformer):
         Formatting.UNDERLINED: "u",
     }
 
-    def __init__(self, *, bedrock: bool | None = None, _is_called_directly: bool = True) -> None:
-        if bedrock is None:
-            bedrock = True
-            deprecation_warn(
-                obj_name="HtmlTransformer (without bedrock argument)",
-                replacement="Motd.to_ansi",
-                removal_version="13.0.0",
-                extra_msg="Transformers are no longer a part of public API.",
-            )
+    def __init__(self, *, bedrock: bool = False, _is_called_directly: bool = True) -> None:
         if _is_called_directly:
+            # NOTE: don't forget to remove the default value for `bedrock` argument
             deprecation_warn(
                 obj_name="Calling HtmlTransformer directly",
                 removal_version="13.0.0",
@@ -238,16 +231,9 @@ class AnsiTransformer(PlainTransformer):
         key: foreground for key, (foreground, _background) in MINECRAFT_COLOR_TO_RGB_BEDROCK.items()
     }
 
-    def __init__(self, *, bedrock: bool | None = None, _is_called_directly: bool = True) -> None:
-        if bedrock is None:
-            bedrock = True
-            deprecation_warn(
-                obj_name="AnsiTransformer (without bedrock argument)",
-                replacement="Motd.to_ansi",
-                removal_version="13.0.0",
-                extra_msg="Transformers are no longer a part of public API.",
-            )
+    def __init__(self, *, bedrock: bool = True, _is_called_directly: bool = True) -> None:
         if _is_called_directly:
+            # NOTE: don't forget to remove the default value for `bedrock` argument
             deprecation_warn(
                 obj_name="Calling AnsiTransformer directly",
                 removal_version="13.0.0",
