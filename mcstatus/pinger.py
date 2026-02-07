@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import json
 import random
 from time import perf_counter
@@ -17,8 +17,15 @@ from mcstatus.responses import JavaStatusResponse, RawJavaResponse
 class _BaseServerPinger(ABC):
     connection: TCPSocketConnection | TCPAsyncSocketConnection
     address: Address
-    version: int = 47
-    ping_token: int = field(default_factory=lambda: random.randint(0, (1 << 63) - 1))
+    # keep in sync with server.py
+    version: int
+    """Version of the client."""
+    ping_token: int = None  # pyright: ignore[reportAssignmentType]
+    """Token that is used for the request, default is random number."""
+
+    def __post_init__(self) -> None:
+        if self.ping_token is None:
+            self.ping_token = random.randint(0, (1 << 63) - 1)
 
     def handshake(self) -> None:
         """Writes the initial handshake packet to the connection."""

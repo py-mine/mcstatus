@@ -407,7 +407,7 @@ class BedrockStatusVersion(BaseStatusVersion):
     """``MCPE`` or ``MCEE`` for Education Edition."""
 
     @property
-    @deprecated(replacement="name", version="13.0.0")
+    @deprecated(replacement="name", removal_version="13.0.0")
     def version(self) -> str:
         """
         .. deprecated:: 12.0.0
@@ -481,7 +481,7 @@ class QueryResponse:
         return as_dict
 
     @property
-    @deprecated(replacement="map_name", version="13.0.0")
+    @deprecated(replacement="map_name", removal_version="13.0.0")
     def map(self) -> str | None:
         """
         .. deprecated:: 12.0.0
@@ -510,7 +510,7 @@ class QueryPlayers:
         )
 
     @property
-    @deprecated(replacement="'list' attribute", version="13.0.0")
+    @deprecated(replacement="'list' attribute", removal_version="13.0.0")
     def names(self) -> list[str]:
         """
         .. deprecated:: 12.0.0

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import abc
 import typing as t
-import warnings
 from collections.abc import Callable, Sequence
 
 from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
+from mcstatus.utils import deprecation_warn
 
 _HOOK_RETURN_TYPE = t.TypeVar("_HOOK_RETURN_TYPE")
 _END_RESULT_TYPE = t.TypeVar("_END_RESULT_TYPE")
@@ -130,12 +130,10 @@ class NothingTransformer(BaseTransformer[str, str]):
 class PlainTransformer(NothingTransformer):
     def __init__(self, *, bedrock: bool = False, _is_called_directly: bool = True) -> None:
         if _is_called_directly:
-            warnings.warn(
-                "Calling transformers directly is deprecated,"
-                + " transformers are no longer a part of public API. Use"
-                + " `Motd.to_plain()` instead. This will raise an error after 13.0.0",
-                category=DeprecationWarning,
-                stacklevel=2,
+            deprecation_warn(
+                obj_name="Calling HtmlTransformer directly",
+                removal_version="13.0.0",
+                extra_msg="transformers are no longer a part of public API",
             )
 
     def _handle_str(self, element: str, /) -> str:
@@ -145,12 +143,10 @@ class PlainTransformer(NothingTransformer):
 class MinecraftTransformer(PlainTransformer):
     def __init__(self, _is_called_directly: bool = True) -> None:
         if _is_called_directly:
-            warnings.warn(
-                "Calling transformers directly is deprecated,"
-                + " transformers are no longer a part of public API. Use"
-                + " `Motd.to_minecraft()` instead. This will raise an error after 13.0.0",
-                category=DeprecationWarning,
-                stacklevel=2,
+            deprecation_warn(
+                obj_name="Calling HtmlTransformer directly",
+                removal_version="13.0.0",
+                extra_msg="transformers are no longer a part of public API",
             )
 
     def _handle_component(self, component: ParsedMotdComponent) -> tuple[str, str] | tuple[str]:
@@ -176,21 +172,18 @@ class HtmlTransformer(PlainTransformer):
 
     def __init__(self, *, bedrock: bool | None = None, _is_called_directly: bool = True) -> None:
         if bedrock is None:
-            bedrock = False
-            warnings.warn(
-                "Calling `HtmlTransformer` without an argument is deprecated,"
-                + " transformers are no longer a part of public API. Use"
-                + " `Motd.to_html()` instead. This will raise an error after 13.0.0",
-                category=DeprecationWarning,
-                stacklevel=2,
+            bedrock = True
+            deprecation_warn(
+                obj_name="HtmlTransformer (without bedrock argument)",
+                replacement="Motd.to_ansi",
+                removal_version="13.0.0",
+                extra_msg="Transformers are no longer a part of public API.",
             )
         if _is_called_directly:
-            warnings.warn(
-                "Calling transformers directly is deprecated,"
-                + " transformers are no longer a part of public API. Use"
-                + " `Motd.to_html()` instead. This will raise an error after 13.0.0",
-                category=DeprecationWarning,
-                stacklevel=2,
+            deprecation_warn(
+                obj_name="Calling HtmlTransformer directly",
+                removal_version="13.0.0",
+                extra_msg="transformers are no longer a part of public API",
             )
 
         self.bedrock = bedrock
@@ -248,20 +241,17 @@ class AnsiTransformer(PlainTransformer):
     def __init__(self, *, bedrock: bool | None = None, _is_called_directly: bool = True) -> None:
         if bedrock is None:
             bedrock = True
-            warnings.warn(
-                "Calling `AnsiTransformer` without an argument is deprecated,"
-                + " transformers are no longer a part of public API. Use"
-                + " `Motd.to_ansi()` instead. This will raise an error after 13.0.0",
-                category=DeprecationWarning,
-                stacklevel=2,
+            deprecation_warn(
+                obj_name="AnsiTransformer (without bedrock argument)",
+                replacement="Motd.to_ansi",
+                removal_version="13.0.0",
+                extra_msg="Transformers are no longer a part of public API.",
             )
         if _is_called_directly:
-            warnings.warn(
-                "Calling transformers directly is deprecated,"
-                + " transformers are no longer a part of public API. Use"
-                + " `Motd.to_ansi()` instead. This will raise an error after 13.0.0",
-                category=DeprecationWarning,
-                stacklevel=2,
+            deprecation_warn(
+                obj_name="Calling AnsiTransformer directly",
+                removal_version="13.0.0",
+                extra_msg="transformers are no longer a part of public API",
             )
 
         self.bedrock = bedrock
