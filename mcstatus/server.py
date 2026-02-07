@@ -121,8 +121,20 @@ class JavaServer(BaseJavaServer):
             return self._retry_ping(connection, tries=tries, version=version, ping_token=ping_token)
 
     @retry(tries=3)
-    def _retry_ping(self, connection: TCPSocketConnection, **kwargs) -> float:
-        pinger = ServerPinger(connection, address=self.address, **kwargs)
+    def _retry_ping(
+        self,
+        connection: TCPSocketConnection,
+        *,
+        tries: int = 3,
+        version: int,
+        ping_token: int | None,
+    ) -> float:
+        pinger = ServerPinger(
+            connection,
+            address=self.address,
+            version=version,
+            ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
+        )
         pinger.handshake()
         return pinger.test_ping()
 
@@ -143,8 +155,20 @@ class JavaServer(BaseJavaServer):
             return await self._retry_async_ping(connection, tries=tries, version=version, ping_token=ping_token)
 
     @retry(tries=3)
-    async def _retry_async_ping(self, connection: TCPAsyncSocketConnection, **kwargs) -> float:
-        pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
+    async def _retry_async_ping(
+        self,
+        connection: TCPAsyncSocketConnection,
+        *,
+        tries: int = 3,
+        version: int,
+        ping_token: int | None,
+    ) -> float:
+        pinger = AsyncServerPinger(
+            connection,
+            address=self.address,
+            version=version,
+            ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
+        )
         pinger.handshake()
         ping = await pinger.test_ping()
         return ping
@@ -161,8 +185,20 @@ class JavaServer(BaseJavaServer):
             return self._retry_status(connection, tries=tries, version=version, ping_token=ping_token)
 
     @retry(tries=3)
-    def _retry_status(self, connection: TCPSocketConnection, **kwargs) -> JavaStatusResponse:
-        pinger = ServerPinger(connection, address=self.address, **kwargs)
+    def _retry_status(
+        self,
+        connection: TCPSocketConnection,
+        *,
+        tries: int = 3,
+        version: int,
+        ping_token: int | None,
+    ) -> JavaStatusResponse:
+        pinger = ServerPinger(
+            connection,
+            address=self.address,
+            version=version,
+            ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
+        )
         pinger.handshake()
         result = pinger.read_status()
         return result
@@ -179,8 +215,20 @@ class JavaServer(BaseJavaServer):
             return await self._retry_async_status(connection, tries=tries, version=version, ping_token=ping_token)
 
     @retry(tries=3)
-    async def _retry_async_status(self, connection: TCPAsyncSocketConnection, **kwargs) -> JavaStatusResponse:
-        pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
+    async def _retry_async_status(
+        self,
+        connection: TCPAsyncSocketConnection,
+        *,
+        tries: int = 3,
+        version: int,
+        ping_token: int | None,
+    ) -> JavaStatusResponse:
+        pinger = AsyncServerPinger(
+            connection,
+            address=self.address,
+            version=version,
+            ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
+        )
         pinger.handshake()
         result = await pinger.read_status()
         return result
@@ -195,7 +243,7 @@ class JavaServer(BaseJavaServer):
         return self._retry_query(Address(ip, self.query_port), tries=tries)
 
     @retry(tries=3)
-    def _retry_query(self, addr: Address, **_kwargs) -> QueryResponse:
+    def _retry_query(self, addr: Address, tries: int = 3) -> QueryResponse:
         with UDPSocketConnection(addr, self.timeout) as connection:
             querier = ServerQuerier(connection)
             querier.handshake()
@@ -211,7 +259,7 @@ class JavaServer(BaseJavaServer):
         return await self._retry_async_query(Address(ip, self.query_port), tries=tries)
 
     @retry(tries=3)
-    async def _retry_async_query(self, address: Address, **_kwargs) -> QueryResponse:
+    async def _retry_async_query(self, address: Address, tries: int = 3) -> QueryResponse:
         async with UDPAsyncSocketConnection(address, self.timeout) as connection:
             querier = AsyncServerQuerier(connection)
             await querier.handshake()
