@@ -185,18 +185,13 @@ class TestMotdAnsi:
         )
 
 
-@pytest.mark.parametrize("transformer", [HtmlTransformer, AnsiTransformer])
-def test_no_bedrock_argument_deprecation(transformer):
-    with pytest.deprecated_call(match="without an argument is deprecated"):
-        transformer(_is_called_directly=False)
-
-
 @pytest.mark.parametrize("transformer", [PlainTransformer, MinecraftTransformer, HtmlTransformer, AnsiTransformer])
 def test_is_calling_directly(transformer: type):
-    kwargs = {}
-    # avoid another deprecation warning
-    if transformer in (HtmlTransformer, AnsiTransformer):
-        kwargs["bedrock"] = True
-
-    with pytest.deprecated_call(match="Calling transformers directly is deprecated"):
-        transformer(**kwargs)
+    with pytest.deprecated_call(
+        match=(
+            f"^Calling {transformer.__name__} directly is deprecated and "
+            r"scheduled for removal in 13.0.0. \(Transformers are no longer "
+            r"a part of public API\)$"
+        )
+    ):
+        transformer()

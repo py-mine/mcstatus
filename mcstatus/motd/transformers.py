@@ -131,9 +131,9 @@ class PlainTransformer(NothingTransformer):
     def __init__(self, *, _is_called_directly: bool = True) -> None:
         if _is_called_directly:
             deprecation_warn(
-                obj_name="Calling HtmlTransformer directly",
+                obj_name="Calling PlainTransformer directly",
                 removal_version="13.0.0",
-                extra_msg="transformers are no longer a part of public API",
+                extra_msg="Transformers are no longer a part of public API",
             )
 
     def _handle_str(self, element: str, /) -> str:
@@ -144,9 +144,9 @@ class MinecraftTransformer(PlainTransformer):
     def __init__(self, _is_called_directly: bool = True) -> None:
         if _is_called_directly:
             deprecation_warn(
-                obj_name="Calling HtmlTransformer directly",
+                obj_name="Calling MinecraftTransformer directly",
                 removal_version="13.0.0",
-                extra_msg="transformers are no longer a part of public API",
+                extra_msg="Transformers are no longer a part of public API",
             )
 
     def _handle_component(self, component: ParsedMotdComponent) -> tuple[str, str] | tuple[str]:
@@ -176,7 +176,7 @@ class HtmlTransformer(PlainTransformer):
             deprecation_warn(
                 obj_name="Calling HtmlTransformer directly",
                 removal_version="13.0.0",
-                extra_msg="transformers are no longer a part of public API",
+                extra_msg="Transformers are no longer a part of public API",
             )
 
         self.bedrock = bedrock
@@ -237,7 +237,7 @@ class AnsiTransformer(PlainTransformer):
             deprecation_warn(
                 obj_name="Calling AnsiTransformer directly",
                 removal_version="13.0.0",
-                extra_msg="transformers are no longer a part of public API",
+                extra_msg="Transformers are no longer a part of public API",
             )
 
         self.bedrock = bedrock
