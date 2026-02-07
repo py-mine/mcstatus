@@ -189,7 +189,7 @@ class TestMotdAnsi:
 def test_is_calling_directly(transformer: type):
     with pytest.deprecated_call(
         match=(
-            f"^Calling {transformer.__name__} directly is deprecated and "
+            f"^{transformer.__name__} \\(called directly\\) is deprecated and "
             r"scheduled for removal in 13.0.0. \(Transformers are no longer "
             r"a part of public API\)$"
         )

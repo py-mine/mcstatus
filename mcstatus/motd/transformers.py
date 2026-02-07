@@ -131,7 +131,7 @@ class PlainTransformer(NothingTransformer):
     def __init__(self, *, _is_called_directly: bool = True) -> None:
         if _is_called_directly:
             deprecation_warn(
-                obj_name="Calling PlainTransformer directly",
+                obj_name="PlainTransformer (called directly)",
                 removal_version="13.0.0",
                 extra_msg="Transformers are no longer a part of public API",
             )
@@ -144,7 +144,7 @@ class MinecraftTransformer(PlainTransformer):
     def __init__(self, _is_called_directly: bool = True) -> None:
         if _is_called_directly:
             deprecation_warn(
-                obj_name="Calling MinecraftTransformer directly",
+                obj_name="MinecraftTransformer (called directly)",
                 removal_version="13.0.0",
                 extra_msg="Transformers are no longer a part of public API",
             )
@@ -174,7 +174,7 @@ class HtmlTransformer(PlainTransformer):
         if _is_called_directly:
             # NOTE: don't forget to remove the default value for `bedrock` argument
             deprecation_warn(
-                obj_name="Calling HtmlTransformer directly",
+                obj_name="HtmlTransformer (called directly)",
                 removal_version="13.0.0",
                 extra_msg="Transformers are no longer a part of public API",
             )
@@ -235,7 +235,7 @@ class AnsiTransformer(PlainTransformer):
         if _is_called_directly:
             # NOTE: don't forget to remove the default value for `bedrock` argument
             deprecation_warn(
-                obj_name="Calling AnsiTransformer directly",
+                obj_name="AnsiTransformer (called directly)",
                 removal_version="13.0.0",
                 extra_msg="Transformers are no longer a part of public API",
             )
