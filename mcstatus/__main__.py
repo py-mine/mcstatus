@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import dataclasses
 import json
 import socket
 import sys
@@ -122,21 +121,9 @@ def json_cmd(server: SupportedServers) -> int:
         data["error"] = str(exn)
 
     if status_res is not None:
-        data["status"] = dataclasses.asdict(status_res)
-
-        # ensure we are overwriting the motd and not making a new dict field
-        assert "motd" in data["status"], "motd field missing. has it been renamed?"
-        data["status"]["motd"] = status_res.motd.simplify().to_minecraft()
-
+        data["status"] = status_res.as_dict()
     if query_res is not None:
-        # TODO: QueryResponse is not (yet?) a dataclass
-        data["query"] = qdata = {}
-
-        qdata["ip"] = query_res.raw["hostip"]
-        qdata["port"] = query_res.raw["hostport"]
-        qdata["map"] = query_res.map_name
-        qdata["plugins"] = query_res.software.plugins
-        qdata["raw"] = query_res.raw
+        data["query"] = query_res.as_dict()
 
     json.dump(data, sys.stdout)
     return 0
