@@ -18,7 +18,7 @@ class _BaseServerPinger(ABC):
     connection: TCPSocketConnection | TCPAsyncSocketConnection
     address: Address
     # keep in sync with server.py
-    version: int = 47
+    version: int
     """Version of the client."""
     ping_token: int = None  # pyright: ignore[reportAssignmentType]
     """Token that is used for the request, default is random number."""
