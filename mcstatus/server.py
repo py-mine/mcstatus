@@ -104,7 +104,7 @@ class JavaServer(BaseJavaServer):
         self.query_port = query_port
         _ = Address(host, self.query_port)  # Ensure query_port is valid
 
-    def ping(self, **kwargs) -> float:
+    def ping(self, *, tries: int = 3, version: int = 47, ping_token: int | None = None) -> float:
         """Checks the latency between a Minecraft Java Edition server and the client (you).
 
         Note that most non-vanilla implementations fail to respond to a ping
@@ -112,20 +112,33 @@ class JavaServer(BaseJavaServer):
         did not respond with any information!`` in those cases. The workaround
         is to use the latency provided with :meth:`.status` as ping time.
 
-        :param kwargs: Passed to a :class:`~mcstatus.pinger.ServerPinger` instance.
+        :param tries: The number of times to retry if an error is encountered.
+        :param version: Version of the client, see https://minecraft.wiki/w/Protocol_version#List_of_protocol_versions.
+        :param ping_token: Token of the packet, default is a random number.
         :return: The latency between the Minecraft Server and you.
         """
-
         with TCPSocketConnection(self.address, self.timeout) as connection:
-            return self._retry_ping(connection, **kwargs)
+            return self._retry_ping(connection, tries=tries, version=version, ping_token=ping_token)
 
     @retry(tries=3)
-    def _retry_ping(self, connection: TCPSocketConnection, **kwargs) -> float:
-        pinger = ServerPinger(connection, address=self.address, **kwargs)
+    def _retry_ping(
+        self,
+        connection: TCPSocketConnection,
+        *,
+        tries: int = 3,
+        version: int,
+        ping_token: int | None,
+    ) -> float:
+        pinger = ServerPinger(
+            connection,
+            address=self.address,
+            version=version,
+            ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
+        )
         pinger.handshake()
         return pinger.test_ping()
 
-    async def async_ping(self, **kwargs) -> float:
+    async def async_ping(self, *, tries: int = 3, version: int = 47, ping_token: int | None = None) -> float:
         """Asynchronously checks the latency between a Minecraft Java Edition server and the client (you).
 
         Note that most non-vanilla implementations fail to respond to a ping
@@ -133,50 +146,89 @@ class JavaServer(BaseJavaServer):
         did not respond with any information!`` in those cases. The workaround
         is to use the latency provided with :meth:`.async_status` as ping time.
 
-        :param kwargs: Passed to a :class:`~mcstatus.pinger.AsyncServerPinger` instance.
+        :param tries: The number of times to retry if an error is encountered.
+        :param version: Version of the client, see https://minecraft.wiki/w/Protocol_version#List_of_protocol_versions.
+        :param ping_token: Token of the packet, default is a random number.
         :return: The latency between the Minecraft Server and you.
         """
-
         async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
-            return await self._retry_async_ping(connection, **kwargs)
+            return await self._retry_async_ping(connection, tries=tries, version=version, ping_token=ping_token)
 
     @retry(tries=3)
-    async def _retry_async_ping(self, connection: TCPAsyncSocketConnection, **kwargs) -> float:
-        pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
+    async def _retry_async_ping(
+        self,
+        connection: TCPAsyncSocketConnection,
+        *,
+        tries: int = 3,
+        version: int,
+        ping_token: int | None,
+    ) -> float:
+        pinger = AsyncServerPinger(
+            connection,
+            address=self.address,
+            version=version,
+            ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
+        )
         pinger.handshake()
         ping = await pinger.test_ping()
         return ping
 
-    def status(self, **kwargs) -> JavaStatusResponse:
+    def status(self, *, tries: int = 3, version: int = 47, ping_token: int | None = None) -> JavaStatusResponse:
         """Checks the status of a Minecraft Java Edition server via the status protocol.
 
-        :param kwargs: Passed to a :class:`~mcstatus.pinger.ServerPinger` instance.
+        :param tries: The number of times to retry if an error is encountered.
+        :param version: Version of the client, see https://minecraft.wiki/w/Protocol_version#List_of_protocol_versions.
+        :param ping_token: Token of the packet, default is a random number.
         :return: Status information in a :class:`~mcstatus.responses.JavaStatusResponse` instance.
         """
-
         with TCPSocketConnection(self.address, self.timeout) as connection:
-            return self._retry_status(connection, **kwargs)
+            return self._retry_status(connection, tries=tries, version=version, ping_token=ping_token)
 
     @retry(tries=3)
-    def _retry_status(self, connection: TCPSocketConnection, **kwargs) -> JavaStatusResponse:
-        pinger = ServerPinger(connection, address=self.address, **kwargs)
+    def _retry_status(
+        self,
+        connection: TCPSocketConnection,
+        *,
+        tries: int = 3,
+        version: int,
+        ping_token: int | None,
+    ) -> JavaStatusResponse:
+        pinger = ServerPinger(
+            connection,
+            address=self.address,
+            version=version,
+            ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
+        )
         pinger.handshake()
         result = pinger.read_status()
         return result
 
-    async def async_status(self, **kwargs) -> JavaStatusResponse:
+    async def async_status(self, *, tries: int = 3, version: int = 47, ping_token: int | None = None) -> JavaStatusResponse:
         """Asynchronously checks the status of a Minecraft Java Edition server via the status protocol.
 
-        :param kwargs: Passed to a :class:`~mcstatus.pinger.AsyncServerPinger` instance.
+        :param tries: The number of times to retry if an error is encountered.
+        :param version: Version of the client, see https://minecraft.wiki/w/Protocol_version#List_of_protocol_versions.
+        :param ping_token: Token of the packet, default is a random number.
         :return: Status information in a :class:`~mcstatus.responses.JavaStatusResponse` instance.
         """
-
         async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
-            return await self._retry_async_status(connection, **kwargs)
+            return await self._retry_async_status(connection, tries=tries, version=version, ping_token=ping_token)
 
     @retry(tries=3)
-    async def _retry_async_status(self, connection: TCPAsyncSocketConnection, **kwargs) -> JavaStatusResponse:
-        pinger = AsyncServerPinger(connection, address=self.address, **kwargs)
+    async def _retry_async_status(
+        self,
+        connection: TCPAsyncSocketConnection,
+        *,
+        tries: int = 3,
+        version: int,
+        ping_token: int | None,
+    ) -> JavaStatusResponse:
+        pinger = AsyncServerPinger(
+            connection,
+            address=self.address,
+            version=version,
+            ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
+        )
         pinger.handshake()
         result = await pinger.read_status()
         return result
@@ -191,7 +243,7 @@ class JavaServer(BaseJavaServer):
         return self._retry_query(Address(ip, self.query_port), tries=tries)
 
     @retry(tries=3)
-    def _retry_query(self, addr: Address, **_kwargs) -> QueryResponse:
+    def _retry_query(self, addr: Address, tries: int = 3) -> QueryResponse:
         with UDPSocketConnection(addr, self.timeout) as connection:
             querier = ServerQuerier(connection)
             querier.handshake()
@@ -207,7 +259,7 @@ class JavaServer(BaseJavaServer):
         return await self._retry_async_query(Address(ip, self.query_port), tries=tries)
 
     @retry(tries=3)
-    async def _retry_async_query(self, address: Address, **_kwargs) -> QueryResponse:
+    async def _retry_async_query(self, address: Address, tries: int = 3) -> QueryResponse:
         async with UDPAsyncSocketConnection(address, self.timeout) as connection:
             querier = AsyncServerQuerier(connection)
             await querier.handshake()
@@ -221,24 +273,24 @@ class LegacyServer(BaseJavaServer):
     """
 
     @retry(tries=3)
-    def status(self, **kwargs) -> LegacyStatusResponse:
+    def status(self, *, tries: int = 3) -> LegacyStatusResponse:
         """Checks the status of a pre-1.7 Minecraft Java Edition server.
 
-        :param kwargs: Passed to a :class:`~mcstatus.legacy_status.LegacyServerStatus` instance.
+        :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.LegacyStatusResponse` instance.
         """
         with TCPSocketConnection(self.address, self.timeout) as connection:
-            return LegacyServerStatus(connection, **kwargs).read_status()
+            return LegacyServerStatus(connection).read_status()
 
     @retry(tries=3)
-    async def async_status(self, **kwargs) -> LegacyStatusResponse:
+    async def async_status(self, *, tries: int = 3) -> LegacyStatusResponse:
         """Asynchronously check the status of a pre-1.7 Minecraft Java Edition server.
 
-        :param kwargs: Passed to a :class:`~mcstatus.legacy_status.AsyncLegacyServerStatus` instance.
+        :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.LegacyStatusResponse` instance.
         """
         async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
-            return await AsyncLegacyServerStatus(connection, **kwargs).read_status()
+            return await AsyncLegacyServerStatus(connection).read_status()
 
 
 class BedrockServer(MCServer):
@@ -247,19 +299,19 @@ class BedrockServer(MCServer):
     DEFAULT_PORT = 19132
 
     @retry(tries=3)
-    def status(self, **kwargs) -> BedrockStatusResponse:
+    def status(self, *, tries: int = 3) -> BedrockStatusResponse:
         """Checks the status of a Minecraft Bedrock Edition server.
 
-        :param kwargs: Passed to a :class:`~mcstatus.bedrock_status.BedrockServerStatus` instance.
+        :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return BedrockServerStatus(self.address, self.timeout, **kwargs).read_status()
+        return BedrockServerStatus(self.address, self.timeout).read_status()
 
     @retry(tries=3)
-    async def async_status(self, **kwargs) -> BedrockStatusResponse:
+    async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:
         """Asynchronously checks the status of a Minecraft Bedrock Edition server.
 
-        :param kwargs: Passed to a :class:`~mcstatus.bedrock_status.BedrockServerStatus` instance.
+        :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return await BedrockServerStatus(self.address, self.timeout, **kwargs).read_status_async()
+        return await BedrockServerStatus(self.address, self.timeout).read_status_async()
