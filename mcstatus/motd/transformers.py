@@ -54,10 +54,13 @@ MINECRAFT_COLOR_TO_RGB_BEDROCK.update(
 
 
 class BaseTransformer(abc.ABC, t.Generic[_HOOK_RETURN_TYPE, _END_RESULT_TYPE]):
-    """Base motd transformer class.
+    """Base MOTD transformer class.
 
-    Motd transformer is responsible for providing a way to generate an alternative representation
-    of motd, such as one that is able to be printed in the terminal.
+    Transformers are responsible for providing a way to generate an alternative
+    representation of MOTD, for example, as HTML.
+
+    The methods ``_handle_*`` handle each
+    :type:`~mcstatus.motd.components.ParsedMotdComponent` individually.
     """
 
     def transform(self, motd_components: Sequence[ParsedMotdComponent]) -> _END_RESULT_TYPE:
@@ -125,11 +128,27 @@ class NothingTransformer(BaseTransformer[str, str]):
 
 
 class PlainTransformer(NothingTransformer):
+    def __init__(self, *, _is_called_directly: bool = True) -> None:
+        if _is_called_directly:
+            deprecation_warn(
+                obj_name="PlainTransformer (called directly)",
+                removal_version="13.0.0",
+                extra_msg="Transformers are no longer a part of public API",
+            )
+
     def _handle_str(self, element: str, /) -> str:
         return element
 
 
 class MinecraftTransformer(PlainTransformer):
+    def __init__(self, _is_called_directly: bool = True) -> None:
+        if _is_called_directly:
+            deprecation_warn(
+                obj_name="MinecraftTransformer (called directly)",
+                removal_version="13.0.0",
+                extra_msg="Transformers are no longer a part of public API",
+            )
+
     def _handle_component(self, component: ParsedMotdComponent) -> tuple[str, str] | tuple[str]:
         result = super()._handle_component(component)
         if len(result) == 2:
@@ -144,13 +163,6 @@ class MinecraftTransformer(PlainTransformer):
 
 
 class HtmlTransformer(PlainTransformer):
-    """Formatter for HTML variant of a MOTD.
-
-    .. warning::
-        You should implement obfuscated CSS class yourself (name - ``obfuscated``).
-        See `this answer <https://stackoverflow.com/a/30313558>`_ as example.
-    """
-
     FORMATTING_TO_HTML_TAGS = {
         Formatting.BOLD: "b",
         Formatting.STRIKETHROUGH: "s",
@@ -158,7 +170,15 @@ class HtmlTransformer(PlainTransformer):
         Formatting.UNDERLINED: "u",
     }
 
-    def __init__(self, *, bedrock: bool = False) -> None:
+    def __init__(self, *, bedrock: bool = False, _is_called_directly: bool = True) -> None:
+        if _is_called_directly:
+            # NOTE: don't forget to remove the default value for `bedrock` argument
+            deprecation_warn(
+                obj_name="HtmlTransformer (called directly)",
+                removal_version="13.0.0",
+                extra_msg="Transformers are no longer a part of public API",
+            )
+
         self.bedrock = bedrock
         self.on_reset: list[str] = []
 
@@ -211,14 +231,13 @@ class AnsiTransformer(PlainTransformer):
         key: foreground for key, (foreground, _background) in MINECRAFT_COLOR_TO_RGB_BEDROCK.items()
     }
 
-    def __init__(self, *, bedrock: bool | None = None) -> None:
-        if bedrock is None:
-            bedrock = True
+    def __init__(self, *, bedrock: bool = True, _is_called_directly: bool = True) -> None:
+        if _is_called_directly:
+            # NOTE: don't forget to remove the default value for `bedrock` argument
             deprecation_warn(
-                obj_name="AnsiTransformer (without bedrock argument)",
-                replacement="Motd.to_ansi",
+                obj_name="AnsiTransformer (called directly)",
                 removal_version="13.0.0",
-                extra_msg="Transformers are no longer a part of public API.",
+                extra_msg="Transformers are no longer a part of public API",
             )
 
         self.bedrock = bedrock

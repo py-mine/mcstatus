@@ -8,6 +8,12 @@ if t.TYPE_CHECKING:
     from typing_extensions import Self
 
 
+# NOTE: keep in sync with the definition in docs (`docs/api/motd_parsing.rst`)
+# the autodocs plugin does not support type aliases yet, so those have to be
+# defined manually in docs
+ParsedMotdComponent: t.TypeAlias = "Formatting | MinecraftColor | WebColor | TranslationTag | str"
+
+
 class Formatting(Enum):
     """Enum for Formatting codes.
 
@@ -132,6 +138,3 @@ class TranslationTag:
     """
 
     id: str
-
-
-ParsedMotdComponent: t.TypeAlias = "Formatting | MinecraftColor | WebColor | TranslationTag | str"

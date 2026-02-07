@@ -23,26 +23,5 @@ Those are used in :attr:`~mcstatus.motd.Motd.parsed` field.
     :members:
     :undoc-members:
 
-
-Transformers
-------------
-
-These are basic transformers, that you can use to show a MOTD in different places (like browser or even terminal).
-
-.. automodule:: mcstatus.motd.transformers
-    :members:
-    :undoc-members:
-    :private-members:
-    :exclude-members: HtmlTransformer, AnsiTransformer, _abc_impl
-
-        .. autoclass:: HtmlTransformer
-            :members:
-            :undoc-members:
-            :private-members:
-            :exclude-members: _abc_impl, FORMATTING_TO_HTML_TAGS, MINECRAFT_COLOR_TO_RGB_BEDROCK, MINECRAFT_COLOR_TO_RGB_JAVA
-
-        .. autoclass:: AnsiTransformer
-            :members:
-            :undoc-members:
-            :private-members:
-            :exclude-members: _abc_impl, FORMATTING_TO_ANSI_TAGS, MINECRAFT_COLOR_TO_RGB
+    .. py:type:: ParsedMotdComponent
+      :canonical: Formatting | MinecraftColor | WebColor | TranslationTag | str

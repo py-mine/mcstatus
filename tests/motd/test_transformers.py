@@ -13,12 +13,9 @@ if typing.TYPE_CHECKING:
 
 
 class TestMotdPlain:
-    @pytest.fixture(scope="class", params=["attribute", "function"])
-    def result(self, request) -> Callable[[str | RawJavaResponseMotd], str]:
-        if request.param == "attribute":
-            return lambda text: Motd.parse(text).to_plain()
-        else:
-            return lambda text: PlainTransformer().transform(Motd.parse(text).parsed)
+    @pytest.fixture(scope="class")
+    def result(self) -> Callable[[str | RawJavaResponseMotd], str]:
+        return lambda text: Motd.parse(text).to_plain()
 
     def test_plain_text(self, result):
         assert result("plain") == "plain"
@@ -34,12 +31,9 @@ class TestMotdPlain:
 
 
 class TestMotdMinecraft:
-    @pytest.fixture(scope="class", params=["attribute", "function"])
-    def result(self, request) -> Callable[[str | RawJavaResponseMotd], str]:
-        if request.param == "attribute":
-            return lambda text: Motd.parse(text).to_minecraft()
-        else:
-            return lambda text: MinecraftTransformer().transform(Motd.parse(text).parsed)
+    @pytest.fixture(scope="class")
+    def result(self) -> Callable[[str | RawJavaResponseMotd], str]:
+        return lambda text: Motd.parse(text).to_minecraft()
 
     @pytest.mark.parametrize("motd", ["&1&2&3", "§123§5bc", "§1§2§3"])
     def test_return_the_same(self, motd: str, result):
@@ -50,12 +44,9 @@ class TestMotdMinecraft:
 
 
 class TestMotdHTML:
-    @pytest.fixture(scope="class", params=["attribute", "class"])
-    def result(self, request) -> Callable[[str, bool], str]:
-        if request.param == "attribute":
-            return lambda text, bedrock: Motd.parse(text, bedrock=bedrock).to_html()
-        else:
-            return lambda text, bedrock: HtmlTransformer(bedrock=bedrock).transform(Motd.parse(text, bedrock=bedrock).parsed)
+    @pytest.fixture(scope="class")
+    def result(self) -> Callable[[str, bool], str]:
+        return lambda text, bedrock: Motd.parse(text, bedrock=bedrock).to_html()
 
     def test_correct_output_java(self, result: Callable[["str | dict", bool], str], source_java):
         assert result(source_java, False) == (
@@ -125,12 +116,9 @@ class TestMotdHTML:
 
 
 class TestMotdAnsi:
-    @pytest.fixture(scope="class", params=["attribute", "class"])
-    def result(self, request) -> Callable[[str, bool], str]:
-        if request.param == "attribute":
-            return lambda text, bedrock: Motd.parse(text, bedrock=bedrock).to_ansi()
-        else:
-            return lambda text, bedrock: AnsiTransformer(bedrock=bedrock).transform(Motd.parse(text, bedrock=bedrock).parsed)
+    @pytest.fixture(scope="class")
+    def result(self) -> Callable[[str, bool], str]:
+        return lambda text, bedrock: Motd.parse(text, bedrock=bedrock).to_ansi()
 
     def test_correct_output_java(self, result: Callable[[str | dict, bool], str], source_java):
         assert result(source_java, False) == (
@@ -196,6 +184,14 @@ class TestMotdAnsi:
             "\033[0m\033[0m"
         )
 
-    def test_no_bedrock_argument_deprecation(self):
-        with pytest.deprecated_call(match="AnsiTransformer .*without bedrock argument.*"):
-            AnsiTransformer()
+
+@pytest.mark.parametrize("transformer", [PlainTransformer, MinecraftTransformer, HtmlTransformer, AnsiTransformer])
+def test_is_calling_directly(transformer: type):
+    with pytest.deprecated_call(
+        match=(
+            f"^{transformer.__name__} \\(called directly\\) is deprecated and "
+            r"scheduled for removal in 13.0.0. \(Transformers are no longer "
+            r"a part of public API\)$"
+        )
+    ):
+        transformer()
