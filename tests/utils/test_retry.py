@@ -31,7 +31,7 @@ def test_sync_fail():
             raise RuntimeError("Second error")
 
     # We should get the last exception on failure (not OSError)
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError, match=r"^Second error$"):
         func()
 
 
@@ -62,5 +62,5 @@ def test_async_fail():
             raise RuntimeError("Second error")
 
     # We should get the last exception on failure (not OSError)
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError, match=r"^Second error$"):
         async_decorator(func)()

@@ -137,7 +137,7 @@ def normalise_help_output(s: str) -> str:
 
 
 def test_no_args():
-    with patch_stdout_stderr() as (out, err), pytest.raises(SystemExit) as exn:
+    with patch_stdout_stderr() as (out, err), pytest.raises(SystemExit, match=r"^2$") as exn:
         main_under_test([])
 
     assert out.getvalue() == ""
@@ -146,7 +146,7 @@ def test_no_args():
 
 
 def test_help():
-    with patch_stdout_stderr() as (out, err), pytest.raises(SystemExit) as exn:
+    with patch_stdout_stderr() as (out, err), pytest.raises(SystemExit, match=r"^0$") as exn:
         main_under_test(["--help"])
 
     assert "usage: " in out.getvalue()
@@ -156,7 +156,7 @@ def test_help():
 
 @mock.patch.dict(os.environ, {"COLUMNS": "100000"})  # prevent line-wrapping in --help output
 def test_help_matches_recorded_output():
-    with patch_stdout_stderr() as (out, err), pytest.raises(SystemExit):
+    with patch_stdout_stderr() as (out, err), pytest.raises(SystemExit, match=r"^0$"):
         main_under_test(["--help"])
 
     assert normalise_help_output(out.getvalue()) == normalise_help_output(EXPECTED_HELP_OUTPUT)

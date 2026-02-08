@@ -33,16 +33,17 @@ class TestWebColor:
         assert WebColor.from_hex(hex="4000ff").hex == "#4000ff"
 
     def test_fail_on_incorrect_hex(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"^Got too long/short hex color: '#abcd'$"):
             WebColor.from_hex(hex="abcd")
 
     @pytest.mark.parametrize("length", [0, 1, 2, 4, 5, 7, 8, 9, 10])
     def test_fail_on_too_long_or_too_short_hex(self, length: int):
-        with pytest.raises(ValueError):
+        color = "a" * length
+        with pytest.raises(ValueError, match=f"^Got too long/short hex color: '#{color}'$"):
             WebColor.from_hex(hex="a" * length)
 
     def test_fail_on_incorrect_rgb(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"^RGB color byte out of its 8-bit range \(0-255\) for red \(value=-23\)$"):
             WebColor.from_rgb(rgb=(-23, 699, 1000))
 
     def test_3_symbols_hex(self):

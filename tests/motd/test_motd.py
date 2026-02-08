@@ -139,11 +139,15 @@ class TestMotdParse:
         assert Motd.parse({"text": "&aHello!"}).parsed == ["", MinecraftColor.GREEN, "Hello!", Formatting.RESET]
 
     def test_invalid_raw_input(self):
-        with pytest.raises(TypeError):
-            Motd.parse(object())  # type: ignore
+        obj = object()
+        with pytest.raises(
+            TypeError,
+            match=f"^Expected list, string or dict data, got <class 'object'> \\({obj!r}\\), report this!$",
+        ):
+            Motd.parse(obj)  # type: ignore[reportArgumentType]
 
     def test_invalid_color(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"^Unable to parse color: 'a', report this!$"):
             Motd._parse_color("a")
 
     def test_multiple_times_nested_extras(self):
