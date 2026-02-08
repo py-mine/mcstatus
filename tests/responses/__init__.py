@@ -36,7 +36,7 @@ class BaseResponseTest(abc.ABC):
                 to_dict.extend(self.EXPECTED_TYPES)
                 already_checked_attributes = dict(to_dict).keys()
             else:
-                already_checked_attributes = dict(self.EXPECTED_VALUES or self.EXPECTED_TYPES).keys()  # type: ignore
+                already_checked_attributes = dict(self.EXPECTED_VALUES or self.EXPECTED_TYPES).keys()  # type: ignore[reportCallIssue]
 
             for attribute_name in self.ATTRIBUTES_IN:
                 if attribute_name in already_checked_attributes:
@@ -60,7 +60,7 @@ class BaseResponseTest(abc.ABC):
     def test_optional_field_turns_into_none(self, build: BaseStatusResponse, to_remove: str, attribute_name: str) -> None:
         raw = cast("tuple", self.OPTIONAL_FIELDS)[1]
         del raw[to_remove]
-        assert getattr(type(build).build(raw), attribute_name) is None  # type: ignore # build is abstract
+        assert getattr(type(build).build(raw), attribute_name) is None
 
     def _dependency_table(self) -> dict[str, bool]:
         # a key in the dict must be a name of a test implementation.
@@ -92,7 +92,7 @@ class BaseResponseTest(abc.ABC):
 
     @staticmethod
     def construct(class_: _T) -> _T:
-        instance: BaseResponseTest = class_()  # type: ignore
+        instance: BaseResponseTest = class_()  # type: ignore[reportAssignmentType]
         instance._validate()
         for implementation_name, meet_dependencies in instance._dependency_table().items():
             if not meet_dependencies:

@@ -65,7 +65,7 @@ class TestForgeDataV1(BaseResponseTest):
 
     @pytest.fixture(scope="class")
     def build(self) -> ForgeData:
-        return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
+        return ForgeData.build(self.RAW)  # type: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
 
 @BaseResponseTest.construct
@@ -90,7 +90,7 @@ class TestForgeDataV2(BaseResponseTest):
 
     @pytest.fixture(scope="class")
     def build(self) -> ForgeData:
-        return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
+        return ForgeData.build(self.RAW)  # type: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
 
 @BaseResponseTest.construct
@@ -131,7 +131,7 @@ class TestForgeDataV3(BaseResponseTest):
 
     @pytest.fixture(scope="class")
     def build(self) -> ForgeData:
-        return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
+        return ForgeData.build(self.RAW)  # type: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
 
 @BaseResponseTest.construct

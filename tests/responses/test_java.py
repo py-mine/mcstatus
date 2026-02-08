@@ -38,7 +38,7 @@ class TestJavaStatusResponse(BaseResponseTest):
 
     @pytest.fixture(scope="class")
     def build(self) -> JavaStatusResponse:
-        return JavaStatusResponse.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
+        return JavaStatusResponse.build(self.RAW)  # type: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
     def test_as_dict(self, build: JavaStatusResponse):
         assert build.as_dict() == {

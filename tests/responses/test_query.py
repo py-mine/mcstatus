@@ -8,18 +8,16 @@ from tests.responses import BaseResponseTest
 @BaseResponseTest.construct
 class TestQueryResponse(BaseResponseTest):
     RAW: RawQueryResponse = RawQueryResponse(
-        **{  # type: ignore # str cannot be assigned to Literal
-            "hostname": "A Minecraft Server",
-            "gametype": "GAME TYPE",
-            "game_id": "GAME ID",
-            "version": "1.8",
-            "plugins": "",
-            "map": "world",
-            "numplayers": "3",
-            "maxplayers": "20",
-            "hostport": "9999",
-            "hostip": "192.168.56.1",
-        }
+        hostname="A Minecraft Server",
+        gametype="GAME TYPE",  # type: ignore[reportArgumentType] # different from the hardcoded value
+        game_id="GAME ID",  # type: ignore[reportArgumentType] # different from the hardcoded value
+        version="1.8",
+        plugins="",
+        map="world",
+        numplayers="3",
+        maxplayers="20",
+        hostport="9999",
+        hostip="192.168.56.1",
     )
     RAW_PLAYERS = ["Dinnerbone", "Djinnibone", "Steve"]
 
