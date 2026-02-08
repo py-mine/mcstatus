@@ -18,11 +18,10 @@ class TestMinecraftQuerier:
     def test_query(self):
         self.querier.connection.receive(
             bytearray.fromhex(
-                "00000000000000000000000000000000686f73746e616d650041204d696e656372616674205365727665720067616d6574797"
-                "06500534d500067616d655f6964004d494e4543524146540076657273696f6e00312e3800706c7567696e7300006d61700077"
-                "6f726c64006e756d706c61796572730033006d6178706c617965727300323000686f7374706f727400323535363500686f737"
-                "46970003139322e3136382e35362e31000001706c617965725f000044696e6e6572626f6e6500446a696e6e69626f6e650053"
-                "746576650000"
+                "00000000000000000000000000000000686f73746e616d650041204d696e656372616674205365727665720067616d657479706500534"
+                + "d500067616d655f6964004d494e4543524146540076657273696f6e00312e3800706c7567696e7300006d617000776f726c64006e75"
+                + "6d706c61796572730033006d6178706c617965727300323000686f7374706f727400323535363500686f73746970003139322e31363"
+                + "82e35362e31000001706c617965725f000044696e6e6572626f6e6500446a696e6e69626f6e650053746576650000"
             )
         )
         response = self.querier.read_query()
@@ -47,8 +46,8 @@ class TestMinecraftQuerier:
         self.querier.connection.receive(
             bytearray(
                 b"\x00\x00\x00\x00\x00GeyserMC\x00\x80\x00hostname\x00Geyser\x00hostip\x001.1.1.1\x00plugins\x00\x00numplayers"
-                b"\x001\x00gametype\x00SMP\x00maxplayers\x00100\x00hostport\x0019132\x00version\x00Geyser"
-                b" (git-master-0fd903e) 1.18.10\x00map\x00Geyser\x00game_id\x00MINECRAFT\x00\x00\x01player_\x00\x00\x00"
+                + b"\x001\x00gametype\x00SMP\x00maxplayers\x00100\x00hostport\x0019132\x00version\x00Geyser "
+                + b"(git-master-0fd903e) 1.18.10\x00map\x00Geyser\x00game_id\x00MINECRAFT\x00\x00\x01player_\x00\x00\x00"
             )
         )
         response = self.querier.read_query()
@@ -61,10 +60,10 @@ class TestMinecraftQuerier:
     def test_query_handles_unicode_motd_with_nulls(self):
         self.querier.connection.receive(
             bytearray(
-                b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00hostname\x00\x00*K\xd5\x00gametype\x00SMP"
-                b"\x00game_id\x00MINECRAFT\x00version\x001.16.5\x00plugins\x00Paper on 1.16.5-R0.1-SNAPSHOT\x00map\x00world"
-                b"\x00numplayers\x000\x00maxplayers\x0020\x00hostport\x0025565\x00hostip\x00127.0.1.1\x00\x00\x01player_\x00"
-                b"\x00\x00"
+                b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00hostname\x00\x00*K\xd5\x00gametype\x00SMP\x00"
+                + b"game_id\x00MINECRAFT\x00version\x001.16.5\x00plugins\x00Paper on 1.16.5-R0.1-SNAPSHOT\x00map\x00world\x00"
+                + b"numplayers\x000\x00maxplayers\x0020\x00hostport\x0025565\x00hostip\x00127.0.1.1\x00\x00\x01player_\x00\x00"
+                + b"\x00"
             )
         )
         response = self.querier.read_query()
@@ -76,10 +75,10 @@ class TestMinecraftQuerier:
     def test_query_handles_unicode_motd_with_2a00_at_the_start(self):
         self.querier.connection.receive(
             bytearray.fromhex(
-                "00000000000000000000000000000000686f73746e616d6500006f746865720067616d657479706500534d500067616d655f6964004d"
-                "494e4543524146540076657273696f6e00312e31382e3100706c7567696e7300006d617000776f726c64006e756d706c617965727300"
-                "30006d6178706c617965727300323000686f7374706f727400323535363500686f73746970003137322e31372e302e32000001706c61"
-                "7965725f000000"
+                "00000000000000000000000000000000686f73746e616d6500006f746865720067616d657479706500534d500067616d655f6964004d4"
+                + "94e4543524146540076657273696f6e00312e31382e3100706c7567696e7300006d617000776f726c64006e756d706c617965727300"
+                + "30006d6178706c617965727300323000686f7374706f727400323535363500686f73746970003137322e31372e302e32000001706c6"
+                + "17965725f000000"
             )
         )
         response = self.querier.read_query()

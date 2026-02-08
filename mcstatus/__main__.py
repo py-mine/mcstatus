@@ -20,16 +20,16 @@ SupportedServers: TypeAlias = "JavaServer | LegacyServer | BedrockServer"
 
 PING_PACKET_FAIL_WARNING = (
     "warning: contacting {address} failed with a 'ping' packet but succeeded with a 'status' packet,\n"
-    "         this is likely a bug in the server-side implementation.\n"
-    '         (note: ping packet failed due to "{ping_exc}")\n'
-    "         for more details, see: https://mcstatus.readthedocs.io/en/stable/pages/faq/\n"
+    + "         this is likely a bug in the server-side implementation.\n"
+    + '         (note: ping packet failed due to "{ping_exc}")\n'
+    + "         for more details, see: https://mcstatus.readthedocs.io/en/stable/pages/faq/\n"
 )
 
 QUERY_FAIL_WARNING = (
     "The server did not respond to the query protocol."
-    "\nPlease ensure that the server has enable-query turned on,"
-    " and that the necessary port (same as server-port unless query-port is set) is open in any firewall(s)."
-    "\nSee https://minecraft.wiki/w/Query for further information."
+    + "\nPlease ensure that the server has enable-query turned on,"
+    + " and that the necessary port (same as server-port unless query-port is set) is open in any firewall(s)."
+    + "\nSee https://minecraft.wiki/w/Query for further information."
 )
 
 

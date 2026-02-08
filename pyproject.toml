@@ -155,7 +155,7 @@ ignore = [
 
   # Redundant rules with ruff-format:
   "E111",   # Indentation of a non-multiple of 4 spaces
-  "E114",   # Comment with indentation  of a non-multiple of 4 spaces
+  "E114",   # Comment with indentation of a non-multiple of 4 spaces
   "E117",   # Checks for over-indented code
   "D206",   # Checks for docstrings indented with tabs
   "D300",   # Checks for docstring that use ''' instead of """
@@ -163,10 +163,10 @@ ignore = [
   "Q001",   # Multiline string that use wrong quotes (''' instead of """)
   "Q002",   # Checks for docstrings that use wrong quotes (''' instead of """)
   "Q003",   # Checks for avoidable escaped quotes ("\"" -> '"')
-  "COM812", # Missing trailing comma (in multi-line lists/tuples/...)
+  "COM812", # Missing trailing comma (in multiline lists/tuples/...)
   "COM819", # Prohibited trailing comma (in single-line lists/tuples/...)
   "ISC001", # Single line implicit string concatenation ("hi" "hey" -> "hihey")
-  "ISC002", # Multi line implicit string concatenation
+  "W191",   # Tab indentation
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -203,6 +203,9 @@ force-wrap-aliases = false      # Split imports with multiple members and at lea
 lines-after-imports = -1        # The number of blank lines to place after imports
 lines-between-types = 0         # Number of lines to place between "direct" and import from imports
 split-on-trailing-comma = false # if last member of multiline import has a comma, don't fold it to single line
+
+[tool.ruff.lint.flake8-implicit-str-concat]
+allow-multiline = false
 
 [tool.ruff-formatter]
 line-ending = "lf"
