@@ -4,7 +4,6 @@ import abc
 import typing as t
 from collections.abc import Callable, Sequence
 
-from mcstatus._utils import deprecation_warn
 from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
 
 __all__ = [
@@ -138,27 +137,11 @@ class _NothingTransformer(_BaseTransformer[str, str]):
 
 
 class PlainTransformer(_NothingTransformer):
-    def __init__(self, *, _is_called_directly: bool = True) -> None:
-        if _is_called_directly:
-            deprecation_warn(
-                obj_name="PlainTransformer (called directly)",
-                removal_version="13.0.0",
-                extra_msg="Transformers are no longer a part of public API",
-            )
-
     def _handle_str(self, element: str, /) -> str:
         return element
 
 
 class MinecraftTransformer(PlainTransformer):
-    def __init__(self, *, _is_called_directly: bool = True) -> None:
-        if _is_called_directly:
-            deprecation_warn(
-                obj_name="MinecraftTransformer (called directly)",
-                removal_version="13.0.0",
-                extra_msg="Transformers are no longer a part of public API",
-            )
-
     def _handle_component(self, component: ParsedMotdComponent) -> tuple[str, str] | tuple[str]:
         result = super()._handle_component(component)
         if len(result) == 2:
@@ -180,15 +163,8 @@ class HtmlTransformer(PlainTransformer):
         Formatting.UNDERLINED: "u",
     }
 
-    def __init__(self, *, bedrock: bool = False, _is_called_directly: bool = True) -> None:
-        if _is_called_directly:
-            # NOTE: don't forget to remove the default value for `bedrock` argument
-            deprecation_warn(
-                obj_name="HtmlTransformer (called directly)",
-                removal_version="13.0.0",
-                extra_msg="Transformers are no longer a part of public API",
-            )
-
+    # TODO: When dropping v13 support, make sure to drop the default value for the bedrock arg
+    def __init__(self, *, bedrock: bool = False) -> None:
         self.bedrock = bedrock
         self.on_reset: list[str] = []
 
@@ -243,15 +219,8 @@ class AnsiTransformer(PlainTransformer):
         key: foreground for key, (foreground, _background) in _MINECRAFT_COLOR_TO_RGB_BEDROCK.items()
     }
 
-    def __init__(self, *, bedrock: bool = True, _is_called_directly: bool = True) -> None:
-        if _is_called_directly:
-            # NOTE: don't forget to remove the default value for `bedrock` argument
-            deprecation_warn(
-                obj_name="AnsiTransformer (called directly)",
-                removal_version="13.0.0",
-                extra_msg="Transformers are no longer a part of public API",
-            )
-
+    # TODO: When dropping v13 support, make sure to drop the default value for the bedrock arg
+    def __init__(self, *, bedrock: bool = True) -> None:
         self.bedrock = bedrock
 
     def ansi_color(self, color: tuple[int, int, int] | MinecraftColor) -> str:
