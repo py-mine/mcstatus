@@ -26,7 +26,7 @@ class BaseResponseTest(abc.ABC):
         if self.EXPECTED_TYPES is not None and self.EXPECTED_VALUES is not None:
             expected_values_keys = list(dict(self.EXPECTED_VALUES).keys())
 
-            for key in dict(self.EXPECTED_TYPES).keys():
+            for key in dict(self.EXPECTED_TYPES):
                 if key in expected_values_keys:
                     raise ValueError("You can't test the type of attribute, if already testing its value.")
 

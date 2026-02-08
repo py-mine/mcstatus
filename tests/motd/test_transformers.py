@@ -1,3 +1,4 @@
+# ruff: noqa: FBT003 # boolean positional value in `result` fixture
 from __future__ import annotations
 
 import typing

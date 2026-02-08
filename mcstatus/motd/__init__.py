@@ -261,7 +261,7 @@ class Motd:
                   Another <span class=obfuscated>World</span>
                 </p>
 
-        """
+        """  # noqa: D301 # Use `r"""` if any backslashes in a docstring
         return HtmlTransformer(bedrock=self.bedrock, _is_called_directly=False).transform(self.parsed)
 
     def to_ansi(self) -> str:

@@ -120,7 +120,7 @@ class BaseWriteSync(ABC):
         """Write 8 bytes for value ``0 - 18446744073709551613 (2 ** 64 - 1)``."""
         self.write(self._pack("Q", value))
 
-    def write_bool(self, value: bool) -> None:
+    def write_bool(self, value: bool) -> None:  # noqa: FBT001 # Boolean positional argument
         """Write 1 byte for boolean `True` or `False`."""
         self.write(self._pack("?", value))
 
@@ -216,7 +216,7 @@ class BaseWriteAsync(ABC):
         """Write 8 bytes for value ``0 - 18446744073709551613 (2 ** 64 - 1)``."""
         await self.write(self._pack("Q", value))
 
-    async def write_bool(self, value: bool) -> None:
+    async def write_bool(self, value: bool) -> None:  # noqa: FBT001 # Boolean positional argument
         """Write 1 byte for boolean `True` or `False`."""
         await self.write(self._pack("?", value))
 
@@ -425,7 +425,7 @@ class BaseConnection:
         """Raise :exc:`TypeError`, unsupported."""
         raise TypeError(f"{self.__class__.__name__} does not support flush()")
 
-    def receive(self, data: BytesConvertable | bytearray) -> None:
+    def receive(self, _data: BytesConvertable | bytearray) -> None:
         """Raise :exc:`TypeError`, unsupported."""
         raise TypeError(f"{self.__class__.__name__} does not support receive()")
 
@@ -575,7 +575,7 @@ class UDPSocketConnection(SocketConnection):
         """Always return ``65535`` (``2 ** 16 - 1``)."""  # noqa: D401 # imperative mood
         return 65535
 
-    def read(self, length: int) -> bytearray:
+    def read(self, length: int) -> bytearray:  # noqa: ARG002 # unused argument
         """Return up to :meth:`.remaining` bytes. Length does nothing here."""
         result = bytearray()
         while len(result) == 0:
@@ -662,7 +662,7 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         """Always return ``65535`` (``2 ** 16 - 1``)."""  # noqa: D401 # imperative mood
         return 65535
 
-    async def read(self, length: int) -> bytearray:
+    async def read(self, length: int) -> bytearray:  # noqa: ARG002 # unused argument
         """Read from :attr:`.stream`. Length does nothing here."""
         data, _remote_addr = await asyncio.wait_for(self.stream.recv(), timeout=self.timeout)
         return bytearray(data)

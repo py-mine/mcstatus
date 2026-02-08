@@ -58,7 +58,7 @@ class Address(_AddressBase):
         The class is not a part of a Public API, but attributes :attr:`host` and :attr:`port` are a part of Public API.
     """
 
-    def __init__(self, host: str, port: int):
+    def __init__(self, host: str, port: int):  # noqa: ARG002 # unused arguments
         # We don't pass the host & port args to super's __init__, because NamedTuples handle
         # everything from __new__ and the passed self already has all of the parameters set.
         super().__init__()

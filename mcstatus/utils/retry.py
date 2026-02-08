@@ -40,7 +40,7 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
             for _ in range(tries):
                 try:
                     return await func(*args, **kwargs)  # type: ignore[reportGeneralTypeIssues] # We know func is awaitable here
-                except exceptions as exc:
+                except exceptions as exc:  # noqa: PERF203 # try-except within a loop
                     last_exc = exc
             # This won't actually be unbound
             raise last_exc  # type: ignore[reportGeneralTypeIssues,reportPossiblyUnboundVariable]
@@ -55,7 +55,7 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
             for _ in range(tries):
                 try:
                     return func(*args, **kwargs)
-                except exceptions as exc:
+                except exceptions as exc:  # noqa: PERF203 # try-except within a loop
                     last_exc = exc
             # This won't actually be unbound
             raise last_exc  # type: ignore[reportGeneralTypeIssues,reportPossiblyUnboundVariable]

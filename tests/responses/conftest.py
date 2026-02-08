@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 def pytest_generate_tests(metafunc: Metafunc) -> None:
     if metafunc.cls is not None and issubclass(typing.cast("type", metafunc.cls), BaseResponseTest):
         instance = typing.cast("type", metafunc.cls)()
-        if metafunc.definition.name not in instance._marks_table().keys():
+        if metafunc.definition.name not in instance._marks_table():
             return
 
         marker_name, args = instance._marks_table()[metafunc.definition.name]
@@ -25,7 +25,7 @@ def pytest_generate_tests(metafunc: Metafunc) -> None:
 def pytest_collection_modifyitems(items: list[Function]) -> None:
     for item in items:
         if isinstance(item.instance, BaseResponseTest):
-            if item.obj.__name__ not in item.instance._marks_table().keys():
+            if item.obj.__name__ not in item.instance._marks_table():
                 continue
 
             marker_name, args = item.instance._marks_table()[item.obj.__name__]

@@ -11,4 +11,4 @@ class TestMCStatusResponse:
 
 def test_deprecated_import_path():
     with pytest.deprecated_call(match=r"mcstatus\.responses"):
-        import mcstatus.status_response  # noqa: F401
+        import mcstatus.status_response  # noqa: F401, PLC0415

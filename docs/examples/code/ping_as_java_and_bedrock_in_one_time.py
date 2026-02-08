@@ -48,6 +48,7 @@ async def handle_exceptions(done: set[asyncio.Task], pending: set[asyncio.Task])
             for pending_task in pending:
                 pending_task.cancel()
             return task
+    return None
 
 
 async def handle_java(host: str) -> JavaStatusResponse:

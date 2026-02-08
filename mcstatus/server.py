@@ -126,7 +126,7 @@ class JavaServer(BaseJavaServer):
         self,
         connection: TCPSocketConnection,
         *,
-        tries: int = 3,
+        tries: int = 3,  # noqa: ARG002 # unused argument
         version: int,
         ping_token: int | None,
     ) -> float:
@@ -160,7 +160,7 @@ class JavaServer(BaseJavaServer):
         self,
         connection: TCPAsyncSocketConnection,
         *,
-        tries: int = 3,
+        tries: int = 3,  # noqa: ARG002 # unused argument
         version: int,
         ping_token: int | None,
     ) -> float:
@@ -190,7 +190,7 @@ class JavaServer(BaseJavaServer):
         self,
         connection: TCPSocketConnection,
         *,
-        tries: int = 3,
+        tries: int = 3,  # noqa: ARG002 # unused argument
         version: int,
         ping_token: int | None,
     ) -> JavaStatusResponse:
@@ -220,7 +220,7 @@ class JavaServer(BaseJavaServer):
         self,
         connection: TCPAsyncSocketConnection,
         *,
-        tries: int = 3,
+        tries: int = 3,  # noqa: ARG002 # unused argument
         version: int,
         ping_token: int | None,
     ) -> JavaStatusResponse:
@@ -244,7 +244,7 @@ class JavaServer(BaseJavaServer):
         return self._retry_query(Address(ip, self.query_port), tries=tries)
 
     @retry(tries=3)
-    def _retry_query(self, addr: Address, tries: int = 3) -> QueryResponse:
+    def _retry_query(self, addr: Address, tries: int = 3) -> QueryResponse:  # noqa: ARG002 # unused argument
         with UDPSocketConnection(addr, self.timeout) as connection:
             querier = ServerQuerier(connection)
             querier.handshake()
@@ -260,7 +260,7 @@ class JavaServer(BaseJavaServer):
         return await self._retry_async_query(Address(ip, self.query_port), tries=tries)
 
     @retry(tries=3)
-    async def _retry_async_query(self, address: Address, tries: int = 3) -> QueryResponse:
+    async def _retry_async_query(self, address: Address, tries: int = 3) -> QueryResponse:  # noqa: ARG002 # unused argument
         async with UDPAsyncSocketConnection(address, self.timeout) as connection:
             querier = AsyncServerQuerier(connection)
             await querier.handshake()
@@ -274,7 +274,7 @@ class LegacyServer(BaseJavaServer):
     """
 
     @retry(tries=3)
-    def status(self, *, tries: int = 3) -> LegacyStatusResponse:
+    def status(self, *, tries: int = 3) -> LegacyStatusResponse:  # noqa: ARG002 # unused argument
         """Check the status of a pre-1.7 Minecraft Java Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
@@ -284,7 +284,7 @@ class LegacyServer(BaseJavaServer):
             return LegacyServerStatus(connection).read_status()
 
     @retry(tries=3)
-    async def async_status(self, *, tries: int = 3) -> LegacyStatusResponse:
+    async def async_status(self, *, tries: int = 3) -> LegacyStatusResponse:  # noqa: ARG002 # unused argument
         """Asynchronously check the status of a pre-1.7 Minecraft Java Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
@@ -300,7 +300,7 @@ class BedrockServer(MCServer):
     DEFAULT_PORT = 19132
 
     @retry(tries=3)
-    def status(self, *, tries: int = 3) -> BedrockStatusResponse:
+    def status(self, *, tries: int = 3) -> BedrockStatusResponse:  # noqa: ARG002 # unused argument
         """Check the status of a Minecraft Bedrock Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
@@ -309,7 +309,7 @@ class BedrockServer(MCServer):
         return BedrockServerStatus(self.address, self.timeout).read_status()
 
     @retry(tries=3)
-    async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:
+    async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:  # noqa: ARG002 # unused argument
         """Asynchronously check the status of a Minecraft Bedrock Edition server.
 
         :param tries: The number of times to retry if an error is encountered.

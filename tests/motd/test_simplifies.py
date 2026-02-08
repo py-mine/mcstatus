@@ -20,15 +20,16 @@ from mcstatus.motd.simplifies import (
 class TestMotdSimplifies:
     def test_get_unused_elements_call_every_simplifier(self):
         with ExitStack() as stack:
-            mocked = []
-            for simplifier in [
-                get_double_items.__name__,
-                get_double_colors.__name__,
-                get_formatting_before_color.__name__,
-                get_empty_text.__name__,
-                get_end_non_text.__name__,
-            ]:
-                mocked.append(stack.enter_context(mock.patch("mcstatus.motd.simplifies." + simplifier)))
+            mocked = [
+                stack.enter_context(mock.patch("mcstatus.motd.simplifies." + simplifier))
+                for simplifier in [
+                    get_double_items.__name__,
+                    get_double_colors.__name__,
+                    get_formatting_before_color.__name__,
+                    get_empty_text.__name__,
+                    get_end_non_text.__name__,
+                ]
+            ]
 
             get_unused_elements([])
 

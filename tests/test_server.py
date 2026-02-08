@@ -254,7 +254,7 @@ class TestJavaServer:
         # Use a blank mock for the connection, we don't want to actually create any connections
         with patch("mcstatus.server.UDPSocketConnection"), patch("mcstatus.server.ServerQuerier") as querier:
             querier.side_effect = [RuntimeError, RuntimeError, RuntimeError]
-            with pytest.raises(RuntimeError, match=r"^$"), patch.object(self.server.address, "resolve_ip") as resolve_ip:
+            with pytest.raises(RuntimeError, match=r"^$"), patch.object(self.server.address, "resolve_ip") as resolve_ip:  # noqa: PT012
                 resolve_ip.return_value = "127.0.0.1"
                 self.server.query()
             assert querier.call_count == 3
