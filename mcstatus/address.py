@@ -20,7 +20,7 @@ __all__ = ("Address", "async_minecraft_srv_address_lookup", "minecraft_srv_addre
 
 
 def _valid_urlparse(address: str) -> tuple[str, int | None]:
-    """Parses a string address like 127.0.0.1:25565 into host and port parts
+    """Parse a string address like 127.0.0.1:25565 into host and port parts.
 
     If the address doesn't have a specified port, None will be returned instead.
 
@@ -94,7 +94,7 @@ class Address(_AddressBase):
 
     @classmethod
     def parse_address(cls, address: str, *, default_port: int | None = None) -> Self:
-        """Parses a string address like ``127.0.0.1:25565`` into :attr:`.host` and :attr:`.port` parts.
+        """Parse a string address like ``127.0.0.1:25565`` into :attr:`.host` and :attr:`.port` parts.
 
         If the address has a port specified, use it, if not, fall back to ``default_port`` kwarg.
 
@@ -113,7 +113,7 @@ class Address(_AddressBase):
         return cls(host=hostname, port=port)
 
     def resolve_ip(self, lifetime: float | None = None) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
-        """Resolves a hostname's A record into an IP address.
+        """Resolve a hostname's A record into an IP address.
 
         If the host is already an IP, this resolving is skipped
         and host is returned directly.
@@ -151,7 +151,7 @@ class Address(_AddressBase):
         return self._cached_ip
 
     async def async_resolve_ip(self, lifetime: float | None = None) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
-        """Resolves a hostname's A record into an IP address.
+        """Resolve a hostname's A record into an IP address.
 
         See the docstring for :meth:`.resolve_ip` for further info. This function is purely
         an async alternative to it.

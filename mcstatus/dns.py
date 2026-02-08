@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 def resolve_a_record(hostname: str, lifetime: float | None = None) -> str:
-    """Perform a DNS resolution for an A record to given hostname
+    """Perform a DNS resolution for an A record to given hostname.
 
     :param hostname: The address to resolve for.
     :return: The resolved IP address from the A record

@@ -27,7 +27,7 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
 
     .. note::
         Even if the previous failures caused a different exception, this will only raise the last one.
-    """
+    """  # noqa: D401 # imperative mood
 
     def decorate(func: Callable[P, R]) -> Callable[P, R]:
         @wraps(func)

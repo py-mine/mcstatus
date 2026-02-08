@@ -410,7 +410,7 @@ class BedrockStatusVersion(BaseStatusVersion):
         """
         .. deprecated:: 12.0.0
             Will be removed in 13.0.0, use :attr:`.name` instead.
-        """
+        """  # noqa: D205, D212 # no summary line
         return self.name
 
 
@@ -484,7 +484,7 @@ class QueryResponse:
         """
         .. deprecated:: 12.0.0
             Will be removed in 13.0.0, use :attr:`.map_name` instead.
-        """
+        """  # noqa: D205, D212 # no summary line
         return self.map_name
 
 
@@ -513,7 +513,7 @@ class QueryPlayers:
         """
         .. deprecated:: 12.0.0
             Will be removed in 13.0.0, use :attr:`.list` instead.
-        """
+        """  # noqa: D205, D212 # no summary line
         return self.list
 
 

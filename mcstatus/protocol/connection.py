@@ -28,7 +28,7 @@ def ip_type(address: int | str) -> int | None:
         A string or integer, the IP address. Either IPv4 or IPv6 addresses may be supplied.
         Integers less than 2**32 will be considered to be IPv4 by default.
     :return: ``4`` or ``6`` if the IP is IPv4 or IPv6, respectively. :obj:`None` if the IP is invalid.
-    """
+    """  # noqa: D401 # imperative mood
     try:
         return ip_address(address).version
     except ValueError:
@@ -36,7 +36,7 @@ def ip_type(address: int | str) -> int | None:
 
 
 class BaseWriteSync(ABC):
-    """Base synchronous write class"""
+    """Base synchronous write class."""
 
     __slots__ = ()
 
@@ -121,7 +121,7 @@ class BaseWriteSync(ABC):
         self.write(self._pack("Q", value))
 
     def write_bool(self, value: bool) -> None:
-        """Write 1 byte for boolean `True` or `False`"""
+        """Write 1 byte for boolean `True` or `False`."""
         self.write(self._pack("?", value))
 
     def write_buffer(self, buffer: Connection) -> None:
@@ -132,7 +132,7 @@ class BaseWriteSync(ABC):
 
 
 class BaseWriteAsync(ABC):
-    """Base synchronous write class"""
+    """Base synchronous write class."""
 
     __slots__ = ()
 
@@ -217,7 +217,7 @@ class BaseWriteAsync(ABC):
         await self.write(self._pack("Q", value))
 
     async def write_bool(self, value: bool) -> None:
-        """Write 1 byte for boolean `True` or `False`"""
+        """Write 1 byte for boolean `True` or `False`."""
         await self.write(self._pack("?", value))
 
     async def write_buffer(self, buffer: Connection) -> None:
@@ -228,7 +228,7 @@ class BaseWriteAsync(ABC):
 
 
 class BaseReadSync(ABC):
-    """Base synchronous read class"""
+    """Base synchronous read class."""
 
     __slots__ = ()
 
@@ -278,7 +278,7 @@ class BaseReadSync(ABC):
         return self.read(length).decode("utf8")
 
     def read_ascii(self) -> str:
-        """Read ``self`` until last value is not zero, then return that decoded with ``ISO-8859-1``"""
+        """Read ``self`` until last value is not zero, then return that decoded with ``ISO-8859-1``."""
         result = bytearray()
         while len(result) == 0 or result[-1] != 0:
             result.extend(self.read(1))
@@ -371,7 +371,7 @@ class BaseReadAsync(ABC):
         return (await self.read(length)).decode("utf8")
 
     async def read_ascii(self) -> str:
-        """Read ``self`` until last value is not zero, then return that decoded with ``ISO-8859-1``"""
+        """Read ``self`` until last value is not zero, then return that decoded with ``ISO-8859-1``."""
         result = bytearray()
         while len(result) == 0 or result[-1] != 0:
             result.extend(await self.read(1))
@@ -435,19 +435,19 @@ class BaseConnection:
 
 
 class BaseSyncConnection(BaseConnection, BaseReadSync, BaseWriteSync):
-    """Base synchronous read and write class"""
+    """Base synchronous read and write class."""
 
     __slots__ = ()
 
 
 class BaseAsyncReadSyncWriteConnection(BaseConnection, BaseReadAsync, BaseWriteSync):
-    """Base asynchronous read and synchronous write class"""
+    """Base asynchronous read and synchronous write class."""
 
     __slots__ = ()
 
 
 class BaseAsyncConnection(BaseConnection, BaseReadAsync, BaseWriteAsync):
-    """Base asynchronous read and write class"""
+    """Base asynchronous read and write class."""
 
     __slots__ = ()
 
@@ -494,7 +494,7 @@ class Connection(BaseSyncConnection):
         return result
 
     def copy(self) -> Connection:
-        """Return a copy of ``self``"""
+        """Return a copy of ``self``."""
         new = self.__class__()
         new.receive(self.received)
         new.write(self.sent)
@@ -558,7 +558,7 @@ class TCPSocketConnection(SocketConnection):
 
 
 class UDPSocketConnection(SocketConnection):
-    """UDP Connection class"""
+    """UDP Connection class."""
 
     __slots__ = ("addr",)
 
@@ -572,7 +572,7 @@ class UDPSocketConnection(SocketConnection):
         self.socket.settimeout(timeout)
 
     def remaining(self) -> int:
-        """Always return ``65535`` (``2 ** 16 - 1``)."""
+        """Always return ``65535`` (``2 ** 16 - 1``)."""  # noqa: D401 # imperative mood
         return 65535
 
     def read(self, length: int) -> bytearray:
@@ -592,7 +592,7 @@ class UDPSocketConnection(SocketConnection):
 
 
 class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
-    """Asynchronous TCP Connection class"""
+    """Asynchronous TCP Connection class."""
 
     __slots__ = ("_addr", "reader", "timeout", "writer")
 
@@ -643,7 +643,7 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
 
 
 class UDPAsyncSocketConnection(BaseAsyncConnection):
-    """Asynchronous UDP Connection class"""
+    """Asynchronous UDP Connection class."""
 
     __slots__ = ("_addr", "stream", "timeout")
 
@@ -659,7 +659,7 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         self.stream = await asyncio.wait_for(conn, timeout=self.timeout)
 
     def remaining(self) -> int:
-        """Always return ``65535`` (``2 ** 16 - 1``)."""
+        """Always return ``65535`` (``2 ** 16 - 1``)."""  # noqa: D401 # imperative mood
         return 65535
 
     async def read(self, length: int) -> bytearray:

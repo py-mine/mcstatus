@@ -116,12 +116,11 @@ def mock_network_requests():
 
 
 def normalise_help_output(s: str) -> str:
-    """
-    Normalises the output of `mcstatus --help`, to work around
-    some discrepancies between Python versions while still retaining
-    meaningful information for comparison.
-    """
+    """Normalises the output of `mcstatus --help`.
 
+    A work around some discrepancies between Python versions while still
+    retaining meaningful information for comparison.
+    """
     elided = "[...]:"
 
     s = s.strip()

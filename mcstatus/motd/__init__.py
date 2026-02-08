@@ -214,7 +214,7 @@ class Motd:
         return MinecraftTransformer(_is_called_directly=False).transform(self.parsed)
 
     def to_html(self) -> str:
-        """Transforms MOTD to the HTML format.
+        """Transform MOTD to the HTML format.
 
         The result is always wrapped in a ``<p>`` tag, if you need to remove it,
         just do ``result.removeprefix("<p>").removesuffix("</p>")``.

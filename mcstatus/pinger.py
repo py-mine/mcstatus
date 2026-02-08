@@ -31,7 +31,7 @@ class _BaseServerPinger(ABC):
             self.ping_token = random.randint(0, (1 << 63) - 1)
 
     def handshake(self) -> None:
-        """Writes the initial handshake packet to the connection."""
+        """Write the initial handshake packet to the connection."""
         packet = Connection()
         packet.write_varint(0)
         packet.write_varint(self.version)

@@ -33,7 +33,7 @@ QUERY_FAIL_WARNING = (
 
 
 def _motd(motd: Motd) -> str:
-    """Formats MOTD for human-readable output, with leading line break if multiline."""
+    """Format MOTD for human-readable output, with leading line break if multiline."""
     s = motd.to_ansi()
     return f"\n{s}" if "\n" in s else f" {s}"
 
