@@ -10,8 +10,8 @@ import pytest
 
 from mcstatus import BedrockServer, JavaServer, LegacyServer
 from mcstatus.__main__ import PING_PACKET_FAIL_WARNING, QUERY_FAIL_WARNING, main as main_under_test
-from mcstatus.querier import QueryResponse
-from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse, RawJavaResponse
+from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse, QueryResponse
+from mcstatus.responses._raw import RawJavaResponse
 
 JAVA_RAW_RESPONSE: RawJavaResponse = {
     "players": {"max": 20, "online": 0},

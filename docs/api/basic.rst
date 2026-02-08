@@ -44,45 +44,48 @@ These are the classes that you get back after making a request.
 For Java Server (1.7+)
 **********************
 
-.. module:: mcstatus.responses
+.. module:: mcstatus.responses.java
 
-.. autoclass:: mcstatus.responses.JavaStatusResponse()
+.. autoclass:: mcstatus.responses.java.JavaStatusResponse()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.JavaStatusPlayers()
+.. autoclass:: mcstatus.responses.java.JavaStatusPlayers()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.JavaStatusPlayer()
+.. autoclass:: mcstatus.responses.java.JavaStatusPlayer()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.JavaStatusVersion()
+.. autoclass:: mcstatus.responses.java.JavaStatusVersion()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.QueryResponse()
+.. module:: mcstatus.responses.query
+    :no-index:
+
+.. autoclass:: mcstatus.responses.query.QueryResponse()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.QueryPlayers()
+.. autoclass:: mcstatus.responses.query.QueryPlayers()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.QuerySoftware()
+.. autoclass:: mcstatus.responses.query.QuerySoftware()
     :members:
     :undoc-members:
     :inherited-members:
@@ -91,51 +94,50 @@ For Java Server (1.7+)
 Forge Data
 **********
 
-Forge mod metadata is available on :attr:`status.forge_data <mcstatus.responses.JavaStatusResponse.forge_data>`.
+Forge mod metadata is available on :attr:`status.forge_data <mcstatus.responses.java.JavaStatusResponse.forge_data>`.
 
-.. module:: mcstatus.forge_data
+.. module:: mcstatus.responses.forge
     :no-index:
 
-.. autoclass:: mcstatus.forge_data.ForgeData()
+.. autoclass:: mcstatus.responses.forge.ForgeData()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.forge_data.ForgeDataChannel()
+.. autoclass:: mcstatus.responses.forge.ForgeDataChannel()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build, decode
 
-.. autoclass:: mcstatus.forge_data.ForgeDataMod()
+.. autoclass:: mcstatus.responses.forge.ForgeDataMod()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build, decode
-
 
 For Java Server (1.4-1.6)
 *************************
 
 .. versionadded:: 12.1.0
 
-.. module:: mcstatus.responses
+.. module:: mcstatus.responses.legacy
     :no-index:
 
-.. autoclass:: mcstatus.responses.LegacyStatusResponse()
+.. autoclass:: mcstatus.responses.legacy.LegacyStatusResponse()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.LegacyStatusPlayers()
+.. autoclass:: mcstatus.responses.legacy.LegacyStatusPlayers()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.LegacyStatusVersion()
+.. autoclass:: mcstatus.responses.legacy.LegacyStatusVersion()
     :members:
     :undoc-members:
     :inherited-members:
@@ -145,22 +147,22 @@ For Java Server (1.4-1.6)
 For Bedrock Servers
 *******************
 
-.. module:: mcstatus.responses
+.. module:: mcstatus.responses.bedrock
     :no-index:
 
-.. autoclass:: mcstatus.responses.BedrockStatusResponse()
+.. autoclass:: mcstatus.responses.bedrock.BedrockStatusResponse()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.BedrockStatusPlayers()
+.. autoclass:: mcstatus.responses.bedrock.BedrockStatusPlayers()
     :members:
     :undoc-members:
     :inherited-members:
     :exclude-members: build
 
-.. autoclass:: mcstatus.responses.BedrockStatusVersion()
+.. autoclass:: mcstatus.responses.bedrock.BedrockStatusVersion()
     :members:
     :undoc-members:
     :inherited-members:

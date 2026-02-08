@@ -5,8 +5,9 @@ You can easily ping a server as a Java server and as a Bedrock server in one tim
 
 .. literalinclude:: code/ping_as_java_and_bedrock_in_one_time.py
 
-As you can see in the code, ``status`` function returns :class:`~mcstatus.responses.JavaStatusResponse`
-or :class:`~mcstatus.responses.BedrockStatusResponse` object. You can use
+As you can see in the code, ``status`` function returns
+:class:`~mcstatus.responses.java.JavaStatusResponse` or
+:class:`~mcstatus.responses.bedrock.BedrockStatusResponse` object. You can use
 :func:`isinstance` checks to access attributes that are only in one of the
 objects.
 

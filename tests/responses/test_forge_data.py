@@ -2,8 +2,9 @@ import typing as t
 
 import pytest
 
-from mcstatus.forge_data import ForgeData, ForgeDataChannel, ForgeDataMod, RawForgeData
 from mcstatus.responses import JavaStatusResponse
+from mcstatus.responses._raw import RawForgeData
+from mcstatus.responses.forge import ForgeData, ForgeDataChannel, ForgeDataMod
 from tests.responses import BaseResponseTest
 
 

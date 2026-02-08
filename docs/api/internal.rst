@@ -6,32 +6,32 @@ you **should not use them**, as we do not guarantee their backwards compatibilit
 versions. They are only documented here for linkable reference to them.
 
 
-.. autoclass:: mcstatus.pinger.ServerPinger
+.. autoclass:: mcstatus._protocol.java_client.JavaClient
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: mcstatus.pinger.AsyncServerPinger
+.. autoclass:: mcstatus._protocol.java_client.AsyncJavaClient
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: mcstatus.legacy_status.LegacyServerStatus
+.. autoclass:: mcstatus._protocol.legacy_client.LegacyClient
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: mcstatus.legacy_status.AsyncLegacyServerStatus
+.. autoclass:: mcstatus._protocol.legacy_client.AsyncLegacyClient
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: mcstatus.bedrock_status.BedrockServerStatus
+.. autoclass:: mcstatus._protocol.bedrock_client.BedrockClient
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: mcstatus.address
+.. automodule:: mcstatus._net.address
     :members:
     :exclude-members: Address
     :undoc-members:
@@ -44,32 +44,32 @@ versions. They are only documented here for linkable reference to them.
 
         .. attribute:: host
             :type: str
-            :canonical: mcstatus.address.Address.host
+            :canonical: mcstatus._net.address.Address.host
 
-            The hostname or IP address of the server. Is a part of Public API.
+            The hostname or IP address of the server.
 
         .. attribute:: port
             :type: int
-            :canonical: mcstatus.address.Address.port
+            :canonical: mcstatus._net.address.Address.port
 
-            The port of the server. Is a part of Public API.
+            The port of the server.
 
-.. automodule:: mcstatus.dns
+.. automodule:: mcstatus._net.dns
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: mcstatus.responses.BaseStatusResponse
+.. autoclass:: mcstatus.responses.base.BaseStatusResponse
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: mcstatus.responses.BaseStatusPlayers
+.. autoclass:: mcstatus.responses.base.BaseStatusPlayers
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: mcstatus.responses.BaseStatusVersion
+.. autoclass:: mcstatus.responses.base.BaseStatusVersion
     :members:
     :undoc-members:
     :show-inheritance:

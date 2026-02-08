@@ -1,7 +1,7 @@
 import pytest
 
-from mcstatus.utils.retry import retry
-from tests.test_async_pinger import async_decorator
+from mcstatus._utils.retry import retry
+from tests.protocol.test_java_client_async import async_decorator
 
 
 def test_sync_success():

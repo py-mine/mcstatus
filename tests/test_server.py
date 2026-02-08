@@ -7,8 +7,8 @@ from unittest.mock import call, patch
 import pytest
 import pytest_asyncio
 
-from mcstatus.address import Address
-from mcstatus.protocol.connection import BaseAsyncReadSyncWriteConnection, Connection
+from mcstatus._net.address import Address
+from mcstatus._protocol.connection import BaseAsyncReadSyncWriteConnection, Connection
 from mcstatus.server import BedrockServer, JavaServer, LegacyServer
 
 if TYPE_CHECKING:
@@ -176,11 +176,11 @@ class TestJavaServer:
 
     def test_ping_retry(self):
         # Use a blank mock for the connection, we don't want to actually create any connections
-        with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.ServerPinger") as pinger:
-            pinger.side_effect = [RuntimeError, RuntimeError, RuntimeError]
+        with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.JavaClient") as java_client:
+            java_client.side_effect = [RuntimeError, RuntimeError, RuntimeError]
             with pytest.raises(RuntimeError, match=r"^$"):
                 self.server.ping()
-            assert pinger.call_count == 3
+            assert java_client.call_count == 3
 
     def test_status(self):
         self.socket.receive(
@@ -206,11 +206,11 @@ class TestJavaServer:
 
     def test_status_retry(self):
         # Use a blank mock for the connection, we don't want to actually create any connections
-        with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.ServerPinger") as pinger:
-            pinger.side_effect = [RuntimeError, RuntimeError, RuntimeError]
+        with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.JavaClient") as java_client:
+            java_client.side_effect = [RuntimeError, RuntimeError, RuntimeError]
             with pytest.raises(RuntimeError, match=r"^$"):
                 self.server.status()
-            assert pinger.call_count == 3
+            assert java_client.call_count == 3
 
     def test_query(self):
         self.socket.receive(bytearray.fromhex("090000000035373033353037373800"))
@@ -224,7 +224,7 @@ class TestJavaServer:
             )
         )
 
-        with patch("mcstatus.protocol.connection.Connection.remaining") as mock_remaining:
+        with patch("mcstatus._protocol.connection.Connection.remaining") as mock_remaining:
             mock_remaining.side_effect = [15, 208]
 
             with (
@@ -252,12 +252,12 @@ class TestJavaServer:
 
     def test_query_retry(self):
         # Use a blank mock for the connection, we don't want to actually create any connections
-        with patch("mcstatus.server.UDPSocketConnection"), patch("mcstatus.server.ServerQuerier") as querier:
-            querier.side_effect = [RuntimeError, RuntimeError, RuntimeError]
+        with patch("mcstatus.server.UDPSocketConnection"), patch("mcstatus.server.QueryClient") as query_client:
+            query_client.side_effect = [RuntimeError, RuntimeError, RuntimeError]
             with pytest.raises(RuntimeError, match=r"^$"), patch.object(self.server.address, "resolve_ip") as resolve_ip:  # noqa: PT012
                 resolve_ip.return_value = "127.0.0.1"
                 self.server.query()
-            assert querier.call_count == 3
+            assert query_client.call_count == 3
 
     def test_lookup_constructor(self):
         s = JavaServer.lookup("example.org:4444")
