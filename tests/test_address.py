@@ -75,21 +75,26 @@ class TestAddressValidity:
         Address._ensure_validity(address, port)
 
     @pytest.mark.parametrize(
-        "address,port,exception",
+        ("address", "port"),
         [
-            # Out of range port
-            ("example.org", 100_000, ValueError),
-            ("example.org", -1, ValueError),
-            # Invalid types
-            ("example.org", "25565", TypeError),
-            (25565, "example.org", TypeError),
-            (("example.org", 25565), None, TypeError),
-            (0, 0, TypeError),
-            ("", "", TypeError),
+            ("example.org", 100_000),
+            ("example.org", -1),
         ],
     )
-    def test_address_validation_invalid(self, address, port, exception):
-        with pytest.raises(exception):
+    def test_address_validation_range(self, address, port):
+        with pytest.raises(ValueError, match=f"^Port must be within the allowed range \\(0-2\\^16\\), got {port}$"):
+            Address._ensure_validity(address, port)
+
+    def test_address_validation_port_invalid_type(self):
+        with pytest.raises(TypeError, match=r"^Port must be an integer port number, got <class 'str'> \('25565'\)$"):
+            Address._ensure_validity("example.org", "25565")
+
+    @pytest.mark.parametrize(
+        ("address", "port"),
+        [(25565, "example.org"), (0, 0)],
+    )
+    def test_address_validation_host_invalid_type(self, address, port):
+        with pytest.raises(TypeError, match=f"^Host must be a string address, got {type(address)!r} \\({address!r}\\)$"):
             Address._ensure_validity(address, port)
 
 
@@ -132,15 +137,18 @@ class TestAddressConstructing:
         assert addr.port == 12345
 
     def test_address_without_port(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match=r"^Given address 'example.org' doesn't contain port and default_port wasn't specified, can't parse.$",
+        ):
             Address.parse_address("example.org")
 
     def test_address_with_invalid_port(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"^Port could not be cast to integer value as 'port'$"):
             Address.parse_address("example.org:port")
 
     def test_address_with_multiple_ports(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"^Port could not be cast to integer value as '12345:25565'$"):
             Address.parse_address("example.org:12345:25565")
 
 

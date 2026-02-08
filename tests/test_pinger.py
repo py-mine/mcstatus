@@ -41,7 +41,7 @@ class TestServerPinger:
 
     def test_read_status_invalid_json(self):
         self.pinger.connection.receive(bytearray.fromhex("0300017B"))
-        with pytest.raises(IOError):
+        with pytest.raises(IOError, match=r"^Received invalid JSON$"):
             self.pinger.read_status()
 
     def test_read_status_invalid_reply(self):
@@ -58,7 +58,7 @@ class TestServerPinger:
     def test_read_status_invalid_status(self):
         self.pinger.connection.receive(bytearray.fromhex("0105"))
 
-        with pytest.raises(IOError):
+        with pytest.raises(IOError, match=r"^Received invalid status response packet.$"):
             self.pinger.read_status()
 
     def test_test_ping(self):
@@ -72,14 +72,14 @@ class TestServerPinger:
         self.pinger.connection.receive(bytearray.fromhex("011F"))
         self.pinger.ping_token = 14515484
 
-        with pytest.raises(IOError):
+        with pytest.raises(IOError, match=r"^Received invalid ping response packet.$"):
             self.pinger.test_ping()
 
     def test_test_ping_wrong_token(self):
         self.pinger.connection.receive(bytearray.fromhex("09010000000000DD7D1C"))
         self.pinger.ping_token = 12345
 
-        with pytest.raises(IOError):
+        with pytest.raises(IOError, match=r"^Received mangled ping response \(expected token 12345, got 14515484\)$"):
             self.pinger.test_ping()
 
     @pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))

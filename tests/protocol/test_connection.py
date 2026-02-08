@@ -61,13 +61,13 @@ class TestConnection:
     def test_read_invalid_varint(self):
         self.connection.receive(bytearray.fromhex("FFFFFFFF80"))
 
-        with pytest.raises(IOError):
+        with pytest.raises(IOError, match=r"^Received varint is too big!$"):
             self.connection.read_varint()
 
     def test_write_invalid_varint(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r'^The value "2147483648" is too big to send in a varint$'):
             self.connection.write_varint(2147483648)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r'^The value "-2147483649" is too big to send in a varint$'):
             self.connection.write_varint(-2147483649)
 
     def test_read_utf(self):
@@ -219,13 +219,13 @@ class TestConnection:
     def test_read_empty(self):
         self.connection.received = bytearray()
 
-        with pytest.raises(IOError):
+        with pytest.raises(IOError, match=r"^Not enough data to read! 0 < 1$"):
             self.connection.read(1)
 
     def test_read_not_enough(self):
         self.connection.received = bytearray(b"a")
 
-        with pytest.raises(IOError):
+        with pytest.raises(IOError, match=r"^Not enough data to read! 1 < 2$"):
             self.connection.read(2)
 
 
@@ -243,15 +243,15 @@ class TestTCPSocketConnection:
                 yield connection
 
     def test_flush(self, connection):
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match=r"^TCPSocketConnection does not support flush\(\)$"):
             connection.flush()
 
     def test_receive(self, connection):
-        with pytest.raises(TypeError):
-            connection.receive("")  # type: ignore # This is desired to produce TypeError
+        with pytest.raises(TypeError, match=r"^TCPSocketConnection does not support receive\(\)$"):
+            connection.receive("")
 
     def test_remaining(self, connection):
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match=r"^TCPSocketConnection does not support remaining\(\)$"):
             connection.remaining()
 
     def test_read(self, connection):
@@ -262,13 +262,13 @@ class TestTCPSocketConnection:
     def test_read_empty(self, connection):
         connection.socket.recv.return_value = bytearray()
 
-        with pytest.raises(IOError):
+        with pytest.raises(IOError, match=r"^Server did not respond with any information!$"):
             connection.read(1)
 
     def test_read_not_enough(self, connection):
         connection.socket.recv.side_effect = [bytearray(b"a"), bytearray()]
 
-        with pytest.raises(IOError):
+        with pytest.raises(IOError, match=r"^Server did not respond with any information!$"):
             connection.read(2)
 
     def test_write(self, connection):
@@ -291,12 +291,12 @@ class TestUDPSocketConnection:
                 yield connection
 
     def test_flush(self, connection):
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match=r"^UDPSocketConnection does not support flush\(\)$"):
             connection.flush()
 
     def test_receive(self, connection):
-        with pytest.raises(TypeError):
-            connection.receive("")  # type: ignore # This is desired to produce TypeError
+        with pytest.raises(TypeError, match=r"^UDPSocketConnection does not support receive\(\)$"):
+            connection.receive("")
 
     def test_remaining(self, connection):
         assert connection.remaining() == 65535
@@ -309,7 +309,7 @@ class TestUDPSocketConnection:
     def test_read_empty(self, connection):
         connection.socket.recvfrom.return_value = []
 
-        with pytest.raises(IndexError):
+        with pytest.raises(IndexError, match=r"^list index out of range$"):
             connection.read(1)
 
     def test_write(self, connection):
