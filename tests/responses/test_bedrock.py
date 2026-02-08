@@ -44,7 +44,7 @@ class TestBedrockStatusResponse(BaseResponseTest):
     def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
         return build
 
-    @mark.parametrize("field,pop_index", [("map_name", 7), ("gamemode", 7), ("gamemode", 8)])
+    @mark.parametrize(("field", "pop_index"), [("map_name", 7), ("gamemode", 7), ("gamemode", 8)])
     def test_optional_parameters_is_none(self, field, pop_index):
         parameters = [
             "MCPE",

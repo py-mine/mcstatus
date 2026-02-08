@@ -4,7 +4,7 @@ from mcstatus.utils.general import or_none
 
 
 @pytest.mark.parametrize(
-    "a,b,result",
+    ("a", "b", "result"),
     [
         (None, None, None),
         (None, "", ""),

@@ -49,7 +49,7 @@ class TestMotdParse:
             raw=source_bedrock,
         )  # fmt: skip
 
-    @pytest.mark.parametrize("bedrock", (True, False))
+    @pytest.mark.parametrize("bedrock", [True, False])
     def test_bedrock_parameter_nothing_changes(self, bedrock: bool):
         assert Motd.parse([{"color": "minecoin_gold", "text": " "}], bedrock=bedrock).parsed == [
             Formatting.RESET,
@@ -58,7 +58,7 @@ class TestMotdParse:
             Formatting.RESET,
         ]
 
-    @pytest.mark.parametrize("bedrock,expected", ((True, MinecraftColor.MINECOIN_GOLD), (False, "&g")))
+    @pytest.mark.parametrize(("bedrock", "expected"), [(True, MinecraftColor.MINECOIN_GOLD), (False, "&g")])
     def test_parse_as_str_ignore_minecoin_gold_on_java(self, bedrock: bool, expected):
         assert Motd.parse("&g", bedrock=bedrock).parsed == [expected]
 
@@ -70,7 +70,7 @@ class TestMotdParse:
         assert Motd.parse("&A").parsed == ["", MinecraftColor.GREEN, ""]
 
     @pytest.mark.parametrize(
-        "input,expected", [("", [""]), ([], [Formatting.RESET]), ({"extra": [], "text": ""}, ["", Formatting.RESET])]
+        ("input", "expected"), [("", [""]), ([], [Formatting.RESET]), ({"extra": [], "text": ""}, ["", Formatting.RESET])]
     )
     def test_empty_input_also_empty_raw(self, input, expected):
         assert Motd.parse(input).parsed == expected

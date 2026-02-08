@@ -7,7 +7,7 @@ from mcstatus.motd.components import WebColor
 
 class TestWebColor:
     @pytest.mark.parametrize(
-        "hex,rgb",
+        ("hex", "rgb"),
         [
             ("#bfff00", (191, 255, 0)),
             ("#00ff80", (0, 255, 128)),
@@ -18,7 +18,7 @@ class TestWebColor:
         assert WebColor.from_hex(hex=hex).rgb == rgb
 
     @pytest.mark.parametrize(
-        "hex,rgb",
+        ("hex", "rgb"),
         [
             ("#bfff00", (191, 255, 0)),
             ("#00ff80", (0, 255, 128)),

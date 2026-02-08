@@ -63,7 +63,7 @@ class TestSRVLookup:
 
 class TestAddressValidity:
     @pytest.mark.parametrize(
-        "address,port",
+        ("address", "port"),
         [
             ("example.org", 25565),
             ("192.168.0.100", 54321),

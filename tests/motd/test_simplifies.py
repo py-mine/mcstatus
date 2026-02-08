@@ -49,34 +49,34 @@ class TestMotdSimplifies:
         obj = Motd([Formatting.BOLD, "", Formatting.RESET, "", MinecraftColor.RED, ""], raw="")
         assert obj.simplify() == Motd([], raw="")
 
-    @pytest.mark.parametrize("first", (MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")))
-    @pytest.mark.parametrize("second", (MinecraftColor.BLUE, WebColor.from_hex(hex="#dd0220")))
+    @pytest.mark.parametrize("first", [MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
+    @pytest.mark.parametrize("second", [MinecraftColor.BLUE, WebColor.from_hex(hex="#dd0220")])
     def test_get_double_colors(self, first, second):
         assert get_double_colors([first, second]) == {0}
 
-    @pytest.mark.parametrize("first", (MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")))
-    @pytest.mark.parametrize("second", (MinecraftColor.BLUE, WebColor.from_hex(hex="#dd0220")))
-    @pytest.mark.parametrize("third", (MinecraftColor.BLUE, WebColor.from_hex(hex="dd0220")))
+    @pytest.mark.parametrize("first", [MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
+    @pytest.mark.parametrize("second", [MinecraftColor.BLUE, WebColor.from_hex(hex="#dd0220")])
+    @pytest.mark.parametrize("third", [MinecraftColor.BLUE, WebColor.from_hex(hex="dd0220")])
     def test_get_double_colors_with_three_items(self, first, second, third):
         assert get_double_colors([first, second, third]) == {0, 1}
 
-    @pytest.mark.parametrize("first", (MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")))
-    @pytest.mark.parametrize("second", (MinecraftColor.BLUE, WebColor.from_hex(hex="#dd0220")))
+    @pytest.mark.parametrize("first", [MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
+    @pytest.mark.parametrize("second", [MinecraftColor.BLUE, WebColor.from_hex(hex="#dd0220")])
     def test_get_double_colors_with_no_double_colors(self, first, second):
         assert get_double_colors([first, "", second]) == set()
 
-    @pytest.mark.parametrize("last_item", (MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")))
+    @pytest.mark.parametrize("last_item", [MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
     def test_get_formatting_before_color(self, last_item):
         assert get_formatting_before_color([Formatting.BOLD, last_item]) == {0}
 
-    @pytest.mark.parametrize("first_item", (Formatting.RESET, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000"), "abc"))
+    @pytest.mark.parametrize("first_item", [Formatting.RESET, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000"), "abc"])
     def test_get_formatting_before_color_without_formatting_before_color(self, first_item):
         assert get_formatting_before_color([first_item, "abc", MinecraftColor.WHITE]) == set()
 
     def test_skip_get_formatting_before_color(self):
         assert get_formatting_before_color(["abc", Formatting.BOLD, "def", Formatting.RESET, "ghi"]) == set()
 
-    @pytest.mark.parametrize("last_item", (MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")))
+    @pytest.mark.parametrize("last_item", [MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
     def test_get_formatting_before_color_if_space_between(self, last_item):
         assert get_formatting_before_color([Formatting.BOLD, " ", last_item]) == {0}
 
@@ -91,11 +91,11 @@ class TestMotdSimplifies:
         obj = Motd([Formatting.BOLD, Formatting.ITALIC], raw="")
         assert obj.simplify().parsed == []
 
-    @pytest.mark.parametrize("item", (Formatting.RESET, MinecraftColor.RED, WebColor.from_hex(hex="#ff1234")))
+    @pytest.mark.parametrize("item", [Formatting.RESET, MinecraftColor.RED, WebColor.from_hex(hex="#ff1234")])
     def test_dont_remove_empty_text(self, item):
         assert get_empty_text([item]) == set()
 
-    @pytest.mark.parametrize("last_item", (Formatting.RESET, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")))
+    @pytest.mark.parametrize("last_item", [Formatting.RESET, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
     def test_non_text_in_the_end(self, last_item):
         assert get_end_non_text(["abc", Formatting.BOLD, "def", Formatting.RESET, "ghi", last_item]) == {5}
 
