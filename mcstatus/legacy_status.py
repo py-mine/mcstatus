@@ -14,7 +14,7 @@ class _BaseLegacyServerStatus:
     def parse_response(data: bytes, latency: float) -> LegacyStatusResponse:
         decoded_data = data.decode("UTF-16BE").split("\0")
         if decoded_data[0] != "§1":
-            raise IOError("Recieved invalid kick packet reason")
+            raise IOError("Received invalid kick packet reason")
 
         return LegacyStatusResponse.build(decoded_data[1:], latency)
 
