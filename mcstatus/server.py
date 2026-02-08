@@ -3,23 +3,23 @@ from __future__ import annotations
 from abc import ABC
 from typing import TYPE_CHECKING
 
-from mcstatus.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
-from mcstatus.bedrock_status import BedrockServerStatus
-from mcstatus.legacy_status import AsyncLegacyServerStatus, LegacyServerStatus
-from mcstatus.pinger import AsyncServerPinger, ServerPinger
-from mcstatus.protocol.connection import (
+from mcstatus._net.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
+from mcstatus._protocol.bedrock_client import BedrockClient
+from mcstatus._protocol.connection import (
     TCPAsyncSocketConnection,
     TCPSocketConnection,
     UDPAsyncSocketConnection,
     UDPSocketConnection,
 )
-from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
-from mcstatus.utils import retry
+from mcstatus._protocol.java_client import AsyncJavaClient, JavaClient
+from mcstatus._protocol.legacy_client import AsyncLegacyClient, LegacyClient
+from mcstatus._protocol.query_client import AsyncQueryClient, QueryClient
+from mcstatus._utils import retry
 
 if TYPE_CHECKING:
     from typing_extensions import Self
 
-    from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse
+    from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse, QueryResponse
 
 
 __all__ = ["BedrockServer", "JavaServer", "LegacyServer", "MCServer"]
@@ -130,14 +130,14 @@ class JavaServer(BaseJavaServer):
         version: int,
         ping_token: int | None,
     ) -> float:
-        pinger = ServerPinger(
+        java_client = JavaClient(
             connection,
             address=self.address,
             version=version,
             ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
         )
-        pinger.handshake()
-        return pinger.test_ping()
+        java_client.handshake()
+        return java_client.test_ping()
 
     async def async_ping(self, *, tries: int = 3, version: int = 47, ping_token: int | None = None) -> float:
         """Asynchronously check the latency between a Minecraft Java Edition server and the client (you).
@@ -164,14 +164,14 @@ class JavaServer(BaseJavaServer):
         version: int,
         ping_token: int | None,
     ) -> float:
-        pinger = AsyncServerPinger(
+        java_client = AsyncJavaClient(
             connection,
             address=self.address,
             version=version,
             ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
         )
-        pinger.handshake()
-        ping = await pinger.test_ping()
+        java_client.handshake()
+        ping = await java_client.test_ping()
         return ping
 
     def status(self, *, tries: int = 3, version: int = 47, ping_token: int | None = None) -> JavaStatusResponse:
@@ -194,14 +194,14 @@ class JavaServer(BaseJavaServer):
         version: int,
         ping_token: int | None,
     ) -> JavaStatusResponse:
-        pinger = ServerPinger(
+        java_client = JavaClient(
             connection,
             address=self.address,
             version=version,
             ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
         )
-        pinger.handshake()
-        result = pinger.read_status()
+        java_client.handshake()
+        result = java_client.read_status()
         return result
 
     async def async_status(self, *, tries: int = 3, version: int = 47, ping_token: int | None = None) -> JavaStatusResponse:
@@ -224,21 +224,21 @@ class JavaServer(BaseJavaServer):
         version: int,
         ping_token: int | None,
     ) -> JavaStatusResponse:
-        pinger = AsyncServerPinger(
+        java_client = AsyncJavaClient(
             connection,
             address=self.address,
             version=version,
             ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
         )
-        pinger.handshake()
-        result = await pinger.read_status()
+        java_client.handshake()
+        result = await java_client.read_status()
         return result
 
     def query(self, *, tries: int = 3) -> QueryResponse:
         """Check the status of a Minecraft Java Edition server via the query protocol.
 
         :param tries: The number of times to retry if an error is encountered.
-        :return: Query information in a :class:`~mcstatus.querier.QueryResponse` instance.
+        :return: Query information in a :class:`~mcstatus.responses.QueryResponse` instance.
         """
         ip = str(self.address.resolve_ip())
         return self._retry_query(Address(ip, self.query_port), tries=tries)
@@ -246,15 +246,15 @@ class JavaServer(BaseJavaServer):
     @retry(tries=3)
     def _retry_query(self, addr: Address, tries: int = 3) -> QueryResponse:  # noqa: ARG002 # unused argument
         with UDPSocketConnection(addr, self.timeout) as connection:
-            querier = ServerQuerier(connection)
-            querier.handshake()
-            return querier.read_query()
+            query_client = QueryClient(connection)
+            query_client.handshake()
+            return query_client.read_query()
 
     async def async_query(self, *, tries: int = 3) -> QueryResponse:
         """Asynchronously check the status of a Minecraft Java Edition server via the query protocol.
 
         :param tries: The number of times to retry if an error is encountered.
-        :return: Query information in a :class:`~mcstatus.querier.QueryResponse` instance.
+        :return: Query information in a :class:`~mcstatus.responses.QueryResponse` instance.
         """
         ip = str(await self.address.async_resolve_ip())
         return await self._retry_async_query(Address(ip, self.query_port), tries=tries)
@@ -262,9 +262,9 @@ class JavaServer(BaseJavaServer):
     @retry(tries=3)
     async def _retry_async_query(self, address: Address, tries: int = 3) -> QueryResponse:  # noqa: ARG002 # unused argument
         async with UDPAsyncSocketConnection(address, self.timeout) as connection:
-            querier = AsyncServerQuerier(connection)
-            await querier.handshake()
-            return await querier.read_query()
+            query_client = AsyncQueryClient(connection)
+            await query_client.handshake()
+            return await query_client.read_query()
 
 
 class LegacyServer(BaseJavaServer):
@@ -281,7 +281,7 @@ class LegacyServer(BaseJavaServer):
         :return: Status information in a :class:`~mcstatus.responses.LegacyStatusResponse` instance.
         """
         with TCPSocketConnection(self.address, self.timeout) as connection:
-            return LegacyServerStatus(connection).read_status()
+            return LegacyClient(connection).read_status()
 
     @retry(tries=3)
     async def async_status(self, *, tries: int = 3) -> LegacyStatusResponse:  # noqa: ARG002 # unused argument
@@ -291,7 +291,7 @@ class LegacyServer(BaseJavaServer):
         :return: Status information in a :class:`~mcstatus.responses.LegacyStatusResponse` instance.
         """
         async with TCPAsyncSocketConnection(self.address, self.timeout) as connection:
-            return await AsyncLegacyServerStatus(connection).read_status()
+            return await AsyncLegacyClient(connection).read_status()
 
 
 class BedrockServer(MCServer):
@@ -306,7 +306,7 @@ class BedrockServer(MCServer):
         :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return BedrockServerStatus(self.address, self.timeout).read_status()
+        return BedrockClient(self.address, self.timeout).read_status()
 
     @retry(tries=3)
     async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:  # noqa: ARG002 # unused argument
@@ -315,4 +315,4 @@ class BedrockServer(MCServer):
         :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return await BedrockServerStatus(self.address, self.timeout).read_status_async()
+        return await BedrockClient(self.address, self.timeout).read_status_async()

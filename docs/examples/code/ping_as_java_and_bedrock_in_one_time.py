@@ -3,7 +3,8 @@ from __future__ import annotations
 import asyncio
 
 from mcstatus import BedrockServer, JavaServer
-from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse
+from mcstatus.responses.bedrock import BedrockStatusResponse
+from mcstatus.responses.java import JavaStatusResponse
 
 
 async def status(host: str) -> JavaStatusResponse | BedrockStatusResponse:

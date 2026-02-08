@@ -2,8 +2,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from mcstatus.address import Address
-from mcstatus.protocol.connection import Connection, TCPSocketConnection, UDPSocketConnection
+from mcstatus._net.address import Address
+from mcstatus._protocol.connection import Connection, TCPSocketConnection, UDPSocketConnection
 
 
 class TestConnection:

@@ -34,10 +34,7 @@ classifiers = [
 ]
 keywords = ["minecraft", "protocol"]
 requires-python = ">=3.10"
-dependencies = [
-    "asyncio-dgram>=2.1.2",
-    "dnspython>=2.4.2",
-]
+dependencies = ["asyncio-dgram>=2.1.2", "dnspython>=2.4.2"]
 
 [project.urls]
 Documentation = "https://mcstatus.readthedocs.io"
@@ -63,10 +60,7 @@ test = [
   "typing-extensions~=4.15.0",
 ]
 docs = ["docs; python_version >= '3.12'"]
-release = [
-  "hatchling~=1.28.0",
-  "uv-dynamic-versioning~=0.13.0",
-]
+release = ["hatchling~=1.28.0", "uv-dynamic-versioning~=0.13.0"]
 
 [tool.poe.tasks]
 _lint_ruff = "ruff check ."
@@ -175,6 +169,9 @@ ignore = [
 ban-relative-imports = "all"
 banned-module-level-imports = ["typing_extensions"]
 
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"mcstatus._compat".msg = "Deprecated compatibility shims should not be imported"
+
 [tool.ruff.lint.isort]
 order-by-type = false
 case-sensitive = true
@@ -215,3 +212,8 @@ source = "uv-dynamic-versioning"
 [tool.uv-dynamic-versioning]
 metadata = false
 fallback-version = "0.0.0"
+
+[tool.hatch.build.targets.sdist.force-include]
+"mcstatus/_compat/status_response.py" = "mcstatus/status_response.py"
+"mcstatus/_compat/forge_data.py" = "mcstatus/forge_data.py"
+"mcstatus/_compat/motd_transformers.py" = "mcstatus/motd/transformers.py"

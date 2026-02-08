@@ -3,7 +3,8 @@ import typing as t
 import pytest
 
 from mcstatus.motd import Motd
-from mcstatus.responses import QueryPlayers, QueryResponse, QuerySoftware, RawQueryResponse
+from mcstatus.responses import QueryPlayers, QueryResponse, QuerySoftware
+from mcstatus.responses._raw import RawQueryResponse
 from tests.responses import BaseResponseTest
 
 

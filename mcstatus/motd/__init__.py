@@ -4,20 +4,18 @@ import re
 import typing as t
 from dataclasses import dataclass
 
+from mcstatus.motd._simplifies import get_unused_elements, squash_nearby_strings
+from mcstatus.motd._transformers import AnsiTransformer, HtmlTransformer, MinecraftTransformer, PlainTransformer
 from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
-from mcstatus.motd.simplifies import get_unused_elements, squash_nearby_strings
-from mcstatus.motd.transformers import AnsiTransformer, HtmlTransformer, MinecraftTransformer, PlainTransformer
 
 if t.TYPE_CHECKING:
     from typing_extensions import Self
 
-    from mcstatus.responses import RawJavaResponseMotd, RawJavaResponseMotdWhenDict  # circular import
-else:
-    RawJavaResponseMotdWhenDict = dict
+    from mcstatus.responses._raw import RawJavaResponseMotd, RawJavaResponseMotdWhenDict
 
 __all__ = ["Motd"]
 
-MOTD_COLORS_RE = re.compile(r"([\xA7|&][0-9A-FK-OR])", re.IGNORECASE)
+_MOTD_COLORS_RE = re.compile(r"([\xA7|&][0-9A-FK-OR])", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -73,7 +71,7 @@ class Motd:
         """
         parsed_motd: list[ParsedMotdComponent] = []
 
-        split_raw = MOTD_COLORS_RE.split(raw)
+        split_raw = _MOTD_COLORS_RE.split(raw)
         for element in split_raw:
             clean_element = element.lstrip("&§").lower()
             standardized_element = element.replace("&", "§").lower()

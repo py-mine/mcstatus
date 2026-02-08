@@ -6,8 +6,7 @@ from unittest import mock
 import pytest
 
 from mcstatus.motd import Motd
-from mcstatus.motd.components import Formatting, MinecraftColor, TranslationTag, WebColor
-from mcstatus.motd.simplifies import (
+from mcstatus.motd._simplifies import (
     get_double_colors,
     get_double_items,
     get_empty_text,
@@ -15,13 +14,14 @@ from mcstatus.motd.simplifies import (
     get_formatting_before_color,
     get_unused_elements,
 )
+from mcstatus.motd.components import Formatting, MinecraftColor, TranslationTag, WebColor
 
 
 class TestMotdSimplifies:
     def test_get_unused_elements_call_every_simplifier(self):
         with ExitStack() as stack:
             mocked = [
-                stack.enter_context(mock.patch("mcstatus.motd.simplifies." + simplifier))
+                stack.enter_context(mock.patch("mcstatus.motd._simplifies." + simplifier))
                 for simplifier in [
                     get_double_items.__name__,
                     get_double_colors.__name__,
@@ -123,7 +123,7 @@ class TestMotdSimplifies:
                 get_empty_text.__name__,
                 get_end_non_text.__name__,
             ]:
-                stack.enter_context(mock.patch("mcstatus.motd.simplifies." + simplifier, remove_first_element))
+                stack.enter_context(mock.patch("mcstatus.motd._simplifies." + simplifier, remove_first_element))
             assert obj.simplify().parsed == ["1"]
 
     def test_simplify_function_provides_the_same_raw(self):

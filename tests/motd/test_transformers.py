@@ -6,12 +6,12 @@ import typing
 import pytest
 
 from mcstatus.motd import Motd
-from mcstatus.motd.transformers import AnsiTransformer, HtmlTransformer, MinecraftTransformer, PlainTransformer
+from mcstatus.motd._transformers import AnsiTransformer, HtmlTransformer, MinecraftTransformer, PlainTransformer
 
 if typing.TYPE_CHECKING:
     from collections.abc import Callable
 
-    from mcstatus.responses import RawJavaResponseMotd
+    from mcstatus.responses._raw import RawJavaResponseMotd
 
 
 class TestMotdPlain:

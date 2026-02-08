@@ -48,8 +48,8 @@ such error, you can re-encode text into UTF-8.
     >>> query.motd.to_minecraft().encode("iso-8859-1").decode("utf-8")
     'Привіт!'
 
-:attr:`query.motd <mcstatus.querier.QueryResponse.motd>` here can be anything,
-that contains incorrect encoding.
+:attr:`query.motd <mcstatus.responses.query.QueryResponse.motd>` here can be
+anything, that contains incorrect encoding.
 
 
 How to get server image?
@@ -57,7 +57,7 @@ How to get server image?
 
 On Bedrock, only official servers have a server image. There is no way to get
 or set an icon to a custom server. For Java servers, you can use
-:attr:`status.icon <mcstatus.responses.JavaStatusResponse.icon>`
+:attr:`status.icon <mcstatus.responses.java.JavaStatusResponse.icon>`
 attribute. It will return `Base64 <https://en.wikipedia.org/wiki/Base64>`_
 encoded PNG image. If you wish to save this image into a file, this is how:
 
