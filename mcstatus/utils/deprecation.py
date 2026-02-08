@@ -4,9 +4,11 @@ import functools
 import importlib.metadata
 import re
 import warnings
-from collections.abc import Callable
 from functools import wraps
-from typing import ParamSpec, Protocol, TypeVar
+from typing import ParamSpec, Protocol, TYPE_CHECKING, TypeVar
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 __all__ = ["deprecated", "deprecation_warn"]
 

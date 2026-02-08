@@ -5,13 +5,15 @@ import dataclasses
 import json
 import socket
 import sys
-from typing import TypeAlias
+from typing import TYPE_CHECKING, TypeAlias
 
 import dns.resolver
 
 from mcstatus import BedrockServer, JavaServer, LegacyServer
-from mcstatus.motd import Motd
 from mcstatus.responses import JavaStatusResponse
+
+if TYPE_CHECKING:
+    from mcstatus.motd import Motd
 
 SupportedServers: TypeAlias = "JavaServer | LegacyServer | BedrockServer"
 

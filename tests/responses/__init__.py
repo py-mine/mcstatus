@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import abc
-from typing import Any, TypeVar, cast
+from typing import Any, TYPE_CHECKING, TypeVar, cast
 
 import pytest
 
-from mcstatus.responses import BaseStatusResponse
+if TYPE_CHECKING:
+    from mcstatus.responses import BaseStatusResponse
 
 __all__ = ["BaseResponseTest"]
 _T = TypeVar("_T", bound="type[BaseResponseTest]")

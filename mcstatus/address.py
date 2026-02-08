@@ -3,7 +3,6 @@ from __future__ import annotations
 import ipaddress
 import sys
 import warnings
-from pathlib import Path
 from typing import NamedTuple, TYPE_CHECKING
 from urllib.parse import urlparse
 
@@ -12,6 +11,8 @@ import dns.resolver
 import mcstatus.dns
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from typing_extensions import Self
 
 

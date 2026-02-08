@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import inspect
-from collections.abc import Callable
 from functools import wraps
-from typing import ParamSpec, TypeVar, cast
+from typing import ParamSpec, TYPE_CHECKING, TypeVar, cast
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 __all__ = ["retry"]
 

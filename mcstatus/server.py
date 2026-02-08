@@ -14,11 +14,12 @@ from mcstatus.protocol.connection import (
     UDPSocketConnection,
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
-from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse
 from mcstatus.utils import retry
 
 if TYPE_CHECKING:
     from typing_extensions import Self
+
+    from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse
 
 
 __all__ = ["BedrockServer", "JavaServer", "LegacyServer", "MCServer"]

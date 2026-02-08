@@ -3,9 +3,11 @@ from __future__ import annotations
 import typing
 
 import pytest
-from _pytest.python import Function, Metafunc
 
 from tests.responses import BaseResponseTest
+
+if typing.TYPE_CHECKING:
+    from _pytest.python import Function, Metafunc
 
 
 def pytest_generate_tests(metafunc: Metafunc) -> None:

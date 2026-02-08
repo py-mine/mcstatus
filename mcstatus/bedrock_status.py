@@ -4,11 +4,14 @@ import asyncio
 import socket
 import struct
 from time import perf_counter
+from typing import TYPE_CHECKING
 
 import asyncio_dgram
 
-from mcstatus.address import Address
 from mcstatus.responses import BedrockStatusResponse
+
+if TYPE_CHECKING:
+    from mcstatus.address import Address
 
 
 class BedrockServerStatus:

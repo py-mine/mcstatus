@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import abc
 import typing as t
-from collections.abc import Callable, Sequence
 
 from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
 from mcstatus.utils import deprecation_warn
+
+if t.TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
 
 _HOOK_RETURN_TYPE = t.TypeVar("_HOOK_RETURN_TYPE")
 _END_RESULT_TYPE = t.TypeVar("_END_RESULT_TYPE")

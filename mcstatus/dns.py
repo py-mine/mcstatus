@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import dns.asyncresolver
 import dns.resolver
 from dns.rdatatype import RdataType
-from dns.rdtypes.IN.A import A as ARecordAnswer
-from dns.rdtypes.IN.SRV import SRV as SRVRecordAnswer  # noqa: N811 # constant imported as non constant (it's class)
+
+if TYPE_CHECKING:
+    from dns.rdtypes.IN.A import A as ARecordAnswer
+    from dns.rdtypes.IN.SRV import SRV as SRVRecordAnswer  # noqa: N811 # constant imported as non constant (it's class)
 
 
 def resolve_a_record(hostname: str, lifetime: float | None = None) -> str:

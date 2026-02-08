@@ -3,14 +3,17 @@ from __future__ import annotations
 import json
 import random
 from abc import ABC, abstractmethod
-from collections.abc import Awaitable
 from dataclasses import dataclass
 from time import perf_counter
-from typing import final
+from typing import TYPE_CHECKING, final
 
-from mcstatus.address import Address
 from mcstatus.protocol.connection import Connection, TCPAsyncSocketConnection, TCPSocketConnection
 from mcstatus.responses import JavaStatusResponse, RawJavaResponse
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable
+
+    from mcstatus.address import Address
 
 
 @dataclass
