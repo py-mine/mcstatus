@@ -47,7 +47,7 @@ class BaseResponseTest(abc.ABC):
 
     # implementations for tests
 
-    def test_values_of_attributes(self, build: BaseStatusResponse, field: str, value: Any) -> None:  # noqa: ANN401
+    def test_values_of_attributes(self, build: BaseStatusResponse, field: str, value: Any) -> None:
         assert getattr(build, field) == value
 
     def test_types_of_attributes(self, build: BaseStatusResponse, field: str, type_: type) -> None:
@@ -57,7 +57,7 @@ class BaseResponseTest(abc.ABC):
         assert hasattr(build, field)
 
     def test_optional_field_turns_into_none(self, build: BaseStatusResponse, to_remove: str, attribute_name: str) -> None:
-        raw = cast(tuple, self.OPTIONAL_FIELDS)[1]
+        raw = cast("tuple", self.OPTIONAL_FIELDS)[1]
         del raw[to_remove]
         assert getattr(type(build).build(raw), attribute_name) is None  # type: ignore # build is abstract
 

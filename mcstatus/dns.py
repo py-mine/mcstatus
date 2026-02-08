@@ -22,7 +22,7 @@ def resolve_a_record(hostname: str, lifetime: float | None = None) -> str:
     answers = dns.resolver.resolve(hostname, RdataType.A, lifetime=lifetime, search=True)
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
-    answer = cast(ARecordAnswer, answers[0])
+    answer = cast("ARecordAnswer", answers[0])
     ip = str(answer).rstrip(".")
     return ip
 
@@ -35,7 +35,7 @@ async def async_resolve_a_record(hostname: str, lifetime: float | None = None) -
     answers = await dns.asyncresolver.resolve(hostname, RdataType.A, lifetime=lifetime, search=True)
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
-    answer = cast(ARecordAnswer, answers[0])
+    answer = cast("ARecordAnswer", answers[0])
     ip = str(answer).rstrip(".")
     return ip
 
@@ -53,7 +53,7 @@ def resolve_srv_record(query_name: str, lifetime: float | None = None) -> tuple[
     answers = dns.resolver.resolve(query_name, RdataType.SRV, lifetime=lifetime, search=True)
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
-    answer = cast(SRVRecordAnswer, answers[0])
+    answer = cast("SRVRecordAnswer", answers[0])
     host = str(answer.target).rstrip(".")
     port = int(answer.port)
     return host, port
@@ -67,7 +67,7 @@ async def async_resolve_srv_record(query_name: str, lifetime: float | None = Non
     answers = await dns.asyncresolver.resolve(query_name, RdataType.SRV, lifetime=lifetime, search=True)
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
-    answer = cast(SRVRecordAnswer, answers[0])
+    answer = cast("SRVRecordAnswer", answers[0])
     host = str(answer.target).rstrip(".")
     port = int(answer.port)
     return host, port

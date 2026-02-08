@@ -123,7 +123,7 @@ class BaseWriteSync(ABC):
         """Write 1 byte for boolean `True` or `False`"""
         self.write(self._pack("?", value))
 
-    def write_buffer(self, buffer: "Connection") -> None:
+    def write_buffer(self, buffer: Connection) -> None:
         """Flush buffer, then write a varint of the length of the buffer's data, then write buffer data."""
         data = buffer.flush()
         self.write_varint(len(data))
@@ -219,7 +219,7 @@ class BaseWriteAsync(ABC):
         """Write 1 byte for boolean `True` or `False`"""
         await self.write(self._pack("?", value))
 
-    async def write_buffer(self, buffer: "Connection") -> None:
+    async def write_buffer(self, buffer: Connection) -> None:
         """Flush buffer, then write a varint of the length of the buffer's data, then write buffer data."""
         data = buffer.flush()
         await self.write_varint(len(data))
@@ -255,7 +255,7 @@ class BaseReadSync(ABC):
             result |= (part & 0x7F) << (7 * i)
             if not part & 0x80:
                 return signed_int32(result).value
-        raise IOError("Received varint is too big!")
+        raise OSError("Received varint is too big!")
 
     def read_varlong(self) -> int:
         """Read varlong from ``self`` and return it.
@@ -269,7 +269,7 @@ class BaseReadSync(ABC):
             result |= (part & 0x7F) << (7 * i)
             if not part & 0x80:
                 return signed_int64(result).value
-        raise IOError("Received varlong is too big!")
+        raise OSError("Received varlong is too big!")
 
     def read_utf(self) -> str:
         """Read up to 32767 bytes by reading a varint, then decode bytes as ``UTF-8``."""
@@ -309,9 +309,9 @@ class BaseReadSync(ABC):
 
     def read_bool(self) -> bool:
         """Return `True` or `False`. Read 1 byte."""
-        return cast(bool, self._unpack("?", self.read(1)))
+        return cast("bool", self._unpack("?", self.read(1)))
 
-    def read_buffer(self) -> "Connection":
+    def read_buffer(self) -> Connection:
         """Read a varint for length, then return a new connection from length read bytes."""
         length = self.read_varint()
         result = Connection()
@@ -348,7 +348,7 @@ class BaseReadAsync(ABC):
             result |= (part & 0x7F) << 7 * i
             if not part & 0x80:
                 return signed_int32(result).value
-        raise IOError("Received a varint that was too big!")
+        raise OSError("Received a varint that was too big!")
 
     async def read_varlong(self) -> int:
         """Read varlong from ``self`` and return it.
@@ -362,7 +362,7 @@ class BaseReadAsync(ABC):
             result |= (part & 0x7F) << (7 * i)
             if not part & 0x80:
                 return signed_int64(result).value
-        raise IOError("Received varlong is too big!")
+        raise OSError("Received varlong is too big!")
 
     async def read_utf(self) -> str:
         """Read up to 32767 bytes by reading a varint, then decode bytes as ``UTF-8``."""
@@ -402,7 +402,7 @@ class BaseReadAsync(ABC):
 
     async def read_bool(self) -> bool:
         """Return `True` or `False`. Read 1 byte."""
-        return cast(bool, self._unpack("?", await self.read(1)))
+        return cast("bool", self._unpack("?", await self.read(1)))
 
     async def read_buffer(self) -> Connection:
         """Read a varint for length, then return a new connection from length read bytes."""
@@ -463,7 +463,7 @@ class Connection(BaseSyncConnection):
     def read(self, length: int) -> bytearray:
         """Return :attr:`.received` up to length bytes, then cut received up to that point."""
         if len(self.received) < length:
-            raise IOError(f"Not enough data to read! {len(self.received)} < {length}")
+            raise OSError(f"Not enough data to read! {len(self.received)} < {length}")
 
         result = self.received[:length]
         self.received = self.received[length:]
@@ -492,7 +492,7 @@ class Connection(BaseSyncConnection):
         result, self.sent = self.sent, bytearray()
         return result
 
-    def copy(self) -> "Connection":
+    def copy(self) -> Connection:
         """Return a copy of ``self``"""
         new = self.__class__()
         new.receive(self.received)
@@ -543,7 +543,7 @@ class TCPSocketConnection(SocketConnection):
         while len(result) < length:
             new = self.socket.recv(length - len(result))
             if len(new) == 0:
-                raise IOError("Server did not respond with any information!")
+                raise OSError("Server did not respond with any information!")
             result.extend(new)
         return result
 
@@ -616,7 +616,7 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         while len(result) < length:
             new = await asyncio.wait_for(self.reader.read(length - len(result)), timeout=self.timeout)
             if len(new) == 0:
-                raise IOError("Socket did not respond with any information!")
+                raise OSError("Socket did not respond with any information!")
             result.extend(new)
         return result
 

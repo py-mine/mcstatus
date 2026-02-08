@@ -195,6 +195,7 @@ class Motd:
 
         Example:
             ``&0Hello &oWorld`` turns into ``Hello World``.
+
         """
         return PlainTransformer(_is_called_directly=False).transform(self.parsed)
 
@@ -208,6 +209,7 @@ class Motd:
 
                 >>> Motd.parse("&0Hello &oWorld")
                 "§0Hello §oWorld"
+
         """
         return MinecraftTransformer(_is_called_directly=False).transform(self.parsed)
 
@@ -258,6 +260,7 @@ class Motd:
                   Hello<i> from </span></i>
                   Another <span class=obfuscated>World</span>
                 </p>
+
         """
         return HtmlTransformer(bedrock=self.bedrock, _is_called_directly=False).transform(self.parsed)
 

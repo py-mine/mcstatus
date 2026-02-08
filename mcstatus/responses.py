@@ -209,7 +209,6 @@ class LegacyStatusResponse(BaseStatusResponse):
         :param latency: Latency of the request.
         :return: :class:`LegacyStatusResponse` object.
         """
-
         return cls(
             players=LegacyStatusPlayers(
                 online=int(decoded_data[3]),
@@ -243,7 +242,6 @@ class BedrockStatusResponse(BaseStatusResponse):
         :param latency: Latency of the request.
         :return: :class:`BedrockStatusResponse` object.
         """
-
         try:
             map_name = decoded_data[7]
         except IndexError:
@@ -546,6 +544,7 @@ class QuerySoftware:
         Returns:
             :class:`tuple` with two elements. First is brand of server (:attr:`.brand`)
             and second is a list of :attr:`plugins`.
+
         """
         brand = "vanilla"
         parsed_plugins = []

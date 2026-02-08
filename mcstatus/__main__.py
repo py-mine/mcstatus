@@ -31,8 +31,7 @@ QUERY_FAIL_WARNING = (
 
 
 def _motd(motd: Motd) -> str:
-    """Formats MOTD for human-readable output, with leading line break
-    if multiline."""
+    """Formats MOTD for human-readable output, with leading line break if multiline."""
     s = motd.to_ansi()
     return f"\n{s}" if "\n" in s else f" {s}"
 
@@ -40,12 +39,11 @@ def _motd(motd: Motd) -> str:
 def _kind(serv: SupportedServers) -> str:
     if isinstance(serv, JavaServer):
         return "Java"
-    elif isinstance(serv, LegacyServer):
+    if isinstance(serv, LegacyServer):
         return "Java (pre-1.7)"
-    elif isinstance(serv, BedrockServer):
+    if isinstance(serv, BedrockServer):
         return "Bedrock"
-    else:
-        raise ValueError(f"unsupported server for kind: {serv}")
+    raise ValueError(f"unsupported server for kind: {serv}")
 
 
 def _ping_with_fallback(server: SupportedServers) -> float:
@@ -148,7 +146,7 @@ def query_cmd(server: SupportedServers) -> int:
 
     try:
         response = server.query()
-    except socket.timeout:
+    except TimeoutError:
         print(QUERY_FAIL_WARNING, file=sys.stderr)
         return 1
 
@@ -200,7 +198,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     try:
         server = lookup(args.address)
         return args.func(server)
-    except (socket.timeout, socket.gaierror, dns.resolver.NoNameservers, ConnectionError, TimeoutError) as e:
+    except (socket.gaierror, dns.resolver.NoNameservers, ConnectionError, TimeoutError) as e:
         # catch and hide traceback for expected user-facing errors
         print(f"Error: {e!r}", file=sys.stderr)
         return 1

@@ -14,7 +14,7 @@ class _BaseLegacyServerStatus:
     def parse_response(data: bytes, latency: float) -> LegacyStatusResponse:
         decoded_data = data.decode("UTF-16BE").split("\0")
         if decoded_data[0] != "§1":
-            raise IOError("Received invalid kick packet reason")
+            raise OSError("Received invalid kick packet reason")
 
         return LegacyStatusResponse.build(decoded_data[1:], latency)
 
@@ -29,7 +29,7 @@ class LegacyServerStatus(_BaseLegacyServerStatus):
         self.connection.write(self.request_status_data)
         id = self.connection.read(1)
         if id != b"\xff":
-            raise IOError("Received invalid packet ID")
+            raise OSError("Received invalid packet ID")
         length = self.connection.read_ushort()
         data = self.connection.read(length * 2)
         end = perf_counter()
@@ -46,7 +46,7 @@ class AsyncLegacyServerStatus(_BaseLegacyServerStatus):
         self.connection.write(self.request_status_data)
         id = await self.connection.read(1)
         if id != b"\xff":
-            raise IOError("Received invalid packet ID")
+            raise OSError("Received invalid packet ID")
         length = await self.connection.read_ushort()
         data = await self.connection.read(length * 2)
         end = perf_counter()

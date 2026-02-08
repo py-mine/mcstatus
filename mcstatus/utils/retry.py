@@ -40,8 +40,7 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
                     return await func(*args, **kwargs)  # type: ignore # (We know func is awaitable here)
                 except exceptions as exc:
                     last_exc = exc
-            else:
-                raise last_exc  # type: ignore # (This won't actually be unbound)
+            raise last_exc  # type: ignore # (This won't actually be unbound)
 
         @wraps(func)
         def sync_wrapper(
@@ -55,8 +54,7 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
                     return func(*args, **kwargs)
                 except exceptions as exc:
                     last_exc = exc
-            else:
-                raise last_exc  # type: ignore # (This won't actually be unbound)
+            raise last_exc  # type: ignore # (This won't actually be unbound)
 
         # We cast here since pythons typing doesn't support adding keyword-only arguments to signature
         # (Support for this was a rejected idea https://peps.python.org/pep-0612/#concatenating-keyword-parameters)

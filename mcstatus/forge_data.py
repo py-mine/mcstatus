@@ -161,7 +161,7 @@ class StringBuffer(BaseReadSync, BaseConnection):
         while len(data) < length:
             result = self.stringio.read(1)
             if not result:
-                raise IOError(f"Not enough data to read! {len(data)} < {length}")
+                raise OSError(f"Not enough data to read! {len(data)} < {length}")
             data.extend(result.encode("utf-16be"))
         while len(data) > length:
             self.received.append(data.pop())
@@ -250,7 +250,7 @@ class ForgeData:
             non_mod_channel_count = buffer.read_varint()
             for _ in range(non_mod_channel_count):
                 channels.append(ForgeDataChannel.decode(buffer))
-        except IOError:
+        except OSError:
             if not truncated:
                 raise  # If answer wasn't truncated, we lost some data on the way
 
