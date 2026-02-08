@@ -575,11 +575,13 @@ release = [
 ]
 test = [
     { name = "coverage" },
+    { name = "hatchling" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
     { name = "pytest-rerunfailures" },
     { name = "typing-extensions" },
+    { name = "uv-dynamic-versioning" },
 ]
 
 [package.metadata]
@@ -603,11 +605,13 @@ release = [
 ]
 test = [
     { name = "coverage", specifier = "~=7.13.1" },
+    { name = "hatchling" },
     { name = "pytest", specifier = "~=9.0.2" },
     { name = "pytest-asyncio", specifier = "~=1.3.0" },
     { name = "pytest-cov", specifier = "~=7.0.0" },
     { name = "pytest-rerunfailures", specifier = "~=16.1" },
     { name = "typing-extensions", specifier = "~=4.15.0" },
+    { name = "uv-dynamic-versioning" },
 ]
 
 [[package]]

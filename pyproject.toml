@@ -58,6 +58,9 @@ test = [
   "pytest-rerunfailures~=16.1",
   "coverage~=7.13.1",
   "typing-extensions~=4.15.0",
+  # the actual versions are in the `release` group
+  "uv-dynamic-versioning",
+  "hatchling",
 ]
 docs = ["docs; python_version >= '3.12'"]
 release = ["hatchling~=1.28.0", "uv-dynamic-versioning~=0.13.0"]
@@ -97,6 +100,7 @@ help = "Runs the unit tests"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
+tmp_path_retention_policy = "failed"
 addopts = "--strict-markers --doctest-modules --cov=mcstatus --cov-append --cov-branch --cov-report=term-missing -vvv --no-cov-on-fail --asyncio-mode=strict"
 testpaths = ["tests"]
 
