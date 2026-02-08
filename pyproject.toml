@@ -121,25 +121,37 @@ target-version = "py310"
 line-length = 127
 
 [tool.ruff.lint]
-select = [
-  "F",     # Pyflakes
-  "W",     # Pycodestyle (warnings)
-  "E",     # Pycodestyle (errors)
-  "N",     # pep8-naming
-  "ANN",   # flake8-annotations
-  "B",     # flake8-bugbear
-  "FA",    # flake8-future-annotations
-  "TID",   # flake8-tidy-imports
-  "UP007", # flake8-new-union-types equivalent rule
-  "RUF",   # ruff's custom rules
-]
+select = ["ALL"]
 
 ignore = [
-  "ANN002", # Missing type annotation for *args
-  "ANN003", # Missing type annotation for **kwargs
-  "ANN204", # Missing return type annotation for special method
-  "B904",   # Exception raised within try-except should use raise ... from exc
-  "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+  "A",       # Shadowing a Python builtin
+  "EM",      # Very weird rules for using exceptions
+  "TD",      # Missing author/link in todo comments and other weirdness
+  "ANN002",  # Missing type annotation for *args
+  "ANN003",  # Missing type annotation for **kwargs
+  "ANN204",  # Missing return type annotation for special method
+  "B904",    # Exception raised within try-except should use raise ... from exc
+  "D203",    # Blank line required before class docstring
+  "D213",    # Multi-line docstring summary should start at the second line
+  "FIX002",  # Line contains TODO, consider resolving the issue
+  "PLR0913", # Too many arguments in function definition
+  "PLR2004", # Magic value used in comparison
+  "PYI063",  # Historically, prefixing parameter names with double underscores meant positional-only
+  "RET504",  # Unnecessary assignment to a variable before `return` statement
+  "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
+  "S101",    # Use of `assert` detected
+  "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
+  "TRY003",  # Avoid specifying long messages outside the exception class
+
+  # Ruff often identifies private modules as public, because we don't prefix them with `_`
+  "D100", # Missing docstring in public module
+  "D101", # Missing docstring in public class
+  "D102", # Missing docstring in public method
+  "D103", # Missing docstring in public function
+  "D104", # Missing docstring in public package
+  "D105", # Missing docstring in magic method
+  "D106", # Missing docstring in public nested class
+  "D107", # Missing docstring in __init__
 
   # Redundant rules with ruff-format:
   "E111",   # Indentation of a non-multiple of 4 spaces
@@ -158,11 +170,22 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"test_*.py" = [
-  "ANN", # flake8-annotations
+"tests/**" = [
+  "ANN",    # flake8-annotations
+  "ARG001", # Unused function argument
+  "ARG002", # Unused method argument
+  "FBT001", # Boolean-typed positional argument in function definition
+  "SLF001", # Private member accessed
+  "T201",   # Usage of `print`
+]
+"docs/**" = [
+  "INP001", # Implicit namespace package
 ]
 "docs/examples/code/**" = [
-  "FA", # flake8-future-annotations
+  "FA",     # flake8-future-annotations
+  "BLE001", # Do not catch blind exception: `Exception`
+  "T201",   # Usage of `print`
+  "TC001",  # Move application import into a type-checking block
 ]
 
 [tool.ruff.lint.flake8-tidy-imports]
