@@ -1,4 +1,4 @@
-from pytest import fixture
+import pytest
 
 from mcstatus.motd import Motd
 from mcstatus.responses import QueryPlayers, QueryResponse, QuerySoftware, RawQueryResponse
@@ -33,7 +33,7 @@ class TestQueryResponse(BaseResponseTest):
         ("game_id", "GAME ID"),
     ]
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self):
         return QueryResponse.build(raw=self.RAW, players_list=self.RAW_PLAYERS)
 
@@ -82,7 +82,7 @@ class TestQueryPlayers(BaseResponseTest):
         ("list", ["Dinnerbone", "Djinnibone", "Steve"]),
     ]
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self):
         return QueryPlayers.build(
             raw={

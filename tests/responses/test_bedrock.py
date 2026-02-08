@@ -1,11 +1,11 @@
-from pytest import fixture, mark
+import pytest
 
 from mcstatus.motd import Motd
 from mcstatus.responses import BedrockStatusPlayers, BedrockStatusResponse, BedrockStatusVersion
 from tests.responses import BaseResponseTest
 
 
-@fixture(scope="module")
+@pytest.fixture(scope="module")
 def build():
     return BedrockStatusResponse.build(
         [
@@ -40,11 +40,11 @@ class TestBedrockStatusResponse(BaseResponseTest):
         ("version", BedrockStatusVersion),
     ]
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
         return build
 
-    @mark.parametrize(("field", "pop_index"), [("map_name", 7), ("gamemode", 7), ("gamemode", 8)])
+    @pytest.mark.parametrize(("field", "pop_index"), [("map_name", 7), ("gamemode", 7), ("gamemode", 8)])
     def test_optional_parameters_is_none(self, field, pop_index):
         parameters = [
             "MCPE",
@@ -80,7 +80,7 @@ class TestBedrockStatusResponse(BaseResponseTest):
 class TestBedrockStatusPlayers(BaseResponseTest):
     EXPECTED_VALUES = [("online", 1), ("max", 69)]
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
         return build.players
 
@@ -89,6 +89,6 @@ class TestBedrockStatusPlayers(BaseResponseTest):
 class TestBedrockStatusVersion(BaseResponseTest):
     EXPECTED_VALUES = [("name", "1.18.100500"), ("protocol", 422), ("brand", "MCPE")]
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
         return build.version

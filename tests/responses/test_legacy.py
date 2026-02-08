@@ -1,11 +1,11 @@
-from pytest import fixture
+import pytest
 
 from mcstatus.motd import Motd
 from mcstatus.responses import LegacyStatusPlayers, LegacyStatusResponse, LegacyStatusVersion
 from tests.responses import BaseResponseTest
 
 
-@fixture(scope="module")
+@pytest.fixture(scope="module")
 def build():
     return LegacyStatusResponse.build(
         [
@@ -30,7 +30,7 @@ class TestLegacyStatusResponse(BaseResponseTest):
         ("version", LegacyStatusVersion),
     ]
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
         return build
 
@@ -47,7 +47,7 @@ class TestLegacyStatusResponse(BaseResponseTest):
 class TestLegacyStatusPlayers(BaseResponseTest):
     EXPECTED_VALUES = [("online", 0), ("max", 20)]
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
         return build.players
 
@@ -56,6 +56,6 @@ class TestLegacyStatusPlayers(BaseResponseTest):
 class TestLegacyStatusVersion(BaseResponseTest):
     EXPECTED_VALUES = [("name", "1.4.2"), ("protocol", 47)]
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
         return build.version
