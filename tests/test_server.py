@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Iterable
-from unittest.mock import call, patch
 from typing import SupportsIndex, TypeAlias
+from unittest.mock import call, patch
 
 import pytest
 import pytest_asyncio
 
-from mcstatus.protocol.connection import BaseAsyncReadSyncWriteConnection, Connection
 from mcstatus.address import Address
+from mcstatus.protocol.connection import BaseAsyncReadSyncWriteConnection, Connection
 from mcstatus.server import BedrockServer, JavaServer, LegacyServer
 
 BytesConvertable: TypeAlias = "SupportsIndex | Iterable[SupportsIndex]"

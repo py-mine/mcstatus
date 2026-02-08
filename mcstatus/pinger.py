@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+import json
+import random
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable
 from dataclasses import dataclass
-import json
-import random
 from time import perf_counter
 from typing import final
 

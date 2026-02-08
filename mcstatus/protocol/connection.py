@@ -6,12 +6,9 @@ import socket
 import struct
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
-from ctypes import c_int32 as signed_int32
-from ctypes import c_int64 as signed_int64
-from ctypes import c_uint32 as unsigned_int32
-from ctypes import c_uint64 as unsigned_int64
+from ctypes import c_int32 as signed_int32, c_int64 as signed_int64, c_uint32 as unsigned_int32, c_uint64 as unsigned_int64
 from ipaddress import ip_address
-from typing import TYPE_CHECKING, cast, TypeAlias
+from typing import TYPE_CHECKING, TypeAlias, cast
 
 import asyncio_dgram
 

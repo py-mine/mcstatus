@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import importlib.metadata
 import re
-from functools import wraps
 import warnings
+from functools import wraps
 
 import pytest
 
-from mcstatus.utils.deprecation import deprecated, deprecation_warn, _get_project_version
+from mcstatus.utils.deprecation import _get_project_version, deprecated, deprecation_warn
 
 LIB_NAME = "mcstatus"
 

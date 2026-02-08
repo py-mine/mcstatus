@@ -1,7 +1,7 @@
 import pytest
 
-from mcstatus.protocol.connection import Connection
 from mcstatus.legacy_status import LegacyServerStatus
+from mcstatus.protocol.connection import Connection
 
 
 def test_invalid_kick_reason():

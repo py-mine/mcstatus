@@ -1,18 +1,17 @@
-import io
-import socket
-
-from mcstatus import JavaServer, LegacyServer, BedrockServer
-from mcstatus.responses import JavaStatusResponse, LegacyStatusResponse, BedrockStatusResponse, RawJavaResponse
-from mcstatus.querier import QueryResponse
-
-import os
-import json
 import contextlib
+import io
+import json
+import os
+import socket
 from unittest import mock
 from unittest.mock import patch
+
 import pytest
 
-from mcstatus.__main__ import main as main_under_test, PING_PACKET_FAIL_WARNING, QUERY_FAIL_WARNING
+from mcstatus import BedrockServer, JavaServer, LegacyServer
+from mcstatus.__main__ import PING_PACKET_FAIL_WARNING, QUERY_FAIL_WARNING, main as main_under_test
+from mcstatus.querier import QueryResponse
+from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse, RawJavaResponse
 
 JAVA_RAW_RESPONSE: RawJavaResponse = {
     "players": {"max": 20, "online": 0},

@@ -15,10 +15,9 @@ from __future__ import annotations
 
 import os
 import sys
-
-from packaging.version import Version, parse as parse_version
 from importlib.metadata import version as importlib_version
 
+from packaging.version import Version, parse as parse_version
 
 sys.path.insert(0, os.path.abspath(".."))
 

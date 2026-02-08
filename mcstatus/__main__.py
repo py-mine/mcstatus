@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-import dns.resolver
-import sys
-import json
 import argparse
-import socket
 import dataclasses
+import json
+import socket
+import sys
 from typing import TypeAlias
 
-from mcstatus import JavaServer, LegacyServer, BedrockServer
-from mcstatus.responses import JavaStatusResponse
+import dns.resolver
+
+from mcstatus import BedrockServer, JavaServer, LegacyServer
 from mcstatus.motd import Motd
+from mcstatus.responses import JavaStatusResponse
 
 SupportedServers: TypeAlias = "JavaServer | LegacyServer | BedrockServer"
 

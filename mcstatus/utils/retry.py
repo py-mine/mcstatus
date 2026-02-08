@@ -3,8 +3,7 @@ from __future__ import annotations
 import inspect
 from collections.abc import Callable
 from functools import wraps
-from typing import TypeVar, cast, ParamSpec
-
+from typing import ParamSpec, TypeVar, cast
 
 __all__ = ["retry"]
 
