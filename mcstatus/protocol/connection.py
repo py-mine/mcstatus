@@ -233,7 +233,7 @@ class BaseReadSync(ABC):
     __slots__ = ()
 
     @abstractmethod
-    def read(self, length: int) -> bytearray:
+    def read(self, length: int, /) -> bytearray:
         """Read length bytes from ``self``, and return a byte array."""
 
     def __repr__(self) -> str:
@@ -326,7 +326,7 @@ class BaseReadAsync(ABC):
     __slots__ = ()
 
     @abstractmethod
-    async def read(self, length: int) -> bytearray:
+    async def read(self, length: int, /) -> bytearray:
         """Read length bytes from ``self``, return a byte array."""
 
     def __repr__(self) -> str:
@@ -461,7 +461,7 @@ class Connection(BaseSyncConnection):
         self.sent = bytearray()
         self.received = bytearray()
 
-    def read(self, length: int) -> bytearray:
+    def read(self, length: int, /) -> bytearray:
         """Return :attr:`.received` up to length bytes, then cut received up to that point."""
         if len(self.received) < length:
             raise OSError(f"Not enough data to read! {len(self.received)} < {length}")
@@ -538,7 +538,7 @@ class TCPSocketConnection(SocketConnection):
         self.socket = socket.create_connection(addr, timeout=timeout)
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
-    def read(self, length: int) -> bytearray:
+    def read(self, length: int, /) -> bytearray:
         """Return length bytes read from :attr:`.socket`. Raises :exc:`IOError` when server doesn't respond."""
         result = bytearray()
         while len(result) < length:
@@ -575,7 +575,7 @@ class UDPSocketConnection(SocketConnection):
         """Always return ``65535`` (``2 ** 16 - 1``)."""  # noqa: D401 # imperative mood
         return 65535
 
-    def read(self, length: int) -> bytearray:  # noqa: ARG002 # unused argument
+    def read(self, _length: int, /) -> bytearray:
         """Return up to :meth:`.remaining` bytes. Length does nothing here."""
         result = bytearray()
         while len(result) == 0:
@@ -611,7 +611,7 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
             sock: socket.socket = self.writer.transport.get_extra_info("socket")
             sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
-    async def read(self, length: int) -> bytearray:
+    async def read(self, length: int, /) -> bytearray:
         """Read up to ``length`` bytes from :attr:`.reader`."""
         result = bytearray()
         while len(result) < length:
@@ -662,7 +662,7 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         """Always return ``65535`` (``2 ** 16 - 1``)."""  # noqa: D401 # imperative mood
         return 65535
 
-    async def read(self, length: int) -> bytearray:  # noqa: ARG002 # unused argument
+    async def read(self, _length: int, /) -> bytearray:
         """Read from :attr:`.stream`. Length does nothing here."""
         data, _remote_addr = await asyncio.wait_for(self.stream.recv(), timeout=self.timeout)
         return bytearray(data)
