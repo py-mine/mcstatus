@@ -47,10 +47,9 @@ Release types and guarantees
    sustainable for this project.
 
    In exceptional cases, a truly critical issue may be addressed via a hotfix
-   release. Such cases are rare and handled on a best-effort basis.
-
-   If you rely on older versions of mcstatus, you may encounter bugs that will
-   not be fixed unless you upgrade.
+   release. Such cases are rare and handled on a best-effort basis. If you rely
+   on older versions of mcstatus, you may encounter bugs that will not be fixed
+   unless you upgrade.
 
 Patch releases (x.y.PATCH)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,7 +63,7 @@ Patch releases contain:
 - breaking changes in private API
 - dependency updates (including major dependency updates), as long as the
   public contract of this library remains compatible
-- changes in library's public API typing behavior (see see
+- changes in library's public API typing behavior (see
   :ref:`typing-stability-guarantees`)
 
 Patch releases do **not** contain breaking changes to the public API. They also
@@ -76,7 +75,7 @@ a bug, it is possible that might end up changing this behavior in a PATCH
 release, in an effort to fix the unintentional, wrong behavior, breaking your
 dependency. Bug-fixes pretty much always happen without any deprecations.
 
-.. admonition:: example
+.. admonition:: Example
 
   To understand what constitutes a bug-fix with such breakage potential, as an
   example, if mcstatus incorrectly parses a MOTD format that some server sends,
@@ -193,7 +192,7 @@ ability to deliver a necessary bug-fix or feature, we do not consider
 maintaining the stability of the public typing interface significant enough to
 prevent us from shipping such a change.
 
-.. admonition:: example
+.. admonition:: Example
 
    To understand what we meant by breaking changes in the public typing
    interface, it can include things like:
