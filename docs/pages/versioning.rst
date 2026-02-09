@@ -100,8 +100,8 @@ non-breaking way. They may include:
 - **new deprecations** (introduced as warnings containing new replacements /
   deprecation reasons)
 - backwards-compatible behavior improvements
-- dropping support for a python version (e.g. dropping python 3.9 because it is
-  past it's end-of-life)
+- dropping support for a Python version (e.g. dropping Python 3.9 because it is
+  past its `end-of-life <https://devguide.python.org/versions/>`_)
 - any additional changes that patch releases can contain
 
 
