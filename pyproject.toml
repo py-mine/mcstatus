@@ -132,7 +132,6 @@ ignore = [
   "COM812",  # Missing trailing comma (in multiline lists/tuples/...)
   "D203",    # Blank line required before class docstring
   "D213",    # Multi-line docstring summary should start at the second line
-  "PLR09",   # Too many arguments in function definition
   "PLR2004", # Magic value used in comparison
   "RET504",  # Unnecessary assignment to a variable before `return` statement
   "S101",    # Use of `assert` detected
@@ -193,6 +192,9 @@ allow-multiline = false
 
 [tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true
+
+[tool.ruff.lint.pylint]
+max-args = 10
 
 [tool.ruff-formatter]
 line-ending = "lf"
