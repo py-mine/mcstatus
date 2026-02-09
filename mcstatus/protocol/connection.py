@@ -22,13 +22,13 @@ if TYPE_CHECKING:
 
 
 def ip_type(address: int | str) -> int | None:
-    """Determinate what IP version is.
+    """Determine the IP version (IPv4 or IPv6).
 
     :param address:
         A string or integer, the IP address. Either IPv4 or IPv6 addresses may be supplied.
         Integers less than 2**32 will be considered to be IPv4 by default.
     :return: ``4`` or ``6`` if the IP is IPv4 or IPv6, respectively. :obj:`None` if the IP is invalid.
-    """  # noqa: D401 # imperative mood
+    """
     try:
         return ip_address(address).version
     except ValueError:
