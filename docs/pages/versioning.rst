@@ -220,28 +220,42 @@ message containing:
 - what to use instead (if a replacement is available)
 - a target removal version
 
-When we remove something, we generally aim to remove it in a **major release**,
-after it has been deprecated for at least one release cycle. For some more
-significant changes, we can sometimes keep a deprecation around for longer
-though.
+When we deprecate something, we generally aim to remove it in a **major
+release**, after it has been deprecated for at least one release cycle. (E.g. a
+deprecation introduced in ``v12.2.0`` will most likely have its removal
+scheduled in ``v13.0.0`` ). For some more significant changes, we can sometimes
+keep a deprecation around for longer though (e.g. a deprecation introduced in
+``v12.2.0`` with removal scheduled for ``v14.0.0``).
+
+We will **always** explicitly include the removal version, until which the
+deprecated behavior will still be guaranteed to remain functional.
+
+Post-removal deprecation handling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once a deprecated feature has passed its stated removal version, its use will
+result in a breaking change. This is guaranteed to happen in the stated removal
+version.
 
 .. warning::
 
    **Relying on deprecated behavior after its removal is unsupported.**
 
-   If you continue using deprecated functionality beyond its stated removal
-   version, mcstatus does not guarantee that resulting errors will clearly
-   indicate the original deprecation.
+   Where feasible, mcstatus will explicitly raise the corresponding
+   ``DeprecationWarning`` as a hard exception, rather than allowing the removal
+   to manifest as a less clear runtime failures (such as ``AttributeError``).
+   This is a deliberate best-effort attempt to provide clearer diagnostics and
+   improve the upgrade experience.
 
-   After removal, failures may surface as generic errors such as
-   ``AttributeError`` or similar runtime exceptions.
+   This behavior is **not part of the versioning guarantees**. Any post-removal
+   deprecation handling is considered **temporary by design** and may be
+   intentionally removed after some time, including in patch releases, once
+   the breakage has been in effect for a reasonable period (e.g. a month).
 
-   In some cases, mcstatus may choose to keep deprecation handling in place and
-   raise a ``DeprecationWarning`` as a hard exception instead of merely
-   emitting a warning. This behavior is **not guaranteed**, may differ between
-   features, and may be removed at any time, including in patch releases.
+   Users must not rely on the presence, wording, or longevity of post-removal
+   deprecation handling. After removal, failures may surface as generic runtime
+   errors without any direct reference to the original deprecation.
 
-   For this reason, you should always pay attention to deprecation warnings and
-   resolve them ahead of time, ideally after any minor updates, but at the very
-   least before upgrading to a new major version, to avoid sudden unexpected
-   hard breakages.
+For this reason, you should always pay attention to deprecation warnings and
+resolve them ahead of time, ideally after any minor updates, but at the very
+least before upgrading to a new major version, to avoid unclear hard breakages.
