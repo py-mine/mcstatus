@@ -9,6 +9,7 @@ Content
 
 	pages/faq.rst
 	pages/contributing.rst
+	pages/versioning.rst
 	examples/examples.rst
 
 .. toctree::
