@@ -1,3 +1,5 @@
+import typing as t
+
 import pytest
 
 from mcstatus.motd import Motd
@@ -7,7 +9,7 @@ from tests.responses import BaseResponseTest
 
 @BaseResponseTest.construct
 class TestJavaStatusResponse(BaseResponseTest):
-    RAW = {
+    RAW: t.ClassVar = {
         "players": {"max": 20, "online": 0},
         "version": {"name": "1.8-pre1", "protocol": 44},
         "description": "A Minecraft Server",
@@ -15,7 +17,7 @@ class TestJavaStatusResponse(BaseResponseTest):
         "favicon": "data:image/png;base64,foo",
     }
 
-    EXPECTED_VALUES = [
+    EXPECTED_VALUES: t.ClassVar = [
         ("players", JavaStatusPlayers(0, 20, None)),
         ("version", JavaStatusVersion("1.8-pre1", 44)),
         ("motd", Motd.parse("A Minecraft Server", bedrock=False)),
@@ -25,7 +27,7 @@ class TestJavaStatusResponse(BaseResponseTest):
         ("raw", RAW),
         ("forge_data", None),
     ]
-    OPTIONAL_FIELDS = (
+    OPTIONAL_FIELDS: t.ClassVar = (
         [("favicon", "icon"), ("enforcesSecureChat", "enforces_secure_chat")],
         {
             "players": {"max": 20, "online": 0},
@@ -61,7 +63,7 @@ class TestJavaStatusResponse(BaseResponseTest):
 
 @BaseResponseTest.construct
 class TestJavaStatusPlayers(BaseResponseTest):
-    EXPECTED_VALUES = [
+    EXPECTED_VALUES: t.ClassVar = [
         ("max", 20),
         ("online", 0),
         (
@@ -73,7 +75,7 @@ class TestJavaStatusPlayers(BaseResponseTest):
             ],
         ),
     ]
-    OPTIONAL_FIELDS = (
+    OPTIONAL_FIELDS: t.ClassVar = (
         [("sample", "sample")],
         {
             "max": 20,
@@ -119,7 +121,7 @@ class TestJavaStatusPlayers(BaseResponseTest):
 
 @BaseResponseTest.construct
 class TestJavaStatusPlayer(BaseResponseTest):
-    EXPECTED_VALUES = [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")]
+    EXPECTED_VALUES: t.ClassVar = [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")]
 
     @pytest.fixture(scope="class")
     def build(self) -> JavaStatusPlayer:
@@ -134,7 +136,7 @@ class TestJavaStatusPlayer(BaseResponseTest):
 
 @BaseResponseTest.construct
 class TestJavaStatusVersion(BaseResponseTest):
-    EXPECTED_VALUES = [("name", "1.8-pre1"), ("protocol", 44)]
+    EXPECTED_VALUES: t.ClassVar = [("name", "1.8-pre1"), ("protocol", 44)]
 
     @pytest.fixture(scope="class")
     def build(self) -> JavaStatusVersion:

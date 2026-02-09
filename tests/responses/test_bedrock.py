@@ -1,3 +1,5 @@
+import typing as t
+
 import pytest
 
 from mcstatus.motd import Motd
@@ -29,13 +31,13 @@ def build():
 
 @BaseResponseTest.construct
 class TestBedrockStatusResponse(BaseResponseTest):
-    EXPECTED_VALUES = [
+    EXPECTED_VALUES: t.ClassVar = [
         ("motd", Motd.parse("§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r", bedrock=True)),
         ("latency", 123.0),
         ("map_name", "map name here"),
         ("gamemode", "Default"),
     ]
-    EXPECTED_TYPES = [
+    EXPECTED_TYPES: t.ClassVar = [
         ("players", BedrockStatusPlayers),
         ("version", BedrockStatusVersion),
     ]
@@ -78,7 +80,7 @@ class TestBedrockStatusResponse(BaseResponseTest):
 
 @BaseResponseTest.construct
 class TestBedrockStatusPlayers(BaseResponseTest):
-    EXPECTED_VALUES = [("online", 1), ("max", 69)]
+    EXPECTED_VALUES: t.ClassVar = [("online", 1), ("max", 69)]
 
     @pytest.fixture(scope="class")
     def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
@@ -87,7 +89,7 @@ class TestBedrockStatusPlayers(BaseResponseTest):
 
 @BaseResponseTest.construct
 class TestBedrockStatusVersion(BaseResponseTest):
-    EXPECTED_VALUES = [("name", "1.18.100500"), ("protocol", 422), ("brand", "MCPE")]
+    EXPECTED_VALUES: t.ClassVar = [("name", "1.18.100500"), ("protocol", 422), ("brand", "MCPE")]
 
     @pytest.fixture(scope="class")
     def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]

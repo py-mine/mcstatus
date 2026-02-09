@@ -1,3 +1,5 @@
+import typing as t
+
 import pytest
 
 from mcstatus.motd import Motd
@@ -21,11 +23,11 @@ def build():
 
 @BaseResponseTest.construct
 class TestLegacyStatusResponse(BaseResponseTest):
-    EXPECTED_VALUES = [
+    EXPECTED_VALUES: t.ClassVar = [
         ("motd", Motd.parse("A Minecraft Server")),
         ("latency", 123.0),
     ]
-    EXPECTED_TYPES = [
+    EXPECTED_TYPES: t.ClassVar = [
         ("players", LegacyStatusPlayers),
         ("version", LegacyStatusVersion),
     ]
@@ -45,7 +47,7 @@ class TestLegacyStatusResponse(BaseResponseTest):
 
 @BaseResponseTest.construct
 class TestLegacyStatusPlayers(BaseResponseTest):
-    EXPECTED_VALUES = [("online", 0), ("max", 20)]
+    EXPECTED_VALUES: t.ClassVar = [("online", 0), ("max", 20)]
 
     @pytest.fixture(scope="class")
     def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
@@ -54,7 +56,7 @@ class TestLegacyStatusPlayers(BaseResponseTest):
 
 @BaseResponseTest.construct
 class TestLegacyStatusVersion(BaseResponseTest):
-    EXPECTED_VALUES = [("name", "1.4.2"), ("protocol", 47)]
+    EXPECTED_VALUES: t.ClassVar = [("name", "1.4.2"), ("protocol", 47)]
 
     @pytest.fixture(scope="class")
     def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]

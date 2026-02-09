@@ -1,3 +1,5 @@
+import typing as t
+
 import pytest
 
 from mcstatus.motd import Motd
@@ -7,7 +9,7 @@ from tests.responses import BaseResponseTest
 
 @BaseResponseTest.construct
 class TestQueryResponse(BaseResponseTest):
-    RAW: RawQueryResponse = RawQueryResponse(
+    RAW: t.ClassVar[RawQueryResponse] = RawQueryResponse(
         hostname="A Minecraft Server",
         gametype="GAME TYPE",  # type: ignore[reportArgumentType] # different from the hardcoded value
         game_id="GAME ID",  # type: ignore[reportArgumentType] # different from the hardcoded value
@@ -19,9 +21,9 @@ class TestQueryResponse(BaseResponseTest):
         hostport="9999",
         hostip="192.168.56.1",
     )
-    RAW_PLAYERS = ["Dinnerbone", "Djinnibone", "Steve"]
+    RAW_PLAYERS: t.ClassVar = ["Dinnerbone", "Djinnibone", "Steve"]
 
-    EXPECTED_VALUES = [
+    EXPECTED_VALUES: t.ClassVar = [
         ("raw", RAW),
         ("motd", Motd.parse("A Minecraft Server")),
         ("map_name", "world"),
@@ -76,7 +78,7 @@ class TestQueryResponse(BaseResponseTest):
 
 @BaseResponseTest.construct
 class TestQueryPlayers(BaseResponseTest):
-    EXPECTED_VALUES = [
+    EXPECTED_VALUES: t.ClassVar = [
         ("online", 3),
         ("max", 20),
         ("list", ["Dinnerbone", "Djinnibone", "Steve"]),

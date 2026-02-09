@@ -166,7 +166,7 @@ class MinecraftTransformer(PlainTransformer):
 
 
 class HtmlTransformer(PlainTransformer):
-    FORMATTING_TO_HTML_TAGS = {
+    FORMATTING_TO_HTML_TAGS: t.ClassVar = {
         Formatting.BOLD: "b",
         Formatting.STRIKETHROUGH: "s",
         Formatting.ITALIC: "i",
@@ -222,15 +222,17 @@ class HtmlTransformer(PlainTransformer):
 
 
 class AnsiTransformer(PlainTransformer):
-    FORMATTING_TO_ANSI_TAGS = {
+    FORMATTING_TO_ANSI_TAGS: t.ClassVar = {
         Formatting.BOLD: "1",
         Formatting.STRIKETHROUGH: "9",
         Formatting.ITALIC: "3",
         Formatting.UNDERLINED: "4",
         Formatting.OBFUSCATED: "5",
     }
-    MINECRAFT_COLOR_TO_RGB_JAVA = {key: foreground for key, (foreground, _background) in MINECRAFT_COLOR_TO_RGB_JAVA.items()}
-    MINECRAFT_COLOR_TO_RGB_BEDROCK = {
+    MINECRAFT_COLOR_TO_RGB_JAVA: t.ClassVar = {
+        key: foreground for key, (foreground, _background) in MINECRAFT_COLOR_TO_RGB_JAVA.items()
+    }
+    MINECRAFT_COLOR_TO_RGB_BEDROCK: t.ClassVar = {
         key: foreground for key, (foreground, _background) in MINECRAFT_COLOR_TO_RGB_BEDROCK.items()
     }
 
