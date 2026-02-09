@@ -109,7 +109,7 @@ class BaseStatusResponse(ABC):
 
     @classmethod
     @abstractmethod
-    def build(cls, *args, **kwargs) -> Self:
+    def build(cls, *args: Any, **kwargs: Any) -> Self:
         """Build BaseStatusResponse and check is it valid.
 
         :param args: Arguments in specific realisation.

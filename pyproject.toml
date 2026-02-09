@@ -127,8 +127,6 @@ ignore = [
   "A",       # Shadowing a Python builtin
   "EM",      # Very weird rules for using exceptions
   "FIX",     # Line contains TODO, consider resolving the issue
-  "ANN002",  # Missing type annotation for *args
-  "ANN003",  # Missing type annotation for **kwargs
   "ANN204",  # Missing return type annotation for special method
   "B904",    # Exception raised within try-except should use raise ... from exc
   "COM812",  # Missing trailing comma (in multiline lists/tuples/...)
@@ -192,6 +190,9 @@ split-on-trailing-comma = false # if last member of multiline import has a comma
 
 [tool.ruff.lint.flake8-implicit-str-concat]
 allow-multiline = false
+
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
 
 [tool.ruff-formatter]
 line-ending = "lf"
