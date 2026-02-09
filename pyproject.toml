@@ -124,7 +124,6 @@ line-length = 127
 select = ["ALL"]
 
 ignore = [
-  "A",       # Shadowing a Python builtin
   "EM",      # Very weird rules for using exceptions
   "FIX",     # Line contains TODO, consider resolving the issue
   "ANN204",  # Missing return type annotation for special method
@@ -195,6 +194,9 @@ allow-star-arg-any = true
 
 [tool.ruff.lint.pylint]
 max-args = 10
+
+[tool.ruff.lint.flake8-builtins]
+ignorelist = ["id", "copyright"]
 
 [tool.ruff-formatter]
 line-ending = "lf"

@@ -7,26 +7,26 @@ from mcstatus.motd.components import WebColor
 
 class TestWebColor:
     @pytest.mark.parametrize(
-        ("hex", "rgb"),
+        ("hex_", "rgb"),
         [
             ("#bfff00", (191, 255, 0)),
             ("#00ff80", (0, 255, 128)),
             ("#4000ff", (64, 0, 255)),
         ],
     )
-    def test_hex_to_rgb_correct(self, hex, rgb):
-        assert WebColor.from_hex(hex=hex).rgb == rgb
+    def test_hex_to_rgb_correct(self, hex_, rgb):
+        assert WebColor.from_hex(hex=hex_).rgb == rgb
 
     @pytest.mark.parametrize(
-        ("hex", "rgb"),
+        ("hex_", "rgb"),
         [
             ("#bfff00", (191, 255, 0)),
             ("#00ff80", (0, 255, 128)),
             ("#4000ff", (64, 0, 255)),
         ],
     )
-    def test_rgb_to_hex_correct(self, hex, rgb):
-        assert WebColor.from_rgb(rgb=rgb).hex == hex
+    def test_rgb_to_hex_correct(self, hex_, rgb):
+        assert WebColor.from_rgb(rgb=rgb).hex == hex_
 
     def test_hex_in_output_has_number_sign(self):
         assert WebColor.from_hex(hex="#bfff00").hex == "#bfff00"

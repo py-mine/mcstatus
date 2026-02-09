@@ -70,10 +70,10 @@ class TestMotdParse:
         assert Motd.parse("&A").parsed == ["", MinecraftColor.GREEN, ""]
 
     @pytest.mark.parametrize(
-        ("input", "expected"), [("", [""]), ([], [Formatting.RESET]), ({"extra": [], "text": ""}, ["", Formatting.RESET])]
+        ("input_", "expected"), [("", [""]), ([], [Formatting.RESET]), ({"extra": [], "text": ""}, ["", Formatting.RESET])]
     )
-    def test_empty_input_also_empty_raw(self, input, expected):
-        assert Motd.parse(input).parsed == expected
+    def test_empty_input_also_empty_raw(self, input_, expected):
+        assert Motd.parse(input_).parsed == expected
 
     def test_top_level_formatting_applies_to_all_in_extra(self) -> None:
         """As described `here <https://minecraft.wiki/w/Java_Edition_protocol/Chat?direction=prev&oldid=2763844#Inheritance>`_."""
