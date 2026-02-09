@@ -106,8 +106,8 @@ class TestAsyncServerPinger:
         with mock.patch.object(FakeAsyncConnection, "read_buffer") as mocked:
             mocked.side_effect = mocked_read_buffer
             mocked.return_value.read_varint = lambda: 0  # overwrite `async` here
-            mocked.return_value.read_utf = (
-                lambda: """
+            mocked.return_value.read_utf = lambda: (
+                """
             {
                 "description": "A Minecraft Server",
                 "players": {"max": 20, "online": 0},
