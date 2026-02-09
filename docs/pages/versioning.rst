@@ -108,13 +108,14 @@ non-breaking way. They may include:
 Minor releases do **not** intentionally introduce breaking changes to the
 documented public API.
 
-
 Deprecations in minor releases
-  New deprecations may be introduced in minor releases for behavior that is
-  scheduled for removal in the next major version. These deprecations are
-  emitted as warnings and do not immediately break existing code. For more
-  information about our deprecation handling, see the
-  :ref:`deprecations-and-removals` section.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+New deprecations may be introduced in minor releases for behavior that is
+scheduled for removal in the next major version. These deprecations are emitted
+as warnings and do not immediately break existing code. For more information
+about our deprecation handling, see the :ref:`deprecations-and-removals`
+section.
 
 Major releases (MAJOR.y.z)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
