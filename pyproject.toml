@@ -126,21 +126,22 @@ select = ["ALL"]
 ignore = [
   "A",       # Shadowing a Python builtin
   "EM",      # Very weird rules for using exceptions
-  "TD",      # Missing author/link in todo comments and other weirdness
+  "FIX",     # Line contains TODO, consider resolving the issue
   "ANN002",  # Missing type annotation for *args
   "ANN003",  # Missing type annotation for **kwargs
   "ANN204",  # Missing return type annotation for special method
   "B904",    # Exception raised within try-except should use raise ... from exc
+  "COM812",  # Missing trailing comma (in multiline lists/tuples/...)
   "D203",    # Blank line required before class docstring
   "D213",    # Multi-line docstring summary should start at the second line
-  "FIX002",  # Line contains TODO, consider resolving the issue
-  "PLR0913", # Too many arguments in function definition
+  "PLR09",   # Too many arguments in function definition
   "PLR2004", # Magic value used in comparison
-  "PYI063",  # Historically, prefixing parameter names with double underscores meant positional-only
   "RET504",  # Unnecessary assignment to a variable before `return` statement
   "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
   "S101",    # Use of `assert` detected
   "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
+  "TD002",   # Missing author in TODO
+  "TD003",   # Missing issue link for this TODO
   "TRY003",  # Avoid specifying long messages outside the exception class
 
   # Ruff often identifies private modules as public, because we don't prefix them with `_`
@@ -153,21 +154,6 @@ ignore = [
   "D106", # Missing docstring in public nested class
   "D107", # Missing docstring in __init__
   "D413", # Missing blank line after last section
-
-  # Redundant rules with ruff-format:
-  "E111",   # Indentation of a non-multiple of 4 spaces
-  "E114",   # Comment with indentation of a non-multiple of 4 spaces
-  "E117",   # Checks for over-indented code
-  "D206",   # Checks for docstrings indented with tabs
-  "D300",   # Checks for docstring that use ''' instead of """
-  "Q000",   # Checks of inline strings that use wrong quotes (' instead of ")
-  "Q001",   # Multiline string that use wrong quotes (''' instead of """)
-  "Q002",   # Checks for docstrings that use wrong quotes (''' instead of """)
-  "Q003",   # Checks for avoidable escaped quotes ("\"" -> '"')
-  "COM812", # Missing trailing comma (in multiline lists/tuples/...)
-  "COM819", # Prohibited trailing comma (in single-line lists/tuples/...)
-  "ISC001", # Single line implicit string concatenation ("hi" "hey" -> "hihey")
-  "W191",   # Tab indentation
 ]
 
 [tool.ruff.lint.per-file-ignores]
