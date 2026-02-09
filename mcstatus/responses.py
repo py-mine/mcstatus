@@ -544,7 +544,6 @@ class QuerySoftware:
         Returns:
             :class:`tuple` with two elements. First is brand of server (:attr:`.brand`)
             and second is a list of :attr:`plugins`.
-
         """
         brand = "vanilla"
         parsed_plugins = []

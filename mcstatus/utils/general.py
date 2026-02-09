@@ -30,7 +30,6 @@ def or_none(*args: T) -> T | None:
             None  # expected ''!
             >>> or_none(mydict.get("a"), mydict.get("b"))
             ''
-
     """
     for arg in args:
         if arg is not None:
