@@ -71,7 +71,7 @@ generally don't introduce any new behavior, other than for purposes of
 resolving existing bugs, or internal updates.
 
 Note that in some cases, if you are relying on behavior which we consider to be
-a bug, it is possible that might end up changing this behavior in a PATCH
+a bug, it is possible that we might end up changing this behavior in a `PATCH`
 release, in an effort to fix the unintentional, wrong behavior, breaking your
 dependency. Bug-fixes pretty much always happen without any deprecations.
 
