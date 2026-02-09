@@ -165,8 +165,8 @@ Fortunately, breaking changes in the protocol when it comes to obtaining server
 status are very uncommon. But it is possible that Minecraft introduces a change
 that our library cannot process at the time of introduction, this might or
 might not cause hard failures on mcstatus part, even if older Minecraft clients
-can process these information, mcstatus might not be able to without us
-releasing a new version to support it.
+can process these information, mcstatus might not be able to, until we release
+a new version to support it.
 
 Because mcstatus is maintained by volunteers, timing may vary, but we try to
 keep mcstatus working with the latest Minecraft releases and fix critical bugs
@@ -249,8 +249,8 @@ version.
 
    This behavior is **not part of the versioning guarantees**. Any post-removal
    deprecation handling is considered **temporary by design** and may be
-   intentionally removed after some time, including in patch releases, once
-   the breakage has been in effect for a reasonable period (e.g. a month).
+   intentionally removed after some time, including in patch releases, once the
+   breakage has been in effect for a reasonable period (typically 1-5 months).
 
    Users must not rely on the presence, wording, or longevity of post-removal
    deprecation handling. After removal, failures may surface as generic runtime
