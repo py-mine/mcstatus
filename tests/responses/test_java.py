@@ -40,7 +40,7 @@ class TestJavaStatusResponse(BaseResponseTest):
 
     @pytest.fixture(scope="class")
     def build(self) -> JavaStatusResponse:
-        return JavaStatusResponse.build(self.RAW)  # type: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
+        return JavaStatusResponse.build(self.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
     def test_as_dict(self, build: JavaStatusResponse):
         assert build.as_dict() == {
@@ -129,7 +129,7 @@ class TestJavaStatusPlayer(BaseResponseTest):
 
     def test_id_field_the_same_as_uuid(self) -> None:
         unique = object()
-        build = JavaStatusPlayer.build({"name": "foo", "id": unique})  # type: ignore[assignment]
+        build = JavaStatusPlayer.build({"name": "foo", "id": unique})  # pyright: ignore[reportArgumentType]
         assert build.id is build.uuid
         assert build.uuid is unique
 

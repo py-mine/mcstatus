@@ -115,6 +115,8 @@ pythonVersion = "3.10"
 typeCheckingMode = "standard"
 
 disableBytesTypePromotions = false
+enableTypeIgnoreComments = false
+reportUnnecessaryTypeIgnoreComment = true
 
 [tool.ruff]
 target-version = "py310"

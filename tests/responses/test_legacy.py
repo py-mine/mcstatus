@@ -33,7 +33,7 @@ class TestLegacyStatusResponse(BaseResponseTest):
     ]
 
     @pytest.fixture(scope="class")
-    def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
+    def build(self, build):
         return build
 
     def test_as_dict(self, build: LegacyStatusResponse):
@@ -50,7 +50,7 @@ class TestLegacyStatusPlayers(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [("online", 0), ("max", 20)]
 
     @pytest.fixture(scope="class")
-    def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
+    def build(self, build):
         return build.players
 
 
@@ -59,5 +59,5 @@ class TestLegacyStatusVersion(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [("name", "1.4.2"), ("protocol", 47)]
 
     @pytest.fixture(scope="class")
-    def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
+    def build(self, build):
         return build.version

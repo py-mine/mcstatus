@@ -11,8 +11,8 @@ from tests.responses import BaseResponseTest
 class TestQueryResponse(BaseResponseTest):
     RAW: t.ClassVar[RawQueryResponse] = RawQueryResponse(
         hostname="A Minecraft Server",
-        gametype="GAME TYPE",  # type: ignore[reportArgumentType] # different from the hardcoded value
-        game_id="GAME ID",  # type: ignore[reportArgumentType] # different from the hardcoded value
+        gametype="GAME TYPE",  # pyright: ignore[reportArgumentType] # different from the hardcoded value
+        game_id="GAME ID",  # pyright: ignore[reportArgumentType] # different from the hardcoded value
         version="1.8",
         plugins="",
         map="world",

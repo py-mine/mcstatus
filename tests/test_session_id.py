@@ -6,7 +6,7 @@ from mcstatus.querier import ServerQuerier
 
 class TestHandshake:
     def setup_method(self):
-        self.querier = ServerQuerier(Connection())  # type: ignore[arg-type]
+        self.querier = ServerQuerier(Connection())  # pyright: ignore[reportArgumentType]
 
     def test_session_id(self):
         def session_id():

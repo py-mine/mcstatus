@@ -508,7 +508,7 @@ class SocketConnection(BaseSyncConnection):
 
     def __init__(self) -> None:
         # These will only be None until connect is called, ignore the None type assignment
-        self.socket: socket.socket = None  # type: ignore[assignment]
+        self.socket: socket.socket = None  # pyright: ignore[reportAttributeAccessIssue]
 
     def close(self) -> None:
         """Close :attr:`.socket`."""
@@ -598,8 +598,8 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
 
     def __init__(self, addr: Address, timeout: float = 3) -> None:
         # These will only be None until connect is called, ignore the None type assignment
-        self.reader: asyncio.StreamReader = None  # type: ignore[assignment]
-        self.writer: asyncio.StreamWriter = None  # type: ignore[assignment]
+        self.reader: asyncio.StreamReader = None  # pyright: ignore[reportAttributeAccessIssue]
+        self.writer: asyncio.StreamWriter = None  # pyright: ignore[reportAttributeAccessIssue]
         self.timeout: float = timeout
         self._addr = addr
 
@@ -649,7 +649,7 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
 
     def __init__(self, addr: Address, timeout: float = 3) -> None:
         # This will only be None until connect is called, ignore the None type assignment
-        self.stream: asyncio_dgram.aio.DatagramClient = None  # type: ignore[assignment]
+        self.stream: asyncio_dgram.aio.DatagramClient = None  # pyright: ignore[reportAttributeAccessIssue]
         self.timeout: float = timeout
         self._addr = addr
 

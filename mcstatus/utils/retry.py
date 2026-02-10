@@ -33,22 +33,22 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
         @wraps(func)
         async def async_wrapper(
             *args: P.args,
-            tries: int = tries,  # type: ignore[reportGeneralTypeIssues] # No support for adding kw-only args
+            tries: int = tries,  # pyright: ignore[reportGeneralTypeIssues] # No support for adding kw-only args
             **kwargs: P.kwargs,
         ) -> R:
             last_exc: BaseException
             for _ in range(tries):
                 try:
-                    return await func(*args, **kwargs)  # type: ignore[reportGeneralTypeIssues] # We know func is awaitable here
+                    return await func(*args, **kwargs)  # pyright: ignore[reportGeneralTypeIssues] # We know func is awaitable here
                 except exceptions as exc:  # noqa: PERF203 # try-except within a loop
                     last_exc = exc
             # This won't actually be unbound
-            raise last_exc  # type: ignore[reportGeneralTypeIssues,reportPossiblyUnboundVariable]
+            raise last_exc  # pyright: ignore[reportGeneralTypeIssues,reportPossiblyUnboundVariable]
 
         @wraps(func)
         def sync_wrapper(
             *args: P.args,
-            tries: int = tries,  # type: ignore[reportGeneralTypeIssues] # No support for adding kw-only args
+            tries: int = tries,  # pyright: ignore[reportGeneralTypeIssues] # No support for adding kw-only args
             **kwargs: P.kwargs,
         ) -> R:
             last_exc: BaseException
@@ -58,7 +58,7 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
                 except exceptions as exc:  # noqa: PERF203 # try-except within a loop
                     last_exc = exc
             # This won't actually be unbound
-            raise last_exc  # type: ignore[reportGeneralTypeIssues,reportPossiblyUnboundVariable]
+            raise last_exc  # pyright: ignore[reportGeneralTypeIssues,reportPossiblyUnboundVariable]
 
         # We cast here since pythons typing doesn't support adding keyword-only arguments to signature
         # (Support for this was a rejected idea https://peps.python.org/pep-0612/#concatenating-keyword-parameters)

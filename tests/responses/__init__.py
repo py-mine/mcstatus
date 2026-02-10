@@ -36,7 +36,8 @@ class BaseResponseTest(abc.ABC):
                 to_dict.extend(self.EXPECTED_TYPES)
                 already_checked_attributes = dict(to_dict).keys()
             else:
-                already_checked_attributes = dict(self.EXPECTED_VALUES or self.EXPECTED_TYPES).keys()  # type: ignore[reportCallIssue]
+                to_dict = cast("list[tuple[str, type]]", self.EXPECTED_VALUES or self.EXPECTED_TYPES)
+                already_checked_attributes = dict(to_dict).keys()
 
             for attribute_name in self.ATTRIBUTES_IN:
                 if attribute_name in already_checked_attributes:
@@ -92,7 +93,7 @@ class BaseResponseTest(abc.ABC):
 
     @staticmethod
     def construct(class_: _T) -> _T:
-        instance: BaseResponseTest = class_()  # type: ignore[reportAssignmentType]
+        instance: BaseResponseTest = class_()  # pyright: ignore[reportAssignmentType]
         instance._validate()
         for implementation_name, meet_dependencies in instance._dependency_table().items():
             if not meet_dependencies:

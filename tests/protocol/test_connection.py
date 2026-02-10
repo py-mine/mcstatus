@@ -274,7 +274,7 @@ class TestTCPSocketConnection:
     def test_write(self, connection):
         connection.write(bytearray.fromhex("7FAA"))
 
-        connection.socket.send.assert_called_once_with(bytearray.fromhex("7FAA"))  # type: ignore[attr-defined]
+        connection.socket.send.assert_called_once_with(bytearray.fromhex("7FAA"))
 
 
 class TestUDPSocketConnection:
@@ -315,7 +315,7 @@ class TestUDPSocketConnection:
     def test_write(self, connection):
         connection.write(bytearray.fromhex("7FAA"))
 
-        connection.socket.sendto.assert_called_once_with(  # type: ignore[attr-defined]
+        connection.socket.sendto.assert_called_once_with(
             bytearray.fromhex("7FAA"),
             Address("localhost", 1234),
         )

@@ -128,7 +128,7 @@ class TestMotdSimplifies:
 
     def test_simplify_function_provides_the_same_raw(self):
         obj = object()
-        assert Motd([], raw=obj).simplify().raw is obj  # type: ignore[reportArgumentType]
+        assert Motd([], raw=obj).simplify().raw is obj  # pyright: ignore[reportArgumentType]
 
     def test_simplify_do_not_remove_string_contains_only_spaces(self):
         """Those can be used as delimiters."""

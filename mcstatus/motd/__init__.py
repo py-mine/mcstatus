@@ -37,7 +37,7 @@ class Motd:
     @classmethod
     def parse(
         cls,
-        raw: RawJavaResponseMotd,  # type: ignore[reportRedeclaration] # later, we overwrite the type
+        raw: RawJavaResponseMotd,  # pyright: ignore[reportRedeclaration] # later, we overwrite the type
         *,
         bedrock: bool = False,
     ) -> Self:
@@ -47,7 +47,7 @@ class Motd:
         :param bedrock: Is server Bedrock Edition? Nothing changes here, just sets attribute.
         :returns: New :class:`.Motd` instance.
         """
-        original_raw = raw.copy() if hasattr(raw, "copy") else raw  # type: ignore[reportAttributeAccessIssue] # Cannot access "copy" for type "str"
+        original_raw = raw.copy() if hasattr(raw, "copy") else raw  # pyright: ignore[reportAttributeAccessIssue] # Cannot access "copy" for type "str"
         if isinstance(raw, list):
             raw: RawJavaResponseMotdWhenDict = {"extra": raw}
 

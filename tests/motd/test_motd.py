@@ -144,7 +144,7 @@ class TestMotdParse:
             TypeError,
             match=f"^Expected list, string or dict data, got <class 'object'> \\({obj!r}\\), report this!$",
         ):
-            Motd.parse(obj)  # type: ignore[reportArgumentType]
+            Motd.parse(obj)  # pyright: ignore[reportArgumentType]
 
     def test_invalid_color(self):
         with pytest.raises(ValueError, match=r"^Unable to parse color: 'a', report this!$"):
