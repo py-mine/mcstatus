@@ -140,6 +140,7 @@ ignore = [
   "TD002",   # Missing author in TODO
   "TD003",   # Missing issue link for this TODO
   "TRY003",  # Avoid specifying long messages outside the exception class
+  "ISC002",  # Multi line implicit string concatenation
 
   # Ruff often identifies private modules as public, because we don't prefix them with `_`
   "D100", # Missing docstring in public module

@@ -133,7 +133,7 @@ class Address(_AddressBase):
             host = "127.0.0.1"
             warnings.warn(
                 "On macOS because of some mysterious reasons we can't resolve localhost into IP. "
-                + "Please, replace 'localhost' with '127.0.0.1' (or '::1' for IPv6) in your code to remove this warning.",
+                "Please, replace 'localhost' with '127.0.0.1' (or '::1' for IPv6) in your code to remove this warning.",
                 category=RuntimeWarning,
                 stacklevel=2,
             )
@@ -164,7 +164,7 @@ class Address(_AddressBase):
             host = "127.0.0.1"
             warnings.warn(
                 "On macOS because of some mysterious reasons we can't resolve localhost into IP. "
-                + "Please, replace 'localhost' with '127.0.0.1' (or '::1' for IPv6) in your code to remove this warning.",
+                "Please, replace 'localhost' with '127.0.0.1' (or '::1' for IPv6) in your code to remove this warning.",
                 category=RuntimeWarning,
                 stacklevel=2,
             )
@@ -223,7 +223,7 @@ def minecraft_srv_address_lookup(
         if default_port is None:
             raise ValueError(
                 f"Given address '{address}' doesn't contain port, doesn't have an SRV record pointing to a port,"
-                + " and default_port wasn't specified, can't parse."
+                " and default_port wasn't specified, can't parse."
             )
         port = default_port
 
@@ -252,7 +252,7 @@ async def async_minecraft_srv_address_lookup(
         if default_port is None:
             raise ValueError(
                 f"Given address '{address}' doesn't contain port, doesn't have an SRV record pointing to a port,"
-                + " and default_port wasn't specified, can't parse."
+                " and default_port wasn't specified, can't parse."
             )
         port = default_port
 
