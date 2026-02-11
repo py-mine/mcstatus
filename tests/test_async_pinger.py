@@ -105,16 +105,17 @@ class TestAsyncServerPinger:
 
         with mock.patch.object(FakeAsyncConnection, "read_buffer") as mocked:
             mocked.side_effect = mocked_read_buffer
-            mocked.return_value.read_varint = lambda: 0  # overwrite `async` here
+            # overwrite `async` here
+            mocked.return_value.read_varint = lambda: 0
             mocked.return_value.read_utf = lambda: (
                 """
-            {
-                "description": "A Minecraft Server",
-                "players": {"max": 20, "online": 0},
-                "version": {"name": "1.8-pre1", "protocol": 44}
-            }
-            """
-            )  # overwrite `async` here
+                {
+                    "description": "A Minecraft Server",
+                    "players": {"max": 20, "online": 0},
+                    "version": {"name": "1.8-pre1", "protocol": 44}
+                }
+                """
+            )
             pinger = AsyncServerPinger(
                 FakeAsyncConnection(),  # pyright: ignore[reportArgumentType]
                 address=Address("localhost", 25565),
