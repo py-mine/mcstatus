@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import typing as t
-from collections.abc import Sequence
 
 from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, WebColor
+
+if t.TYPE_CHECKING:
+    from collections.abc import Sequence
 
 _PARSED_MOTD_COMPONENTS_TYPEVAR = t.TypeVar("_PARSED_MOTD_COMPONENTS_TYPEVAR", bound="list[ParsedMotdComponent]")
 

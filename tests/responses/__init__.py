@@ -1,31 +1,32 @@
 from __future__ import annotations
 
 import abc
-from typing import Any, TypeVar, cast
+from typing import Any, ClassVar, TYPE_CHECKING, TypeVar, cast
 
 import pytest
 
-from mcstatus.responses import BaseStatusResponse
+if TYPE_CHECKING:
+    from mcstatus.responses import BaseStatusResponse
 
 __all__ = ["BaseResponseTest"]
 _T = TypeVar("_T", bound="type[BaseResponseTest]")
 
 
 class BaseResponseTest(abc.ABC):
-    EXPECTED_VALUES: list[tuple[str, Any]] | None = None
-    EXPECTED_TYPES: list[tuple[str, type]] | None = None
-    ATTRIBUTES_IN: list[str] | None = None
+    EXPECTED_VALUES: ClassVar[list[tuple[str, Any]] | None] = None
+    EXPECTED_TYPES: ClassVar[list[tuple[str, type]] | None] = None
+    ATTRIBUTES_IN: ClassVar[list[str] | None] = None
     # if we don't specify item in raw answer, target field will be None
     # a first element is a list with fields to remove, and attribute that
     # must be None. a dict is a raw answer to pass into `build` method
-    OPTIONAL_FIELDS: tuple[list[tuple[str, str]], dict[str, Any]] | None = None
+    OPTIONAL_FIELDS: ClassVar[tuple[list[tuple[str, str]], dict[str, Any]] | None] = None
 
     def _validate(self) -> None:
         """Perform checks to validate the class."""
         if self.EXPECTED_TYPES is not None and self.EXPECTED_VALUES is not None:
             expected_values_keys = list(dict(self.EXPECTED_VALUES).keys())
 
-            for key in dict(self.EXPECTED_TYPES).keys():
+            for key in dict(self.EXPECTED_TYPES):
                 if key in expected_values_keys:
                     raise ValueError("You can't test the type of attribute, if already testing its value.")
 
@@ -35,7 +36,8 @@ class BaseResponseTest(abc.ABC):
                 to_dict.extend(self.EXPECTED_TYPES)
                 already_checked_attributes = dict(to_dict).keys()
             else:
-                already_checked_attributes = dict(self.EXPECTED_VALUES or self.EXPECTED_TYPES).keys()  # type: ignore
+                to_dict = cast("list[tuple[str, type]]", self.EXPECTED_VALUES or self.EXPECTED_TYPES)
+                already_checked_attributes = dict(to_dict).keys()
 
             for attribute_name in self.ATTRIBUTES_IN:
                 if attribute_name in already_checked_attributes:
@@ -47,7 +49,7 @@ class BaseResponseTest(abc.ABC):
 
     # implementations for tests
 
-    def test_values_of_attributes(self, build: BaseStatusResponse, field: str, value: Any) -> None:  # noqa: ANN401
+    def test_values_of_attributes(self, build: BaseStatusResponse, field: str, value: Any) -> None:
         assert getattr(build, field) == value
 
     def test_types_of_attributes(self, build: BaseStatusResponse, field: str, type_: type) -> None:
@@ -57,9 +59,9 @@ class BaseResponseTest(abc.ABC):
         assert hasattr(build, field)
 
     def test_optional_field_turns_into_none(self, build: BaseStatusResponse, to_remove: str, attribute_name: str) -> None:
-        raw = cast(tuple, self.OPTIONAL_FIELDS)[1]
+        raw = cast("tuple", self.OPTIONAL_FIELDS)[1]
         del raw[to_remove]
-        assert getattr(type(build).build(raw), attribute_name) is None  # type: ignore # build is abstract
+        assert getattr(type(build).build(raw), attribute_name) is None
 
     def _dependency_table(self) -> dict[str, bool]:
         # a key in the dict must be a name of a test implementation.
@@ -91,7 +93,7 @@ class BaseResponseTest(abc.ABC):
 
     @staticmethod
     def construct(class_: _T) -> _T:
-        instance: BaseResponseTest = class_()  # type: ignore
+        instance: BaseResponseTest = class_()  # pyright: ignore[reportAssignmentType]
         instance._validate()
         for implementation_name, meet_dependencies in instance._dependency_table().items():
             if not meet_dependencies:

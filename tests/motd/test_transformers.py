@@ -1,7 +1,7 @@
+# ruff: noqa: FBT003 # boolean positional value in `result` fixture
 from __future__ import annotations
 
 import typing
-from collections.abc import Callable
 
 import pytest
 
@@ -9,6 +9,8 @@ from mcstatus.motd import Motd
 from mcstatus.motd.transformers import AnsiTransformer, HtmlTransformer, MinecraftTransformer, PlainTransformer
 
 if typing.TYPE_CHECKING:
+    from collections.abc import Callable
+
     from mcstatus.responses import RawJavaResponseMotd
 
 
@@ -48,7 +50,7 @@ class TestMotdHTML:
     def result(self) -> Callable[[str, bool], str]:
         return lambda text, bedrock: Motd.parse(text, bedrock=bedrock).to_html()
 
-    def test_correct_output_java(self, result: Callable[["str | dict", bool], str], source_java):
+    def test_correct_output_java(self, result: Callable[[str | dict, bool], str], source_java):
         assert result(source_java, False) == (
             "<p>top"
             "1<span style='color:rgb(179, 238, 255)'>2</span>"
@@ -73,7 +75,7 @@ class TestMotdHTML:
             "20</p>"
         )
 
-    def test_correct_output_bedrock(self, result: Callable[["str | dict", bool], str], source_bedrock):
+    def test_correct_output_bedrock(self, result: Callable[[str | dict, bool], str], source_bedrock):
         assert result(source_bedrock, True) == (
             "<p>top"
             "1<span style='color:rgb(179, 238, 255)'>2</span>"

@@ -109,7 +109,7 @@ class BaseStatusResponse(ABC):
 
     @classmethod
     @abstractmethod
-    def build(cls, *args, **kwargs) -> Self:
+    def build(cls, *args: Any, **kwargs: Any) -> Self:
         """Build BaseStatusResponse and check is it valid.
 
         :param args: Arguments in specific realisation.
@@ -209,7 +209,6 @@ class LegacyStatusResponse(BaseStatusResponse):
         :param latency: Latency of the request.
         :return: :class:`LegacyStatusResponse` object.
         """
-
         return cls(
             players=LegacyStatusPlayers(
                 online=int(decoded_data[3]),
@@ -243,7 +242,6 @@ class BedrockStatusResponse(BaseStatusResponse):
         :param latency: Latency of the request.
         :return: :class:`BedrockStatusResponse` object.
         """
-
         try:
             map_name = decoded_data[7]
         except IndexError:
@@ -412,7 +410,7 @@ class BedrockStatusVersion(BaseStatusVersion):
         """
         .. deprecated:: 12.0.0
             Will be removed in 13.0.0, use :attr:`.name` instead.
-        """
+        """  # noqa: D205, D212 # no summary line
         return self.name
 
 
@@ -486,7 +484,7 @@ class QueryResponse:
         """
         .. deprecated:: 12.0.0
             Will be removed in 13.0.0, use :attr:`.map_name` instead.
-        """
+        """  # noqa: D205, D212 # no summary line
         return self.map_name
 
 
@@ -515,7 +513,7 @@ class QueryPlayers:
         """
         .. deprecated:: 12.0.0
             Will be removed in 13.0.0, use :attr:`.list` instead.
-        """
+        """  # noqa: D205, D212 # no summary line
         return self.list
 
 

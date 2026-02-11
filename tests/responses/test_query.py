@@ -1,4 +1,6 @@
-from pytest import fixture
+import typing as t
+
+import pytest
 
 from mcstatus.motd import Motd
 from mcstatus.responses import QueryPlayers, QueryResponse, QuerySoftware, RawQueryResponse
@@ -7,23 +9,21 @@ from tests.responses import BaseResponseTest
 
 @BaseResponseTest.construct
 class TestQueryResponse(BaseResponseTest):
-    RAW: RawQueryResponse = RawQueryResponse(
-        **{  # type: ignore # str cannot be assigned to Literal
-            "hostname": "A Minecraft Server",
-            "gametype": "GAME TYPE",
-            "game_id": "GAME ID",
-            "version": "1.8",
-            "plugins": "",
-            "map": "world",
-            "numplayers": "3",
-            "maxplayers": "20",
-            "hostport": "9999",
-            "hostip": "192.168.56.1",
-        }
+    RAW: t.ClassVar[RawQueryResponse] = RawQueryResponse(
+        hostname="A Minecraft Server",
+        gametype="GAME TYPE",  # pyright: ignore[reportArgumentType] # different from the hardcoded value
+        game_id="GAME ID",  # pyright: ignore[reportArgumentType] # different from the hardcoded value
+        version="1.8",
+        plugins="",
+        map="world",
+        numplayers="3",
+        maxplayers="20",
+        hostport="9999",
+        hostip="192.168.56.1",
     )
-    RAW_PLAYERS = ["Dinnerbone", "Djinnibone", "Steve"]
+    RAW_PLAYERS: t.ClassVar = ["Dinnerbone", "Djinnibone", "Steve"]
 
-    EXPECTED_VALUES = [
+    EXPECTED_VALUES: t.ClassVar = [
         ("raw", RAW),
         ("motd", Motd.parse("A Minecraft Server")),
         ("map_name", "world"),
@@ -35,7 +35,7 @@ class TestQueryResponse(BaseResponseTest):
         ("game_id", "GAME ID"),
     ]
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self):
         return QueryResponse.build(raw=self.RAW, players_list=self.RAW_PLAYERS)
 
@@ -78,13 +78,13 @@ class TestQueryResponse(BaseResponseTest):
 
 @BaseResponseTest.construct
 class TestQueryPlayers(BaseResponseTest):
-    EXPECTED_VALUES = [
+    EXPECTED_VALUES: t.ClassVar = [
         ("online", 3),
         ("max", 20),
         ("list", ["Dinnerbone", "Djinnibone", "Steve"]),
     ]
 
-    @fixture(scope="class")
+    @pytest.fixture(scope="class")
     def build(self):
         return QueryPlayers.build(
             raw={

@@ -27,7 +27,7 @@ def test_sync_fail():
         x += 1
         if x == 0:
             raise OSError("First error")
-        elif x == 1:
+        if x == 1:
             raise RuntimeError("Second error")
 
     # We should get the last exception on failure (not OSError)
@@ -58,7 +58,7 @@ def test_async_fail():
         x += 1
         if x == 0:
             raise OSError("First error")
-        elif x == 1:
+        if x == 1:
             raise RuntimeError("Second error")
 
     # We should get the last exception on failure (not OSError)

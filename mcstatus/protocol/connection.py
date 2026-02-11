@@ -5,26 +5,24 @@ import errno
 import socket
 import struct
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
-from ctypes import c_int32 as signed_int32
-from ctypes import c_int64 as signed_int64
-from ctypes import c_uint32 as unsigned_int32
-from ctypes import c_uint64 as unsigned_int64
+from ctypes import c_int32 as signed_int32, c_int64 as signed_int64, c_uint32 as unsigned_int32, c_uint64 as unsigned_int64
 from ipaddress import ip_address
-from typing import TYPE_CHECKING, cast, TypeAlias
+from typing import TYPE_CHECKING, TypeAlias, cast
 
 import asyncio_dgram
 
-from mcstatus.address import Address
-
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from typing_extensions import Self, SupportsIndex
+
+    from mcstatus.address import Address
 
     BytesConvertable: TypeAlias = "SupportsIndex | Iterable[SupportsIndex]"
 
 
 def ip_type(address: int | str) -> int | None:
-    """Determinate what IP version is.
+    """Determine the IP version (IPv4 or IPv6).
 
     :param address:
         A string or integer, the IP address. Either IPv4 or IPv6 addresses may be supplied.
@@ -38,7 +36,7 @@ def ip_type(address: int | str) -> int | None:
 
 
 class BaseWriteSync(ABC):
-    """Base synchronous write class"""
+    """Base synchronous write class."""
 
     __slots__ = ()
 
@@ -122,11 +120,11 @@ class BaseWriteSync(ABC):
         """Write 8 bytes for value ``0 - 18446744073709551613 (2 ** 64 - 1)``."""
         self.write(self._pack("Q", value))
 
-    def write_bool(self, value: bool) -> None:
-        """Write 1 byte for boolean `True` or `False`"""
+    def write_bool(self, value: bool) -> None:  # noqa: FBT001 # Boolean positional argument
+        """Write 1 byte for boolean `True` or `False`."""
         self.write(self._pack("?", value))
 
-    def write_buffer(self, buffer: "Connection") -> None:
+    def write_buffer(self, buffer: Connection) -> None:
         """Flush buffer, then write a varint of the length of the buffer's data, then write buffer data."""
         data = buffer.flush()
         self.write_varint(len(data))
@@ -134,7 +132,7 @@ class BaseWriteSync(ABC):
 
 
 class BaseWriteAsync(ABC):
-    """Base synchronous write class"""
+    """Base synchronous write class."""
 
     __slots__ = ()
 
@@ -218,11 +216,11 @@ class BaseWriteAsync(ABC):
         """Write 8 bytes for value ``0 - 18446744073709551613 (2 ** 64 - 1)``."""
         await self.write(self._pack("Q", value))
 
-    async def write_bool(self, value: bool) -> None:
-        """Write 1 byte for boolean `True` or `False`"""
+    async def write_bool(self, value: bool) -> None:  # noqa: FBT001 # Boolean positional argument
+        """Write 1 byte for boolean `True` or `False`."""
         await self.write(self._pack("?", value))
 
-    async def write_buffer(self, buffer: "Connection") -> None:
+    async def write_buffer(self, buffer: Connection) -> None:
         """Flush buffer, then write a varint of the length of the buffer's data, then write buffer data."""
         data = buffer.flush()
         await self.write_varint(len(data))
@@ -230,12 +228,12 @@ class BaseWriteAsync(ABC):
 
 
 class BaseReadSync(ABC):
-    """Base synchronous read class"""
+    """Base synchronous read class."""
 
     __slots__ = ()
 
     @abstractmethod
-    def read(self, length: int) -> bytearray:
+    def read(self, length: int, /) -> bytearray:
         """Read length bytes from ``self``, and return a byte array."""
 
     def __repr__(self) -> str:
@@ -258,7 +256,7 @@ class BaseReadSync(ABC):
             result |= (part & 0x7F) << (7 * i)
             if not part & 0x80:
                 return signed_int32(result).value
-        raise IOError("Received varint is too big!")
+        raise OSError("Received varint is too big!")
 
     def read_varlong(self) -> int:
         """Read varlong from ``self`` and return it.
@@ -272,7 +270,7 @@ class BaseReadSync(ABC):
             result |= (part & 0x7F) << (7 * i)
             if not part & 0x80:
                 return signed_int64(result).value
-        raise IOError("Received varlong is too big!")
+        raise OSError("Received varlong is too big!")
 
     def read_utf(self) -> str:
         """Read up to 32767 bytes by reading a varint, then decode bytes as ``UTF-8``."""
@@ -280,7 +278,7 @@ class BaseReadSync(ABC):
         return self.read(length).decode("utf8")
 
     def read_ascii(self) -> str:
-        """Read ``self`` until last value is not zero, then return that decoded with ``ISO-8859-1``"""
+        """Read ``self`` until last value is not zero, then return that decoded with ``ISO-8859-1``."""
         result = bytearray()
         while len(result) == 0 or result[-1] != 0:
             result.extend(self.read(1))
@@ -312,9 +310,9 @@ class BaseReadSync(ABC):
 
     def read_bool(self) -> bool:
         """Return `True` or `False`. Read 1 byte."""
-        return cast(bool, self._unpack("?", self.read(1)))
+        return cast("bool", self._unpack("?", self.read(1)))
 
-    def read_buffer(self) -> "Connection":
+    def read_buffer(self) -> Connection:
         """Read a varint for length, then return a new connection from length read bytes."""
         length = self.read_varint()
         result = Connection()
@@ -328,7 +326,7 @@ class BaseReadAsync(ABC):
     __slots__ = ()
 
     @abstractmethod
-    async def read(self, length: int) -> bytearray:
+    async def read(self, length: int, /) -> bytearray:
         """Read length bytes from ``self``, return a byte array."""
 
     def __repr__(self) -> str:
@@ -351,7 +349,7 @@ class BaseReadAsync(ABC):
             result |= (part & 0x7F) << 7 * i
             if not part & 0x80:
                 return signed_int32(result).value
-        raise IOError("Received a varint that was too big!")
+        raise OSError("Received a varint that was too big!")
 
     async def read_varlong(self) -> int:
         """Read varlong from ``self`` and return it.
@@ -365,7 +363,7 @@ class BaseReadAsync(ABC):
             result |= (part & 0x7F) << (7 * i)
             if not part & 0x80:
                 return signed_int64(result).value
-        raise IOError("Received varlong is too big!")
+        raise OSError("Received varlong is too big!")
 
     async def read_utf(self) -> str:
         """Read up to 32767 bytes by reading a varint, then decode bytes as ``UTF-8``."""
@@ -373,7 +371,7 @@ class BaseReadAsync(ABC):
         return (await self.read(length)).decode("utf8")
 
     async def read_ascii(self) -> str:
-        """Read ``self`` until last value is not zero, then return that decoded with ``ISO-8859-1``"""
+        """Read ``self`` until last value is not zero, then return that decoded with ``ISO-8859-1``."""
         result = bytearray()
         while len(result) == 0 or result[-1] != 0:
             result.extend(await self.read(1))
@@ -405,7 +403,7 @@ class BaseReadAsync(ABC):
 
     async def read_bool(self) -> bool:
         """Return `True` or `False`. Read 1 byte."""
-        return cast(bool, self._unpack("?", await self.read(1)))
+        return cast("bool", self._unpack("?", await self.read(1)))
 
     async def read_buffer(self) -> Connection:
         """Read a varint for length, then return a new connection from length read bytes."""
@@ -427,7 +425,7 @@ class BaseConnection:
         """Raise :exc:`TypeError`, unsupported."""
         raise TypeError(f"{self.__class__.__name__} does not support flush()")
 
-    def receive(self, data: BytesConvertable | bytearray) -> None:
+    def receive(self, _data: BytesConvertable | bytearray) -> None:
         """Raise :exc:`TypeError`, unsupported."""
         raise TypeError(f"{self.__class__.__name__} does not support receive()")
 
@@ -437,19 +435,19 @@ class BaseConnection:
 
 
 class BaseSyncConnection(BaseConnection, BaseReadSync, BaseWriteSync):
-    """Base synchronous read and write class"""
+    """Base synchronous read and write class."""
 
     __slots__ = ()
 
 
 class BaseAsyncReadSyncWriteConnection(BaseConnection, BaseReadAsync, BaseWriteSync):
-    """Base asynchronous read and synchronous write class"""
+    """Base asynchronous read and synchronous write class."""
 
     __slots__ = ()
 
 
 class BaseAsyncConnection(BaseConnection, BaseReadAsync, BaseWriteAsync):
-    """Base asynchronous read and write class"""
+    """Base asynchronous read and write class."""
 
     __slots__ = ()
 
@@ -463,10 +461,10 @@ class Connection(BaseSyncConnection):
         self.sent = bytearray()
         self.received = bytearray()
 
-    def read(self, length: int) -> bytearray:
+    def read(self, length: int, /) -> bytearray:
         """Return :attr:`.received` up to length bytes, then cut received up to that point."""
         if len(self.received) < length:
-            raise IOError(f"Not enough data to read! {len(self.received)} < {length}")
+            raise OSError(f"Not enough data to read! {len(self.received)} < {length}")
 
         result = self.received[:length]
         self.received = self.received[length:]
@@ -495,8 +493,8 @@ class Connection(BaseSyncConnection):
         result, self.sent = self.sent, bytearray()
         return result
 
-    def copy(self) -> "Connection":
-        """Return a copy of ``self``"""
+    def copy(self) -> Connection:
+        """Return a copy of ``self``."""
         new = self.__class__()
         new.receive(self.received)
         new.write(self.sent)
@@ -510,7 +508,7 @@ class SocketConnection(BaseSyncConnection):
 
     def __init__(self) -> None:
         # These will only be None until connect is called, ignore the None type assignment
-        self.socket: socket.socket = None  # type: ignore[assignment]
+        self.socket: socket.socket = None  # pyright: ignore[reportAttributeAccessIssue]
 
     def close(self) -> None:
         """Close :attr:`.socket`."""
@@ -526,7 +524,7 @@ class SocketConnection(BaseSyncConnection):
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *_) -> None:
+    def __exit__(self, *_: object) -> None:
         self.close()
 
 
@@ -540,13 +538,13 @@ class TCPSocketConnection(SocketConnection):
         self.socket = socket.create_connection(addr, timeout=timeout)
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
-    def read(self, length: int) -> bytearray:
+    def read(self, length: int, /) -> bytearray:
         """Return length bytes read from :attr:`.socket`. Raises :exc:`IOError` when server doesn't respond."""
         result = bytearray()
         while len(result) < length:
             new = self.socket.recv(length - len(result))
             if len(new) == 0:
-                raise IOError("Server did not respond with any information!")
+                raise OSError("Server did not respond with any information!")
             result.extend(new)
         return result
 
@@ -560,7 +558,7 @@ class TCPSocketConnection(SocketConnection):
 
 
 class UDPSocketConnection(SocketConnection):
-    """UDP Connection class"""
+    """UDP Connection class."""
 
     __slots__ = ("addr",)
 
@@ -574,10 +572,10 @@ class UDPSocketConnection(SocketConnection):
         self.socket.settimeout(timeout)
 
     def remaining(self) -> int:
-        """Always return ``65535`` (``2 ** 16 - 1``)."""
+        """Always return ``65535`` (``2 ** 16 - 1``)."""  # noqa: D401 # imperative mood
         return 65535
 
-    def read(self, length: int) -> bytearray:
+    def read(self, _length: int, /) -> bytearray:
         """Return up to :meth:`.remaining` bytes. Length does nothing here."""
         result = bytearray()
         while len(result) == 0:
@@ -594,14 +592,14 @@ class UDPSocketConnection(SocketConnection):
 
 
 class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
-    """Asynchronous TCP Connection class"""
+    """Asynchronous TCP Connection class."""
 
     __slots__ = ("_addr", "reader", "timeout", "writer")
 
     def __init__(self, addr: Address, timeout: float = 3) -> None:
         # These will only be None until connect is called, ignore the None type assignment
-        self.reader: asyncio.StreamReader = None  # type: ignore[assignment]
-        self.writer: asyncio.StreamWriter = None  # type: ignore[assignment]
+        self.reader: asyncio.StreamReader = None  # pyright: ignore[reportAttributeAccessIssue]
+        self.writer: asyncio.StreamWriter = None  # pyright: ignore[reportAttributeAccessIssue]
         self.timeout: float = timeout
         self._addr = addr
 
@@ -613,13 +611,13 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
             sock: socket.socket = self.writer.transport.get_extra_info("socket")
             sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
-    async def read(self, length: int) -> bytearray:
+    async def read(self, length: int, /) -> bytearray:
         """Read up to ``length`` bytes from :attr:`.reader`."""
         result = bytearray()
         while len(result) < length:
             new = await asyncio.wait_for(self.reader.read(length - len(result)), timeout=self.timeout)
             if len(new) == 0:
-                raise IOError("Socket did not respond with any information!")
+                raise OSError("Socket did not respond with any information!")
             result.extend(new)
         return result
 
@@ -640,18 +638,18 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
         await self.connect()
         return self
 
-    async def __aexit__(self, *_) -> None:
+    async def __aexit__(self, *_: object) -> None:
         self.close()
 
 
 class UDPAsyncSocketConnection(BaseAsyncConnection):
-    """Asynchronous UDP Connection class"""
+    """Asynchronous UDP Connection class."""
 
     __slots__ = ("_addr", "stream", "timeout")
 
     def __init__(self, addr: Address, timeout: float = 3) -> None:
         # This will only be None until connect is called, ignore the None type assignment
-        self.stream: asyncio_dgram.aio.DatagramClient = None  # type: ignore[assignment]
+        self.stream: asyncio_dgram.aio.DatagramClient = None  # pyright: ignore[reportAttributeAccessIssue]
         self.timeout: float = timeout
         self._addr = addr
 
@@ -661,10 +659,10 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         self.stream = await asyncio.wait_for(conn, timeout=self.timeout)
 
     def remaining(self) -> int:
-        """Always return ``65535`` (``2 ** 16 - 1``)."""
+        """Always return ``65535`` (``2 ** 16 - 1``)."""  # noqa: D401 # imperative mood
         return 65535
 
-    async def read(self, length: int) -> bytearray:
+    async def read(self, _length: int, /) -> bytearray:
         """Read from :attr:`.stream`. Length does nothing here."""
         data, _remote_addr = await asyncio.wait_for(self.stream.recv(), timeout=self.timeout)
         return bytearray(data)
@@ -686,5 +684,5 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         await self.connect()
         return self
 
-    async def __aexit__(self, *_) -> None:
+    async def __aexit__(self, *_: object) -> None:
         self.close()

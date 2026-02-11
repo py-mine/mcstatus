@@ -7,10 +7,13 @@ from collections.abc import Callable, Sequence
 from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
 from mcstatus.utils import deprecation_warn
 
+if t.TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+
 _HOOK_RETURN_TYPE = t.TypeVar("_HOOK_RETURN_TYPE")
 _END_RESULT_TYPE = t.TypeVar("_END_RESULT_TYPE")
 
-# MinecraftColor: (foreground, background)
+# MinecraftColor: (foreground, background) # noqa: ERA001 # commented-out code
 _SHARED_MINECRAFT_COLOR_TO_RGB = {
     MinecraftColor.BLACK: ((0, 0, 0), (0, 0, 0)),
     MinecraftColor.DARK_BLUE: ((0, 0, 170), (0, 0, 42)),
@@ -111,19 +114,19 @@ class NothingTransformer(BaseTransformer[str, str]):
     def _format_output(self, results: list[str]) -> str:
         return "".join(results)
 
-    def _handle_str(self, element: str, /) -> str:
+    def _handle_str(self, _element: str, /) -> str:
         return ""
 
-    def _handle_minecraft_color(self, element: MinecraftColor, /) -> str:
+    def _handle_minecraft_color(self, _element: MinecraftColor, /) -> str:
         return ""
 
-    def _handle_web_color(self, element: WebColor, /) -> str:
+    def _handle_web_color(self, _element: WebColor, /) -> str:
         return ""
 
-    def _handle_formatting(self, element: Formatting, /) -> str:
+    def _handle_formatting(self, _element: Formatting, /) -> str:
         return ""
 
-    def _handle_translation_tag(self, element: TranslationTag, /) -> str:
+    def _handle_translation_tag(self, _element: TranslationTag, /) -> str:
         return ""
 
 
@@ -141,7 +144,7 @@ class PlainTransformer(NothingTransformer):
 
 
 class MinecraftTransformer(PlainTransformer):
-    def __init__(self, _is_called_directly: bool = True) -> None:
+    def __init__(self, *, _is_called_directly: bool = True) -> None:
         if _is_called_directly:
             deprecation_warn(
                 obj_name="MinecraftTransformer (called directly)",
@@ -163,7 +166,7 @@ class MinecraftTransformer(PlainTransformer):
 
 
 class HtmlTransformer(PlainTransformer):
-    FORMATTING_TO_HTML_TAGS = {
+    FORMATTING_TO_HTML_TAGS: t.ClassVar = {
         Formatting.BOLD: "b",
         Formatting.STRIKETHROUGH: "s",
         Formatting.ITALIC: "i",
@@ -219,15 +222,17 @@ class HtmlTransformer(PlainTransformer):
 
 
 class AnsiTransformer(PlainTransformer):
-    FORMATTING_TO_ANSI_TAGS = {
+    FORMATTING_TO_ANSI_TAGS: t.ClassVar = {
         Formatting.BOLD: "1",
         Formatting.STRIKETHROUGH: "9",
         Formatting.ITALIC: "3",
         Formatting.UNDERLINED: "4",
         Formatting.OBFUSCATED: "5",
     }
-    MINECRAFT_COLOR_TO_RGB_JAVA = {key: foreground for key, (foreground, _background) in MINECRAFT_COLOR_TO_RGB_JAVA.items()}
-    MINECRAFT_COLOR_TO_RGB_BEDROCK = {
+    MINECRAFT_COLOR_TO_RGB_JAVA: t.ClassVar = {
+        key: foreground for key, (foreground, _background) in MINECRAFT_COLOR_TO_RGB_JAVA.items()
+    }
+    MINECRAFT_COLOR_TO_RGB_BEDROCK: t.ClassVar = {
         key: foreground for key, (foreground, _background) in MINECRAFT_COLOR_TO_RGB_BEDROCK.items()
     }
 
@@ -248,7 +253,7 @@ class AnsiTransformer(PlainTransformer):
             color_to_rgb = self.MINECRAFT_COLOR_TO_RGB_BEDROCK if self.bedrock else self.MINECRAFT_COLOR_TO_RGB_JAVA
             color = color_to_rgb[color]
 
-        return "\033[38;2;{0};{1};{2}m".format(*color)
+        return "\033[38;2;{};{};{}m".format(*color)
 
     def _format_output(self, results: list[str]) -> str:
         return "\033[0m" + super()._format_output(results) + "\033[0m"

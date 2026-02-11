@@ -1,11 +1,13 @@
-from pytest import fixture
+import typing as t
+
+import pytest
 
 from mcstatus.motd import Motd
 from mcstatus.responses import LegacyStatusPlayers, LegacyStatusResponse, LegacyStatusVersion
 from tests.responses import BaseResponseTest
 
 
-@fixture(scope="module")
+@pytest.fixture(scope="module")
 def build():
     return LegacyStatusResponse.build(
         [
@@ -21,17 +23,17 @@ def build():
 
 @BaseResponseTest.construct
 class TestLegacyStatusResponse(BaseResponseTest):
-    EXPECTED_VALUES = [
+    EXPECTED_VALUES: t.ClassVar = [
         ("motd", Motd.parse("A Minecraft Server")),
         ("latency", 123.0),
     ]
-    EXPECTED_TYPES = [
+    EXPECTED_TYPES: t.ClassVar = [
         ("players", LegacyStatusPlayers),
         ("version", LegacyStatusVersion),
     ]
 
-    @fixture(scope="class")
-    def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
+    @pytest.fixture(scope="class")
+    def build(self, build):
         return build
 
     def test_as_dict(self, build: LegacyStatusResponse):
@@ -45,17 +47,17 @@ class TestLegacyStatusResponse(BaseResponseTest):
 
 @BaseResponseTest.construct
 class TestLegacyStatusPlayers(BaseResponseTest):
-    EXPECTED_VALUES = [("online", 0), ("max", 20)]
+    EXPECTED_VALUES: t.ClassVar = [("online", 0), ("max", 20)]
 
-    @fixture(scope="class")
-    def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
+    @pytest.fixture(scope="class")
+    def build(self, build):
         return build.players
 
 
 @BaseResponseTest.construct
 class TestLegacyStatusVersion(BaseResponseTest):
-    EXPECTED_VALUES = [("name", "1.4.2"), ("protocol", 47)]
+    EXPECTED_VALUES: t.ClassVar = [("name", "1.4.2"), ("protocol", 47)]
 
-    @fixture(scope="class")
-    def build(self, build):  # pyright: ignore[reportIncompatibleMethodOverride]
+    @pytest.fixture(scope="class")
+    def build(self, build):
         return build.version

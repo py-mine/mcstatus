@@ -190,13 +190,13 @@ class TestConnection:
 
         assert self.connection.flush() == bytearray.fromhex("8000000000000000")
 
-    @pytest.mark.parametrize("as_bytes,as_bool", [("01", True), ("00", False)])
+    @pytest.mark.parametrize(("as_bytes", "as_bool"), [("01", True), ("00", False)])
     def test_read_bool(self, as_bytes: str, as_bool: bool) -> None:
         self.connection.receive(bytearray.fromhex(as_bytes))
 
         assert self.connection.read_bool() is as_bool
 
-    @pytest.mark.parametrize("as_bytes,as_bool", [("01", True), ("00", False)])
+    @pytest.mark.parametrize(("as_bytes", "as_bool"), [("01", True), ("00", False)])
     def test_write_bool(self, as_bytes: str, as_bool: bool) -> None:
         self.connection.write_bool(as_bool)
 
@@ -274,7 +274,7 @@ class TestTCPSocketConnection:
     def test_write(self, connection):
         connection.write(bytearray.fromhex("7FAA"))
 
-        connection.socket.send.assert_called_once_with(bytearray.fromhex("7FAA"))  # type: ignore[attr-defined]
+        connection.socket.send.assert_called_once_with(bytearray.fromhex("7FAA"))
 
 
 class TestUDPSocketConnection:
@@ -315,7 +315,7 @@ class TestUDPSocketConnection:
     def test_write(self, connection):
         connection.write(bytearray.fromhex("7FAA"))
 
-        connection.socket.sendto.assert_called_once_with(  # type: ignore[attr-defined]
+        connection.socket.sendto.assert_called_once_with(
             bytearray.fromhex("7FAA"),
             Address("localhost", 1234),
         )

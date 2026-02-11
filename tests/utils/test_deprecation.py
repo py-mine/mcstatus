@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import importlib.metadata
 import re
-from functools import wraps
 import warnings
+from functools import wraps
 
 import pytest
 
-from mcstatus.utils.deprecation import deprecated, deprecation_warn, _get_project_version
+from mcstatus.utils.deprecation import _get_project_version, deprecated, deprecation_warn
 
 LIB_NAME = "mcstatus"
 
@@ -57,9 +57,11 @@ def test_deprecation_warn_unknown_version(monkeypatch: pytest.MonkeyPatch):
     """
     _patch_project_version(monkeypatch, None)
 
-    with pytest.warns(match=f"Failed to get {LIB_NAME} project version", expected_warning=RuntimeWarning):
-        with pytest.deprecated_call(match=r"^test is deprecated and scheduled for removal in 1\.0\.0\.$"):
-            deprecation_warn(obj_name="test", removal_version="1.0.0")
+    with (
+        pytest.warns(match=f"Failed to get {LIB_NAME} project version", expected_warning=RuntimeWarning),
+        pytest.deprecated_call(match=r"^test is deprecated and scheduled for removal in 1\.0\.0\.$"),
+    ):
+        deprecation_warn(obj_name="test", removal_version="1.0.0")
 
 
 def test_deprecation_decorator_warn(monkeypatch: pytest.MonkeyPatch):

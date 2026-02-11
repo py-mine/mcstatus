@@ -12,7 +12,7 @@ from mcstatus.protocol.connection import Connection
 class TestServerPinger:
     def setup_method(self):
         self.pinger = ServerPinger(
-            Connection(),  # type: ignore[arg-type]
+            Connection(),  # pyright: ignore[reportArgumentType]
             address=Address("localhost", 25565),
             version=44,
         )
@@ -101,7 +101,7 @@ class TestServerPinger:
             }
             """
             pinger = ServerPinger(
-                Connection(),  # type: ignore[arg-type]
+                Connection(),  # pyright: ignore[reportArgumentType]
                 address=Address("localhost", 25565),
                 version=44,
             )
@@ -129,7 +129,7 @@ class TestServerPinger:
             mocked.return_value.read_varint.return_value = 1
             mocked.return_value.read_long.return_value = 123456789
             pinger = ServerPinger(
-                Connection(),  # type: ignore[arg-type]
+                Connection(),  # pyright: ignore[reportArgumentType]
                 address=Address("localhost", 25565),
                 version=44,
                 ping_token=123456789,

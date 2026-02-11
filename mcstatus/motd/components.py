@@ -85,18 +85,18 @@ class WebColor:
     rgb: tuple[int, int, int]
 
     @classmethod
-    def from_hex(cls, hex: str) -> Self:
+    def from_hex(cls, hex: str) -> Self:  # noqa: A002 # shadowing a hex builtin
         """Construct web color using hex color string.
 
         :raises ValueError: Invalid hex color string.
         :returns: New :class:`WebColor` instance.
         """
-        hex = hex.lstrip("#")
+        hex = hex.lstrip("#")  # noqa: A001 # shadowing a hex builtin
 
         if len(hex) not in (3, 6):
             raise ValueError(f"Got too long/short hex color: {'#' + hex!r}")
         if len(hex) == 3:
-            hex = "{0}{0}{1}{1}{2}{2}".format(*hex)
+            hex = "{0}{0}{1}{1}{2}{2}".format(*hex)  # noqa: A001 # shadowing a hex builtin
 
         try:
             rgb = t.cast("tuple[int, int, int]", tuple(int(hex[i : i + 2], 16) for i in (0, 2, 4)))
@@ -114,7 +114,7 @@ class WebColor:
         """
         cls._check_rgb(rgb)
 
-        hex = "#{:02x}{:02x}{:02x}".format(*rgb)
+        hex = "#{:02x}{:02x}{:02x}".format(*rgb)  # noqa: A001 # shadowing a hex builtin
         return cls(hex, rgb)
 
     @staticmethod

@@ -1,6 +1,6 @@
 import asyncio
 import typing
-from asyncio.exceptions import TimeoutError
+from asyncio.exceptions import TimeoutError as AsyncioTimeoutError
 from unittest.mock import patch
 
 import pytest
@@ -24,5 +24,5 @@ class TestAsyncSocketConnection:
     async def test_tcp_socket_read(self):
         with patch("asyncio.open_connection", fake_asyncio_asyncio_open_connection):
             async with TCPAsyncSocketConnection(Address("dummy_address", 1234), timeout=0.01) as tcp_async_socket:
-                with pytest.raises(TimeoutError):
+                with pytest.raises(AsyncioTimeoutError):
                     await tcp_async_socket.read(10)

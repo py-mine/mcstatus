@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import functools
 import importlib.metadata
-import warnings
-from collections.abc import Callable
-from functools import wraps
 import re
-from typing import TypeVar, ParamSpec, Protocol
+import warnings
+from functools import wraps
+from typing import ParamSpec, Protocol, TYPE_CHECKING, TypeVar
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
 
 __all__ = ["deprecated", "deprecation_warn"]
 

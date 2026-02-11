@@ -1,3 +1,5 @@
+import typing as t
+
 import pytest
 
 from mcstatus.forge_data import ForgeData, ForgeDataChannel, ForgeDataMod, RawForgeData
@@ -35,7 +37,7 @@ def test_modinfo_is_null():
 
 @BaseResponseTest.construct
 class TestForgeDataV1(BaseResponseTest):
-    RAW = {
+    RAW: t.ClassVar = {
         "type": "FML",
         "modList": [
             {"modid": "minecraft", "version": "1.12.2"},
@@ -48,7 +50,7 @@ class TestForgeDataV1(BaseResponseTest):
         ],
     }
 
-    EXPECTED_VALUES = [
+    EXPECTED_VALUES: t.ClassVar = [
         ("fml_network_version", 1),
         ("channels", [ForgeDataChannel(name="fml:handshake", version="1.2.3.4", required=True)]),
         (
@@ -65,12 +67,12 @@ class TestForgeDataV1(BaseResponseTest):
 
     @pytest.fixture(scope="class")
     def build(self) -> ForgeData:
-        return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
+        return ForgeData.build(self.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
 
 @BaseResponseTest.construct
 class TestForgeDataV2(BaseResponseTest):
-    RAW = {
+    RAW: t.ClassVar = {
         "fmlNetworkVersion": 2,
         "channels": [
             {"res": "fml:handshake", "version": "1.2.3.4", "required": True},
@@ -81,7 +83,7 @@ class TestForgeDataV2(BaseResponseTest):
         ],
     }
 
-    EXPECTED_VALUES = [
+    EXPECTED_VALUES: t.ClassVar = [
         ("fml_network_version", 2),
         ("channels", [ForgeDataChannel(name="fml:handshake", version="1.2.3.4", required=True)]),
         ("mods", [ForgeDataMod(name="forge", marker="ANY"), ForgeDataMod(name="fusion", marker="")]),
@@ -90,12 +92,12 @@ class TestForgeDataV2(BaseResponseTest):
 
     @pytest.fixture(scope="class")
     def build(self) -> ForgeData:
-        return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
+        return ForgeData.build(self.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
 
 @BaseResponseTest.construct
 class TestForgeDataV3(BaseResponseTest):
-    RAW = {
+    RAW: t.ClassVar = {
         "channels": [],
         "mods": [],
         "truncated": False,
@@ -108,7 +110,7 @@ class TestForgeDataV3(BaseResponseTest):
         ).decode("utf8"),
     }
 
-    EXPECTED_VALUES = [
+    EXPECTED_VALUES: t.ClassVar = [
         ("fml_network_version", 3),
         (
             "channels",
@@ -131,12 +133,12 @@ class TestForgeDataV3(BaseResponseTest):
 
     @pytest.fixture(scope="class")
     def build(self) -> ForgeData:
-        return ForgeData.build(self.RAW)  # type: ignore # dict[str, Unknown] cannot be assigned to TypedDict
+        return ForgeData.build(self.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
 
 @BaseResponseTest.construct
 class TestForgeData(BaseResponseTest):
-    EXPECTED_VALUES = [
+    EXPECTED_VALUES: t.ClassVar = [
         ("fml_network_version", 3),
         (
             "channels",

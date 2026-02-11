@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import asyncio
 
 from mcstatus import BedrockServer, JavaServer
@@ -31,7 +32,7 @@ async def status(host: str) -> JavaStatusResponse | BedrockStatusResponse:
 async def handle_exceptions(done: set[asyncio.Task], pending: set[asyncio.Task]) -> asyncio.Task | None:
     """Handle exceptions from tasks.
 
-    Also, cancel all pending tasks, if found correct one.
+    Also, cancel all pending tasks, if found the correct one.
     """
     if len(done) == 0:
         raise ValueError("No tasks was given to `done` set.")
@@ -47,14 +48,15 @@ async def handle_exceptions(done: set[asyncio.Task], pending: set[asyncio.Task])
             for pending_task in pending:
                 pending_task.cancel()
             return task
+    return None
 
 
 async def handle_java(host: str) -> JavaStatusResponse:
-    """A wrapper around mcstatus, to compress it in one function."""
+    """Wrap mcstatus, to compress lookup and status into one function."""
     return await (await JavaServer.async_lookup(host)).async_status()
 
 
 async def handle_bedrock(host: str) -> BedrockStatusResponse:
-    """A wrapper around mcstatus, to compress it in one function."""
+    """Wrap mcstatus, to compress lookup and status into one function."""
     # note: `BedrockServer` doesn't have `async_lookup` method, see it's docstring
     return await BedrockServer.lookup(host).async_status()

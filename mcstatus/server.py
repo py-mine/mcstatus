@@ -14,11 +14,12 @@ from mcstatus.protocol.connection import (
     UDPSocketConnection,
 )
 from mcstatus.querier import AsyncServerQuerier, QueryResponse, ServerQuerier
-from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse
 from mcstatus.utils import retry
 
 if TYPE_CHECKING:
     from typing_extensions import Self
+
+    from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse
 
 
 __all__ = ["BedrockServer", "JavaServer", "LegacyServer", "MCServer"]
@@ -38,7 +39,7 @@ class MCServer(ABC):
         :param host: The host/ip of the minecraft server.
         :param port: The port that the server is on.
         :param timeout: The timeout in seconds before failing to connect.
-        """
+        """  # noqa: D205, D212 # no summary line
         if port is None:
             port = self.DEFAULT_PORT
         self.address = Address(host, port)
@@ -97,7 +98,7 @@ class JavaServer(BaseJavaServer):
         :param port: The port that the server is on.
         :param timeout: The timeout in seconds before failing to connect.
         :param query_port: Typically the same as ``port`` but can be different.
-        """
+        """  # noqa: D205, D212 # no summary line
         super().__init__(host, port, timeout)
         if query_port is None:
             query_port = port or self.DEFAULT_PORT
@@ -105,7 +106,7 @@ class JavaServer(BaseJavaServer):
         _ = Address(host, self.query_port)  # Ensure query_port is valid
 
     def ping(self, *, tries: int = 3, version: int = 47, ping_token: int | None = None) -> float:
-        """Checks the latency between a Minecraft Java Edition server and the client (you).
+        """Check the latency between a Minecraft Java Edition server and the client (you).
 
         Note that most non-vanilla implementations fail to respond to a ping
         packet unless a status packet is sent first. Expect ``OSError: Server
@@ -125,7 +126,7 @@ class JavaServer(BaseJavaServer):
         self,
         connection: TCPSocketConnection,
         *,
-        tries: int = 3,
+        tries: int = 3,  # noqa: ARG002 # unused argument
         version: int,
         ping_token: int | None,
     ) -> float:
@@ -139,7 +140,7 @@ class JavaServer(BaseJavaServer):
         return pinger.test_ping()
 
     async def async_ping(self, *, tries: int = 3, version: int = 47, ping_token: int | None = None) -> float:
-        """Asynchronously checks the latency between a Minecraft Java Edition server and the client (you).
+        """Asynchronously check the latency between a Minecraft Java Edition server and the client (you).
 
         Note that most non-vanilla implementations fail to respond to a ping
         packet unless a status packet is sent first. Expect ``OSError: Server
@@ -159,7 +160,7 @@ class JavaServer(BaseJavaServer):
         self,
         connection: TCPAsyncSocketConnection,
         *,
-        tries: int = 3,
+        tries: int = 3,  # noqa: ARG002 # unused argument
         version: int,
         ping_token: int | None,
     ) -> float:
@@ -174,7 +175,7 @@ class JavaServer(BaseJavaServer):
         return ping
 
     def status(self, *, tries: int = 3, version: int = 47, ping_token: int | None = None) -> JavaStatusResponse:
-        """Checks the status of a Minecraft Java Edition server via the status protocol.
+        """Check the status of a Minecraft Java Edition server via the status protocol.
 
         :param tries: The number of times to retry if an error is encountered.
         :param version: Version of the client, see https://minecraft.wiki/w/Protocol_version#List_of_protocol_versions.
@@ -189,7 +190,7 @@ class JavaServer(BaseJavaServer):
         self,
         connection: TCPSocketConnection,
         *,
-        tries: int = 3,
+        tries: int = 3,  # noqa: ARG002 # unused argument
         version: int,
         ping_token: int | None,
     ) -> JavaStatusResponse:
@@ -204,7 +205,7 @@ class JavaServer(BaseJavaServer):
         return result
 
     async def async_status(self, *, tries: int = 3, version: int = 47, ping_token: int | None = None) -> JavaStatusResponse:
-        """Asynchronously checks the status of a Minecraft Java Edition server via the status protocol.
+        """Asynchronously check the status of a Minecraft Java Edition server via the status protocol.
 
         :param tries: The number of times to retry if an error is encountered.
         :param version: Version of the client, see https://minecraft.wiki/w/Protocol_version#List_of_protocol_versions.
@@ -219,7 +220,7 @@ class JavaServer(BaseJavaServer):
         self,
         connection: TCPAsyncSocketConnection,
         *,
-        tries: int = 3,
+        tries: int = 3,  # noqa: ARG002 # unused argument
         version: int,
         ping_token: int | None,
     ) -> JavaStatusResponse:
@@ -234,7 +235,7 @@ class JavaServer(BaseJavaServer):
         return result
 
     def query(self, *, tries: int = 3) -> QueryResponse:
-        """Checks the status of a Minecraft Java Edition server via the query protocol.
+        """Check the status of a Minecraft Java Edition server via the query protocol.
 
         :param tries: The number of times to retry if an error is encountered.
         :return: Query information in a :class:`~mcstatus.querier.QueryResponse` instance.
@@ -243,14 +244,14 @@ class JavaServer(BaseJavaServer):
         return self._retry_query(Address(ip, self.query_port), tries=tries)
 
     @retry(tries=3)
-    def _retry_query(self, addr: Address, tries: int = 3) -> QueryResponse:
+    def _retry_query(self, addr: Address, tries: int = 3) -> QueryResponse:  # noqa: ARG002 # unused argument
         with UDPSocketConnection(addr, self.timeout) as connection:
             querier = ServerQuerier(connection)
             querier.handshake()
             return querier.read_query()
 
     async def async_query(self, *, tries: int = 3) -> QueryResponse:
-        """Asynchronously checks the status of a Minecraft Java Edition server via the query protocol.
+        """Asynchronously check the status of a Minecraft Java Edition server via the query protocol.
 
         :param tries: The number of times to retry if an error is encountered.
         :return: Query information in a :class:`~mcstatus.querier.QueryResponse` instance.
@@ -259,7 +260,7 @@ class JavaServer(BaseJavaServer):
         return await self._retry_async_query(Address(ip, self.query_port), tries=tries)
 
     @retry(tries=3)
-    async def _retry_async_query(self, address: Address, tries: int = 3) -> QueryResponse:
+    async def _retry_async_query(self, address: Address, tries: int = 3) -> QueryResponse:  # noqa: ARG002 # unused argument
         async with UDPAsyncSocketConnection(address, self.timeout) as connection:
             querier = AsyncServerQuerier(connection)
             await querier.handshake()
@@ -273,8 +274,8 @@ class LegacyServer(BaseJavaServer):
     """
 
     @retry(tries=3)
-    def status(self, *, tries: int = 3) -> LegacyStatusResponse:
-        """Checks the status of a pre-1.7 Minecraft Java Edition server.
+    def status(self, *, tries: int = 3) -> LegacyStatusResponse:  # noqa: ARG002 # unused argument
+        """Check the status of a pre-1.7 Minecraft Java Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.LegacyStatusResponse` instance.
@@ -283,7 +284,7 @@ class LegacyServer(BaseJavaServer):
             return LegacyServerStatus(connection).read_status()
 
     @retry(tries=3)
-    async def async_status(self, *, tries: int = 3) -> LegacyStatusResponse:
+    async def async_status(self, *, tries: int = 3) -> LegacyStatusResponse:  # noqa: ARG002 # unused argument
         """Asynchronously check the status of a pre-1.7 Minecraft Java Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
@@ -299,8 +300,8 @@ class BedrockServer(MCServer):
     DEFAULT_PORT = 19132
 
     @retry(tries=3)
-    def status(self, *, tries: int = 3) -> BedrockStatusResponse:
-        """Checks the status of a Minecraft Bedrock Edition server.
+    def status(self, *, tries: int = 3) -> BedrockStatusResponse:  # noqa: ARG002 # unused argument
+        """Check the status of a Minecraft Bedrock Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
@@ -308,8 +309,8 @@ class BedrockServer(MCServer):
         return BedrockServerStatus(self.address, self.timeout).read_status()
 
     @retry(tries=3)
-    async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:
-        """Asynchronously checks the status of a Minecraft Bedrock Edition server.
+    async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:  # noqa: ARG002 # unused argument
+        """Asynchronously check the status of a Minecraft Bedrock Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.

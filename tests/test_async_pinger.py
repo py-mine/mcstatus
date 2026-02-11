@@ -25,7 +25,7 @@ class FakeAsyncConnection(Connection):
 class TestAsyncServerPinger:
     def setup_method(self):
         self.pinger = AsyncServerPinger(
-            FakeAsyncConnection(),  # type: ignore[arg-type]
+            FakeAsyncConnection(),  # pyright: ignore[reportArgumentType]
             address=Address("localhost", 25565),
             version=44,
         )
@@ -105,18 +105,19 @@ class TestAsyncServerPinger:
 
         with mock.patch.object(FakeAsyncConnection, "read_buffer") as mocked:
             mocked.side_effect = mocked_read_buffer
-            mocked.return_value.read_varint = lambda: 0  # overwrite `async` here
-            mocked.return_value.read_utf = (
-                lambda: """
-            {
-                "description": "A Minecraft Server",
-                "players": {"max": 20, "online": 0},
-                "version": {"name": "1.8-pre1", "protocol": 44}
-            }
-            """
-            )  # overwrite `async` here
+            # overwrite `async` here
+            mocked.return_value.read_varint = lambda: 0
+            mocked.return_value.read_utf = lambda: (
+                """
+                {
+                    "description": "A Minecraft Server",
+                    "players": {"max": 20, "online": 0},
+                    "version": {"name": "1.8-pre1", "protocol": 44}
+                }
+                """
+            )
             pinger = AsyncServerPinger(
-                FakeAsyncConnection(),  # type: ignore[arg-type]
+                FakeAsyncConnection(),  # pyright: ignore[reportArgumentType]
                 address=Address("localhost", 25565),
                 version=44,
             )
@@ -145,7 +146,7 @@ class TestAsyncServerPinger:
             mocked.return_value.read_varint = lambda: 1  # overwrite `async` here
             mocked.return_value.read_long = lambda: 123456789  # overwrite `async` here
             pinger = AsyncServerPinger(
-                FakeAsyncConnection(),  # type: ignore[arg-type]
+                FakeAsyncConnection(),  # pyright: ignore[reportArgumentType]
                 address=Address("localhost", 25565),
                 version=44,
                 ping_token=123456789,

@@ -3,7 +3,7 @@ import pytest
 
 @pytest.fixture(scope="session")
 def source_java() -> dict:
-    """Returns ultimate dict with almost all possible aspects, which we should support.
+    """Return ultimate dict with almost all possible aspects, which we should support.
 
     If feature can handle all from this dict, it's fully tested.
     Parser should have more tests, on additional features.
@@ -38,7 +38,7 @@ def source_java() -> dict:
 
 @pytest.fixture(scope="session")
 def source_bedrock() -> dict:
-    """Returns ultimate dict with almost all possible aspects, which we should support.
+    """Return ultimate dict with almost all possible aspects, which we should support.
 
     If feature can handle all from this dict, it's fully tested.
     Parser should have more tests, on additional features.

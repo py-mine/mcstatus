@@ -4,12 +4,14 @@ import random
 import re
 import struct
 from abc import abstractmethod
-from collections.abc import Awaitable
 from dataclasses import dataclass, field
-from typing import ClassVar, final
+from typing import ClassVar, TYPE_CHECKING, final
 
 from mcstatus.protocol.connection import Connection, UDPAsyncSocketConnection, UDPSocketConnection
 from mcstatus.responses import QueryResponse, RawQueryResponse
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable
 
 
 @dataclass

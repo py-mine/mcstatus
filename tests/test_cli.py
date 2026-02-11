@@ -1,18 +1,17 @@
-import io
-import socket
-
-from mcstatus import JavaServer, LegacyServer, BedrockServer
-from mcstatus.responses import JavaStatusResponse, LegacyStatusResponse, BedrockStatusResponse, RawJavaResponse
-from mcstatus.querier import QueryResponse
-
-import os
-import json
 import contextlib
+import io
+import json
+import os
+import socket
 from unittest import mock
 from unittest.mock import patch
+
 import pytest
 
-from mcstatus.__main__ import main as main_under_test, PING_PACKET_FAIL_WARNING, QUERY_FAIL_WARNING
+from mcstatus import BedrockServer, JavaServer, LegacyServer
+from mcstatus.__main__ import PING_PACKET_FAIL_WARNING, QUERY_FAIL_WARNING, main as main_under_test
+from mcstatus.querier import QueryResponse
+from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse, RawJavaResponse
 
 JAVA_RAW_RESPONSE: RawJavaResponse = {
     "players": {"max": 20, "online": 0},
@@ -117,12 +116,11 @@ def mock_network_requests():
 
 
 def normalise_help_output(s: str) -> str:
-    """
-    Normalises the output of `mcstatus --help`, to work around
-    some discrepancies between Python versions while still retaining
-    meaningful information for comparison.
-    """
+    """Normalises the output of `mcstatus --help`.
 
+    A work around some discrepancies between Python versions while still
+    retaining meaningful information for comparison.
+    """
     elided = "[...]:"
 
     s = s.strip()
@@ -167,12 +165,12 @@ def test_one_argument_is_status(mock_network_requests):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com"]) == 0
 
-    assert (
+    assert out.getvalue() == (
         "version: Java 1.8-pre1 (protocol 44)\n"
         "motd: \x1b[0mA Minecraft Server\x1b[0m\n"
         "players: 0/20 No players online\n"
         "ping: 0.00 ms\n"
-    ) == out.getvalue()
+    )
     assert err.getvalue() == ""
 
 
@@ -180,12 +178,12 @@ def test_status(mock_network_requests):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "status"]) == 0
 
-    assert (
+    assert out.getvalue() == (
         "version: Java 1.8-pre1 (protocol 44)\n"
         "motd: \x1b[0mA Minecraft Server\x1b[0m\n"
         "players: 0/20 No players online\n"
         "ping: 0.00 ms\n"
-    ) == out.getvalue()
+    )
     assert err.getvalue() == ""
 
 
@@ -193,14 +191,14 @@ def test_status_bedrock(mock_network_requests):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "--bedrock", "status"]) == 0
 
-    assert (
+    assert out.getvalue() == (
         "version: Bedrock 1.18.100500 (protocol 422)\n"
         "motd: \x1b[0m\x1b[0m\x1b[0m\x1b[38;2;170;0;0mG\x1b[0m\x1b[0m\x1b[38;2;255;170;0ma\x1b[0m\x1b[0m\x1b[38;2;255;255;85m"
         "y\x1b[0m\x1b[0m\x1b[38;2;0;170;0mB\x1b[0m\x1b[0m\x1b[38;2;0;0;170mo\x1b[0m\x1b[0m\x1b[38;2;85;85;255mw\x1b[0m\x1b[0m"
         "\x1b[38;2;255;85;255ms\x1b[0m\x1b[0m\x1b[38;2;170;0;0me\x1b[0m\x1b[0m\x1b[38;2;255;170;0mr\x1b[0m\n"
         "players: 1/69\n"
         "ping: 123.00 ms\n"
-    ) == out.getvalue()
+    )
     assert err.getvalue() == ""
 
 
@@ -208,9 +206,9 @@ def test_status_legacy(mock_network_requests):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "--legacy", "status"]) == 0
 
-    assert (
+    assert out.getvalue() == (
         "version: Java (pre-1.7) 1.4.2 (protocol 47)\nmotd: \x1b[0mA Minecraft Server\x1b[0m\nplayers: 0/20\nping: 123.00 ms\n"
-    ) == out.getvalue()
+    )
     assert err.getvalue() == ""
 
 
@@ -226,13 +224,13 @@ def test_query(mock_network_requests):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "query"]) == 0
 
-    assert (
+    assert out.getvalue() == (
         "host: 192.168.56.1:9999\n"
         "software: Java 1.8 vanilla\n"
         "motd: \x1b[0mA Minecraft Server\x1b[0m\n"
         "plugins: []\n"
         "players: 3/20 ['Dinnerbone', 'Djinnibone', 'Steve']\n"
-    ) == out.getvalue()
+    )
     assert err.getvalue() == ""
 
 

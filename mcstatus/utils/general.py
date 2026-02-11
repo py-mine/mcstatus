@@ -1,6 +1,5 @@
 from typing import TypeVar
 
-
 T = TypeVar("T")
 
 
@@ -25,7 +24,7 @@ def or_none(*args: T) -> T | None:
 
         This is often useful when working with dict.get, e.g.:
 
-         .. code-block:: py
+        .. code-block:: py
             >>> mydict = {"a": ""}
             >>> mydict.get("a") or mydict.get("b")
             None  # expected ''!

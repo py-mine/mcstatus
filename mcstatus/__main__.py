@@ -1,16 +1,20 @@
+# ruff: noqa: T201 # usage of `print`
 from __future__ import annotations
 
-import dns.resolver
-import sys
-import json
 import argparse
-import socket
 import dataclasses
-from typing import TypeAlias
+import json
+import socket
+import sys
+from typing import TYPE_CHECKING, TypeAlias
 
-from mcstatus import JavaServer, LegacyServer, BedrockServer
+import dns.resolver
+
+from mcstatus import BedrockServer, JavaServer, LegacyServer
 from mcstatus.responses import JavaStatusResponse
-from mcstatus.motd import Motd
+
+if TYPE_CHECKING:
+    from mcstatus.motd import Motd
 
 SupportedServers: TypeAlias = "JavaServer | LegacyServer | BedrockServer"
 
@@ -30,8 +34,7 @@ QUERY_FAIL_WARNING = (
 
 
 def _motd(motd: Motd) -> str:
-    """Formats MOTD for human-readable output, with leading line break
-    if multiline."""
+    """Format MOTD for human-readable output, with leading line break if multiline."""
     s = motd.to_ansi()
     return f"\n{s}" if "\n" in s else f" {s}"
 
@@ -39,12 +42,11 @@ def _motd(motd: Motd) -> str:
 def _kind(serv: SupportedServers) -> str:
     if isinstance(serv, JavaServer):
         return "Java"
-    elif isinstance(serv, LegacyServer):
+    if isinstance(serv, LegacyServer):
         return "Java (pre-1.7)"
-    elif isinstance(serv, BedrockServer):
+    if isinstance(serv, BedrockServer):
         return "Bedrock"
-    else:
-        raise ValueError(f"unsupported server for kind: {serv}")
+    raise ValueError(f"unsupported server for kind: {serv}")
 
 
 def _ping_with_fallback(server: SupportedServers) -> float:
@@ -56,7 +58,7 @@ def _ping_with_fallback(server: SupportedServers) -> float:
     ping_exc = None
     try:
         return server.ping(tries=1)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 # blindly catching Exception
         ping_exc = e
 
     latency = server.status().latency
@@ -103,13 +105,13 @@ def json_cmd(server: SupportedServers) -> int:
     status_res = query_res = exn = None
     try:
         status_res = server.status(tries=1)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 # blindly catching Exception
         exn = exn or e
 
     try:
         if isinstance(server, JavaServer):
             query_res = server.query(tries=1)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 # blindly catching Exception
         exn = exn or e
 
     # construct 'data' dict outside try/except to ensure data processing errors
@@ -147,7 +149,7 @@ def query_cmd(server: SupportedServers) -> int:
 
     try:
         response = server.query()
-    except socket.timeout:
+    except TimeoutError:
         print(QUERY_FAIL_WARNING, file=sys.stderr)
         return 1
 
@@ -199,7 +201,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     try:
         server = lookup(args.address)
         return args.func(server)
-    except (socket.timeout, socket.gaierror, dns.resolver.NoNameservers, ConnectionError, TimeoutError) as e:
+    except (socket.gaierror, dns.resolver.NoNameservers, ConnectionError, TimeoutError) as e:
         # catch and hide traceback for expected user-facing errors
         print(f"Error: {e!r}", file=sys.stderr)
         return 1

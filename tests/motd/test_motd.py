@@ -49,7 +49,7 @@ class TestMotdParse:
             raw=source_bedrock,
         )  # fmt: skip
 
-    @pytest.mark.parametrize("bedrock", (True, False))
+    @pytest.mark.parametrize("bedrock", [True, False])
     def test_bedrock_parameter_nothing_changes(self, bedrock: bool):
         assert Motd.parse([{"color": "minecoin_gold", "text": " "}], bedrock=bedrock).parsed == [
             Formatting.RESET,
@@ -58,7 +58,7 @@ class TestMotdParse:
             Formatting.RESET,
         ]
 
-    @pytest.mark.parametrize("bedrock,expected", ((True, MinecraftColor.MINECOIN_GOLD), (False, "&g")))
+    @pytest.mark.parametrize(("bedrock", "expected"), [(True, MinecraftColor.MINECOIN_GOLD), (False, "&g")])
     def test_parse_as_str_ignore_minecoin_gold_on_java(self, bedrock: bool, expected):
         assert Motd.parse("&g", bedrock=bedrock).parsed == [expected]
 
@@ -70,10 +70,10 @@ class TestMotdParse:
         assert Motd.parse("&A").parsed == ["", MinecraftColor.GREEN, ""]
 
     @pytest.mark.parametrize(
-        "input,expected", [("", [""]), ([], [Formatting.RESET]), ({"extra": [], "text": ""}, ["", Formatting.RESET])]
+        ("input_", "expected"), [("", [""]), ([], [Formatting.RESET]), ({"extra": [], "text": ""}, ["", Formatting.RESET])]
     )
-    def test_empty_input_also_empty_raw(self, input, expected):
-        assert Motd.parse(input).parsed == expected
+    def test_empty_input_also_empty_raw(self, input_, expected):
+        assert Motd.parse(input_).parsed == expected
 
     def test_top_level_formatting_applies_to_all_in_extra(self) -> None:
         """As described `here <https://minecraft.wiki/w/Java_Edition_protocol/Chat?direction=prev&oldid=2763844#Inheritance>`_."""
@@ -144,7 +144,7 @@ class TestMotdParse:
             TypeError,
             match=f"^Expected list, string or dict data, got <class 'object'> \\({obj!r}\\), report this!$",
         ):
-            Motd.parse(obj)  # type: ignore[reportArgumentType]
+            Motd.parse(obj)  # pyright: ignore[reportArgumentType]
 
     def test_invalid_color(self):
         with pytest.raises(ValueError, match=r"^Unable to parse color: 'a', report this!$"):

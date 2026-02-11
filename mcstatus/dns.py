@@ -1,16 +1,18 @@
 from __future__ import annotations
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import dns.asyncresolver
 import dns.resolver
 from dns.rdatatype import RdataType
-from dns.rdtypes.IN.A import A as ARecordAnswer
-from dns.rdtypes.IN.SRV import SRV as SRVRecordAnswer  # noqa: N811 # constant imported as non constant (it's class)
+
+if TYPE_CHECKING:
+    from dns.rdtypes.IN.A import A as ARecordAnswer
+    from dns.rdtypes.IN.SRV import SRV as SRVRecordAnswer  # noqa: N811 # constant imported as non constant (it's class)
 
 
 def resolve_a_record(hostname: str, lifetime: float | None = None) -> str:
-    """Perform a DNS resolution for an A record to given hostname
+    """Perform a DNS resolution for an A record to given hostname.
 
     :param hostname: The address to resolve for.
     :return: The resolved IP address from the A record
@@ -22,7 +24,7 @@ def resolve_a_record(hostname: str, lifetime: float | None = None) -> str:
     answers = dns.resolver.resolve(hostname, RdataType.A, lifetime=lifetime, search=True)
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
-    answer = cast(ARecordAnswer, answers[0])
+    answer = cast("ARecordAnswer", answers[0])
     ip = str(answer).rstrip(".")
     return ip
 
@@ -35,7 +37,7 @@ async def async_resolve_a_record(hostname: str, lifetime: float | None = None) -
     answers = await dns.asyncresolver.resolve(hostname, RdataType.A, lifetime=lifetime, search=True)
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
-    answer = cast(ARecordAnswer, answers[0])
+    answer = cast("ARecordAnswer", answers[0])
     ip = str(answer).rstrip(".")
     return ip
 
@@ -53,7 +55,7 @@ def resolve_srv_record(query_name: str, lifetime: float | None = None) -> tuple[
     answers = dns.resolver.resolve(query_name, RdataType.SRV, lifetime=lifetime, search=True)
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
-    answer = cast(SRVRecordAnswer, answers[0])
+    answer = cast("SRVRecordAnswer", answers[0])
     host = str(answer.target).rstrip(".")
     port = int(answer.port)
     return host, port
@@ -67,7 +69,7 @@ async def async_resolve_srv_record(query_name: str, lifetime: float | None = Non
     answers = await dns.asyncresolver.resolve(query_name, RdataType.SRV, lifetime=lifetime, search=True)
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
-    answer = cast(SRVRecordAnswer, answers[0])
+    answer = cast("SRVRecordAnswer", answers[0])
     host = str(answer.target).rstrip(".")
     port = int(answer.port)
     return host, port

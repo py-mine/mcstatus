@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import inspect
-from collections.abc import Callable
 from functools import wraps
-from typing import TypeVar, cast, ParamSpec
+from typing import ParamSpec, TYPE_CHECKING, TypeVar, cast
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 __all__ = ["retry"]
 
@@ -26,38 +27,38 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
 
     .. note::
         Even if the previous failures caused a different exception, this will only raise the last one.
-    """
+    """  # noqa: D401 # imperative mood
 
     def decorate(func: Callable[P, R]) -> Callable[P, R]:
         @wraps(func)
         async def async_wrapper(
             *args: P.args,
-            tries: int = tries,  # type: ignore # (No support for adding kw-only args)
+            tries: int = tries,  # pyright: ignore[reportGeneralTypeIssues] # No support for adding kw-only args
             **kwargs: P.kwargs,
         ) -> R:
             last_exc: BaseException
             for _ in range(tries):
                 try:
-                    return await func(*args, **kwargs)  # type: ignore # (We know func is awaitable here)
-                except exceptions as exc:
+                    return await func(*args, **kwargs)  # pyright: ignore[reportGeneralTypeIssues] # We know func is awaitable here
+                except exceptions as exc:  # noqa: PERF203 # try-except within a loop
                     last_exc = exc
-            else:
-                raise last_exc  # type: ignore # (This won't actually be unbound)
+            # This won't actually be unbound
+            raise last_exc  # pyright: ignore[reportGeneralTypeIssues,reportPossiblyUnboundVariable]
 
         @wraps(func)
         def sync_wrapper(
             *args: P.args,
-            tries: int = tries,  # type: ignore # (No support for adding kw-only args)
+            tries: int = tries,  # pyright: ignore[reportGeneralTypeIssues] # No support for adding kw-only args
             **kwargs: P.kwargs,
         ) -> R:
             last_exc: BaseException
             for _ in range(tries):
                 try:
                     return func(*args, **kwargs)
-                except exceptions as exc:
+                except exceptions as exc:  # noqa: PERF203 # try-except within a loop
                     last_exc = exc
-            else:
-                raise last_exc  # type: ignore # (This won't actually be unbound)
+            # This won't actually be unbound
+            raise last_exc  # pyright: ignore[reportGeneralTypeIssues,reportPossiblyUnboundVariable]
 
         # We cast here since pythons typing doesn't support adding keyword-only arguments to signature
         # (Support for this was a rejected idea https://peps.python.org/pep-0612/#concatenating-keyword-parameters)

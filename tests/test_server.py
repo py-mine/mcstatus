@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Iterable
+from typing import SupportsIndex, TYPE_CHECKING, TypeAlias
 from unittest.mock import call, patch
-from typing import SupportsIndex, TypeAlias
 
 import pytest
 import pytest_asyncio
 
-from mcstatus.protocol.connection import BaseAsyncReadSyncWriteConnection, Connection
 from mcstatus.address import Address
+from mcstatus.protocol.connection import BaseAsyncReadSyncWriteConnection, Connection
 from mcstatus.server import BedrockServer, JavaServer, LegacyServer
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 BytesConvertable: TypeAlias = "SupportsIndex | Iterable[SupportsIndex]"
 
@@ -252,7 +254,7 @@ class TestJavaServer:
         # Use a blank mock for the connection, we don't want to actually create any connections
         with patch("mcstatus.server.UDPSocketConnection"), patch("mcstatus.server.ServerQuerier") as querier:
             querier.side_effect = [RuntimeError, RuntimeError, RuntimeError]
-            with pytest.raises(RuntimeError, match=r"^$"), patch.object(self.server.address, "resolve_ip") as resolve_ip:
+            with pytest.raises(RuntimeError, match=r"^$"), patch.object(self.server.address, "resolve_ip") as resolve_ip:  # noqa: PT012
                 resolve_ip.return_value = "127.0.0.1"
                 self.server.query()
             assert querier.call_count == 3

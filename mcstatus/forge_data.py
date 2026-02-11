@@ -137,9 +137,7 @@ class ForgeDataMod:
         if not is_server:
             mod_version = buffer.read_utf()
 
-        channels: list[ForgeDataChannel] = []
-        for _ in range(channel_count):
-            channels.append(ForgeDataChannel.decode(buffer, mod_id))
+        channels = [ForgeDataChannel.decode(buffer, mod_id) for _ in range(channel_count)]
 
         return cls(name=mod_id, marker=mod_version), channels
 
@@ -161,7 +159,7 @@ class StringBuffer(BaseReadSync, BaseConnection):
         while len(data) < length:
             result = self.stringio.read(1)
             if not result:
-                raise IOError(f"Not enough data to read! {len(data)} < {length}")
+                raise OSError(f"Not enough data to read! {len(data)} < {length}")
             data.extend(result.encode("utf-16be"))
         while len(data) > length:
             self.received.append(data.pop())
@@ -212,7 +210,7 @@ class ForgeData:
             return str_buffer.read_optimized_buffer()
 
     @classmethod
-    def build(cls, raw: RawForgeData) -> Self | None:
+    def build(cls, raw: RawForgeData) -> Self:
         """Build an object about Forge mods from raw response.
 
         :param raw: ``forgeData`` attribute in raw response :class:`dict`.
@@ -248,9 +246,8 @@ class ForgeData:
                 mods.append(mod)
 
             non_mod_channel_count = buffer.read_varint()
-            for _ in range(non_mod_channel_count):
-                channels.append(ForgeDataChannel.decode(buffer))
-        except IOError:
+            channels.extend(ForgeDataChannel.decode(buffer) for _ in range(non_mod_channel_count))
+        except OSError:
             if not truncated:
                 raise  # If answer wasn't truncated, we lost some data on the way
 
