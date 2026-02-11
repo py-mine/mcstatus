@@ -88,6 +88,32 @@ For Java Server (1.7+)
     :inherited-members:
     :exclude-members: build
 
+Forge Data
+**********
+
+Forge mod metadata is available on :attr:`status.forge_data <mcstatus.responses.JavaStatusResponse.forge_data>`.
+
+.. module:: mcstatus.forge_data
+    :no-index:
+
+.. autoclass:: mcstatus.forge_data.ForgeData()
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: build
+
+.. autoclass:: mcstatus.forge_data.ForgeDataChannel()
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: build, decode
+
+.. autoclass:: mcstatus.forge_data.ForgeDataMod()
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: build, decode
+
 
 For Java Server (1.4-1.6)
 *************************

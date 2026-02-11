@@ -59,6 +59,8 @@ else:
 
 @dataclass(frozen=True)
 class ForgeDataChannel:
+    """A single Forge data channel."""
+
     name: str
     """Channel name and ID (for example ``fml:handshake``)."""
     version: str
@@ -98,8 +100,12 @@ class ForgeDataChannel:
 
 @dataclass(frozen=True)
 class ForgeDataMod:
+    """A single Forge mod."""
+
     name: str
+    """A mod name."""
     marker: str
+    """A mod marker. Usually a version."""
 
     @classmethod
     def build(cls, raw: RawForgeDataMod) -> Self:
@@ -193,12 +199,14 @@ class StringBuffer(BaseReadSync, BaseConnection):
 
 @dataclass(frozen=True)
 class ForgeData:
+    """Class for storing information about Forge mods."""
+
     fml_network_version: int
     """Forge Mod Loader network version."""
     channels: list[ForgeDataChannel]
     """List of channels, both for mods and non-mods."""
     mods: list[ForgeDataMod]
-    """List of mods"""
+    """List of mods."""
     truncated: bool
     """Is the mods list and or channel list incomplete?"""
 
