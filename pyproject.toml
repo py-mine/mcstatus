@@ -128,7 +128,6 @@ select = ["ALL"]
 ignore = [
   "EM",      # Very weird rules for using exceptions
   "FIX",     # Line contains TODO, consider resolving the issue
-  "B904",    # Exception raised within try-except should use raise ... from exc
   "COM812",  # Missing trailing comma (in multiline lists/tuples/...)
   "D203",    # Blank line required before class docstring
   "D213",    # Multi-line docstring summary should start at the second line

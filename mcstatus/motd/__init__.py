@@ -167,8 +167,8 @@ class Motd:
             # achieve gradients.
             try:
                 return WebColor.from_hex(color)
-            except ValueError:
-                raise ValueError(f"Unable to parse color: {color!r}, report this!")
+            except ValueError as e:
+                raise ValueError(f"Unable to parse color: {color!r}, report this!") from e
 
     def simplify(self) -> Self:
         """Create new MOTD without unused elements.

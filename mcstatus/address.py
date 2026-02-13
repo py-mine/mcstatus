@@ -219,12 +219,12 @@ def minecraft_srv_address_lookup(
     # to the default_port (if it's defined).
     try:
         host, port = mcstatus.dns.resolve_mc_srv(host, lifetime=lifetime)
-    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as e:
         if default_port is None:
             raise ValueError(
                 f"Given address '{address}' doesn't contain port, doesn't have an SRV record pointing to a port,"
                 " and default_port wasn't specified, can't parse."
-            )
+            ) from e
         port = default_port
 
     return Address(host, port)
@@ -248,12 +248,12 @@ async def async_minecraft_srv_address_lookup(
     # to the default_port (if it's defined).
     try:
         host, port = await mcstatus.dns.async_resolve_mc_srv(host, lifetime=lifetime)
-    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as e:
         if default_port is None:
             raise ValueError(
                 f"Given address '{address}' doesn't contain port, doesn't have an SRV record pointing to a port,"
                 " and default_port wasn't specified, can't parse."
-            )
+            ) from e
         port = default_port
 
     return Address(host, port)
