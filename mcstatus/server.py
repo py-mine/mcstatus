@@ -34,7 +34,7 @@ class MCServer(ABC):
 
     DEFAULT_PORT: int
 
-    def __init__(self, host: str, port: int | None = None, timeout: float = 3):
+    def __init__(self, host: str, port: int | None = None, timeout: float = 3) -> None:
         """
         :param host: The host/ip of the minecraft server.
         :param port: The port that the server is on.
@@ -92,7 +92,7 @@ class BaseJavaServer(MCServer):
 class JavaServer(BaseJavaServer):
     """Base class for a 1.7+ Minecraft Java Edition server."""
 
-    def __init__(self, host: str, port: int | None = None, timeout: float = 3, query_port: int | None = None):
+    def __init__(self, host: str, port: int | None = None, timeout: float = 3, query_port: int | None = None) -> None:
         """
         :param host: The host/ip of the minecraft server.
         :param port: The port that the server is on.
