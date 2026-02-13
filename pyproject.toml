@@ -187,9 +187,6 @@ lines-after-imports = -1        # The number of blank lines to place after impor
 lines-between-types = 0         # Number of lines to place between "direct" and import from imports
 split-on-trailing-comma = false # if last member of multiline import has a comma, don't fold it to single line
 
-[tool.ruff.lint.flake8-implicit-str-concat]
-allow-multiline = false
-
 [tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true
 
