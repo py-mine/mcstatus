@@ -132,6 +132,7 @@ ignore = [
   "D203",    # Blank line required before class docstring
   "D213",    # Multi-line docstring summary should start at the second line
   "PLR2004", # Magic value used in comparison
+  "RET504",  # Unnecessary assignment to a variable before `return` statement
   "S101",    # Use of `assert` detected
   "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
   "TD002",   # Missing author in TODO

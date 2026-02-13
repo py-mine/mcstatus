@@ -171,7 +171,8 @@ class JavaServer(BaseJavaServer):
             ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
         )
         pinger.handshake()
-        return await pinger.test_ping()
+        ping = await pinger.test_ping()
+        return ping
 
     def status(self, *, tries: int = 3, version: int = 47, ping_token: int | None = None) -> JavaStatusResponse:
         """Check the status of a Minecraft Java Edition server via the status protocol.
@@ -200,7 +201,8 @@ class JavaServer(BaseJavaServer):
             ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
         )
         pinger.handshake()
-        return pinger.read_status()
+        result = pinger.read_status()
+        return result
 
     async def async_status(self, *, tries: int = 3, version: int = 47, ping_token: int | None = None) -> JavaStatusResponse:
         """Asynchronously check the status of a Minecraft Java Edition server via the status protocol.
@@ -229,7 +231,8 @@ class JavaServer(BaseJavaServer):
             ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
         )
         pinger.handshake()
-        return await pinger.read_status()
+        result = await pinger.read_status()
+        return result
 
     def query(self, *, tries: int = 3) -> QueryResponse:
         """Check the status of a Minecraft Java Edition server via the query protocol.
