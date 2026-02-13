@@ -25,8 +25,7 @@ def resolve_a_record(hostname: str, lifetime: float | None = None) -> str:
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
     answer = cast("ARecordAnswer", answers[0])
-    ip = str(answer).rstrip(".")
-    return ip
+    return str(answer).rstrip(".")
 
 
 async def async_resolve_a_record(hostname: str, lifetime: float | None = None) -> str:
@@ -38,8 +37,7 @@ async def async_resolve_a_record(hostname: str, lifetime: float | None = None) -
     # There should only be one answer here, though in case the server
     # does actually point to multiple IPs, we just pick the first one
     answer = cast("ARecordAnswer", answers[0])
-    ip = str(answer).rstrip(".")
-    return ip
+    return str(answer).rstrip(".")
 
 
 def resolve_srv_record(query_name: str, lifetime: float | None = None) -> tuple[str, int]:
