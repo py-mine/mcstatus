@@ -100,8 +100,8 @@ class WebColor:
 
         try:
             rgb = t.cast("tuple[int, int, int]", tuple(int(hex[i : i + 2], 16) for i in (0, 2, 4)))
-        except ValueError:
-            raise ValueError(f"Failed to parse given hex color: {'#' + hex!r}")
+        except ValueError as e:
+            raise ValueError(f"Failed to parse given hex color: {'#' + hex!r}") from e
 
         return cls.from_rgb(rgb)
 

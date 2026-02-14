@@ -533,7 +533,7 @@ class TCPSocketConnection(SocketConnection):
 
     __slots__ = ()
 
-    def __init__(self, addr: tuple[str | None, int], timeout: float = 3):
+    def __init__(self, addr: tuple[str | None, int], timeout: float = 3) -> None:
         super().__init__()
         self.socket = socket.create_connection(addr, timeout=timeout)
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -562,7 +562,7 @@ class UDPSocketConnection(SocketConnection):
 
     __slots__ = ("addr",)
 
-    def __init__(self, addr: Address, timeout: float = 3):
+    def __init__(self, addr: Address, timeout: float = 3) -> None:
         super().__init__()
         self.addr = addr
         self.socket = socket.socket(

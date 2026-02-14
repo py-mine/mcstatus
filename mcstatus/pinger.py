@@ -57,14 +57,14 @@ class _BaseServerPinger(ABC):
             raise OSError("Received invalid status response packet.")
         try:
             raw: RawJavaResponse = json.loads(response.read_utf())
-        except ValueError:
-            raise OSError("Received invalid JSON")
+        except ValueError as e:
+            raise OSError("Received invalid JSON") from e
 
         try:
             latency_ms = (end - start) * 1000
             return JavaStatusResponse.build(raw, latency=latency_ms)
         except KeyError as e:
-            raise OSError(f"Received invalid status response: {e!r}")
+            raise OSError("Received invalid status response") from e
 
     def _handle_ping_response(self, response: Connection, start: float, end: float) -> float:
         """Given a ping response buffer, validate token and compute latency."""

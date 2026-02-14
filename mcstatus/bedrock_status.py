@@ -20,7 +20,7 @@ class BedrockServerStatus:
         "01" + "0000000000000000" + "00ffff00fefefefefdfdfdfd12345678" + "0000000000000000"
     )
 
-    def __init__(self, address: Address, timeout: float = 3):
+    def __init__(self, address: Address, timeout: float = 3) -> None:
         self.address = address
         self.timeout = timeout
 

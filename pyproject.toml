@@ -128,8 +128,6 @@ select = ["ALL"]
 ignore = [
   "EM",      # Very weird rules for using exceptions
   "FIX",     # Line contains TODO, consider resolving the issue
-  "ANN204",  # Missing return type annotation for special method
-  "B904",    # Exception raised within try-except should use raise ... from exc
   "COM812",  # Missing trailing comma (in multiline lists/tuples/...)
   "D203",    # Blank line required before class docstring
   "D213",    # Multi-line docstring summary should start at the second line
@@ -189,9 +187,6 @@ lines-after-imports = -1        # The number of blank lines to place after impor
 lines-between-types = 0         # Number of lines to place between "direct" and import from imports
 split-on-trailing-comma = false # if last member of multiline import has a comma, don't fold it to single line
 
-[tool.ruff.lint.flake8-implicit-str-concat]
-allow-multiline = false
-
 [tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true
 
@@ -201,7 +196,7 @@ max-args = 10
 [tool.ruff.lint.flake8-builtins]
 ignorelist = ["id", "copyright"]
 
-[tool.ruff-formatter]
+[tool.ruff.format]
 line-ending = "lf"
 
 [project.scripts]

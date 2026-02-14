@@ -58,7 +58,7 @@ class Address(_AddressBase):
         The class is not a part of a Public API, but attributes :attr:`host` and :attr:`port` are a part of Public API.
     """
 
-    def __init__(self, host: str, port: int):  # noqa: ARG002 # unused arguments
+    def __init__(self, host: str, port: int) -> None:  # noqa: ARG002 # unused arguments
         # We don't pass the host & port args to super's __init__, because NamedTuples handle
         # everything from __new__ and the passed self already has all of the parameters set.
         super().__init__()
@@ -219,12 +219,12 @@ def minecraft_srv_address_lookup(
     # to the default_port (if it's defined).
     try:
         host, port = mcstatus.dns.resolve_mc_srv(host, lifetime=lifetime)
-    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as e:
         if default_port is None:
             raise ValueError(
                 f"Given address '{address}' doesn't contain port, doesn't have an SRV record pointing to a port,"
                 " and default_port wasn't specified, can't parse."
-            )
+            ) from e
         port = default_port
 
     return Address(host, port)
@@ -248,12 +248,12 @@ async def async_minecraft_srv_address_lookup(
     # to the default_port (if it's defined).
     try:
         host, port = await mcstatus.dns.async_resolve_mc_srv(host, lifetime=lifetime)
-    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as e:
         if default_port is None:
             raise ValueError(
                 f"Given address '{address}' doesn't contain port, doesn't have an SRV record pointing to a port,"
                 " and default_port wasn't specified, can't parse."
-            )
+            ) from e
         port = default_port
 
     return Address(host, port)

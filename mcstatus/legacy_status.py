@@ -20,7 +20,7 @@ class _BaseLegacyServerStatus:
 
 
 class LegacyServerStatus(_BaseLegacyServerStatus):
-    def __init__(self, connection: BaseSyncConnection):
+    def __init__(self, connection: BaseSyncConnection) -> None:
         self.connection = connection
 
     def read_status(self) -> LegacyStatusResponse:
@@ -37,7 +37,7 @@ class LegacyServerStatus(_BaseLegacyServerStatus):
 
 
 class AsyncLegacyServerStatus(_BaseLegacyServerStatus):
-    def __init__(self, connection: BaseAsyncReadSyncWriteConnection):
+    def __init__(self, connection: BaseAsyncReadSyncWriteConnection) -> None:
         self.connection = connection
 
     async def read_status(self) -> LegacyStatusResponse:
