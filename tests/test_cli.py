@@ -268,9 +268,25 @@ def test_json(mock_network_requests):
         },
         "query": {
             "ip": "192.168.56.1",
-            "port": "9999",
-            "map": "world",
-            "plugins": [],
+            "port": 9999,
+            "map_name": "world",
+            "motd": "A Minecraft Server",
+            "game_id": "GAME ID",
+            "game_type": "GAME TYPE",
+            "players": {
+                "list": [
+                    "Dinnerbone",
+                    "Djinnibone",
+                    "Steve",
+                ],
+                "max": 20,
+                "online": 3,
+            },
+            "software": {
+                "brand": "vanilla",
+                "plugins": [],
+                "version": "1.8",
+            },
             "raw": {
                 "hostname": "A Minecraft Server",
                 "gametype": "GAME TYPE",
