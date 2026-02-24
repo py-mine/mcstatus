@@ -63,7 +63,7 @@ test = [
   "hatchling",
 ]
 docs = ["docs; python_version >= '3.12'"]
-release = ["hatchling~=1.28.0", "uv-dynamic-versioning~=0.13.0"]
+release = ["hatchling~=1.29.0", "uv-dynamic-versioning~=0.13.0"]
 
 [tool.poe.tasks]
 _lint_ruff = "ruff check ."

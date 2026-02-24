@@ -338,7 +338,7 @@ requires-dist = [
     { name = "m2r2", specifier = "~=0.3.4" },
     { name = "packaging", specifier = "~=26.0" },
     { name = "sphinx", specifier = "~=9.1.0" },
-    { name = "sphinx-autodoc-typehints", specifier = "~=3.6.2" },
+    { name = "sphinx-autodoc-typehints", specifier = "~=3.7.0" },
     { name = "uv-dynamic-versioning", specifier = "~=0.13.0" },
 ]
 
@@ -402,7 +402,7 @@ wheels = [
 
 [[package]]
 name = "hatchling"
-version = "1.28.0"
+version = "1.29.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "packaging" },
@@ -411,9 +411,9 @@ dependencies = [
     { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "trove-classifiers" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0b/8e/e480359492affde4119a131da729dd26da742c2c9b604dff74836e47eef9/hatchling-1.28.0.tar.gz", hash = "sha256:4d50b02aece6892b8cd0b3ce6c82cb218594d3ec5836dbde75bf41a21ab004c8", size = 55365, upload-time = "2025-11-27T00:31:13.766Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cf/9c/b4cfe330cd4f49cff17fd771154730555fa4123beb7f292cf0098b4e6c20/hatchling-1.29.0.tar.gz", hash = "sha256:793c31816d952cee405b83488ce001c719f325d9cda69f1fc4cd750527640ea6", size = 55656, upload-time = "2026-02-23T19:42:06.539Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0d/a5/48cb7efb8b4718b1a4c0c331e3364a3a33f614ff0d6afd2b93ee883d3c47/hatchling-1.28.0-py3-none-any.whl", hash = "sha256:dc48722b68b3f4bbfa3ff618ca07cdea6750e7d03481289ffa8be1521d18a961", size = 76075, upload-time = "2025-11-27T00:31:12.544Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/8a/44032265776062a89171285ede55a0bdaadc8ac00f27f0512a71a9e3e1c8/hatchling-1.29.0-py3-none-any.whl", hash = "sha256:50af9343281f34785fab12da82e445ed987a6efb34fd8c2fc0f6e6630dbcc1b0", size = 76356, upload-time = "2026-02-23T19:42:05.197Z" },
 ]
 
 [[package]]
@@ -614,7 +614,7 @@ lint = [
     { name = "typing-extensions", specifier = "~=4.15.0" },
 ]
 release = [
-    { name = "hatchling", specifier = "~=1.28.0" },
+    { name = "hatchling", specifier = "~=1.29.0" },
     { name = "uv-dynamic-versioning", specifier = "~=0.13.0" },
 ]
 test = [
@@ -963,14 +963,14 @@ wheels = [
 
 [[package]]
 name = "sphinx-autodoc-typehints"
-version = "3.6.3"
+version = "3.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "sphinx", marker = "python_full_version >= '3.12'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/64/5f/ebcaed1a67e623e4a7622808a8be6b0fd8344313e185f62e85a26b0ce26a/sphinx_autodoc_typehints-3.6.3.tar.gz", hash = "sha256:6c387b47d9ad5e75b157810af5bad46901f0a22708ed5e4adf466885a9c60910", size = 38288, upload-time = "2026-02-18T04:22:08.384Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b9/54/319628e24e98102e6f73cf6e5f345324a94d9adc18d456193b84f2ac1608/sphinx_autodoc_typehints-3.7.0.tar.gz", hash = "sha256:f7c536f4c0a729324cfebfaa3787c80ca14d08817952153e6da4e971c5306c20", size = 41344, upload-time = "2026-02-23T20:54:58.529Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0a/bd/2b853836d152e40a27655828fdc02c5128f294ac452ad9a13424bb7f92fa/sphinx_autodoc_typehints-3.6.3-py3-none-any.whl", hash = "sha256:46ebc68fa85b320d55887a8d836a01e12e3b7744da973e70af8cedc74072aad5", size = 20882, upload-time = "2026-02-18T04:22:07.238Z" },
+    { url = "https://files.pythonhosted.org/packages/ec/2c/ded433effc5943195a64e18404fd46c195aca559cd9bede1ae73f8bbf67f/sphinx_autodoc_typehints-3.7.0-py3-none-any.whl", hash = "sha256:ad0c9759bac0c7462768003bb57e7bb853c75b74d603e818511c56c10931e72f", size = 21558, upload-time = "2026-02-23T20:54:57.015Z" },
 ]
 
 [[package]]
