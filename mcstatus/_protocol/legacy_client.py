@@ -20,8 +20,7 @@ class _BaseLegacyClient:
             included information pertaining to the server name, players
             online, and players max.
             """
-            decoded_data = (['§1', '<=46', '<=12w42a']
-                            + decoded_data[0].split("§"))
+            decoded_data = ["§1", "<=46", "<=12w42a"] + decoded_data[0].split("§")
             if len(decoded_data) != 6:
                 raise OSError("Received invalid kick packet reason")
         return LegacyStatusResponse.build(decoded_data[1:], latency)
