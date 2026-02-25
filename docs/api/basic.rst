@@ -118,7 +118,7 @@ Forge mod metadata is available on :attr:`status.forge_data <mcstatus.responses.
     :exclude-members: build, decode
 
 For Java Server (Beta 1.3-1.6)
-*************************
+******************************
 
 .. versionadded:: 12.1.0
 .. does this version number needs amending? - will0hlep
