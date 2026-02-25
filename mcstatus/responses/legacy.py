@@ -30,7 +30,7 @@ class LegacyStatusResponse(BaseStatusResponse):
 
         :param decoded_data: Raw decoded response object.
         :param latency: Latency of the request.
-        :return: :class:LegacyStatusResponse object.
+        :return: :class:`LegacyStatusResponse` object.
         """
         return cls(
             players=LegacyStatusPlayers(
