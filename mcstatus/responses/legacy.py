@@ -29,7 +29,7 @@ class LegacyStatusResponse(BaseStatusResponse):
 
         :param decoded_data: Raw decoded response object.
         :param latency: Latency of the request.
-        :return: :class:`LegacyStatusResponse` object.
+        :return: :class:LegacyStatusResponse object.
         """
         return cls(
             players=LegacyStatusPlayers(
@@ -38,7 +38,7 @@ class LegacyStatusResponse(BaseStatusResponse):
             ),
             version=LegacyStatusVersion(
                 name=decoded_data[1],
-                protocol=int(decoded_data[0]),
+                protocol=tryint(decoded_data[0]),
             ),
             motd=Motd.parse(decoded_data[2]),
             latency=latency,
@@ -53,3 +53,14 @@ class LegacyStatusPlayers(BaseStatusPlayers):
 @dataclass(frozen=True)
 class LegacyStatusVersion(BaseStatusVersion):
     """A class for storing version information."""
+
+
+def tryint(protocol: str) -> str | int:
+    """Checks if the input string contains only digits and then, if True
+    converts the string to an int. This allows the protocol value to be
+    an int for servers running >=12w42b, and a str for servers running
+    <=12w42a.
+    """
+    if protocol.isdigit():
+        return int(protocol)
+    return protocol
