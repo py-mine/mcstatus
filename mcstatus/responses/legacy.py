@@ -22,6 +22,7 @@ class LegacyStatusResponse(BaseStatusResponse):
 
     players: LegacyStatusPlayers
     version: LegacyStatusVersion
+    """The version information, only populates for servers >=12w42b (1.4 onwards)."""
 
     @classmethod
     def build(cls, decoded_data: list[str], latency: float) -> Self:
