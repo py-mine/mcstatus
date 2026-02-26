@@ -78,7 +78,7 @@ class TestBedrockStatusResponse(BaseResponseTest):
         }
 
     def test_description_alias(self, build: BedrockStatusResponse):
-        assert build.description == "§4G§6a§ey§2B§1o§9w§ds§4e§6r"
+        assert build.description == "§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r"
 
 
 @BaseResponseTest.construct

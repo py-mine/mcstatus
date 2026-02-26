@@ -35,7 +35,7 @@ class BaseStatusResponse(ABC):
     @property
     def description(self) -> str:
         """Alias to the :meth:`mcstatus.motd.Motd.to_minecraft` method."""
-        return self.motd.simplify().to_minecraft()
+        return self.motd.to_minecraft()
 
     @classmethod
     @abstractmethod
