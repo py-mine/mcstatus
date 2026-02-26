@@ -16,8 +16,8 @@ class _BaseLegacyClient:
     def parse_response(data: bytes, latency: float) -> LegacyStatusResponse:
         decoded_data = data.decode("UTF-16BE").split("\0")
         if decoded_data[0] != "§1":
-            #kick packets before 1.4 (12w42a) did not start with §1 and did
-            #not included information about server and protocol version
+            # kick packets before 1.4 (12w42a) did not start with §1 and did
+            # not included information about server and protocol version
             decoded_data = ["§1", -1, "<1.4", *decoded_data[0].split("§")]
             if len(decoded_data) != 6:
                 raise OSError("Received invalid kick packet reason")
