@@ -120,8 +120,10 @@ Forge mod metadata is available on :attr:`status.forge_data <mcstatus.responses.
 For Java Server (Beta 1.8-1.6)
 ******************************
 
+.. versionadded:: 12.1.0
+
 .. versionadded:: 13.0.0
-   1.4-1.6 supported since 12.1.0.
+   Support for Beta 1.8+ (before was 1.4+)
 
 .. module:: mcstatus.responses.legacy
     :no-index:
