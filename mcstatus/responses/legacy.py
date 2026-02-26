@@ -39,7 +39,7 @@ class LegacyStatusResponse(BaseStatusResponse):
             ),
             version=LegacyStatusVersion(
                 name=decoded_data[1],
-                protocol=tryint(decoded_data[0]),
+                protocol=int(decoded_data[0]),
             ),
             motd=Motd.parse(decoded_data[2]),
             latency=latency,
@@ -55,13 +55,20 @@ class LegacyStatusPlayers(BaseStatusPlayers):
 class LegacyStatusVersion(BaseStatusVersion):
     """A class for storing version information."""
 
+    name: str
+    """The version name, like ``1.19.3``.
 
-def tryint(protocol: str) -> str | int:
-    """Checks if the input string contains only digits and then, if True
-    converts the string to an int. This allows the protocol value to be
-    an int for servers running >=12w42b, and a str for servers running
-    <=12w42a.
+    See `Minecraft wiki <https://minecraft.wiki/w/Java_Edition_version_history>`__
+    for complete list.
+
+    Will be ``<1.4`` for older releases, as those did not send version
+    information.
     """
-    if protocol.isdigit():
-        return int(protocol)
-    return protocol
+    protocol: int
+    """The protocol version, like ``761``.
+
+    See `Minecraft wiki <https://minecraft.wiki/w/Protocol_version#Java_Edition_2>`__.
+
+    ``-1`` means 1.3 and lower, before 1.4 servers did not send information
+    about its version.
+    """
