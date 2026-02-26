@@ -242,6 +242,14 @@ def test_query_offline(mock_network_requests):
     assert err.getvalue() == QUERY_FAIL_WARNING + "\n"
 
 
+def test_query_on_bedrock(mock_network_requests):
+    with patch_stdout_stderr() as (out, err):
+        assert main_under_test(["example.com", "--bedrock", "query"]) != 0
+
+    assert out.getvalue() == ""
+    assert err.getvalue() == "The 'query' protocol is only supported by Java servers.\n"
+
+
 def test_json(mock_network_requests):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "json"]) == 0

@@ -24,6 +24,14 @@ class TestSRVLookup:
         assert address.host == "example.org"
         assert address.port == 25565
 
+    @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
+    def test_address_no_srv_no_default_port(self, exception):
+        with patch("dns.resolver.resolve") as resolve:
+            resolve.side_effect = [exception]
+            with pytest.raises(ValueError, match=r"^Given address 'example.org' doesn't contain port"):
+                minecraft_srv_address_lookup("example.org", lifetime=3)
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3, search=True)
+
     def test_address_with_srv(self):
         with patch("dns.resolver.resolve") as resolve:
             answer = Mock()
@@ -46,6 +54,15 @@ class TestSRVLookup:
 
         assert address.host == "example.org"
         assert address.port == 25565
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
+    async def test_async_address_no_srv_no_default_port(self, exception):
+        with patch("dns.asyncresolver.resolve") as resolve:
+            resolve.side_effect = [exception]
+            with pytest.raises(ValueError, match=r"^Given address 'example.org' doesn't contain port"):
+                await async_minecraft_srv_address_lookup("example.org", lifetime=3)
+            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3, search=True)
 
     @pytest.mark.asyncio
     async def test_async_address_with_srv(self):
@@ -96,6 +113,10 @@ class TestAddressValidity:
     def test_address_validation_host_invalid_type(self, address, port):
         with pytest.raises(TypeError, match=f"^Host must be a string address, got {type(address)!r} \\({address!r}\\)$"):
             Address._ensure_validity(address, port)
+
+    def test_address_host_invalid_format(self):
+        with pytest.raises(ValueError, match=r"^Invalid address 'hello@#', can't parse\.$"):
+            Address.parse_address("hello@#")
 
 
 class TestAddressConstructing:
@@ -191,6 +212,9 @@ class TestAddressIPResolving:
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == self.ipv4_addr.host
 
+            # test cache
+            assert self.ipv4_addr.resolve_ip(lifetime=3) is resolved_ip
+
     @pytest.mark.asyncio
     async def test_async_ip_resolver_with_ipv4(self):
         with patch("dns.asyncresolver.resolve") as resolve:
@@ -200,6 +224,9 @@ class TestAddressIPResolving:
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == self.ipv4_addr.host
 
+            # test cache
+            assert await self.ipv4_addr.async_resolve_ip(lifetime=3) is resolved_ip
+
     def test_ip_resolver_with_ipv6(self):
         with patch("dns.resolver.resolve") as resolve:
             resolved_ip = self.ipv6_addr.resolve_ip(lifetime=3)
@@ -207,6 +234,9 @@ class TestAddressIPResolving:
             resolve.assert_not_called()  # Make sure we didn't needlessly try to resolve
             assert isinstance(resolved_ip, ipaddress.IPv6Address)
             assert str(resolved_ip) == self.ipv6_addr.host
+
+            # test cache
+            assert self.ipv6_addr.resolve_ip(lifetime=3) is resolved_ip
 
     @pytest.mark.asyncio
     async def test_async_ip_resolver_with_ipv6(self):
@@ -216,6 +246,9 @@ class TestAddressIPResolving:
             resolve.assert_not_called()  # Make sure we didn't needlessly try to resolve
             assert isinstance(resolved_ip, ipaddress.IPv6Address)
             assert str(resolved_ip) == self.ipv6_addr.host
+
+            # test cache
+            assert await self.ipv6_addr.async_resolve_ip(lifetime=3) is resolved_ip
 
     def test_resolve_localhost(self):
         addr = Address("localhost", 25565)

@@ -6,11 +6,16 @@ import typing
 import pytest
 
 from mcstatus.motd import Motd
+from mcstatus.motd._transformers import _NothingTransformer
 
 if typing.TYPE_CHECKING:
     from collections.abc import Callable
 
     from mcstatus.responses._raw import RawJavaResponseMotd
+
+
+def test_nothing_transformer():
+    assert _NothingTransformer().transform(Motd.parse("&1a&bfoo&r").parsed) == ""
 
 
 class TestMotdPlain:
