@@ -168,9 +168,9 @@ def test_one_argument_is_status(mock_network_requests):
     assert out.getvalue() == (
         "version: Java 1.8-pre1 (protocol 44)\n"
         "motd: \x1b[0mA Minecraft Server\x1b[0m\n"
-        "players: 0/20 No players online\n"
+        "players: 0/20\n"
         "ping: 0.00 ms\n"
-    )
+    )  # fmt: skip
     assert err.getvalue() == ""
 
 
@@ -181,13 +181,13 @@ def test_status(mock_network_requests):
     assert out.getvalue() == (
         "version: Java 1.8-pre1 (protocol 44)\n"
         "motd: \x1b[0mA Minecraft Server\x1b[0m\n"
-        "players: 0/20 No players online\n"
+        "players: 0/20\n"
         "ping: 0.00 ms\n"
-    )
+    )  # fmt: skip
     assert err.getvalue() == ""
 
 
-def test_status_no_sample(mock_network_requests):
+def test_status_with_sample(mock_network_requests):
     raw_response = JAVA_RAW_RESPONSE.copy()
     raw_response["players"] = JAVA_RAW_RESPONSE["players"].copy()
     raw_response["players"]["sample"] = [
@@ -211,6 +211,26 @@ def test_status_no_sample(mock_network_requests):
         "  baz (7edb3b2e-869c-485b-af70-76a934e0fcfd)\n"
         "ping: 0.00 ms\n"
     )
+    assert err.getvalue() == ""
+
+
+def test_status_sample_empty_list(mock_network_requests):
+    raw_response = JAVA_RAW_RESPONSE.copy()
+    raw_response["players"] = JAVA_RAW_RESPONSE["players"].copy()
+    raw_response["players"]["sample"] = []
+
+    with (
+        patch("mcstatus.server.JavaServer.status", return_value=JavaStatusResponse.build(raw_response)),
+        patch_stdout_stderr() as (out, err),
+    ):
+        assert main_under_test(["example.com", "status"]) == 0
+
+    assert out.getvalue() == (
+        "version: Java 1.8-pre1 (protocol 44)\n"
+        "motd: \x1b[0mA Minecraft Server\x1b[0m\n"
+        "players: 0/20\n"
+        "ping: 0.00 ms\n"
+    )  # fmt: skip
     assert err.getvalue() == ""
 
 
