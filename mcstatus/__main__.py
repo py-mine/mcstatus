@@ -85,12 +85,9 @@ def status_cmd(server: SupportedServers) -> int:
     if not java_res:
         player_sample = ""
     elif java_res.players.sample is not None:
-        player_sample = str([f"{player.name} ({player.id})" for player in java_res.players.sample])
+        player_sample = "\n  " + "\n  ".join(f"{player.name} ({player.id})" for player in java_res.players.sample)
     else:
-        player_sample = "No players online"
-
-    if player_sample:
-        player_sample = " " + player_sample
+        player_sample = " No players online"
 
     print(f"version: {_kind(server)} {response.version.name} (protocol {response.version.protocol})")
     print(f"motd:{_motd(response.motd)}")
