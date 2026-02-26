@@ -117,10 +117,13 @@ Forge mod metadata is available on :attr:`status.forge_data <mcstatus.responses.
     :inherited-members:
     :exclude-members: build, decode
 
-For Java Server (1.4-1.6)
-*************************
+For Java Server (Beta 1.8-1.6)
+******************************
 
 .. versionadded:: 12.1.0
+
+.. versionadded:: 13.0.0
+   Support for Beta 1.8+ (before was 1.4+)
 
 .. module:: mcstatus.responses.legacy
     :no-index:

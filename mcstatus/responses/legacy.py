@@ -22,6 +22,7 @@ class LegacyStatusResponse(BaseStatusResponse):
 
     players: LegacyStatusPlayers
     version: LegacyStatusVersion
+    """The version information, only populates for servers >=12w42b (1.4 onwards)."""
 
     @classmethod
     def build(cls, decoded_data: list[str], latency: float) -> Self:
@@ -53,3 +54,21 @@ class LegacyStatusPlayers(BaseStatusPlayers):
 @dataclass(frozen=True)
 class LegacyStatusVersion(BaseStatusVersion):
     """A class for storing version information."""
+
+    name: str
+    """The version name, like ``1.19.3``.
+
+    See `Minecraft wiki <https://minecraft.wiki/w/Java_Edition_version_history>`__
+    for complete list.
+
+    Will be ``<1.4`` for older releases, as those did not send version
+    information.
+    """
+    protocol: int
+    """The protocol version, like ``761``.
+
+    See `Minecraft wiki <https://minecraft.wiki/w/Protocol_version#Java_Edition_2>`__.
+
+    ``-1`` means 1.3 and lower, before 1.4 servers did not send information
+    about its version.
+    """
