@@ -121,7 +121,7 @@ For Java Server (Beta 1.8-1.6)
 ******************************
 
 .. versionadded:: 13.0.0
-Support for Beta 1.8 - 1.6 (1.4 - 1.6 supported since 12.1.0)
+   1.4-1.6 supported since 12.1.0.
 
 .. module:: mcstatus.responses.legacy
     :no-index:
