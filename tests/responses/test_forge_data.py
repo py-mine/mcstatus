@@ -16,23 +16,6 @@ JAVA_RAW_RESPONSE: RawJavaResponse = {
 }
 
 
-@pytest.mark.parametrize("key", ["forgeData", "modinfo"])
-def test_java_status_response_forge_data_is_none(key):
-    # should not raise
-    JavaStatusResponse.build(
-        JAVA_RAW_RESPONSE | {key: None},  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
-    )
-
-
-@pytest.mark.parametrize("key", ["forgeData", "modinfo"])
-def test_java_status_response_forge_data(key):
-    raw = TestForgeDataV1.RAW if key == "modinfo" else TestForgeDataV2.RAW
-    # should not raise
-    assert JavaStatusResponse.build(
-        JAVA_RAW_RESPONSE | {key: raw},  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
-    ).forge_data == ForgeData.build(raw)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
-
-
 @BaseResponseTest.construct
 class TestForgeDataV1(BaseResponseTest):
     RAW: t.ClassVar = {
@@ -702,3 +685,24 @@ class TestForgeData(BaseResponseTest):
     def test_build_with_empty_input(self):
         with pytest.raises(KeyError, match=r"^'Neither `mods` or `modList` keys exist\.'$"):
             ForgeData.build({})
+
+
+@pytest.mark.parametrize("key", ["forgeData", "modinfo"])
+def test_java_status_response_forge_data_is_none(key):
+    # should not raise
+    JavaStatusResponse.build(
+        JAVA_RAW_RESPONSE | {key: None},  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
+    )
+
+
+@pytest.mark.parametrize(
+    ("key", "raw"),
+    [
+        ("forgeData", TestForgeDataV2.RAW),
+        ("modinfo", TestForgeDataV1.RAW),
+    ],
+)
+def test_java_status_response_forge_data(key: str, raw: bytes) -> None:
+    assert JavaStatusResponse.build(
+        JAVA_RAW_RESPONSE | {key: raw},  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
+    ).forge_data == ForgeData.build(raw)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
