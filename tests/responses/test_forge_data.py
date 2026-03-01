@@ -136,12 +136,12 @@ class TestForgeDataV3(BaseResponseTest):
 
 class TestForgeDataMod:
     def test_build_with_empty_input(self):
-        with pytest.raises(KeyError, match=r"^'Mod version in Forge mod data must be provided. Mod info: {}'$"):
+        with pytest.raises(KeyError, match=r"^'Mod version in Forge mod data must be provided\. Mod info: {}'$"):
             ForgeDataMod.build({})
 
     def test_build_without_mod_id(self):
         with pytest.raises(
-            KeyError, match=r"^\"Mod ID in Forge mod data must be provided. Mod info: {'modmarker': 'foo'}.\"$"
+            KeyError, match=r"^\"Mod ID in Forge mod data must be provided\. Mod info: {'modmarker': 'foo'}\.\"$"
         ):
             ForgeDataMod.build({"modmarker": "foo"})
 
@@ -700,5 +700,5 @@ class TestForgeData(BaseResponseTest):
         return value
 
     def test_build_with_empty_input(self):
-        with pytest.raises(KeyError, match=r"^'Neither `mods` or `modList` keys exist.'$"):
+        with pytest.raises(KeyError, match=r"^'Neither `mods` or `modList` keys exist\.'$"):
             ForgeData.build({})

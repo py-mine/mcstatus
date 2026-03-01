@@ -101,6 +101,6 @@ class TestBedrockStatusVersion(BaseResponseTest):
     def test_deprecated_version_alias(self, build: BedrockStatusVersion):
         with pytest.warns(
             DeprecationWarning,
-            match=r"^BedrockStatusVersion.version is deprecated and scheduled for removal in 13.0.0, use name instead.$",
+            match=r"^BedrockStatusVersion\.version is deprecated and scheduled for removal in 13\.0\.0, use name instead\.$",
         ):
             assert build.version == build.name

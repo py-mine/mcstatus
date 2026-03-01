@@ -79,7 +79,7 @@ class TestQueryResponse(BaseResponseTest):
     def test_deprecated_map_alias(self, build: QueryResponse):
         with pytest.warns(
             DeprecationWarning,
-            match=r"^QueryResponse.map is deprecated and scheduled for removal in 13.0.0, use map_name instead.$",
+            match=r"^QueryResponse\.map is deprecated and scheduled for removal in 13\.0\.0, use map_name instead\.$",
         ):
             assert build.map == build.map_name
 
@@ -113,7 +113,7 @@ class TestQueryPlayers(BaseResponseTest):
     def test_deprecated_names_alias(self, build: QueryPlayers):
         with pytest.warns(
             DeprecationWarning,
-            match=r"^QueryPlayers.names is deprecated and scheduled for removal in 13.0.0, use 'list' attribute instead.$",
+            match=r"^QueryPlayers\.names is deprecated and scheduled for removal in 13\.0\.0, use 'list' attribute instead\.$",
         ):
             assert build.names == build.list
 

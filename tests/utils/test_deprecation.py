@@ -36,14 +36,14 @@ def _patch_project_version(monkeypatch: pytest.MonkeyPatch, version: str | None)
 def test_invalid_lib_version(monkeypatch: pytest.MonkeyPatch):
     _patch_project_version(monkeypatch, "foo bar")
 
-    with pytest.warns(match=f"^Failed to parse {LIB_NAME} project version \\(foo bar\\), assuming v0.0.0$"):
+    with pytest.warns(match=f"^Failed to parse {LIB_NAME} project version \\(foo bar\\), assuming v0\\.0\\.0$"):
         _get_project_version()
 
 
 def test_epoch_in_lib_version(monkeypatch: pytest.MonkeyPatch):
     _patch_project_version(monkeypatch, "2!1.2.3")
 
-    with pytest.warns(match=f"^Failed to parse {LIB_NAME} project version, assuming v0.0.0$"):
+    with pytest.warns(match=f"^Failed to parse {LIB_NAME} project version, assuming v0\\.0\\.0$"):
         _get_project_version()
 
 
