@@ -33,7 +33,7 @@ def _valid_urlparse(address: str) -> tuple[str, int | None]:
     """
     tmp = urlparse("//" + address)
     if not tmp.hostname:
-        raise ValueError(f"Invalid address '{address}', can't parse.")
+        raise ValueError(f"Invalid address {address!r}, can't parse.")
 
     return tmp.hostname, tmp.port
 
@@ -112,7 +112,7 @@ class Address(_AddressBase):
                 port = default_port
             else:
                 raise ValueError(
-                    f"Given address '{address}' doesn't contain port and default_port wasn't specified, can't parse."
+                    f"Given address {address!r} doesn't contain port and default_port wasn't specified, can't parse."
                 )
         return cls(host=hostname, port=port)
 
@@ -226,7 +226,7 @@ def minecraft_srv_address_lookup(
     except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as e:
         if default_port is None:
             raise ValueError(
-                f"Given address '{address}' doesn't contain port, doesn't have an SRV record pointing to a port,"
+                f"Given address {address!r} doesn't contain port, doesn't have an SRV record pointing to a port,"
                 " and default_port wasn't specified, can't parse."
             ) from e
         port = default_port
@@ -255,7 +255,7 @@ async def async_minecraft_srv_address_lookup(
     except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as e:
         if default_port is None:
             raise ValueError(
-                f"Given address '{address}' doesn't contain port, doesn't have an SRV record pointing to a port,"
+                f"Given address {address!r} doesn't contain port, doesn't have an SRV record pointing to a port,"
                 " and default_port wasn't specified, can't parse."
             ) from e
         port = default_port

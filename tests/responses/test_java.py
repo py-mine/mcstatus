@@ -60,6 +60,9 @@ class TestJavaStatusResponse(BaseResponseTest):
             "version": {"name": "1.8-pre1", "protocol": 44},
         }
 
+    def test_description_alias(self, build: JavaStatusResponse):
+        assert build.description == "A Minecraft Server"
+
 
 @BaseResponseTest.construct
 class TestJavaStatusPlayers(BaseResponseTest):

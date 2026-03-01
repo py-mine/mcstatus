@@ -77,6 +77,9 @@ class TestBedrockStatusResponse(BaseResponseTest):
             "version": {"brand": "MCPE", "name": "1.18.100500", "protocol": 422},
         }
 
+    def test_description_alias(self, build: BedrockStatusResponse):
+        assert build.description == "§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r"
+
 
 @BaseResponseTest.construct
 class TestBedrockStatusPlayers(BaseResponseTest):
@@ -94,3 +97,10 @@ class TestBedrockStatusVersion(BaseResponseTest):
     @pytest.fixture(scope="class")
     def build(self, build):
         return build.version
+
+    def test_deprecated_version_alias(self, build: BedrockStatusVersion):
+        with pytest.warns(
+            DeprecationWarning,
+            match=r"^BedrockStatusVersion\.version is deprecated and scheduled for removal in 13\.0\.0, use name instead\.$",
+        ):
+            assert build.version == build.name

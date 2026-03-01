@@ -147,7 +147,7 @@ def deprecation_warn(
         if m := REMOVAL_VERSION_RE.fullmatch(removal_version):
             removal_version = (int(m[1]), int(m[2]), int(m[3]))
         else:
-            raise ValueError(f"removal_version must follow regex pattern of: {REMOVAL_VERSION_RE!r}")
+            raise ValueError(f"removal_version must follow regex pattern of: {REMOVAL_VERSION_RE.pattern}")
 
     project_version = _get_project_version()
     already_deprecated = project_version >= removal_version

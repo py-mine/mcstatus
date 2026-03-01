@@ -101,7 +101,7 @@ help = "Runs the unit tests"
 [tool.pytest.ini_options]
 minversion = "6.0"
 tmp_path_retention_policy = "failed"
-addopts = "--strict-markers --doctest-modules --cov=mcstatus --cov-append --cov-branch --cov-report=term-missing -vvv --no-cov-on-fail --asyncio-mode=strict"
+addopts = "--strict-markers --doctest-modules --cov=mcstatus --cov-append --cov-branch --cov-report=term-missing -vvv --asyncio-mode=strict"
 testpaths = ["tests"]
 
 # Remove deprecation warning

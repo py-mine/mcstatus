@@ -33,8 +33,8 @@ class TestWebColor:
         assert WebColor.from_hex(hex="4000ff").hex == "#4000ff"
 
     def test_fail_on_incorrect_hex(self):
-        with pytest.raises(ValueError, match=r"^Got too long/short hex color: '#abcd'$"):
-            WebColor.from_hex(hex="abcd")
+        with pytest.raises(ValueError, match=r"^Failed to parse given hex color: '#!!!!!!'$"):
+            WebColor.from_hex(hex="#!!!!!!")
 
     @pytest.mark.parametrize("length", [0, 1, 2, 4, 5, 7, 8, 9, 10])
     def test_fail_on_too_long_or_too_short_hex(self, length: int):

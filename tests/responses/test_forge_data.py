@@ -3,37 +3,17 @@ import typing as t
 import pytest
 
 from mcstatus.responses import JavaStatusResponse
-from mcstatus.responses._raw import RawForgeData
+from mcstatus.responses._raw import RawForgeData, RawJavaResponse
 from mcstatus.responses.forge import ForgeData, ForgeDataChannel, ForgeDataMod
 from tests.responses import BaseResponseTest
 
-
-def test_forge_data_is_null():
-    # should not raise
-    JavaStatusResponse.build(
-        {
-            "forgeData": None,
-            "players": {"max": 20, "online": 0},
-            "version": {"name": "1.8-pre1", "protocol": 44},
-            "description": "A Minecraft Server",
-            "enforcesSecureChat": True,
-            "favicon": "data:image/png;base64,foo",
-        }
-    )
-
-
-def test_modinfo_is_null():
-    # should not raise
-    JavaStatusResponse.build(
-        {
-            "modinfo": None,
-            "players": {"max": 20, "online": 0},
-            "version": {"name": "1.8-pre1", "protocol": 44},
-            "description": "A Minecraft Server",
-            "enforcesSecureChat": True,
-            "favicon": "data:image/png;base64,foo",
-        }
-    )
+JAVA_RAW_RESPONSE: RawJavaResponse = {
+    "players": {"max": 20, "online": 0},
+    "version": {"name": "1.8-pre1", "protocol": 44},
+    "description": "A Minecraft Server",
+    "enforcesSecureChat": True,
+    "favicon": "data:image/png;base64,foo",
+}
 
 
 @BaseResponseTest.construct
@@ -135,6 +115,18 @@ class TestForgeDataV3(BaseResponseTest):
     @pytest.fixture(scope="class")
     def build(self) -> ForgeData:
         return ForgeData.build(self.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
+
+
+class TestForgeDataMod:
+    def test_build_with_empty_input(self):
+        with pytest.raises(KeyError, match=r"^'Mod version in Forge mod data must be provided\. Mod info: {}'$"):
+            ForgeDataMod.build({})
+
+    def test_build_without_mod_id(self):
+        with pytest.raises(
+            KeyError, match=r"^\"Mod ID in Forge mod data must be provided\. Mod info: {'modmarker': 'foo'}\.\"$"
+        ):
+            ForgeDataMod.build({"modmarker": "foo"})
 
 
 @BaseResponseTest.construct
@@ -689,3 +681,28 @@ class TestForgeData(BaseResponseTest):
         )
         assert value is not None
         return value
+
+    def test_build_with_empty_input(self):
+        with pytest.raises(KeyError, match=r"^'Neither `mods` or `modList` keys exist\.'$"):
+            ForgeData.build({})
+
+
+@pytest.mark.parametrize("key", ["forgeData", "modinfo"])
+def test_java_status_response_forge_data_is_none(key):
+    # should not raise
+    JavaStatusResponse.build(
+        JAVA_RAW_RESPONSE | {key: None},  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
+    )
+
+
+@pytest.mark.parametrize(
+    ("key", "raw"),
+    [
+        ("forgeData", TestForgeDataV2.RAW),
+        ("modinfo", TestForgeDataV1.RAW),
+    ],
+)
+def test_java_status_response_forge_data(key: str, raw: bytes) -> None:
+    assert JavaStatusResponse.build(
+        JAVA_RAW_RESPONSE | {key: raw},  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
+    ).forge_data == ForgeData.build(raw)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict

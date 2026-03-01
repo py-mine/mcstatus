@@ -33,20 +33,45 @@ def _patch_project_version(monkeypatch: pytest.MonkeyPatch, version: str | None)
     monkeypatch.setattr(importlib.metadata, "version", patched_version_func)
 
 
-def test_deprecation_warn_produces_error(monkeypatch: pytest.MonkeyPatch):
+def test_invalid_lib_version(monkeypatch: pytest.MonkeyPatch):
+    _patch_project_version(monkeypatch, "foo bar")
+
+    with pytest.warns(match=f"^Failed to parse {LIB_NAME} project version \\(foo bar\\), assuming v0\\.0\\.0$"):
+        _get_project_version()
+
+
+def test_epoch_in_lib_version(monkeypatch: pytest.MonkeyPatch):
+    _patch_project_version(monkeypatch, "2!1.2.3")
+
+    with pytest.warns(match=f"^Failed to parse {LIB_NAME} project version, assuming v0\\.0\\.0$"):
+        _get_project_version()
+
+
+@pytest.mark.parametrize("removal_version", ["0.9.0", (0, 9, 0)])
+def test_deprecation_warn_produces_error(monkeypatch: pytest.MonkeyPatch, removal_version: str | tuple[int, int, int]):
     """Test deprecation_warn with older removal_version than current version produces exception."""
     _patch_project_version(monkeypatch, "1.0.0")
 
     with pytest.raises(DeprecationWarning, match=r"^test is passed its removal version \(0\.9\.0\)\.$"):
-        deprecation_warn(obj_name="test", removal_version="0.9.0")
+        deprecation_warn(obj_name="test", removal_version=removal_version)
 
 
-def test_deprecation_warn_produces_warning(monkeypatch: pytest.MonkeyPatch):
+@pytest.mark.parametrize("removal_version", ["1.0.1", (1, 0, 1)])
+def test_deprecation_warn_produces_warning(monkeypatch: pytest.MonkeyPatch, removal_version: str | tuple[int, int, int]):
     """Test deprecation_warn with newer removal_version than current version produces warning."""
     _patch_project_version(monkeypatch, "1.0.0")
 
     with pytest.deprecated_call(match=r"^test is deprecated and scheduled for removal in 1\.0\.1\.$"):
-        deprecation_warn(obj_name="test", removal_version="1.0.1")
+        deprecation_warn(obj_name="test", removal_version=removal_version)
+
+
+def test_deprecation_invalid_removal_version(monkeypatch: pytest.MonkeyPatch):
+    """Test deprecation_warn with invalid removal_version."""
+    _patch_project_version(monkeypatch, "1.0.0")
+
+    pattern = re.escape(r"(\d+)\.(\d+)\.(\d+)")
+    with pytest.raises(ValueError, match=f"^removal_version must follow regex pattern of: {pattern}$"):
+        deprecation_warn(obj_name="test", removal_version="foo!")
 
 
 def test_deprecation_warn_unknown_version(monkeypatch: pytest.MonkeyPatch):
