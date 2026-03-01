@@ -204,6 +204,21 @@ class TestAddressIPResolving:
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == "48.225.1.104"
 
+    @pytest.mark.parametrize("ip_version", ["ipv4_addr", "ipv6_addr"])
+    def test_ip_resolver_cache(self, ip_version: str):
+        with patch("dns.resolver.resolve"), patch("ipaddress.ip_address") as resolve:
+            assert getattr(self, ip_version).resolve_ip(lifetime=3) is getattr(self, ip_version).resolve_ip(lifetime=3)
+            resolve.assert_called_once()  # Make sure we didn't needlessly try to resolve
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("ip_version", ["ipv4_addr", "ipv6_addr"])
+    async def test_async_ip_resolver_cache(self, ip_version: str):
+        with patch("dns.resolver.resolve"), patch("ipaddress.ip_address") as resolve:
+            assert await getattr(self, ip_version).async_resolve_ip(lifetime=3) is await getattr(
+                self, ip_version
+            ).async_resolve_ip(lifetime=3)
+            resolve.assert_called_once()  # Make sure we didn't needlessly try to resolve
+
     def test_ip_resolver_with_ipv4(self):
         with patch("dns.resolver.resolve") as resolve:
             resolved_ip = self.ipv4_addr.resolve_ip(lifetime=3)
@@ -211,9 +226,6 @@ class TestAddressIPResolving:
             resolve.assert_not_called()  # Make sure we didn't needlessly try to resolve
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == self.ipv4_addr.host
-
-            # test cache
-            assert self.ipv4_addr.resolve_ip(lifetime=3) is resolved_ip
 
     @pytest.mark.asyncio
     async def test_async_ip_resolver_with_ipv4(self):
@@ -224,9 +236,6 @@ class TestAddressIPResolving:
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == self.ipv4_addr.host
 
-            # test cache
-            assert await self.ipv4_addr.async_resolve_ip(lifetime=3) is resolved_ip
-
     def test_ip_resolver_with_ipv6(self):
         with patch("dns.resolver.resolve") as resolve:
             resolved_ip = self.ipv6_addr.resolve_ip(lifetime=3)
@@ -234,9 +243,6 @@ class TestAddressIPResolving:
             resolve.assert_not_called()  # Make sure we didn't needlessly try to resolve
             assert isinstance(resolved_ip, ipaddress.IPv6Address)
             assert str(resolved_ip) == self.ipv6_addr.host
-
-            # test cache
-            assert self.ipv6_addr.resolve_ip(lifetime=3) is resolved_ip
 
     @pytest.mark.asyncio
     async def test_async_ip_resolver_with_ipv6(self):
@@ -246,9 +252,6 @@ class TestAddressIPResolving:
             resolve.assert_not_called()  # Make sure we didn't needlessly try to resolve
             assert isinstance(resolved_ip, ipaddress.IPv6Address)
             assert str(resolved_ip) == self.ipv6_addr.host
-
-            # test cache
-            assert await self.ipv6_addr.async_resolve_ip(lifetime=3) is resolved_ip
 
     def test_resolve_localhost(self):
         addr = Address("localhost", 25565)
