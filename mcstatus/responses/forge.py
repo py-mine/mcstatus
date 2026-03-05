@@ -18,7 +18,8 @@ from dataclasses import dataclass
 from io import StringIO
 from typing import Final, TYPE_CHECKING
 
-from mcstatus._protocol.connection import BaseConnection, BaseReadSync, Connection
+from mcstatus._protocol.io.base_io import BaseSyncReader, StructFormat
+from mcstatus._protocol.io.buffer import Buffer
 from mcstatus._utils import or_none
 
 if TYPE_CHECKING:
@@ -57,10 +58,10 @@ class ForgeDataChannel:
         return cls(name=raw["res"], version=raw["version"], required=raw["required"])
 
     @classmethod
-    def decode(cls, buffer: Connection, mod_id: str | None = None) -> Self:
+    def decode(cls, buffer: Buffer, mod_id: str | None = None) -> Self:
         """Decode an object about Forge channel from decoded optimized buffer.
 
-        :param buffer: :class:`Connection` object from UTF-16 encoded binary data.
+        :param buffer: :class:`Buffer` object from UTF-16 encoded binary data.
         :param mod_id: Optional mod id prefix :class:`str`.
         :return: :class:`ForgeDataChannel` object.
         """
@@ -68,7 +69,7 @@ class ForgeDataChannel:
         if mod_id is not None:
             channel_identifier = f"{mod_id}:{channel_identifier}"
         version = buffer.read_utf()
-        client_required = buffer.read_bool()
+        client_required = buffer.read_value(StructFormat.BOOL)
 
         return cls(
             name=channel_identifier,
@@ -106,10 +107,10 @@ class ForgeDataMod:
         return cls(name=mod_id, marker=mod_version)
 
     @classmethod
-    def decode(cls, buffer: Connection) -> tuple[Self, list[ForgeDataChannel]]:
+    def decode(cls, buffer: Buffer) -> tuple[Self, list[ForgeDataChannel]]:
         """Decode data about a Forge mod from decoded optimized buffer.
 
-        :param buffer: :class:`Connection` object from UTF-16 encoded binary data.
+        :param buffer: :class:`Buffer` object from UTF-16 encoded binary data.
         :return: :class:`tuple` object of :class:`ForgeDataMod` object and :class:`list` of :class:`ForgeDataChannel` objects.
         """
         channel_version_flags = buffer.read_varint()
@@ -127,7 +128,7 @@ class ForgeDataMod:
         return cls(name=mod_id, marker=mod_version), channels
 
 
-class _StringBuffer(BaseReadSync, BaseConnection):
+class _StringBuffer(BaseSyncReader):
     """String Buffer for reading utf-16 encoded binary data."""
 
     __slots__ = ("received", "stringio")
@@ -136,7 +137,7 @@ class _StringBuffer(BaseReadSync, BaseConnection):
         self.stringio = stringio
         self.received = bytearray()
 
-    def read(self, length: int) -> bytearray:
+    def read(self, length: int, /) -> bytearray:
         """Read length bytes from ``self``, and return a byte array."""
         data = bytearray()
         while self.received and len(data) < length:
@@ -156,20 +157,20 @@ class _StringBuffer(BaseReadSync, BaseConnection):
 
     def read_optimized_size(self) -> int:
         """Read encoded data length."""
-        return self.read_short() | (self.read_short() << 15)
+        return self.read_value(StructFormat.SHORT) | (self.read_value(StructFormat.SHORT) << 15)
 
-    def read_optimized_buffer(self) -> Connection:
+    def read_optimized_buffer(self) -> Buffer:
         """Read encoded buffer."""
         size = self.read_optimized_size()
 
-        buffer = Connection()
+        buffer = Buffer()
         value, bits = 0, 0
-        while buffer.remaining() < size:
+        while buffer.remaining < size:
             if bits < 8 and self.remaining():
                 # Ignoring sign bit
-                value |= (self.read_short() & 0x7FFF) << bits
+                value |= (self.read_value(StructFormat.SHORT) & 0x7FFF) << bits
                 bits += 15
-            buffer.receive((value & 0xFF).to_bytes(1, "big"))
+            buffer.write((value & 0xFF).to_bytes(1, "big"))
             value >>= 8
             bits -= 8
 
@@ -190,7 +191,7 @@ class ForgeData:
     """Is the mods list and or channel list incomplete?"""
 
     @staticmethod
-    def _decode_optimized(string: str) -> Connection:
+    def _decode_optimized(string: str) -> Buffer:
         """Decode buffer from UTF-16 optimized binary data ``string``."""
         with StringIO(string) as text:
             str_buffer = _StringBuffer(text)
@@ -223,8 +224,8 @@ class ForgeData:
         channels: list[ForgeDataChannel] = []
         mods: list[ForgeDataMod] = []
 
-        truncated = buffer.read_bool()
-        mod_count = buffer.read_ushort()
+        truncated = buffer.read_value(StructFormat.BOOL)
+        mod_count = buffer.read_value(StructFormat.USHORT)
         try:
             for _ in range(mod_count):
                 mod, mod_channels = ForgeDataMod.decode(buffer)

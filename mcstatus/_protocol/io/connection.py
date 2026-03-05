@@ -4,7 +4,7 @@ import asyncio
 import errno
 import socket
 from ipaddress import ip_address
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, TypeAlias, final
 
 import asyncio_dgram
 
@@ -13,17 +13,15 @@ from mcstatus._protocol.io.base_io import BaseAsyncReader, BaseAsyncWriter, Base
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from typing_extensions import Self, SupportsIndex
+    from typing_extensions import Self, SupportsIndex, override
 
     from mcstatus._net.address import Address
+else:
+    override = lambda f: f  # noqa: E731
 
 __all__ = [
     "BaseAsyncConnection",
-    "BaseAsyncReadSyncWriteConnection",
-    "BaseConnection",
     "BaseSyncConnection",
-    "Connection",
-    "SocketConnection",
     "TCPAsyncSocketConnection",
     "TCPSocketConnection",
     "UDPAsyncSocketConnection",
@@ -33,109 +31,19 @@ __all__ = [
 BytesConvertable: TypeAlias = "SupportsIndex | Iterable[SupportsIndex]"
 
 
-def _ip_type(address: int | str) -> int | None:
-    """Determine the IP version (IPv4 or IPv6).
-
-    :param address:
-        A string or integer, the IP address. Either IPv4 or IPv6 addresses may be supplied.
-        Integers less than 2**32 will be considered to be IPv4 by default.
-    :return: ``4`` or ``6`` if the IP is IPv4 or IPv6, respectively. :obj:`None` if the IP is invalid.
-    """
-    try:
-        return ip_address(address).version
-    except ValueError:
-        return None
-
-
-class BaseConnection:
-    """Base Connection class. Implements flush, receive, and remaining."""
-
-    __slots__ = ()
-
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} Object>"
-
-    def flush(self) -> bytearray:
-        """Raise :exc:`TypeError`, unsupported."""
-        raise TypeError(f"{self.__class__.__name__} does not support flush()")
-
-    def receive(self, _data: BytesConvertable | bytearray) -> None:
-        """Raise :exc:`TypeError`, unsupported."""
-        raise TypeError(f"{self.__class__.__name__} does not support receive()")
-
-    def remaining(self) -> int:
-        """Raise :exc:`TypeError`, unsupported."""
-        raise TypeError(f"{self.__class__.__name__} does not support remaining()")
-
-
-class BaseSyncConnection(BaseConnection, BaseSyncReader, BaseSyncWriter):
+class BaseSyncConnection(BaseSyncReader, BaseSyncWriter):
     """Base synchronous read and write class."""
 
     __slots__ = ()
 
 
-class BaseAsyncReadSyncWriteConnection(BaseConnection, BaseAsyncReader, BaseSyncWriter):
-    """Base asynchronous read and synchronous write class."""
-
-    __slots__ = ()
-
-
-class BaseAsyncConnection(BaseConnection, BaseAsyncReader, BaseAsyncWriter):
+class BaseAsyncConnection(BaseAsyncReader, BaseAsyncWriter):
     """Base asynchronous read and write class."""
 
     __slots__ = ()
 
 
-class Connection(BaseSyncConnection):
-    """Base connection class."""
-
-    __slots__ = ("received", "sent")
-
-    def __init__(self) -> None:
-        self.sent = bytearray()
-        self.received = bytearray()
-
-    def read(self, length: int, /) -> bytearray:
-        """Return :attr:`.received` up to length bytes, then cut received up to that point."""
-        if len(self.received) < length:
-            raise OSError(f"Not enough data to read! {len(self.received)} < {length}")
-
-        result = self.received[:length]
-        self.received = self.received[length:]
-        return result
-
-    def write(self, data: Connection | str | bytearray | bytes) -> None:
-        """Extend :attr:`.sent` from ``data``."""
-        if isinstance(data, Connection):
-            data = data.flush()
-        if isinstance(data, str):
-            data = bytearray(data, "utf-8")
-        self.sent.extend(data)
-
-    def receive(self, data: BytesConvertable | bytearray) -> None:
-        """Extend :attr:`.received` with ``data``."""
-        if not isinstance(data, bytearray):
-            data = bytearray(data)
-        self.received.extend(data)
-
-    def remaining(self) -> int:
-        """Return length of :attr:`.received`."""
-        return len(self.received)
-
-    def flush(self) -> bytearray:
-        """Return :attr:`.sent`, also clears :attr:`.sent`."""
-        result, self.sent = self.sent, bytearray()
-        return result
-
-    def copy(self) -> Connection:
-        """Return a copy of ``self``."""
-        new = self.__class__()
-        new.receive(self.received)
-        new.write(self.sent)
-        return new
-
-
-class SocketConnection(BaseSyncConnection):
+class _SocketConnection(BaseSyncConnection):
     """Socket connection."""
 
     __slots__ = ("socket",)
@@ -162,7 +70,8 @@ class SocketConnection(BaseSyncConnection):
         self.close()
 
 
-class TCPSocketConnection(SocketConnection):
+@final
+class TCPSocketConnection(_SocketConnection):
     """TCP Connection to address. Timeout defaults to 3 seconds."""
 
     __slots__ = ()
@@ -172,8 +81,9 @@ class TCPSocketConnection(SocketConnection):
         self.socket = socket.create_connection(addr, timeout=timeout)
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
+    @override
     def read(self, length: int, /) -> bytearray:
-        """Return length bytes read from :attr:`.socket`. Raises :exc:`IOError` when server doesn't respond."""
+        """Return length bytes read from :attr:`.socket`. Raises :exc:`OSError` when server doesn't respond."""
         result = bytearray()
         while len(result) < length:
             new = self.socket.recv(length - len(result))
@@ -182,16 +92,15 @@ class TCPSocketConnection(SocketConnection):
             result.extend(new)
         return result
 
-    def write(self, data: Connection | str | bytes | bytearray) -> None:
+    def write(self, data: str | bytes | bytearray, /) -> None:
         """Send data on :attr:`.socket`."""
-        if isinstance(data, Connection):
-            data = bytearray(data.flush())
-        elif isinstance(data, str):
-            data = bytearray(data, "utf-8")
-        self.socket.send(data)
+        if isinstance(data, str):
+            data = data.encode("utf-8")
+        self.socket.sendall(data)
 
 
-class UDPSocketConnection(SocketConnection):
+@final
+class UDPSocketConnection(_SocketConnection):
     """UDP Connection class."""
 
     __slots__ = ("addr",)
@@ -200,7 +109,7 @@ class UDPSocketConnection(SocketConnection):
         super().__init__()
         self.addr = addr
         self.socket = socket.socket(
-            socket.AF_INET if _ip_type(addr[0]) == 4 else socket.AF_INET6,
+            socket.AF_INET if ip_address(addr[0]).version == 4 else socket.AF_INET6,
             socket.SOCK_DGRAM,
         )
         self.socket.settimeout(timeout)
@@ -209,6 +118,7 @@ class UDPSocketConnection(SocketConnection):
         """Always return ``65535`` (``2 ** 16 - 1``)."""  # noqa: D401 # imperative mood
         return 65535
 
+    @override
     def read(self, _length: int, /) -> bytearray:
         """Return up to :meth:`.remaining` bytes. Length does nothing here."""
         result = bytearray()
@@ -216,16 +126,16 @@ class UDPSocketConnection(SocketConnection):
             result.extend(self.socket.recvfrom(self.remaining())[0])
         return result
 
-    def write(self, data: Connection | str | bytes | bytearray) -> None:
+    @override
+    def write(self, data: str | bytes | bytearray, /) -> None:
         """Use :attr:`.socket` to send data to :attr:`.addr`."""
-        if isinstance(data, Connection):
-            data = bytearray(data.flush())
-        elif isinstance(data, str):
-            data = bytearray(data, "utf-8")
+        if isinstance(data, str):
+            data = data.encode("utf-8")
         self.socket.sendto(data, self.addr)
 
 
-class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
+@final
+class TCPAsyncSocketConnection(BaseAsyncConnection):
     """Asynchronous TCP Connection class."""
 
     __slots__ = ("_addr", "reader", "timeout", "writer")
@@ -245,37 +155,47 @@ class TCPAsyncSocketConnection(BaseAsyncReadSyncWriteConnection):
             sock: socket.socket = self.writer.transport.get_extra_info("socket")
             sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
+    @override
     async def read(self, length: int, /) -> bytearray:
         """Read up to ``length`` bytes from :attr:`.reader`."""
         result = bytearray()
         while len(result) < length:
             new = await asyncio.wait_for(self.reader.read(length - len(result)), timeout=self.timeout)
             if len(new) == 0:
-                raise OSError("Socket did not respond with any information!")
+                # No information at all
+                if len(result) == 0:
+                    raise OSError("Server did not respond with any information!")
+                # We did get a few bytes, but we requested more
+                raise OSError(
+                    f"Server stopped responding (got {len(result)} bytes, but expected {length} bytes)."
+                    f" Partial obtained data: {result!r}"
+                )
             result.extend(new)
         return result
 
-    def write(self, data: Connection | str | bytes | bytearray) -> None:
+    @override
+    async def write(self, data: str | bytes | bytearray, /) -> None:
         """Write data to :attr:`.writer`."""
-        if isinstance(data, Connection):
-            data = bytearray(data.flush())
-        elif isinstance(data, str):
-            data = bytearray(data, "utf-8")
+        if isinstance(data, str):
+            data = data.encode("utf-8")
         self.writer.write(data)
+        await self.writer.drain()
 
-    def close(self) -> None:
+    async def close(self) -> None:
         """Close :attr:`.writer`."""
         if self.writer is not None:  # If initialized
             self.writer.close()
+            await self.writer.wait_closed()
 
     async def __aenter__(self) -> Self:
         await self.connect()
         return self
 
     async def __aexit__(self, *_: object) -> None:
-        self.close()
+        await self.close()
 
 
+@final
 class UDPAsyncSocketConnection(BaseAsyncConnection):
     """Asynchronous UDP Connection class."""
 
@@ -296,17 +216,17 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         """Always return ``65535`` (``2 ** 16 - 1``)."""  # noqa: D401 # imperative mood
         return 65535
 
+    @override
     async def read(self, _length: int, /) -> bytearray:
         """Read from :attr:`.stream`. Length does nothing here."""
         data, _remote_addr = await asyncio.wait_for(self.stream.recv(), timeout=self.timeout)
         return bytearray(data)
 
-    async def write(self, data: Connection | str | bytes | bytearray) -> None:
+    @override
+    async def write(self, data: str | bytes | bytearray, /) -> None:
         """Send data with :attr:`.stream`."""
-        if isinstance(data, Connection):
-            data = bytearray(data.flush())
-        elif isinstance(data, str):
-            data = bytearray(data, "utf-8")
+        if isinstance(data, str):
+            data = data.encode("utf-8")
         await self.stream.send(data)
 
     def close(self) -> None:
