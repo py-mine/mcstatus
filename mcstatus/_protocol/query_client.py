@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import random
 import re
-import struct
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from typing import ClassVar, TYPE_CHECKING, final
 
-from mcstatus._protocol.connection import Connection, UDPAsyncSocketConnection, UDPSocketConnection
+from mcstatus._protocol.io.base_io import StructFormat
+from mcstatus._protocol.io.buffer import Buffer
 from mcstatus.responses import QueryResponse
 from mcstatus.responses._raw import RawQueryResponse
 
@@ -15,6 +15,8 @@ __all__ = ["AsyncQueryClient", "QueryClient"]
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable
+
+    from mcstatus._protocol.io.connection import UDPAsyncSocketConnection, UDPSocketConnection
 
 
 @dataclass
@@ -32,24 +34,24 @@ class _BaseQueryClient:
         # minecraft only supports lower 4 bits
         return random.randint(0, 2**31) & 0x0F0F0F0F
 
-    def _create_packet(self) -> Connection:
-        packet = Connection()
+    def _create_packet(self) -> Buffer:
+        packet = Buffer()
         packet.write(self.MAGIC_PREFIX)
-        packet.write(struct.pack("!B", self.PACKET_TYPE_QUERY))
-        packet.write_uint(self._generate_session_id())
-        packet.write_int(self.challenge)
+        packet.write_value(StructFormat.UBYTE, self.PACKET_TYPE_QUERY)
+        packet.write_value(StructFormat.UINT, self._generate_session_id())
+        packet.write_value(StructFormat.INT, self.challenge)
         packet.write(self.PADDING)
         return packet
 
-    def _create_handshake_packet(self) -> Connection:
-        packet = Connection()
+    def _create_handshake_packet(self) -> Buffer:
+        packet = Buffer()
         packet.write(self.MAGIC_PREFIX)
-        packet.write(struct.pack("!B", self.PACKET_TYPE_CHALLENGE))
-        packet.write_uint(self._generate_session_id())
+        packet.write_value(StructFormat.UBYTE, self.PACKET_TYPE_CHALLENGE)
+        packet.write_value(StructFormat.UINT, self._generate_session_id())
         return packet
 
     @abstractmethod
-    def _read_packet(self) -> Connection | Awaitable[Connection]:
+    def _read_packet(self) -> Buffer | Awaitable[Buffer]:
         raise NotImplementedError
 
     @abstractmethod
@@ -60,7 +62,7 @@ class _BaseQueryClient:
     def read_query(self) -> QueryResponse | Awaitable[QueryResponse]:
         raise NotImplementedError
 
-    def _parse_response(self, response: Connection) -> tuple[RawQueryResponse, list[str]]:
+    def _parse_response(self, response: Buffer) -> tuple[RawQueryResponse, list[str]]:
         """Transform the connection object (the result) into dict which is passed to the QueryResponse constructor.
 
         :return: A tuple with two elements. First is `raw` answer and second is list of players.
@@ -73,7 +75,7 @@ class _BaseQueryClient:
             if key == "hostname":  # hostname is actually motd in the query protocol
                 match = re.search(
                     b"(.*?)\x00(hostip|hostport|game_id|gametype|map|maxplayers|numplayers|plugins|version)",
-                    response.received,
+                    bytes(response.unread_view()),
                     flags=re.DOTALL,
                 )
                 motd = match.group(1) if match else ""
@@ -105,9 +107,8 @@ class _BaseQueryClient:
 class QueryClient(_BaseQueryClient):
     connection: UDPSocketConnection  # pyright: ignore[reportIncompatibleVariableOverride]
 
-    def _read_packet(self) -> Connection:
-        packet = Connection()
-        packet.receive(self.connection.read(self.connection.remaining()))
+    def _read_packet(self) -> Buffer:
+        packet = Buffer(self.connection.read(self.connection.remaining))
         packet.read(1 + 4)
         return packet
 
@@ -130,9 +131,8 @@ class QueryClient(_BaseQueryClient):
 class AsyncQueryClient(_BaseQueryClient):
     connection: UDPAsyncSocketConnection  # pyright: ignore[reportIncompatibleVariableOverride]
 
-    async def _read_packet(self) -> Connection:
-        packet = Connection()
-        packet.receive(await self.connection.read(self.connection.remaining()))
+    async def _read_packet(self) -> Buffer:
+        packet = Buffer(await self.connection.read(self.connection.remaining))
         packet.read(1 + 4)
         return packet
 

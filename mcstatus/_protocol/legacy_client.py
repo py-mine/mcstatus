@@ -1,6 +1,7 @@
 from time import perf_counter
 
-from mcstatus._protocol.connection import BaseAsyncReadSyncWriteConnection, BaseSyncConnection
+from mcstatus._protocol.io.base_io import StructFormat
+from mcstatus._protocol.io.connection import BaseAsyncConnection, BaseSyncConnection
 from mcstatus.responses import LegacyStatusResponse
 
 __all__ = ["AsyncLegacyClient", "LegacyClient"]
@@ -35,24 +36,24 @@ class LegacyClient(_BaseLegacyClient):
         id = self.connection.read(1)
         if id != b"\xff":
             raise OSError("Received invalid packet ID")
-        length = self.connection.read_ushort()
+        length = self.connection.read_value(StructFormat.USHORT)
         data = self.connection.read(length * 2)
         end = perf_counter()
         return self.parse_response(data, (end - start) * 1000)
 
 
 class AsyncLegacyClient(_BaseLegacyClient):
-    def __init__(self, connection: BaseAsyncReadSyncWriteConnection) -> None:
+    def __init__(self, connection: BaseAsyncConnection) -> None:
         self.connection = connection
 
     async def read_status(self) -> LegacyStatusResponse:
         """Send the status request and read the response."""
         start = perf_counter()
-        self.connection.write(self.request_status_data)
+        await self.connection.write(self.request_status_data)
         id = await self.connection.read(1)
         if id != b"\xff":
             raise OSError("Received invalid packet ID")
-        length = await self.connection.read_ushort()
+        length = await self.connection.read_value(StructFormat.USHORT)
         data = await self.connection.read(length * 2)
         end = perf_counter()
         return self.parse_response(data, (end - start) * 1000)
