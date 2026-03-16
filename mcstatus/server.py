@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from mcstatus._net.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus._protocol.bedrock_client import BedrockClient
-from mcstatus._protocol.connection import (
+from mcstatus._protocol.io.connection import (
     TCPAsyncSocketConnection,
     TCPSocketConnection,
     UDPAsyncSocketConnection,
@@ -170,7 +170,7 @@ class JavaServer(BaseJavaServer):
             version=version,
             ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
         )
-        java_client.handshake()
+        await java_client.handshake()
         ping = await java_client.test_ping()
         return ping
 
@@ -230,7 +230,7 @@ class JavaServer(BaseJavaServer):
             version=version,
             ping_token=ping_token,  # pyright: ignore[reportArgumentType] # None is not assignable to int
         )
-        java_client.handshake()
+        await java_client.handshake()
         result = await java_client.read_status()
         return result
 
