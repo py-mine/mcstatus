@@ -9,7 +9,7 @@ dependencies = [
   "furo>=2025.7.19",
   "m2r2~=0.3.4",
   "packaging~=26.0",
-  "uv-dynamic-versioning~=0.13.0",
+  "uv-dynamic-versioning~=0.14.0",
 ]
 
 [build-system]
