@@ -1,24 +1,25 @@
 from unittest.mock import Mock
 
-from mcstatus._protocol.connection import Connection
 from mcstatus._protocol.query_client import QueryClient
 from mcstatus.motd import Motd
+from tests.protocol.helpers import SyncDatagramConnection
 
 
 class TestQueryClient:
     def setup_method(self):
-        self.query_client = QueryClient(Connection())  # pyright: ignore[reportArgumentType]
+        self.connection = SyncDatagramConnection()
+        self.query_client = QueryClient(self.connection)  # pyright: ignore[reportArgumentType]
 
     def test_handshake(self):
-        self.query_client.connection.receive(bytearray.fromhex("090000000035373033353037373800"))
+        self.connection.receive(bytearray.fromhex("090000000035373033353037373800"))
         self.query_client.handshake()
 
-        conn_bytes = self.query_client.connection.flush()
+        conn_bytes = self.connection.flush()
         assert conn_bytes[:3] == bytearray.fromhex("FEFD09")
         assert self.query_client.challenge == 570350778
 
     def test_query(self):
-        self.query_client.connection.receive(
+        self.connection.receive(
             bytearray.fromhex(
                 "00000000000000000000000000000000686f73746e616d650041204d696e656372616674205365727665720067616d6574797"
                 "06500534d500067616d655f6964004d494e4543524146540076657273696f6e00312e3800706c7567696e7300006d61700077"
@@ -28,7 +29,7 @@ class TestQueryClient:
             )
         )
         response = self.query_client.read_query()
-        conn_bytes = self.query_client.connection.flush()
+        conn_bytes = self.connection.flush()
         assert conn_bytes[:3] == bytearray.fromhex("FEFD00")
         assert conn_bytes[7:] == bytearray.fromhex("0000000000000000")
         assert response.raw == {
@@ -46,7 +47,7 @@ class TestQueryClient:
         assert response.players.list == ["Dinnerbone", "Djinnibone", "Steve"]
 
     def test_query_handles_unorderd_map_response(self):
-        self.query_client.connection.receive(
+        self.connection.receive(
             bytearray(
                 b"\x00\x00\x00\x00\x00GeyserMC\x00\x80\x00hostname\x00Geyser\x00hostip\x001.1.1.1\x00plugins\x00\x00numplayers"
                 b"\x001\x00gametype\x00SMP\x00maxplayers\x00100\x00hostport\x0019132\x00version\x00Geyser"
@@ -54,14 +55,14 @@ class TestQueryClient:
             )
         )
         response = self.query_client.read_query()
-        self.query_client.connection.flush()
+        self.connection.flush()
 
         assert response.raw["game_id"] == "MINECRAFT"
         assert response.motd == Motd.parse("Geyser")
         assert response.software.version == "Geyser (git-master-0fd903e) 1.18.10"
 
     def test_query_handles_unicode_motd_with_nulls(self):
-        self.query_client.connection.receive(
+        self.connection.receive(
             bytearray(
                 b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00hostname\x00\x00*K\xd5\x00gametype\x00SMP"
                 b"\x00game_id\x00MINECRAFT\x00version\x001.16.5\x00plugins\x00Paper on 1.16.5-R0.1-SNAPSHOT\x00map\x00world"
@@ -70,13 +71,13 @@ class TestQueryClient:
             )
         )
         response = self.query_client.read_query()
-        self.query_client.connection.flush()
+        self.connection.flush()
 
         assert response.raw["game_id"] == "MINECRAFT"
         assert response.motd == Motd.parse("\x00*KÕ")
 
     def test_query_handles_unicode_motd_with_2a00_at_the_start(self):
-        self.query_client.connection.receive(
+        self.connection.receive(
             bytearray.fromhex(
                 "00000000000000000000000000000000686f73746e616d6500006f746865720067616d657479706500534d500067616d655f6964004d"
                 "494e4543524146540076657273696f6e00312e31382e3100706c7567696e7300006d617000776f726c64006e756d706c617965727300"
@@ -85,7 +86,7 @@ class TestQueryClient:
             )
         )
         response = self.query_client.read_query()
-        self.query_client.connection.flush()
+        self.connection.flush()
 
         assert response.raw["game_id"] == "MINECRAFT"
         assert response.motd == Motd.parse("\x00other")  # "\u2a00other" is actually what is expected,
@@ -96,12 +97,12 @@ class TestQueryClient:
         def session_id():
             return 0x01010101
 
-        self.query_client.connection.receive(bytearray.fromhex("090000000035373033353037373800"))
+        self.connection.receive(bytearray.fromhex("090000000035373033353037373800"))
         self.query_client._generate_session_id = Mock()
         self.query_client._generate_session_id = session_id
         self.query_client.handshake()
 
-        conn_bytes = self.query_client.connection.flush()
+        conn_bytes = self.connection.flush()
         assert conn_bytes[:3] == bytearray.fromhex("FEFD09")
         assert conn_bytes[3:] == session_id().to_bytes(4, byteorder="big")
         assert self.query_client.challenge == 570350778
