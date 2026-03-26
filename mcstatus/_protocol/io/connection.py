@@ -92,10 +92,8 @@ class TCPSocketConnection(_SocketConnection):
             result.extend(new)
         return result
 
-    def write(self, data: str | bytes | bytearray, /) -> None:
+    def write(self, data: bytes | bytearray, /) -> None:
         """Send data on :attr:`.socket`."""
-        if isinstance(data, str):
-            data = data.encode("utf-8")
         self.socket.sendall(data)
 
 
@@ -128,10 +126,8 @@ class UDPSocketConnection(_SocketConnection):
         return result
 
     @override
-    def write(self, data: str | bytes | bytearray, /) -> None:
+    def write(self, data: bytes | bytearray, /) -> None:
         """Use :attr:`.socket` to send data to :attr:`.addr`."""
-        if isinstance(data, str):
-            data = data.encode("utf-8")
         self.socket.sendto(data, self.addr)
 
 
@@ -175,10 +171,8 @@ class TCPAsyncSocketConnection(BaseAsyncConnection):
         return result
 
     @override
-    async def write(self, data: str | bytes | bytearray, /) -> None:
+    async def write(self, data: bytes | bytearray, /) -> None:
         """Write data to :attr:`.writer`."""
-        if isinstance(data, str):
-            data = data.encode("utf-8")
         self.writer.write(data)
         await self.writer.drain()
 
@@ -225,10 +219,8 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         return bytearray(data)
 
     @override
-    async def write(self, data: str | bytes | bytearray, /) -> None:
+    async def write(self, data: bytes | bytearray, /) -> None:
         """Send data with :attr:`.stream`."""
-        if isinstance(data, str):
-            data = data.encode("utf-8")
         await self.stream.send(data)
 
     def close(self) -> None:

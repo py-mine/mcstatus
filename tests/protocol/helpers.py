@@ -104,10 +104,8 @@ class SyncDatagramConnection(BaseSyncConnection):
         return self.received.pop(0)
 
     @override
-    def write(self, data: bytes | bytearray | str, /) -> None:
+    def write(self, data: bytes | bytearray, /) -> None:
         """Append outgoing datagram payload to the send buffer."""
-        if isinstance(data, str):
-            data = data.encode("utf-8")
         self.sent.write(data)
 
     def receive(self, data: bytes | bytearray) -> None:
@@ -140,10 +138,8 @@ class AsyncDatagramConnection(BaseAsyncConnection):
         return self.received.pop(0)
 
     @override
-    async def write(self, data: bytes | bytearray | str, /) -> None:
+    async def write(self, data: bytes | bytearray, /) -> None:
         """Append outgoing datagram payload to the send buffer."""
-        if isinstance(data, str):
-            data = data.encode("utf-8")
         self.sent.write(data)
 
     def receive(self, data: bytes | bytearray) -> None:
