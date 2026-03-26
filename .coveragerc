@@ -1,6 +1,7 @@
 [report]
 exclude_lines =
     pragma: no cover
+    @overload
     ((t|typing)\.)?TYPE_CHECKING
     ^\s\.\.\.\s$
     def __repr__
