@@ -461,7 +461,7 @@ class BaseAsyncReader(ABC):
         value_max = (1 << (max_bits)) - 1 if max_bits is not None else float("inf")
 
         result = 0
-        for i in count():
+        for i in count():  # pragma: no branch
             byte = await self.read_value(StructFormat.UBYTE)
             # Read 7 least significant value bits in this byte, and shift them appropriately to be in the right place
             # then simply add them (OR) as additional 7 most significant bits in our result
@@ -630,7 +630,7 @@ class BaseSyncReader(ABC):
         value_max = (1 << (max_bits)) - 1 if max_bits is not None else float("inf")
 
         result = 0
-        for i in count():
+        for i in count():  # pragma: no branch
             byte = self.read_value(StructFormat.UBYTE)
             # Read 7 least significant value bits in this byte, and shift them appropriately to be in the right place
             # then simply add them (OR) as additional 7 most significant bits in our result
