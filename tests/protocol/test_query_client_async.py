@@ -1,29 +1,21 @@
-from mcstatus._protocol.connection import Connection
 from mcstatus._protocol.query_client import AsyncQueryClient
-from tests.protocol.test_java_client_async import async_decorator
-
-
-class FakeUDPAsyncConnection(Connection):
-    async def read(self, length):  # pyright: ignore[reportIncompatibleMethodOverride]
-        return super().read(length)
-
-    async def write(self, data):  # pyright: ignore[reportIncompatibleMethodOverride]
-        return super().write(data)
+from tests.protocol.helpers import AsyncDatagramConnection, async_decorator
 
 
 class TestAsyncQueryClient:
     def setup_method(self):
-        self.query_client = AsyncQueryClient(FakeUDPAsyncConnection())  # pyright: ignore[reportArgumentType]
+        self.connection = AsyncDatagramConnection()
+        self.query_client = AsyncQueryClient(self.connection)  # pyright: ignore[reportArgumentType]
 
     def test_handshake(self):
-        self.query_client.connection.receive(bytearray.fromhex("090000000035373033353037373800"))
+        self.connection.receive(bytearray.fromhex("090000000035373033353037373800"))
         async_decorator(self.query_client.handshake)()
-        conn_bytes = self.query_client.connection.flush()
+        conn_bytes = self.connection.flush()
         assert conn_bytes[:3] == bytearray.fromhex("FEFD09")
         assert self.query_client.challenge == 570350778
 
     def test_query(self):
-        self.query_client.connection.receive(
+        self.connection.receive(
             bytearray.fromhex(
                 "00000000000000000000000000000000686f73746e616d650041204d696e656372616674205365727665720067616d6574797"
                 "06500534d500067616d655f6964004d494e4543524146540076657273696f6e00312e3800706c7567696e7300006d61700077"
@@ -33,7 +25,7 @@ class TestAsyncQueryClient:
             )
         )
         response = async_decorator(self.query_client.read_query)()
-        conn_bytes = self.query_client.connection.flush()
+        conn_bytes = self.connection.flush()
         assert conn_bytes[:3] == bytearray.fromhex("FEFD00")
         assert conn_bytes[7:] == bytearray.fromhex("0000000000000000")
         assert response.raw == {
