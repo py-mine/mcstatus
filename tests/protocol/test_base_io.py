@@ -67,6 +67,20 @@ async def test_write_value_matches_reference(io_type: IO_TYPE, fmt: INT_FORMATS_
     assert io.flush() == expected
 
 
+@pytest.mark.asyncio
+async def test_write_value_char_uses_single_byte(io_type: IO_TYPE):
+    io = io_type()
+    await maybe_await(io.write_value(StructFormat.CHAR, b"a"))
+    assert io.flush() == b"a"
+
+
+@pytest.mark.asyncio
+async def test_write_value_char_rejects_non_single_byte(io_type: IO_TYPE):
+    io = io_type()
+    with pytest.raises(struct.error):
+        await maybe_await(io.write_value(StructFormat.CHAR, b"ab"))
+
+
 @pytest.mark.parametrize(
     ("fmt", "value"),
     [
@@ -100,6 +114,14 @@ async def test_write_value_rejects_out_of_range(io_type: IO_TYPE, fmt: INT_FORMA
 async def test_read_value_matches_reference(io_type: IO_TYPE, encoded: bytes, fmt: INT_FORMATS_TYPE, expected: int):
     io = io_type(encoded)
     assert await maybe_await(io.read_value(fmt)) == expected
+
+
+@pytest.mark.asyncio
+async def test_read_value_char_returns_bytes(io_type: IO_TYPE):
+    io = io_type(b"a")
+    value = await maybe_await(io.read_value(StructFormat.CHAR))
+    assert value == b"a"
+    assert isinstance(value, bytes)
 
 
 @pytest.mark.parametrize(

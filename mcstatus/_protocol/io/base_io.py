@@ -142,7 +142,7 @@ class BaseAsyncWriter(ABC):
     async def write_value(self, fmt: Literal[StructFormat.BOOL], value: bool, /) -> None: ...  # noqa: FBT001
 
     @overload
-    async def write_value(self, fmt: Literal[StructFormat.CHAR], value: str, /) -> None: ...
+    async def write_value(self, fmt: Literal[StructFormat.CHAR], value: bytes, /) -> None: ...
 
     async def write_value(self, fmt: StructFormat, value: object, /) -> None:
         """Write a given ``value`` as given struct format (``fmt``) in big-endian mode."""
@@ -281,7 +281,7 @@ class BaseSyncWriter(ABC):
     def write_value(self, fmt: Literal[StructFormat.BOOL], value: bool, /) -> None: ...  # noqa: FBT001
 
     @overload
-    def write_value(self, fmt: Literal[StructFormat.CHAR], value: str, /) -> None: ...
+    def write_value(self, fmt: Literal[StructFormat.CHAR], value: bytes, /) -> None: ...
 
     def write_value(self, fmt: StructFormat, value: object, /) -> None:
         """Write a given ``value`` as given struct format (``fmt``) in big-endian mode."""
@@ -424,7 +424,7 @@ class BaseAsyncReader(ABC):
     async def read_value(self, fmt: Literal[StructFormat.BOOL], /) -> bool: ...
 
     @overload
-    async def read_value(self, fmt: Literal[StructFormat.CHAR], /) -> str: ...
+    async def read_value(self, fmt: Literal[StructFormat.CHAR], /) -> bytes: ...
 
     async def read_value(self, fmt: StructFormat, /) -> object:
         """Read a value as given struct format (``fmt``) in big-endian mode.
@@ -593,7 +593,7 @@ class BaseSyncReader(ABC):
     def read_value(self, fmt: Literal[StructFormat.BOOL], /) -> bool: ...
 
     @overload
-    def read_value(self, fmt: Literal[StructFormat.CHAR], /) -> str: ...
+    def read_value(self, fmt: Literal[StructFormat.CHAR], /) -> bytes: ...
 
     def read_value(self, fmt: StructFormat, /) -> object:
         """Read a value as given struct format (``fmt``) in big-endian mode.
