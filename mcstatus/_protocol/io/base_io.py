@@ -518,9 +518,12 @@ class BaseAsyncReader(ABC):
     async def read_bytearray(self, /) -> bytes:
         """Read a sequence of bytes prefixed with its length encoded as a varint.
 
+        :raises OSError: If the encoded length prefix is negative.
         :return: The decoded byte sequence.
         """
         length = await self.read_varint()
+        if length < 0:
+            raise OSError(f"Length prefix for byte arrays must be non-negative, got {length}.")
         return await self.read(length)
 
     async def read_ascii(self) -> str:
@@ -548,6 +551,7 @@ class BaseAsyncReader(ABC):
         the varint encoding overhead.
 
         :raises OSError:
+            * If the length prefix is negative.
             * If the length prefix exceeds the maximum of ``131068``, the string will not be read at all,
               and the error will be raised immediately after reading the prefix.
             * If the decoded string contains more than ``32767`` characters. In this case the data is still
@@ -556,6 +560,8 @@ class BaseAsyncReader(ABC):
         :return: Decoded UTF-8 string.
         """
         length = await self.read_varint()
+        if length < 0:
+            raise OSError(f"Length prefix for utf strings must be non-negative, got {length}.")
         if length > 131068:
             raise OSError(f"Maximum read limit for utf strings is 131068 bytes, got {length}.")
 
@@ -698,9 +704,12 @@ class BaseSyncReader(ABC):
     def read_bytearray(self) -> bytes:
         """Read a sequence of bytes prefixed with its length encoded as a varint.
 
+        :raises OSError: If the encoded length prefix is negative.
         :return: The decoded byte sequence.
         """
         length = self.read_varint()
+        if length < 0:
+            raise OSError(f"Length prefix for byte arrays must be non-negative, got {length}.")
         return self.read(length)
 
     def read_ascii(self) -> str:
@@ -728,6 +737,7 @@ class BaseSyncReader(ABC):
         the varint encoding overhead.
 
         :raises OSError:
+            * If the length prefix is negative.
             * If the length prefix exceeds the maximum of ``131068``, the string will not be read at all,
               and the error will be raised immediately after reading the prefix.
             * If the decoded string contains more than ``32767`` characters. In this case the data is still
@@ -736,6 +746,8 @@ class BaseSyncReader(ABC):
         :return: Decoded UTF-8 string.
         """
         length = self.read_varint()
+        if length < 0:
+            raise OSError(f"Length prefix for utf strings must be non-negative, got {length}.")
         if length > 131068:
             raise OSError(f"Maximum read limit for utf strings is 131068 bytes, got {length}.")
 

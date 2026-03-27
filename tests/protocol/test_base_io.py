@@ -395,6 +395,13 @@ async def test_read_bytearray_matches_reference(io_type: IO_TYPE, encoded: bytes
     assert await maybe_await(io.read_bytearray()) == expected
 
 
+@pytest.mark.asyncio
+async def test_read_bytearray_rejects_negative_length(io_type: IO_TYPE):
+    io = io_type(b"\xff\xff\xff\xff\x0f")
+    with pytest.raises(OSError, match=r"^Length prefix for byte arrays must be non-negative, got -1\.$"):
+        await maybe_await(io.read_bytearray())
+
+
 @pytest.mark.parametrize(
     ("value", "expected"),
     [
@@ -469,6 +476,13 @@ async def test_read_utf_rejects_too_many_bytes(io_type: IO_TYPE):
 
     io = io_type(payload)
     with pytest.raises(OSError, match=r"Maximum read limit for utf strings is 131068 bytes, got 131069"):
+        await maybe_await(io.read_utf())
+
+
+@pytest.mark.asyncio
+async def test_read_utf_rejects_negative_length(io_type: IO_TYPE):
+    io = io_type(b"\xff\xff\xff\xff\x0f")
+    with pytest.raises(OSError, match=r"^Length prefix for utf strings must be non-negative, got -1\.$"):
         await maybe_await(io.read_utf())
 
 
