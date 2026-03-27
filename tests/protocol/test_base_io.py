@@ -14,7 +14,7 @@ from tests.protocol.helpers import AsyncBufferConnection, SyncBufferConnection
 if TYPE_CHECKING:
     from collections.abc import Awaitable
 
-IO_TYPE = type[SyncBufferConnection] | type[AsyncBufferConnection]
+ConnectionClass = type[SyncBufferConnection] | type[AsyncBufferConnection]
 T = TypeVar("T")
 
 
@@ -24,8 +24,8 @@ T = TypeVar("T")
         pytest.param(AsyncBufferConnection, id="async"),
     ]
 )
-def io_type(request: pytest.FixtureRequest) -> IO_TYPE:
-    """Provide a parametrized sync and async IO connections to each test."""
+def conn_cls(request: pytest.FixtureRequest) -> ConnectionClass:
+    """Provide a parametrized sync/async connection class for each test."""
     return request.param
 
 
@@ -61,24 +61,29 @@ async def maybe_await(value: Awaitable[T] | T, /) -> T:
     ],
 )
 @pytest.mark.asyncio
-async def test_write_value_matches_reference(io_type: IO_TYPE, fmt: INT_FORMATS_TYPE, value: int, expected: bytes):
-    io = io_type()
-    await maybe_await(io.write_value(fmt, value))
-    assert io.flush() == expected
+async def test_write_value_matches_reference(
+    conn_cls: ConnectionClass,
+    fmt: INT_FORMATS_TYPE,
+    value: int,
+    expected: bytes,
+):
+    conn = conn_cls()
+    await maybe_await(conn.write_value(fmt, value))
+    assert conn.flush() == expected
 
 
 @pytest.mark.asyncio
-async def test_write_value_char_uses_single_byte(io_type: IO_TYPE):
-    io = io_type()
-    await maybe_await(io.write_value(StructFormat.CHAR, b"a"))
-    assert io.flush() == b"a"
+async def test_write_value_char_uses_single_byte(conn_cls: ConnectionClass):
+    conn = conn_cls()
+    await maybe_await(conn.write_value(StructFormat.CHAR, b"a"))
+    assert conn.flush() == b"a"
 
 
 @pytest.mark.asyncio
-async def test_write_value_char_rejects_non_single_byte(io_type: IO_TYPE):
-    io = io_type()
+async def test_write_value_char_rejects_non_single_byte(conn_cls: ConnectionClass):
+    conn = conn_cls()
     with pytest.raises(struct.error):
-        await maybe_await(io.write_value(StructFormat.CHAR, b"ab"))
+        await maybe_await(conn.write_value(StructFormat.CHAR, b"ab"))
 
 
 @pytest.mark.parametrize(
@@ -91,10 +96,10 @@ async def test_write_value_char_rejects_non_single_byte(io_type: IO_TYPE):
     ],
 )
 @pytest.mark.asyncio
-async def test_write_value_rejects_out_of_range(io_type: IO_TYPE, fmt: INT_FORMATS_TYPE, value: int):
-    io = io_type()
+async def test_write_value_rejects_out_of_range(conn_cls: ConnectionClass, fmt: INT_FORMATS_TYPE, value: int):
+    conn = conn_cls()
     with pytest.raises(struct.error):
-        await maybe_await(io.write_value(fmt, value))
+        await maybe_await(conn.write_value(fmt, value))
 
 
 @pytest.mark.parametrize(
@@ -111,15 +116,20 @@ async def test_write_value_rejects_out_of_range(io_type: IO_TYPE, fmt: INT_FORMA
     ],
 )
 @pytest.mark.asyncio
-async def test_read_value_matches_reference(io_type: IO_TYPE, encoded: bytes, fmt: INT_FORMATS_TYPE, expected: int):
-    io = io_type(encoded)
-    assert await maybe_await(io.read_value(fmt)) == expected
+async def test_read_value_matches_reference(
+    conn_cls: ConnectionClass,
+    encoded: bytes,
+    fmt: INT_FORMATS_TYPE,
+    expected: int,
+):
+    conn = conn_cls(encoded)
+    assert await maybe_await(conn.read_value(fmt)) == expected
 
 
 @pytest.mark.asyncio
-async def test_read_value_char_returns_bytes(io_type: IO_TYPE):
-    io = io_type(b"a")
-    value = await maybe_await(io.read_value(StructFormat.CHAR))
+async def test_read_value_char_returns_bytes(conn_cls: ConnectionClass):
+    conn = conn_cls(b"a")
+    value = await maybe_await(conn.read_value(StructFormat.CHAR))
     assert value == b"a"
     assert isinstance(value, bytes)
 
@@ -136,10 +146,10 @@ async def test_read_value_char_returns_bytes(io_type: IO_TYPE):
     ],
 )
 @pytest.mark.asyncio
-async def test_write_varuint_matches_reference(io_type: IO_TYPE, number: int, expected: bytes):
-    io = io_type()
-    await maybe_await(io._write_varuint(number))
-    assert io.flush() == expected
+async def test_write_varuint_matches_reference(conn_cls: ConnectionClass, number: int, expected: bytes):
+    conn = conn_cls()
+    await maybe_await(conn._write_varuint(number))
+    assert conn.flush() == expected
 
 
 @pytest.mark.parametrize(
@@ -154,9 +164,9 @@ async def test_write_varuint_matches_reference(io_type: IO_TYPE, number: int, ex
     ],
 )
 @pytest.mark.asyncio
-async def test_read_varuint_matches_reference(io_type: IO_TYPE, encoded: bytes, expected: int):
-    io = io_type(encoded)
-    assert await maybe_await(io._read_varuint()) == expected
+async def test_read_varuint_matches_reference(conn_cls: ConnectionClass, encoded: bytes, expected: int):
+    conn = conn_cls(encoded)
+    assert await maybe_await(conn._read_varuint()) == expected
 
 
 @pytest.mark.asyncio
@@ -169,10 +179,10 @@ async def test_read_varuint_matches_reference(io_type: IO_TYPE, encoded: bytes, 
         (2**32, 32),
     ],
 )
-async def test_write_varuint_rejects_out_of_range(io_type: IO_TYPE, number: int, max_bits: int):
-    io = io_type()
+async def test_write_varuint_rejects_out_of_range(conn_cls: ConnectionClass, number: int, max_bits: int):
+    conn = conn_cls()
     with pytest.raises(ValueError, match=r"outside of the range of"):
-        await maybe_await(io._write_varuint(number, max_bits=max_bits))
+        await maybe_await(conn._write_varuint(number, max_bits=max_bits))
 
 
 @pytest.mark.asyncio
@@ -183,10 +193,10 @@ async def test_write_varuint_rejects_out_of_range(io_type: IO_TYPE, number: int,
         (b"\x80\x80\x80\x80\x10", 32),
     ],
 )
-async def test_read_varuint_rejects_out_of_range(io_type: IO_TYPE, encoded: bytes, max_bits: int):
-    io = io_type(encoded)
+async def test_read_varuint_rejects_out_of_range(conn_cls: ConnectionClass, encoded: bytes, max_bits: int):
+    conn = conn_cls(encoded)
     with pytest.raises(OSError, match=r"outside the range of"):
-        await maybe_await(io._read_varuint(max_bits=max_bits))
+        await maybe_await(conn._read_varuint(max_bits=max_bits))
 
 
 @pytest.mark.asyncio
@@ -198,17 +208,17 @@ async def test_read_varuint_rejects_out_of_range(io_type: IO_TYPE, encoded: byte
     ],
 )
 async def test_read_varuint_rejects_too_many_bytes(
-    io_type: IO_TYPE,
+    conn_cls: ConnectionClass,
     encoded: bytes,
     max_bits: int,
     max_bytes: int,
 ):
-    io = io_type(encoded)
+    conn = conn_cls(encoded)
     with pytest.raises(
         OSError,
         match=rf"^Received varint had too many bytes for {max_bits}-bit int \(continuation bit set on byte {max_bytes}\)\.$",
     ):
-        await maybe_await(io._read_varuint(max_bits=max_bits))
+        await maybe_await(conn._read_varuint(max_bits=max_bits))
 
 
 @pytest.mark.parametrize(
@@ -221,10 +231,10 @@ async def test_read_varuint_rejects_too_many_bytes(
     ],
 )
 @pytest.mark.asyncio
-async def test_write_varint_matches_reference(io_type: IO_TYPE, number: int, expected: bytes):
-    io = io_type()
-    await maybe_await(io.write_varint(number))
-    assert io.flush() == expected
+async def test_write_varint_matches_reference(conn_cls: ConnectionClass, number: int, expected: bytes):
+    conn = conn_cls()
+    await maybe_await(conn.write_varint(number))
+    assert conn.flush() == expected
 
 
 @pytest.mark.parametrize(
@@ -237,9 +247,9 @@ async def test_write_varint_matches_reference(io_type: IO_TYPE, number: int, exp
     ],
 )
 @pytest.mark.asyncio
-async def test_read_varint_matches_reference(io_type: IO_TYPE, encoded: bytes, expected: int):
-    io = io_type(encoded)
-    assert await maybe_await(io.read_varint()) == expected
+async def test_read_varint_matches_reference(conn_cls: ConnectionClass, encoded: bytes, expected: int):
+    conn = conn_cls(encoded)
+    assert await maybe_await(conn.read_varint()) == expected
 
 
 @pytest.mark.parametrize(
@@ -252,10 +262,10 @@ async def test_read_varint_matches_reference(io_type: IO_TYPE, encoded: bytes, e
     ],
 )
 @pytest.mark.asyncio
-async def test_write_varlong_matches_reference(io_type: IO_TYPE, number: int, expected: bytes):
-    io = io_type()
-    await maybe_await(io.write_varlong(number))
-    assert io.flush() == expected
+async def test_write_varlong_matches_reference(conn_cls: ConnectionClass, number: int, expected: bytes):
+    conn = conn_cls()
+    await maybe_await(conn.write_varlong(number))
+    assert conn.flush() == expected
 
 
 @pytest.mark.parametrize(
@@ -268,100 +278,100 @@ async def test_write_varlong_matches_reference(io_type: IO_TYPE, number: int, ex
     ],
 )
 @pytest.mark.asyncio
-async def test_read_varlong_matches_reference(io_type: IO_TYPE, encoded: bytes, expected: int):
-    io = io_type(encoded)
-    assert await maybe_await(io.read_varlong()) == expected
+async def test_read_varlong_matches_reference(conn_cls: ConnectionClass, encoded: bytes, expected: int):
+    conn = conn_cls(encoded)
+    assert await maybe_await(conn.read_varlong()) == expected
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("number", [0, 1, 127, 16_384, -1, -(2**31), (2**31) - 1])
-async def test_varint_roundtrip(io_type: IO_TYPE, number: int):
-    io = io_type()
-    await maybe_await(io.write_varint(number))
-    io.receive(io.flush())
-    assert await maybe_await(io.read_varint()) == number
+async def test_varint_roundtrip(conn_cls: ConnectionClass, number: int):
+    conn = conn_cls()
+    await maybe_await(conn.write_varint(number))
+    conn.receive(conn.flush())
+    assert await maybe_await(conn.read_varint()) == number
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("number", [127, 16_384, -128, -16_383, -(2**63), (2**63) - 1])
-async def test_varlong_roundtrip(io_type: IO_TYPE, number: int):
-    io = io_type()
-    await maybe_await(io.write_varlong(number))
-    io.receive(io.flush())
-    assert await maybe_await(io.read_varlong()) == number
+async def test_varlong_roundtrip(conn_cls: ConnectionClass, number: int):
+    conn = conn_cls()
+    await maybe_await(conn.write_varlong(number))
+    conn.receive(conn.flush())
+    assert await maybe_await(conn.read_varlong()) == number
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("number", [-(2**63) - 1, 2**63])
-async def test_write_varlong_rejects_out_of_range(io_type: IO_TYPE, number: int):
-    io = io_type()
+async def test_write_varlong_rejects_out_of_range(conn_cls: ConnectionClass, number: int):
+    conn = conn_cls()
     with pytest.raises(ValueError, match=r"out of range"):
-        await maybe_await(io.write_varlong(number))
+        await maybe_await(conn.write_varlong(number))
 
 
 @pytest.mark.asyncio
-async def test_optional_helpers(io_type: IO_TYPE):
-    io = io_type()
+async def test_optional_helpers(conn_cls: ConnectionClass):
+    conn = conn_cls()
 
-    if isinstance(io, AsyncBufferConnection):
+    if isinstance(conn, AsyncBufferConnection):
         writer = AsyncMock(return_value="written")
 
-        assert await io.write_optional(None, writer) is None
+        assert await conn.write_optional(None, writer) is None
         writer.assert_not_awaited()
-        assert io.flush() == b"\x00"
+        assert conn.flush() == b"\x00"
 
-        assert await io.write_optional("value", writer) == "written"
+        assert await conn.write_optional("value", writer) == "written"
         writer.assert_awaited_once_with("value")
-        assert io.flush() == b"\x01"
+        assert conn.flush() == b"\x01"
 
         reader = AsyncMock(return_value="parsed")
-        io.receive(b"\x00")
-        assert await io.read_optional(reader) is None
+        conn.receive(b"\x00")
+        assert await conn.read_optional(reader) is None
         reader.assert_not_awaited()
 
-        io.receive(b"\x01")
-        assert await io.read_optional(reader) == "parsed"
+        conn.receive(b"\x01")
+        assert await conn.read_optional(reader) == "parsed"
         reader.assert_awaited_once_with()
         return
 
     writer = Mock(return_value="written")
 
-    assert io.write_optional(None, writer) is None
+    assert conn.write_optional(None, writer) is None
     writer.assert_not_called()
-    assert io.flush() == b"\x00"
+    assert conn.flush() == b"\x00"
 
-    assert io.write_optional("value", writer) == "written"
+    assert conn.write_optional("value", writer) == "written"
     writer.assert_called_once_with("value")
-    assert io.flush() == b"\x01"
+    assert conn.flush() == b"\x01"
 
     reader = Mock(return_value="parsed")
-    io.receive(b"\x00")
-    assert io.read_optional(reader) is None
+    conn.receive(b"\x00")
+    assert conn.read_optional(reader) is None
     reader.assert_not_called()
 
-    io.receive(b"\x01")
-    assert io.read_optional(reader) == "parsed"
+    conn.receive(b"\x01")
+    assert conn.read_optional(reader) == "parsed"
     reader.assert_called_once_with()
 
 
 @pytest.mark.asyncio
-async def test_write_and_read_ascii(io_type: IO_TYPE):
-    io = io_type()
-    await maybe_await(io.write_ascii("hello"))
+async def test_write_and_read_ascii(conn_cls: ConnectionClass):
+    conn = conn_cls()
+    await maybe_await(conn.write_ascii("hello"))
 
-    io.receive(io.flush())
-    assert await maybe_await(io.read_ascii()) == "hello"
+    conn.receive(conn.flush())
+    assert await maybe_await(conn.read_ascii()) == "hello"
 
 
 @pytest.mark.asyncio
-async def test_write_and_read_bytearray(io_type: IO_TYPE):
-    io = io_type()
+async def test_write_and_read_bytearray(conn_cls: ConnectionClass):
+    conn = conn_cls()
     data = b"\x00\x01hello\xff"
 
-    await maybe_await(io.write_bytearray(data))
-    io.receive(io.flush())
+    await maybe_await(conn.write_bytearray(data))
+    conn.receive(conn.flush())
 
-    assert await maybe_await(io.read_bytearray()) == data
+    assert await maybe_await(conn.read_bytearray()) == data
 
 
 @pytest.mark.parametrize(
@@ -374,10 +384,10 @@ async def test_write_and_read_bytearray(io_type: IO_TYPE):
     ],
 )
 @pytest.mark.asyncio
-async def test_write_bytearray_matches_reference(io_type: IO_TYPE, data: bytes, expected: bytes):
-    io = io_type()
-    await maybe_await(io.write_bytearray(data))
-    assert io.flush() == expected
+async def test_write_bytearray_matches_reference(conn_cls: ConnectionClass, data: bytes, expected: bytes):
+    conn = conn_cls()
+    await maybe_await(conn.write_bytearray(data))
+    assert conn.flush() == expected
 
 
 @pytest.mark.parametrize(
@@ -390,16 +400,16 @@ async def test_write_bytearray_matches_reference(io_type: IO_TYPE, data: bytes, 
     ],
 )
 @pytest.mark.asyncio
-async def test_read_bytearray_matches_reference(io_type: IO_TYPE, encoded: bytes, expected: bytes):
-    io = io_type(encoded)
-    assert await maybe_await(io.read_bytearray()) == expected
+async def test_read_bytearray_matches_reference(conn_cls: ConnectionClass, encoded: bytes, expected: bytes):
+    conn = conn_cls(encoded)
+    assert await maybe_await(conn.read_bytearray()) == expected
 
 
 @pytest.mark.asyncio
-async def test_read_bytearray_rejects_negative_length(io_type: IO_TYPE):
-    io = io_type(b"\xff\xff\xff\xff\x0f")
+async def test_read_bytearray_rejects_negative_length(conn_cls: ConnectionClass):
+    conn = conn_cls(b"\xff\xff\xff\xff\x0f")
     with pytest.raises(OSError, match=r"^Length prefix for byte arrays must be non-negative, got -1\.$"):
-        await maybe_await(io.read_bytearray())
+        await maybe_await(conn.read_bytearray())
 
 
 @pytest.mark.parametrize(
@@ -411,10 +421,10 @@ async def test_read_bytearray_rejects_negative_length(io_type: IO_TYPE):
     ],
 )
 @pytest.mark.asyncio
-async def test_write_ascii_matches_reference(io_type: IO_TYPE, value: str, expected: bytes):
-    io = io_type()
-    await maybe_await(io.write_ascii(value))
-    assert io.flush() == expected
+async def test_write_ascii_matches_reference(conn_cls: ConnectionClass, value: str, expected: bytes):
+    conn = conn_cls()
+    await maybe_await(conn.write_ascii(value))
+    assert conn.flush() == expected
 
 
 @pytest.mark.parametrize(
@@ -426,9 +436,9 @@ async def test_write_ascii_matches_reference(io_type: IO_TYPE, value: str, expec
     ],
 )
 @pytest.mark.asyncio
-async def test_read_ascii_matches_reference(io_type: IO_TYPE, encoded: bytes, expected: str):
-    io = io_type(encoded)
-    assert await maybe_await(io.read_ascii()) == expected
+async def test_read_ascii_matches_reference(conn_cls: ConnectionClass, encoded: bytes, expected: str):
+    conn = conn_cls(encoded)
+    assert await maybe_await(conn.read_ascii()) == expected
 
 
 @pytest.mark.parametrize(
@@ -441,10 +451,10 @@ async def test_read_ascii_matches_reference(io_type: IO_TYPE, encoded: bytes, ex
     ],
 )
 @pytest.mark.asyncio
-async def test_write_utf_matches_reference(io_type: IO_TYPE, value: str, expected: bytes):
-    io = io_type()
-    await maybe_await(io.write_utf(value))
-    assert io.flush() == expected
+async def test_write_utf_matches_reference(conn_cls: ConnectionClass, value: str, expected: bytes):
+    conn = conn_cls()
+    await maybe_await(conn.write_utf(value))
+    assert conn.flush() == expected
 
 
 @pytest.mark.parametrize(
@@ -457,42 +467,42 @@ async def test_write_utf_matches_reference(io_type: IO_TYPE, value: str, expecte
     ],
 )
 @pytest.mark.asyncio
-async def test_read_utf_matches_reference(io_type: IO_TYPE, encoded: bytes, expected: str):
-    io = io_type(encoded)
-    assert await maybe_await(io.read_utf()) == expected
+async def test_read_utf_matches_reference(conn_cls: ConnectionClass, encoded: bytes, expected: str):
+    conn = conn_cls(encoded)
+    assert await maybe_await(conn.read_utf()) == expected
 
 
 @pytest.mark.asyncio
-async def test_write_utf_rejects_too_many_characters(io_type: IO_TYPE):
-    io = io_type()
+async def test_write_utf_rejects_too_many_characters(conn_cls: ConnectionClass):
+    conn = conn_cls()
     with pytest.raises(ValueError, match=r"Maximum character limit for writing strings is 32767 characters"):
-        await maybe_await(io.write_utf("a" * 32768))
+        await maybe_await(conn.write_utf("a" * 32768))
 
 
 @pytest.mark.asyncio
-async def test_read_utf_rejects_too_many_bytes(io_type: IO_TYPE):
+async def test_read_utf_rejects_too_many_bytes(conn_cls: ConnectionClass):
     payload = Buffer()
     payload.write_varint(131069)
 
-    io = io_type(payload)
+    conn = conn_cls(payload)
     with pytest.raises(OSError, match=r"Maximum read limit for utf strings is 131068 bytes, got 131069"):
-        await maybe_await(io.read_utf())
+        await maybe_await(conn.read_utf())
 
 
 @pytest.mark.asyncio
-async def test_read_utf_rejects_negative_length(io_type: IO_TYPE):
-    io = io_type(b"\xff\xff\xff\xff\x0f")
+async def test_read_utf_rejects_negative_length(conn_cls: ConnectionClass):
+    conn = conn_cls(b"\xff\xff\xff\xff\x0f")
     with pytest.raises(OSError, match=r"^Length prefix for utf strings must be non-negative, got -1\.$"):
-        await maybe_await(io.read_utf())
+        await maybe_await(conn.read_utf())
 
 
 @pytest.mark.asyncio
-async def test_read_utf_rejects_too_many_characters(io_type: IO_TYPE):
+async def test_read_utf_rejects_too_many_characters(conn_cls: ConnectionClass):
     text = "a" * 32768
     payload = Buffer()
     payload.write_varint(len(text.encode("utf-8")))
     payload.write(text.encode("utf-8"))
 
-    io = io_type(payload)
+    conn = conn_cls(payload)
     with pytest.raises(OSError, match=r"Maximum read limit for utf strings is 32767 characters, got 32768"):
-        await maybe_await(io.read_utf())
+        await maybe_await(conn.read_utf())
