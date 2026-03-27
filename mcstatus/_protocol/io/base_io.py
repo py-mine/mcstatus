@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import math
 import struct
 from abc import ABC, abstractmethod
 from enum import Enum
-from itertools import count
 from typing import Literal, TYPE_CHECKING, TypeAlias, TypeVar, overload
 
 if TYPE_CHECKING:
@@ -455,13 +455,18 @@ class BaseAsyncReader(ABC):
         making the encoding little-endian in 7-bit groups.
 
         :param max_bits: Maximum allowed bit width for the decoded value.
-        :raises OSError: If the decoded value exceeds the allowed bit width.
+        :raises OSError:
+            * If the decoded value exceeds the allowed bit width.
+            * If more bytes are received than can possibly encode a value constrained by ``max_bits``.
         :return: The decoded unsigned integer.
         """
         value_max = (1 << (max_bits)) - 1 if max_bits is not None else float("inf")
+        # Varints carry 7 value bits per byte, so this is the exact maximum encoded length.
+        byte_limit = math.ceil(max_bits / 7) if max_bits is not None else None
 
         result = 0
-        for i in count():  # pragma: no branch
+        i = 0
+        while byte_limit is None or i < byte_limit:
             byte = await self.read_value(StructFormat.UBYTE)
             # Read 7 least significant value bits in this byte, and shift them appropriately to be in the right place
             # then simply add them (OR) as additional 7 most significant bits in our result
@@ -475,6 +480,12 @@ class BaseAsyncReader(ABC):
             # If the most significant bit is 0, we should stop reading
             if not byte & 0x80:
                 break
+
+            i += 1
+        else:
+            raise OSError(
+                f"Received varint had too many bytes for {max_bits}-bit int (continuation bit set on byte {byte_limit})."
+            )
 
         return result
 
@@ -624,13 +635,18 @@ class BaseSyncReader(ABC):
         making the encoding little-endian in 7-bit groups.
 
         :param max_bits: Maximum allowed bit width for the decoded value.
-        :raises OSError: If the decoded value exceeds the allowed bit width.
+        :raises OSError:
+            * If the decoded value exceeds the allowed bit width.
+            * If more bytes are received than can possibly encode a value constrained by ``max_bits``.
         :return: The decoded unsigned integer.
         """
         value_max = (1 << (max_bits)) - 1 if max_bits is not None else float("inf")
+        # Varints carry 7 value bits per byte, so this is the exact maximum encoded length.
+        byte_limit = math.ceil(max_bits / 7) if max_bits is not None else None
 
         result = 0
-        for i in count():  # pragma: no branch
+        i = 0
+        while byte_limit is None or i < byte_limit:
             byte = self.read_value(StructFormat.UBYTE)
             # Read 7 least significant value bits in this byte, and shift them appropriately to be in the right place
             # then simply add them (OR) as additional 7 most significant bits in our result
@@ -644,6 +660,12 @@ class BaseSyncReader(ABC):
             # If the most significant bit is 0, we should stop reading
             if not byte & 0x80:
                 break
+
+            i += 1
+        else:
+            raise OSError(
+                f"Received varint had too many bytes for {max_bits}-bit int (continuation bit set on byte {byte_limit})."
+            )
 
         return result
 

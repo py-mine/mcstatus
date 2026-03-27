@@ -189,6 +189,28 @@ async def test_read_varuint_rejects_out_of_range(io_type: IO_TYPE, encoded: byte
         await maybe_await(io._read_varuint(max_bits=max_bits))
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("encoded", "max_bits", "max_bytes"),
+    [
+        (b"\x80\x80\x80\x00", 16, 3),
+        (b"\x80\x80\x80\x80\x80\x00", 32, 5),
+    ],
+)
+async def test_read_varuint_rejects_too_many_bytes(
+    io_type: IO_TYPE,
+    encoded: bytes,
+    max_bits: int,
+    max_bytes: int,
+):
+    io = io_type(encoded)
+    with pytest.raises(
+        OSError,
+        match=rf"^Received varint had too many bytes for {max_bits}-bit int \(continuation bit set on byte {max_bytes}\)\.$",
+    ):
+        await maybe_await(io._read_varuint(max_bits=max_bits))
+
+
 @pytest.mark.parametrize(
     ("number", "expected"),
     [
