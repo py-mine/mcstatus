@@ -55,7 +55,12 @@ class Buffer(BaseSyncWriter, BaseSyncReader, bytearray):
             data will still be depleted and the partial data that was read will be a part of the
             error message in the :exc:`OSError`. This behavior is here to mimic reading from a real
             socket connection.
+
+            If ``length`` is negative, an :exc:`OSError` will be raised.
         """
+        if length < 0:
+            raise OSError(f"Requested to read a negative amount of data: {length}.")
+
         end = self.pos + length
 
         if end > len(self):

@@ -256,6 +256,10 @@ class TestBuffer:
         ):
             self.connection.read(2)
 
+    def test_read_negative_length(self):
+        with pytest.raises(IOError, match=r"^Requested to read a negative amount of data: -1\.$"):
+            self.connection.read(-1)
+
 
 class TestTCPSocketConnection:
     @pytest.fixture(scope="class")
