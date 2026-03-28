@@ -50,11 +50,28 @@ def _extractall_compat(tar: tarfile.TarFile, destination: Path) -> None:
     ("module", "msg_pattern"),
     [
         ("mcstatus._compat.status_response", r"use mcstatus\.responses instead"),
-        ("mcstatus._compat.forge_data", r"use mcstatus\.responses\.forge instead"),
         ("mcstatus._compat.motd_transformers", r"MOTD Transformers are no longer a part of mcstatus public API"),
     ],
 )
-def test_deprecated_import_path(module: str, msg_pattern: str):
+def test_deprecated_import_path_raises(module: str, msg_pattern: str):
+    """Test that the compatibility shims emit deprecation warnings at import time.
+
+    Note that this does NOT test the actual inclusion of the compatibility modules into
+    the source tree at build time. This test intentionally only uses the _compat imports,
+    as the shim files are only included on build time, which means testing those directly
+    would fail.
+    """
+    with pytest.raises(match=msg_pattern):
+        importlib.import_module(module)
+
+
+@pytest.mark.parametrize(
+    ("module", "msg_pattern"),
+    [
+        ("mcstatus._compat.forge_data", r"use mcstatus\.responses\.forge instead"),
+    ],
+)
+def test_deprecated_import_path_warns(module: str, msg_pattern: str):
     """Test that the compatibility shims emit deprecation warnings at import time.
 
     Note that this does NOT test the actual inclusion of the compatibility modules into
