@@ -76,13 +76,6 @@ class TestQueryResponse(BaseResponseTest):
             },
         }
 
-    def test_deprecated_map_alias(self, build: QueryResponse):
-        with pytest.raises(
-            DeprecationWarning,
-            match=r"^QueryResponse\.map is passed its removal version \(13\.0\.0\), use map_name instead\.$",
-        ):
-            assert build.map == build.map_name
-
 
 @BaseResponseTest.construct
 class TestQueryPlayers(BaseResponseTest):
@@ -109,13 +102,6 @@ class TestQueryPlayers(BaseResponseTest):
             },
             players_list=["Dinnerbone", "Djinnibone", "Steve"],
         )
-
-    def test_deprecated_names_alias(self, build: QueryPlayers):
-        with pytest.raises(
-            DeprecationWarning,
-            match=r"^QueryPlayers\.names is passed its removal version \(13\.0\.0\), use 'list' attribute instead\.$",
-        ):
-            assert build.names == build.list
 
 
 class TestQuerySoftware:

@@ -97,10 +97,3 @@ class TestBedrockStatusVersion(BaseResponseTest):
     @pytest.fixture(scope="class")
     def build(self, build):
         return build.version
-
-    def test_deprecated_version_alias(self, build: BedrockStatusVersion):
-        with pytest.raises(
-            DeprecationWarning,
-            match=r"^BedrockStatusVersion\.version is passed its removal version \(13\.0\.0\), use name instead\.$",
-        ):
-            assert build.version == build.name

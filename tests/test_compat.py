@@ -61,7 +61,7 @@ def test_deprecated_import_path_raises(module: str, msg_pattern: str):
     as the shim files are only included on build time, which means testing those directly
     would fail.
     """
-    with pytest.raises(Deprecationwarning, match=msg_pattern):
+    with pytest.raises(DeprecationWarning, match=msg_pattern):
         importlib.import_module(module)
 
 

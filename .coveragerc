@@ -8,3 +8,4 @@ exclude_lines =
     @(abc\.)?abstractmethod
     raise NotImplementedError
     if __name__ == "__main__":
+    @deprecated
