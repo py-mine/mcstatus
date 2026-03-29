@@ -49,11 +49,12 @@ def _extractall_compat(tar: tarfile.TarFile, destination: Path) -> None:
 @pytest.mark.parametrize(
     ("module", "msg_pattern"),
     [
-        ("mcstatus._compat.status_response", r"use mcstatus\.responses instead"),
+        ("mcstatus._compat.forge_data", r"use mcstatus\.responses\.forge instead"),
         ("mcstatus._compat.motd_transformers", r"MOTD Transformers are no longer a part of mcstatus public API"),
+        ("mcstatus._compat.status_response", r"use mcstatus\.responses instead"),
     ],
 )
-def test_deprecated_import_path_raises(module: str, msg_pattern: str):
+def test_deprecated_import_path_raises(patch_project_version, module: str, msg_pattern: str):
     """Test that the compatibility shims emit deprecation warnings at import time.
 
     Note that this does NOT test the actual inclusion of the compatibility modules into
@@ -61,6 +62,8 @@ def test_deprecated_import_path_raises(module: str, msg_pattern: str):
     as the shim files are only included on build time, which means testing those directly
     would fail.
     """
+    patch_project_version("100.0.0")
+
     with pytest.raises(DeprecationWarning, match=msg_pattern):
         importlib.import_module(module)
 
@@ -69,9 +72,11 @@ def test_deprecated_import_path_raises(module: str, msg_pattern: str):
     ("module", "msg_pattern"),
     [
         ("mcstatus._compat.forge_data", r"use mcstatus\.responses\.forge instead"),
+        ("mcstatus._compat.motd_transformers", r"MOTD Transformers are no longer a part of mcstatus public API"),
+        ("mcstatus._compat.status_response", r"use mcstatus\.responses instead"),
     ],
 )
-def test_deprecated_import_path_warns(module: str, msg_pattern: str):
+def test_deprecated_import_path_warns(patch_project_version, module: str, msg_pattern: str):
     """Test that the compatibility shims emit deprecation warnings at import time.
 
     Note that this does NOT test the actual inclusion of the compatibility modules into
@@ -79,6 +84,8 @@ def test_deprecated_import_path_warns(module: str, msg_pattern: str):
     as the shim files are only included on build time, which means testing those directly
     would fail.
     """
+    patch_project_version("0.0.0")
+
     with pytest.deprecated_call(match=msg_pattern):
         importlib.import_module(module)
 
