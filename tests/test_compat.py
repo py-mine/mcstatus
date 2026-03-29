@@ -13,6 +13,8 @@ from typing import Literal
 import pytest
 from hatchling.build import build_sdist, build_wheel
 
+from tests.helpers import patch_project_version
+
 
 @contextmanager
 def _chdir(path: Path) -> Iterator[None]:
@@ -54,7 +56,7 @@ def _extractall_compat(tar: tarfile.TarFile, destination: Path) -> None:
         ("mcstatus._compat.status_response", r"use mcstatus\.responses instead"),
     ],
 )
-def test_deprecated_import_path_raises(patch_project_version, module: str, msg_pattern: str):
+def test_deprecated_import_path_raises(module: str, msg_pattern: str):
     """Test that the compatibility shims emit deprecation warnings at import time.
 
     Note that this does NOT test the actual inclusion of the compatibility modules into
@@ -62,9 +64,7 @@ def test_deprecated_import_path_raises(patch_project_version, module: str, msg_p
     as the shim files are only included on build time, which means testing those directly
     would fail.
     """
-    patch_project_version("100.0.0")
-
-    with pytest.raises(DeprecationWarning, match=msg_pattern):
+    with patch_project_version("100.0.0"), pytest.raises(DeprecationWarning, match=msg_pattern):
         importlib.import_module(module)
 
 
@@ -76,7 +76,7 @@ def test_deprecated_import_path_raises(patch_project_version, module: str, msg_p
         ("mcstatus._compat.status_response", r"use mcstatus\.responses instead"),
     ],
 )
-def test_deprecated_import_path_warns(patch_project_version, module: str, msg_pattern: str):
+def test_deprecated_import_path_warns(module: str, msg_pattern: str):
     """Test that the compatibility shims emit deprecation warnings at import time.
 
     Note that this does NOT test the actual inclusion of the compatibility modules into
@@ -84,9 +84,7 @@ def test_deprecated_import_path_warns(patch_project_version, module: str, msg_pa
     as the shim files are only included on build time, which means testing those directly
     would fail.
     """
-    patch_project_version("0.0.0")
-
-    with pytest.deprecated_call(match=msg_pattern):
+    with patch_project_version("0.0.0"), pytest.deprecated_call(match=msg_pattern):
         importlib.import_module(module)
 
 

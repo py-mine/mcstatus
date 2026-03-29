@@ -4,6 +4,7 @@ import pytest
 
 from mcstatus.motd import Motd
 from mcstatus.responses import BedrockStatusPlayers, BedrockStatusResponse, BedrockStatusVersion
+from tests.helpers import patch_project_version
 from tests.responses import BaseResponseTest
 
 
@@ -98,10 +99,14 @@ class TestBedrockStatusVersion(BaseResponseTest):
     def build(self, build):
         return build.version
 
-    def test_deprecated_version_alias(self, patch_project_version, build: BedrockStatusVersion):
-        patch_project_version("0.0.0")
-
-        with pytest.deprecated_call(
-            match=r"^BedrockStatusVersion\.version is deprecated and scheduled for removal in 13\.0\.0, use name instead\.$",
+    def test_deprecated_version_alias(self, build: BedrockStatusVersion):
+        with (
+            patch_project_version("0.0.0"),
+            pytest.deprecated_call(
+                match=(
+                    r"^BedrockStatusVersion\.version is deprecated and scheduled for removal in 13\.0\.0, "
+                    r"use name instead\.$"
+                ),
+            ),
         ):
             assert build.version == build.name
