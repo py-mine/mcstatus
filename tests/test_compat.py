@@ -3,6 +3,7 @@
 import importlib
 import os
 import shutil
+import sys
 import tarfile
 import zipfile
 from collections.abc import Iterator
@@ -12,6 +13,8 @@ from typing import Literal
 
 import pytest
 from hatchling.build import build_sdist, build_wheel
+
+from tests.helpers import patch_project_version
 
 
 @contextmanager
@@ -46,15 +49,16 @@ def _extractall_compat(tar: tarfile.TarFile, destination: Path) -> None:
         tar.extractall(destination)  # noqa: S202
 
 
+@pytest.mark.parametrize("raises", [False, True])
 @pytest.mark.parametrize(
     ("module", "msg_pattern"),
     [
-        ("mcstatus._compat.status_response", r"use mcstatus\.responses instead"),
         ("mcstatus._compat.forge_data", r"use mcstatus\.responses\.forge instead"),
         ("mcstatus._compat.motd_transformers", r"MOTD Transformers are no longer a part of mcstatus public API"),
+        ("mcstatus._compat.status_response", r"use mcstatus\.responses instead"),
     ],
 )
-def test_deprecated_import_path(module: str, msg_pattern: str):
+def test_deprecated_import_path(raises: bool, module: str, msg_pattern: str):
     """Test that the compatibility shims emit deprecation warnings at import time.
 
     Note that this does NOT test the actual inclusion of the compatibility modules into
@@ -62,7 +66,13 @@ def test_deprecated_import_path(module: str, msg_pattern: str):
     as the shim files are only included on build time, which means testing those directly
     would fail.
     """
-    with pytest.deprecated_call(match=msg_pattern):
+    # importlib.import_module caches module, if it didn't raise
+    sys.modules.pop(module, None)
+
+    context_manager = (
+        pytest.raises(DeprecationWarning, match=msg_pattern) if raises else pytest.deprecated_call(match=msg_pattern)
+    )
+    with patch_project_version("100.0.0" if raises else "0.0.0"), context_manager:
         importlib.import_module(module)
 
 
