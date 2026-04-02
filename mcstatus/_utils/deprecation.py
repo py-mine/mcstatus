@@ -53,6 +53,7 @@ VERSION_PATTERN_FULL = re.compile(
 # Intentionally restricted to X.Y.Z, unlike PEP 440 release segments.
 # Used only for user-supplied removal_version values parsing.
 REMOVAL_VERSION_RE = re.compile(r"(\d+)\.(\d+)\.(\d+)")
+DEPRECATED_DIRECTIVE_RE = re.compile(r"^\s*\.\.\s+deprecated::\s*", flags=re.MULTILINE)
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -177,10 +178,12 @@ class DecoratorFunction(Protocol):
 
 
 def deprecated(
+    *,
     removal_version: str | tuple[int, int, int],
     display_name: str | None = None,
     replacement: str | None = None,
     extra_msg: str | None = None,
+    no_docstring_check: bool = False,
 ) -> DecoratorFunction:
     """Mark an object as deprecated.
 
@@ -201,6 +204,8 @@ def deprecated(
     :param removal_version: Version at which this object should be considered as deprecated and should no longer be used.
     :param replacement: A new alternative to this (now deprecated) object.
     :param extra_msg: Additional message included in the deprecation warning/exception at the end.
+    :param no_docstring_check:
+        Disable a runtime check for the docstring of the decorated object containing ``.. deprecated::``.
 
     .. note:
         If the project version contains any additional qualifiers (e.g. pre-release, post-release, dev/local versions),
@@ -209,6 +214,11 @@ def deprecated(
 
     def inner(func: Callable[P, R]) -> Callable[P, R]:
         obj_name = getattr(func, "__qualname__", func.__name__) if display_name is None else display_name
+
+        if not no_docstring_check:
+            obj_doc = func.__doc__ or ""
+            if DEPRECATED_DIRECTIVE_RE.search(obj_doc) is None:
+                raise ValueError("Deprecated object does not contain '.. deprecated::' sphinx directive in its docstring")
 
         @wraps(func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:

@@ -87,6 +87,10 @@ def test_deprecation_decorator_warn():
 
         @deprecated(display_name="func", removal_version="1.0.1")
         def func(x: object) -> object:
+            """Return input value.
+
+            .. deprecated:: 0.0.1
+            """
             return x
 
         with pytest.deprecated_call(match=r"^func is deprecated and scheduled for removal in 1\.0\.1\.$"):
@@ -99,10 +103,41 @@ def test_deprecation_decorator_inferred_name():
 
         @deprecated(removal_version="1.0.1")
         def func(x: object) -> object:
+            """Return input value.
+
+            .. deprecated:: 0.0.1
+            """
             return x
 
         qualname = r"test_deprecation_decorator_inferred_name\.<locals>\.func"
         with pytest.deprecated_call(match=rf"^{qualname} is deprecated and scheduled for removal in 1\.0\.1\.$"):
+            assert func(5) == 5
+
+
+def test_deprecation_decorator_missing_docstring_directive():
+    """Check deprecated decorator validates a docstring contains a deprecation directive."""
+    with (
+        patch_project_version("1.0.0"),
+        pytest.raises(
+            ValueError,
+            match=r"^Deprecated object does not contain '\.\. deprecated::' sphinx directive in its docstring$",
+        ),
+    ):
+
+        @deprecated(display_name="func", removal_version="1.0.1")
+        def func(x: object) -> object:
+            return x
+
+
+def test_deprecation_decorator_no_docstring_check_opt_out():
+    """Check deprecated decorator can skip docstring validation when requested."""
+    with patch_project_version("1.0.0"):
+
+        @deprecated(display_name="func", removal_version="1.0.1", no_docstring_check=True)
+        def func(x: object) -> object:
+            return x
+
+        with pytest.deprecated_call(match=r"^func is deprecated and scheduled for removal in 1\.0\.1\.$"):
             assert func(5) == 5
 
 
