@@ -112,7 +112,7 @@ pythonPlatform = "All"
 pythonVersion = "3.10"
 typeCheckingMode = "standard"
 
-disableBytesTypePromotions = false
+disableBytesTypePromotions = true
 enableTypeIgnoreComments = false
 reportUnnecessaryTypeIgnoreComment = true
 

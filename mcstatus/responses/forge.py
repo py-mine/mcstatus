@@ -137,7 +137,7 @@ class _StringBuffer(BaseSyncReader):
         self.stringio = stringio
         self.received = bytearray()
 
-    def read(self, length: int, /) -> bytearray:
+    def read(self, length: int, /) -> bytes:
         """Read length bytes from ``self``, and return a byte array."""
         data = bytearray()
         while self.received and len(data) < length:
@@ -149,7 +149,7 @@ class _StringBuffer(BaseSyncReader):
             data.extend(result.encode("utf-16be"))
         while len(data) > length:
             self.received.append(data.pop())
-        return data
+        return bytes(data)
 
     def remaining(self) -> int:
         """Return number of reads remaining."""

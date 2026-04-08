@@ -82,7 +82,7 @@ class TCPSocketConnection(_SocketConnection):
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     @override
-    def read(self, length: int, /) -> bytearray:
+    def read(self, length: int, /) -> bytes:
         """Return length bytes read from :attr:`.socket`. Raises :exc:`OSError` when server doesn't respond."""
         result = bytearray()
         while len(result) < length:
@@ -90,7 +90,7 @@ class TCPSocketConnection(_SocketConnection):
             if len(new) == 0:
                 raise OSError("Server did not respond with any information!")
             result.extend(new)
-        return result
+        return bytes(result)
 
     def write(self, data: bytes | bytearray, /) -> None:
         """Send data on :attr:`.socket`."""
@@ -118,11 +118,11 @@ class UDPSocketConnection(_SocketConnection):
         return 65535
 
     @override
-    def read(self, _length: int, /) -> bytearray:
+    def read(self, _length: int, /) -> bytes:
         """Return up to :meth:`.remaining` bytes. Length does nothing here."""
-        result = bytearray()
+        result = b""
         while len(result) == 0:
-            result.extend(self.socket.recvfrom(self.remaining)[0])
+            result = self.socket.recvfrom(self.remaining)[0]
         return result
 
     @override
@@ -153,7 +153,7 @@ class TCPAsyncSocketConnection(BaseAsyncConnection):
             sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     @override
-    async def read(self, length: int, /) -> bytearray:
+    async def read(self, length: int, /) -> bytes:
         """Read up to ``length`` bytes from :attr:`.reader`."""
         result = bytearray()
         while len(result) < length:
@@ -168,7 +168,7 @@ class TCPAsyncSocketConnection(BaseAsyncConnection):
                     f" Partial obtained data: {result!r}"
                 )
             result.extend(new)
-        return result
+        return bytes(result)
 
     @override
     async def write(self, data: bytes | bytearray, /) -> None:
@@ -213,15 +213,15 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
         return 65535
 
     @override
-    async def read(self, _length: int, /) -> bytearray:
+    async def read(self, _length: int, /) -> bytes:
         """Read from :attr:`.stream`. Length does nothing here."""
         data, _remote_addr = await asyncio.wait_for(self.stream.recv(), timeout=self.timeout)
-        return bytearray(data)
+        return data
 
     @override
     async def write(self, data: bytes | bytearray, /) -> None:
         """Send data with :attr:`.stream`."""
-        await self.stream.send(data)
+        await self.stream.send(bytes(data))
 
     def close(self) -> None:
         """Close :attr:`.stream`."""
