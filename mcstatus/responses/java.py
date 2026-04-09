@@ -103,9 +103,9 @@ class JavaStatusPlayers(BaseStatusPlayers):
             ``sample`` - :class:`list`) are not of the expected type.
         :return: :class:`JavaStatusPlayers` object.
         """
-        sample = None
-        if (sample := raw.get("sample")) is not None:
-            sample = [JavaStatusPlayer.build(player) for player in sample]
+        sample: list[JavaStatusPlayer] | None = None
+        if (sample_raw := raw.get("sample")) is not None:
+            sample = [JavaStatusPlayer.build(player) for player in sample_raw]
         return cls(
             online=raw["online"],
             max=raw["max"],

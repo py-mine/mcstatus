@@ -5,7 +5,7 @@ import argparse
 import json
 import socket
 import sys
-from typing import TYPE_CHECKING, TypeAlias
+from typing import Any, TYPE_CHECKING, TypeAlias
 
 import dns.resolver
 
@@ -94,7 +94,7 @@ def status_cmd(server: SupportedServers) -> int:
 
 
 def json_cmd(server: SupportedServers) -> int:
-    data = {"online": False, "kind": _kind(server)}
+    data: dict[str, Any] = {"online": False, "kind": _kind(server)}
 
     status_res = query_res = exn = None
     try:
