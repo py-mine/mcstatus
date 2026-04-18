@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import TYPE_CHECKING
+from typing import ClassVar, TYPE_CHECKING, final
 
 from mcstatus._net.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus._protocol.bedrock_client import BedrockClient
@@ -17,9 +17,11 @@ from mcstatus._protocol.query_client import AsyncQueryClient, QueryClient
 from mcstatus._utils import retry
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing_extensions import Self, override
 
     from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse, QueryResponse
+else:
+    override = lambda f: f  # noqa: E731
 
 
 __all__ = ["BedrockServer", "JavaServer", "LegacyServer", "MCServer"]
@@ -32,7 +34,7 @@ class MCServer(ABC):
     it doesn't include any version specific settings and it can't be used to make any requests.
     """
 
-    DEFAULT_PORT: int
+    DEFAULT_PORT: ClassVar[int]
 
     def __init__(self, host: str, port: int | None = None, timeout: float = 3) -> None:
         """
@@ -42,8 +44,8 @@ class MCServer(ABC):
         """  # noqa: D205, D212 # no summary line
         if port is None:
             port = self.DEFAULT_PORT
-        self.address = Address(host, port)
-        self.timeout = timeout
+        self.address: Address = Address(host, port)
+        self.timeout: float = timeout
 
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
@@ -62,8 +64,9 @@ class BaseJavaServer(MCServer):
     .. versionadded:: 12.1.0
     """
 
-    DEFAULT_PORT = 25565
+    DEFAULT_PORT: ClassVar[int] = 25565
 
+    @override
     @classmethod
     def lookup(cls, address: str, timeout: float = 3) -> Self:
         """Mimics minecraft's server address field.
@@ -89,6 +92,7 @@ class BaseJavaServer(MCServer):
         return cls(addr.host, addr.port, timeout=timeout)
 
 
+@final
 class JavaServer(BaseJavaServer):
     """Base class for a 1.7+ Minecraft Java Edition server."""
 
@@ -267,6 +271,7 @@ class JavaServer(BaseJavaServer):
             return await query_client.read_query()
 
 
+@final
 class LegacyServer(BaseJavaServer):
     """Base class for a pre-1.7 Minecraft Java Edition server.
 
@@ -294,6 +299,7 @@ class LegacyServer(BaseJavaServer):
             return await AsyncLegacyClient(connection).read_status()
 
 
+@final
 class BedrockServer(MCServer):
     """Base class for a Minecraft Bedrock Edition server."""
 

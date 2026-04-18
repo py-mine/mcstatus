@@ -1,8 +1,10 @@
 import pytest
 
+from mcstatus.responses._raw import RawJavaResponseMotd
+
 
 @pytest.fixture(scope="session")
-def source_java() -> dict:
+def source_java() -> RawJavaResponseMotd:
     """Return ultimate dict with almost all possible aspects, which we should support.
 
     If feature can handle all from this dict, it's fully tested.
@@ -37,7 +39,7 @@ def source_java() -> dict:
 
 
 @pytest.fixture(scope="session")
-def source_bedrock() -> dict:
+def source_bedrock() -> RawJavaResponseMotd:
     """Return ultimate dict with almost all possible aspects, which we should support.
 
     If feature can handle all from this dict, it's fully tested.

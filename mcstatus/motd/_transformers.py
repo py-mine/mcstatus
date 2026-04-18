@@ -2,9 +2,16 @@ from __future__ import annotations
 
 import abc
 import typing as t
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 
 from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
+
+if t.TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from typing_extensions import override
+else:
+    override = lambda f: f  # noqa: E731
 
 __all__ = [
     "AnsiTransformer",
@@ -12,9 +19,6 @@ __all__ = [
     "MinecraftTransformer",
     "PlainTransformer",
 ]
-
-if t.TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
 
 _HOOK_RETURN_TYPE = t.TypeVar("_HOOK_RETURN_TYPE")
 _END_RESULT_TYPE = t.TypeVar("_END_RESULT_TYPE")
@@ -81,13 +85,20 @@ class _BaseTransformer(abc.ABC, t.Generic[_HOOK_RETURN_TYPE, _END_RESULT_TYPE]):
     def _handle_component(
         self, component: ParsedMotdComponent
     ) -> tuple[_HOOK_RETURN_TYPE, _HOOK_RETURN_TYPE] | tuple[_HOOK_RETURN_TYPE]:
-        handler: Callable[[ParsedMotdComponent], _HOOK_RETURN_TYPE] = {
-            MinecraftColor: self._handle_minecraft_color,
-            WebColor: self._handle_web_color,
-            Formatting: self._handle_formatting,
-            TranslationTag: self._handle_translation_tag,
-            str: self._handle_str,
-        }[type(component)]
+
+        def handler(component: ParsedMotdComponent) -> _HOOK_RETURN_TYPE:
+            if type(component) is MinecraftColor:
+                return self._handle_minecraft_color(component)
+            if type(component) is WebColor:
+                return self._handle_web_color(component)
+            if type(component) is Formatting:
+                return self._handle_formatting(component)
+            if type(component) is TranslationTag:
+                return self._handle_translation_tag(component)
+            if type(component) is str:
+                return self._handle_str(component)
+
+            raise RuntimeError(f"Invalid component type: {type(component)}: {component!r}")
 
         additional = None
         if isinstance(component, MinecraftColor):
@@ -117,44 +128,56 @@ class _NothingTransformer(_BaseTransformer[str, str]):
     This transformer acts as a base for other transformers with string result type.
     """
 
+    @override
     def _format_output(self, results: list[str]) -> str:
         return "".join(results)
 
+    @override
     def _handle_str(self, _element: str, /) -> str:
         return ""
 
+    @override
     def _handle_minecraft_color(self, _element: MinecraftColor, /) -> str:
         return ""
 
+    @override
     def _handle_web_color(self, _element: WebColor, /) -> str:
         return ""
 
+    @override
     def _handle_formatting(self, _element: Formatting, /) -> str:
         return ""
 
+    @override
     def _handle_translation_tag(self, _element: TranslationTag, /) -> str:
         return ""
 
 
 class PlainTransformer(_NothingTransformer):
+    @override
     def _handle_str(self, element: str, /) -> str:
         return element
 
 
+@t.final
 class MinecraftTransformer(PlainTransformer):
+    @override
     def _handle_component(self, component: ParsedMotdComponent) -> tuple[str, str] | tuple[str]:
         result = super()._handle_component(component)
         if len(result) == 2:
             return (result[1],)
         return result
 
+    @override
     def _handle_minecraft_color(self, element: MinecraftColor, /) -> str:
         return "§" + element.value
 
+    @override
     def _handle_formatting(self, element: Formatting, /) -> str:
         return "§" + element.value
 
 
+@t.final
 class HtmlTransformer(PlainTransformer):
     _FORMATTING_TO_HTML_TAGS: t.ClassVar = {
         Formatting.BOLD: "b",
@@ -168,16 +191,20 @@ class HtmlTransformer(PlainTransformer):
         self.bedrock = bedrock
         self.on_reset: list[str] = []
 
+    @override
     def transform(self, motd_components: Sequence[ParsedMotdComponent]) -> str:
         self.on_reset = []
         return super().transform(motd_components)
 
+    @override
     def _format_output(self, results: list[str]) -> str:
         return "<p>" + super()._format_output(results) + "".join(self.on_reset) + "</p>"
 
+    @override
     def _handle_str(self, element: str, /) -> str:
         return element.replace("\n", "<br>")
 
+    @override
     def _handle_minecraft_color(self, element: MinecraftColor, /) -> str:
         color_map = _MINECRAFT_COLOR_TO_RGB_BEDROCK if self.bedrock else _MINECRAFT_COLOR_TO_RGB_JAVA
         fg_color, bg_color = color_map[element]
@@ -185,10 +212,12 @@ class HtmlTransformer(PlainTransformer):
         self.on_reset.append("</span>")
         return f"<span style='color:rgb{fg_color};text-shadow:0 0 1px rgb{bg_color}'>"
 
+    @override
     def _handle_web_color(self, element: WebColor, /) -> str:
         self.on_reset.append("</span>")
         return f"<span style='color:rgb{element.rgb}'>"
 
+    @override
     def _handle_formatting(self, element: Formatting, /) -> str:
         if element is Formatting.RESET:
             to_return = "".join(self.on_reset)
@@ -204,6 +233,7 @@ class HtmlTransformer(PlainTransformer):
         return f"<{tag_name}>"
 
 
+@t.final
 class AnsiTransformer(PlainTransformer):
     _FORMATTING_TO_ANSI_TAGS: t.ClassVar = {
         Formatting.BOLD: "1",
@@ -231,15 +261,19 @@ class AnsiTransformer(PlainTransformer):
 
         return "\033[38;2;{};{};{}m".format(*color)
 
+    @override
     def _format_output(self, results: list[str]) -> str:
         return "\033[0m" + super()._format_output(results) + "\033[0m"
 
+    @override
     def _handle_minecraft_color(self, element: MinecraftColor, /) -> str:
         return self.ansi_color(element)
 
+    @override
     def _handle_web_color(self, element: WebColor, /) -> str:
         return self.ansi_color(element.rgb)
 
+    @override
     def _handle_formatting(self, element: Formatting, /) -> str:
         if element is Formatting.RESET:
             return "\033[0m"

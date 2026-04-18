@@ -1,5 +1,6 @@
 import sys
 import time
+from typing import final
 from unittest import mock
 
 import pytest
@@ -9,6 +10,7 @@ from mcstatus._protocol.java_client import JavaClient
 from tests.protocol.helpers import SyncBufferConnection
 
 
+@final
 class TestJavaClient:
     def setup_method(self):
         self.connection = SyncBufferConnection()
@@ -43,7 +45,7 @@ class TestJavaClient:
     def test_read_status_invalid_json(self):
         self.connection.receive(bytearray.fromhex("0300017B"))
         with pytest.raises(IOError, match=r"^Received invalid JSON$"):
-            self.java_client.read_status()
+            _ = self.java_client.read_status()
 
     def test_read_status_invalid_reply(self):
         self.connection.receive(
@@ -54,13 +56,13 @@ class TestJavaClient:
             )
         )
 
-        self.java_client.read_status()
+        _ = self.java_client.read_status()
 
     def test_read_status_invalid_status(self):
         self.connection.receive(bytearray.fromhex("0105"))
 
         with pytest.raises(IOError, match=r"^Received invalid status response packet.$"):
-            self.java_client.read_status()
+            _ = self.java_client.read_status()
 
     def test_test_ping(self):
         self.connection.receive(bytearray.fromhex("09010000000000DD7D1C"))
@@ -74,14 +76,14 @@ class TestJavaClient:
         self.java_client.ping_token = 14515484
 
         with pytest.raises(IOError, match=r"^Received invalid ping response packet.$"):
-            self.java_client.test_ping()
+            _ = self.java_client.test_ping()
 
     def test_test_ping_wrong_token(self):
         self.connection.receive(bytearray.fromhex("09010000000000DD7D1C"))
         self.java_client.ping_token = 12345
 
         with pytest.raises(IOError, match=r"^Received mangled ping response \(expected token 12345, got 14515484\)$"):
-            self.java_client.test_ping()
+            _ = self.java_client.test_ping()
 
     # Windows CI can occasionally measure <1ms despite a 1ms sleep;
     # see https://github.com/py-mine/mcstatus/issues/442.

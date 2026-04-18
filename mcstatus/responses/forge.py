@@ -16,16 +16,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from io import StringIO
-from typing import Final, TYPE_CHECKING
+from typing import Final, TYPE_CHECKING, final
 
 from mcstatus._protocol.io.base_io import BaseSyncReader, StructFormat
 from mcstatus._protocol.io.buffer import Buffer
 from mcstatus._utils import or_none
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing_extensions import Self, override
 
     from mcstatus.responses._raw import RawForgeData, RawForgeDataChannel, RawForgeDataMod
+else:
+    override = lambda f: f  # noqa: E731
 
 __all__ = [
     "ForgeData",
@@ -128,6 +130,7 @@ class ForgeDataMod:
         return cls(name=mod_id, marker=mod_version), channels
 
 
+@final
 class _StringBuffer(BaseSyncReader):
     """String Buffer for reading utf-16 encoded binary data."""
 
@@ -137,6 +140,7 @@ class _StringBuffer(BaseSyncReader):
         self.stringio = stringio
         self.received = bytearray()
 
+    @override
     def read(self, length: int, /) -> bytes:
         """Read length bytes from ``self``, and return a byte array."""
         data = bytearray()

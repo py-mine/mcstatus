@@ -59,7 +59,8 @@ class BaseResponseTest(abc.ABC):
         assert hasattr(build, field)
 
     def test_optional_field_turns_into_none(self, build: BaseStatusResponse, to_remove: str, attribute_name: str) -> None:
-        raw = cast("tuple", self.OPTIONAL_FIELDS)[1]
+        assert self.OPTIONAL_FIELDS is not None
+        raw = self.OPTIONAL_FIELDS[1]
         del raw[to_remove]
         assert getattr(type(build).build(raw), attribute_name) is None
 

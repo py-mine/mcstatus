@@ -45,13 +45,23 @@ class Motd:
         :param bedrock: Is server Bedrock Edition? Nothing changes here, just sets attribute.
         :returns: New :class:`.Motd` instance.
         """
-        original_raw = raw.copy() if hasattr(raw, "copy") else raw  # pyright: ignore[reportAttributeAccessIssue] # Cannot access "copy" for type "str"
+        original_raw: RawJavaResponseMotd
+        if isinstance(raw, str):
+            original_raw = raw
+        elif hasattr(raw, "copy"):
+            original_raw = raw.copy()
+        else:  # pragma: no cover
+            # we should never reach this, unless the type expectation wasn't met.
+            # in that case, the isinstance checks below will fail and this will end
+            # in a TypeError
+            original_raw = raw
+
         if isinstance(raw, list):
             raw: RawJavaResponseMotdWhenDict = {"extra": raw}
 
         if isinstance(raw, str):
             parsed = cls._parse_as_str(raw, bedrock=bedrock)
-        elif isinstance(raw, dict):
+        elif isinstance(raw, dict):  # pyright: ignore[reportUnnecessaryIsInstance]
             parsed = cls._parse_as_dict(raw, bedrock=bedrock)
         else:
             raise TypeError(f"Expected list, string or dict data, got {raw.__class__!r} ({raw!r}), report this!")

@@ -3,8 +3,9 @@ from __future__ import annotations
 import asyncio
 import errno
 import socket
+from abc import ABC
 from ipaddress import ip_address
-from typing import TYPE_CHECKING, TypeAlias, final
+from typing import ClassVar, TYPE_CHECKING, TypeAlias, final
 
 import asyncio_dgram
 
@@ -31,22 +32,22 @@ __all__ = [
 BytesConvertable: TypeAlias = "SupportsIndex | Iterable[SupportsIndex]"
 
 
-class BaseSyncConnection(BaseSyncReader, BaseSyncWriter):
+class BaseSyncConnection(BaseSyncReader, BaseSyncWriter, ABC):
     """Base synchronous read and write class."""
 
-    __slots__ = ()
+    __slots__: ClassVar[tuple[str, ...]] = ()
 
 
-class BaseAsyncConnection(BaseAsyncReader, BaseAsyncWriter):
+class BaseAsyncConnection(BaseAsyncReader, BaseAsyncWriter, ABC):
     """Base asynchronous read and write class."""
 
-    __slots__ = ()
+    __slots__: ClassVar[tuple[str, ...]] = ()
 
 
-class _SocketConnection(BaseSyncConnection):
+class _SocketConnection(BaseSyncConnection, ABC):
     """Socket connection."""
 
-    __slots__ = ("socket",)
+    __slots__: ClassVar[tuple[str, ...]] = ("socket",)
 
     def __init__(self) -> None:
         # These will only be None until connect is called, ignore the None type assignment
@@ -54,7 +55,7 @@ class _SocketConnection(BaseSyncConnection):
 
     def close(self) -> None:
         """Close :attr:`.socket`."""
-        if self.socket is not None:  # If initialized
+        if self.socket is not None:  # If initialized  # pyright: ignore[reportUnnecessaryComparison]
             try:
                 self.socket.shutdown(socket.SHUT_RDWR)
             except OSError as exception:  # Socket wasn't connected (nothing to shut down)
@@ -92,6 +93,7 @@ class TCPSocketConnection(_SocketConnection):
             result.extend(new)
         return bytes(result)
 
+    @override
     def write(self, data: bytes | bytearray, /) -> None:
         """Send data on :attr:`.socket`."""
         self.socket.sendall(data)
@@ -128,7 +130,7 @@ class UDPSocketConnection(_SocketConnection):
     @override
     def write(self, data: bytes | bytearray, /) -> None:
         """Use :attr:`.socket` to send data to :attr:`.addr`."""
-        self.socket.sendto(data, self.addr)
+        _ = self.socket.sendto(data, self.addr)
 
 
 @final
@@ -148,7 +150,7 @@ class TCPAsyncSocketConnection(BaseAsyncConnection):
         """Use :mod:`asyncio` to open a connection to address. Timeout is in seconds."""
         conn = asyncio.open_connection(*self._addr)
         self.reader, self.writer = await asyncio.wait_for(conn, timeout=self.timeout)
-        if self.writer is not None:  # it might be None in unittest
+        if self.writer is not None:  # it might be None in unittest # pyright: ignore[reportUnnecessaryComparison]
             sock: socket.socket = self.writer.transport.get_extra_info("socket")
             sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
@@ -178,7 +180,7 @@ class TCPAsyncSocketConnection(BaseAsyncConnection):
 
     async def close(self) -> None:
         """Close :attr:`.writer`."""
-        if self.writer is not None:  # If initialized
+        if self.writer is not None:  # pyright: ignore[reportUnnecessaryComparison]  # If initialized
             self.writer.close()
             await self.writer.wait_closed()
 
@@ -225,7 +227,7 @@ class UDPAsyncSocketConnection(BaseAsyncConnection):
 
     def close(self) -> None:
         """Close :attr:`.stream`."""
-        if self.stream is not None:  # If initialized
+        if self.stream is not None:  # pyright: ignore[reportUnnecessaryComparison]  # If initialized
             self.stream.close()
 
     async def __aenter__(self) -> Self:

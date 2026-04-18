@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, ParamSpec, TYPE_CHECKING, TypeVar
+from typing import Any, ParamSpec, TYPE_CHECKING, TypeVar, final
 
 from mcstatus._protocol.io.buffer import Buffer
 from mcstatus._protocol.io.connection import BaseAsyncConnection, BaseSyncConnection
@@ -27,6 +27,7 @@ def async_decorator(f: Callable[P, Coroutine[Any, Any, T]]) -> Callable[P, T]:
     return wrapper
 
 
+@final
 class SyncBufferConnection(BaseSyncConnection):
     """In-memory synchronous stream-style transport used by protocol tests."""
 
@@ -58,6 +59,7 @@ class SyncBufferConnection(BaseSyncConnection):
         return self.sent.flush()
 
 
+@final
 class AsyncBufferConnection(BaseAsyncConnection):
     """In-memory asynchronous stream-style transport used by protocol tests."""
 
@@ -89,6 +91,7 @@ class AsyncBufferConnection(BaseAsyncConnection):
         return self.sent.flush()
 
 
+@final
 class SyncDatagramConnection(BaseSyncConnection):
     """Datagram-like synchronous transport returning one queued packet per read."""
 
@@ -123,6 +126,7 @@ class SyncDatagramConnection(BaseSyncConnection):
         return self.sent.flush()
 
 
+@final
 class AsyncDatagramConnection(BaseAsyncConnection):
     """Datagram-like asynchronous transport returning one queued packet per read."""
 

@@ -14,9 +14,13 @@ from mcstatus.responses import JavaStatusResponse
 if TYPE_CHECKING:
     from collections.abc import Awaitable
 
+    from typing_extensions import override
+
     from mcstatus._net.address import Address
     from mcstatus._protocol.io.connection import TCPAsyncSocketConnection, TCPSocketConnection
     from mcstatus.responses._raw import RawJavaResponse
+else:
+    override = lambda f: f  # noqa: E731
 
 __all__ = ["AsyncJavaClient", "JavaClient"]
 
@@ -31,7 +35,7 @@ class _BaseJavaClient(ABC):
     """Token that is used for the request, default is random number."""
 
     def __post_init__(self) -> None:
-        if self.ping_token is None:
+        if self.ping_token is None:  # pyright: ignore[reportUnnecessaryComparison]
             self.ping_token = random.randint(0, (1 << 63) - 1)
 
     def _build_handshake_packet(self) -> Buffer:
@@ -88,6 +92,7 @@ class JavaClient(_BaseJavaClient):
         """Write the initial handshake packet to the connection."""
         self.connection.write_bytearray(self._build_handshake_packet())
 
+    @override
     def read_status(self) -> JavaStatusResponse:
         """Send the status request and read the response."""
         request = Buffer()
@@ -99,6 +104,7 @@ class JavaClient(_BaseJavaClient):
         end = perf_counter()
         return self._handle_status_response(response, start, end)
 
+    @override
     def test_ping(self) -> float:
         """Send a ping token and measure the latency."""
         request = Buffer()
@@ -121,6 +127,7 @@ class AsyncJavaClient(_BaseJavaClient):
         """Write the initial handshake packet to the connection."""
         await self.connection.write_bytearray(self._build_handshake_packet())
 
+    @override
     async def read_status(self) -> JavaStatusResponse:
         """Send the status request and read the response."""
         request = Buffer()
@@ -132,6 +139,7 @@ class AsyncJavaClient(_BaseJavaClient):
         end = perf_counter()
         return self._handle_status_response(response, start, end)
 
+    @override
     async def test_ping(self) -> float:
         """Send a ping token and measure the latency."""
         request = Buffer()

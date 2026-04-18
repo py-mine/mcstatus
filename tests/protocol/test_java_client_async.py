@@ -1,5 +1,6 @@
 import asyncio
 import sys
+from typing import final
 from unittest import mock
 
 import pytest
@@ -9,6 +10,7 @@ from mcstatus._protocol.java_client import AsyncJavaClient
 from tests.protocol.helpers import AsyncBufferConnection, async_decorator
 
 
+@final
 class TestAsyncJavaClient:
     def setup_method(self):
         self.connection = AsyncBufferConnection()
@@ -43,7 +45,7 @@ class TestAsyncJavaClient:
     def test_read_status_invalid_json(self):
         self.connection.receive(bytearray.fromhex("0300017B"))
         with pytest.raises(IOError, match=r"^Received invalid JSON$"):
-            async_decorator(self.java_client.read_status)()
+            _ = async_decorator(self.java_client.read_status)()
 
     def test_read_status_invalid_reply(self):
         self.connection.receive(
@@ -53,13 +55,13 @@ class TestAsyncJavaClient:
             )
         )
 
-        async_decorator(self.java_client.read_status)()
+        _ = async_decorator(self.java_client.read_status)()
 
     def test_read_status_invalid_status(self):
         self.connection.receive(bytearray.fromhex("0105"))
 
         with pytest.raises(IOError, match=r"^Received invalid status response packet.$"):
-            async_decorator(self.java_client.read_status)()
+            _ = async_decorator(self.java_client.read_status)()
 
     def test_test_ping(self):
         self.connection.receive(bytearray.fromhex("09010000000000DD7D1C"))
@@ -73,14 +75,14 @@ class TestAsyncJavaClient:
         self.java_client.ping_token = 14515484
 
         with pytest.raises(IOError, match=r"^Received invalid ping response packet.$"):
-            async_decorator(self.java_client.test_ping)()
+            _ = async_decorator(self.java_client.test_ping)()
 
     def test_test_ping_wrong_token(self):
         self.connection.receive(bytearray.fromhex("09010000000000DD7D1C"))
         self.java_client.ping_token = 12345
 
         with pytest.raises(IOError, match=r"^Received mangled ping response \(expected token 12345, got 14515484\)$"):
-            async_decorator(self.java_client.test_ping)()
+            _ = async_decorator(self.java_client.test_ping)()
 
     @pytest.mark.asyncio
     # Windows CI can occasionally measure <1ms despite a 1ms sleep;

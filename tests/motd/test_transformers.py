@@ -2,16 +2,16 @@
 from __future__ import annotations
 
 import typing
+from collections.abc import Callable
 
 import pytest
 
 from mcstatus.motd import Motd
 from mcstatus.motd._transformers import _NothingTransformer
+from mcstatus.responses._raw import RawJavaResponseMotd
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Callable
-
-    from mcstatus.responses._raw import RawJavaResponseMotd
+MotdParseFunc: typing.TypeAlias = Callable[[RawJavaResponseMotd], str]
+MotdParseFuncBedrockFlag: typing.TypeAlias = Callable[[RawJavaResponseMotd, bool], str]
 
 
 def test_nothing_transformer():
@@ -20,41 +20,41 @@ def test_nothing_transformer():
 
 class TestMotdPlain:
     @pytest.fixture(scope="class")
-    def result(self) -> Callable[[str | RawJavaResponseMotd], str]:
+    def result(self) -> MotdParseFunc:
         return lambda text: Motd.parse(text).to_plain()
 
-    def test_plain_text(self, result):
+    def test_plain_text(self, result: MotdParseFunc):
         assert result("plain") == "plain"
 
-    def test_removes_colors(self, result):
+    def test_removes_colors(self, result: MotdParseFunc):
         assert result("&1&ltext") == "text"
 
-    def test_skip_web_colors(self, result):
+    def test_skip_web_colors(self, result: MotdParseFunc):
         assert result({"extra": [{"color": "#4000ff", "text": "colored text"}], "text": ""}) == "colored text"
 
-    def test_skip_minecraft_colors(self, result):
+    def test_skip_minecraft_colors(self, result: MotdParseFunc):
         assert result({"extra": [{"color": "red", "text": "colored text"}], "text": ""}) == "colored text"
 
 
 class TestMotdMinecraft:
     @pytest.fixture(scope="class")
-    def result(self) -> Callable[[str | RawJavaResponseMotd], str]:
+    def result(self) -> MotdParseFunc:
         return lambda text: Motd.parse(text).to_minecraft()
 
     @pytest.mark.parametrize("motd", ["&1&2&3", "§123§5bc", "§1§2§3"])
-    def test_return_the_same(self, motd: str, result):
+    def test_return_the_same(self, motd: str, result: MotdParseFunc):
         assert result(motd) == motd.replace("&", "§")
 
-    def test_skip_web_colors(self, result):
+    def test_skip_web_colors(self, result: MotdParseFunc):
         assert result({"extra": [{"color": "#4000ff", "text": "colored text"}], "text": ""}) == "§rcolored text§r"
 
 
 class TestMotdHTML:
     @pytest.fixture(scope="class")
-    def result(self) -> Callable[[str, bool], str]:
+    def result(self) -> MotdParseFuncBedrockFlag:
         return lambda text, bedrock: Motd.parse(text, bedrock=bedrock).to_html()
 
-    def test_correct_output_java(self, result: Callable[[str | dict, bool], str], source_java):
+    def test_correct_output_java(self, result: MotdParseFuncBedrockFlag, source_java: RawJavaResponseMotd):
         assert result(source_java, False) == (
             "<p>top"
             "1<span style='color:rgb(179, 238, 255)'>2</span>"
@@ -79,7 +79,7 @@ class TestMotdHTML:
             "20</p>"
         )
 
-    def test_correct_output_bedrock(self, result: Callable[[str | dict, bool], str], source_bedrock):
+    def test_correct_output_bedrock(self, result: MotdParseFuncBedrockFlag, source_bedrock: RawJavaResponseMotd):
         assert result(source_bedrock, True) == (
             "<p>top"
             "1<span style='color:rgb(179, 238, 255)'>2</span>"
@@ -123,10 +123,10 @@ class TestMotdHTML:
 
 class TestMotdAnsi:
     @pytest.fixture(scope="class")
-    def result(self) -> Callable[[str, bool], str]:
+    def result(self) -> MotdParseFuncBedrockFlag:
         return lambda text, bedrock: Motd.parse(text, bedrock=bedrock).to_ansi()
 
-    def test_correct_output_java(self, result: Callable[[str | dict, bool], str], source_java):
+    def test_correct_output_java(self, result: MotdParseFuncBedrockFlag, source_java: RawJavaResponseMotd):
         assert result(source_java, False) == (
             "\033[0mtop\033[0m"
             "1\033[0m"
@@ -152,7 +152,7 @@ class TestMotdAnsi:
             "\033[0m\033[0m"
         )
 
-    def test_correct_output_bedrock(self, result: Callable[[str | dict, bool], str], source_bedrock):
+    def test_correct_output_bedrock(self, result: MotdParseFuncBedrockFlag, source_bedrock: RawJavaResponseMotd):
         assert result(source_bedrock, True) == (
             "\033[0mtop\033[0m"
             "1\033[0m"

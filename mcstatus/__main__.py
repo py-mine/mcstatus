@@ -43,7 +43,7 @@ def _kind(serv: SupportedServers) -> str:
         return "Java"
     if isinstance(serv, LegacyServer):
         return "Java (pre-1.7)"
-    if isinstance(serv, BedrockServer):
+    if isinstance(serv, BedrockServer):  # pyright: ignore[reportUnnecessaryIsInstance] # be explicit
         return "Bedrock"
     raise ValueError(f"unsupported server for kind: {serv}")
 
@@ -54,7 +54,6 @@ def _ping_with_fallback(server: SupportedServers) -> float:
         return server.status().latency
 
     # try faster ping packet first, falling back to status with a warning.
-    ping_exc = None
     try:
         return server.ping(tries=1)
     except Exception as e:  # noqa: BLE001 # blindly catching Exception
@@ -152,10 +151,12 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
         """,
     )
 
-    parser.add_argument("address", help="The address of the server.")
+    _ = parser.add_argument("address", help="The address of the server.")
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("--bedrock", help="Specifies that 'address' is a Bedrock server (default: Java).", action="store_true")
-    group.add_argument(
+    _ = group.add_argument(
+        "--bedrock", help="Specifies that 'address' is a Bedrock server (default: Java).", action="store_true"
+    )
+    _ = group.add_argument(
         "--legacy", help="Specifies that 'address' is a pre-1.7 Java server (default: 1.7+).", action="store_true"
     )
 

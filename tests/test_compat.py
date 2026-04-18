@@ -6,7 +6,7 @@ import shutil
 import sys
 import tarfile
 import zipfile
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Literal
@@ -18,7 +18,7 @@ from tests.helpers import patch_project_version
 
 
 @contextmanager
-def _chdir(path: Path) -> Iterator[None]:
+def _chdir(path: Path) -> Generator[None]:
     """Temporarily change the working directory (Python 3.10 compatibility equivalent of ``contextlib.chdir``)."""
     original = Path.cwd()
     os.chdir(path)
@@ -67,13 +67,13 @@ def test_deprecated_import_path(raises: bool, module: str, msg_pattern: str):
     would fail.
     """
     # importlib.import_module caches module, if it didn't raise
-    sys.modules.pop(module, None)
+    _ = sys.modules.pop(module, None)
 
     context_manager = (
         pytest.raises(DeprecationWarning, match=msg_pattern) if raises else pytest.deprecated_call(match=msg_pattern)
     )
     with patch_project_version("100.0.0" if raises else "0.0.0"), context_manager:
-        importlib.import_module(module)
+        _ = importlib.import_module(module)
 
 
 @pytest.fixture(scope="session")
@@ -85,7 +85,7 @@ def sdist_path(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
     tmp_path = Path(tmp_dir)
     build_root = tmp_path / "mcstatus"
-    shutil.copytree(
+    _ = shutil.copytree(
         source_root,
         build_root,
         ignore=shutil.ignore_patterns(

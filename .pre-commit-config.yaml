@@ -42,13 +42,13 @@ repos:
 
   - repo: local
     hooks:
-      - id: pyright
-        name: Pyright
-        description: Run pyright type checker
-        entry: pyright
+      - id: basedpyright
+        name: Basedpyright
+        description: Run basedpyright type checker
+        entry: basedpyright
         language: system
         types: [python]
-        pass_filenames: false # pyright runs for the entire project, it can't run for single files
+        pass_filenames: false # basedpyright runs for the entire project, it can't run for single files
 
   - repo: local
     hooks:

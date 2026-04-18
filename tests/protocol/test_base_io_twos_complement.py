@@ -55,7 +55,7 @@ def test_from_twos_complement_matches_expected_values(twos_value: int, bits: int
 )
 def test_to_twos_complement_rejects_out_of_range(number: int, bits: int):
     with pytest.raises(ValueError, match=r"out of range"):
-        to_twos_complement(number, bits=bits)
+        _ = to_twos_complement(number, bits=bits)
 
 
 @pytest.mark.parametrize(
@@ -69,4 +69,4 @@ def test_to_twos_complement_rejects_out_of_range(number: int, bits: int):
 )
 def test_from_twos_complement_rejects_out_of_range(number: int, bits: int):
     with pytest.raises(ValueError, match=r"out of range"):
-        from_twos_complement(number, bits=bits)
+        _ = from_twos_complement(number, bits=bits)

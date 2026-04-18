@@ -1,4 +1,5 @@
 from time import perf_counter
+from typing import ClassVar, final
 
 from mcstatus._protocol.io.base_io import StructFormat
 from mcstatus._protocol.io.connection import BaseAsyncConnection, BaseSyncConnection
@@ -8,7 +9,7 @@ __all__ = ["AsyncLegacyClient", "LegacyClient"]
 
 
 class _BaseLegacyClient:
-    request_status_data = bytes.fromhex(
+    request_status_data: ClassVar[bytes] = bytes.fromhex(
         # see https://minecraft.wiki/w/Java_Edition_protocol/Server_List_Ping#Client_to_server
         "fe01fa"
     )
@@ -25,6 +26,7 @@ class _BaseLegacyClient:
         return LegacyStatusResponse.build(decoded_data[1:], latency)
 
 
+@final
 class LegacyClient(_BaseLegacyClient):
     def __init__(self, connection: BaseSyncConnection) -> None:
         self.connection = connection
@@ -42,6 +44,7 @@ class LegacyClient(_BaseLegacyClient):
         return self.parse_response(data, (end - start) * 1000)
 
 
+@final
 class AsyncLegacyClient(_BaseLegacyClient):
     def __init__(self, connection: BaseAsyncConnection) -> None:
         self.connection = connection

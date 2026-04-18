@@ -7,7 +7,9 @@ from mcstatus.motd import Motd
 from mcstatus.responses.base import BaseStatusPlayers, BaseStatusResponse, BaseStatusVersion
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing_extensions import Self, override
+else:
+    override = lambda f: f  # noqa: E731
 
 __all__ = [
     "LegacyStatusPlayers",
@@ -24,6 +26,7 @@ class LegacyStatusResponse(BaseStatusResponse):
     version: LegacyStatusVersion
     """The version information, only populates for servers >=12w42b (1.4 onwards)."""
 
+    @override
     @classmethod
     def build(cls, decoded_data: list[str], latency: float) -> Self:
         """Build BaseStatusResponse and check is it valid.

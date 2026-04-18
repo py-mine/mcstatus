@@ -19,7 +19,7 @@ Setup
 
    pre-commit install
 
-In addition to this, you may also want to install ruff and pyright (pylance) plugins for your IDE.
+In addition to this, you may also want to install ruff and basedpyright plugins for your IDE.
 
 Expectations
 ------------
