@@ -107,6 +107,20 @@ testpaths = ["tests"]
 # Remove deprecation warning
 asyncio_default_fixture_loop_scope = "function"
 
+[tool.coverage.report]
+exclude_lines = [
+  "\\#\\s*pragma: no cover",
+  "^\\s*if (t|typing\\.)?TYPE_CHECKING:",
+  "^\\s*@(t|typing\\.)?overload",
+  "^\\s*@(abc\\.)?abstractmethod",
+  "^\\s*def __repr__\\(",
+  "^\\s*class .*\\bProtocol\\):",
+  "^\\s*raise NotImplementedError",
+  "^\\s*return NotImplemented",
+  "^\\s*\\.\\.\\.\\s",
+  "^\\s*if __name__ == \"__main__\":",
+]
+
 [tool.pyright]
 pythonPlatform = "All"
 pythonVersion = "3.10"
