@@ -101,13 +101,19 @@ help = "Runs the unit tests"
 [tool.pytest.ini_options]
 minversion = "6.0"
 tmp_path_retention_policy = "failed"
-addopts = "--strict-markers --doctest-modules --cov=mcstatus --cov-append --cov-branch --cov-report=term-missing -vvv --asyncio-mode=strict"
+addopts = "--strict-markers --doctest-modules --cov -vvv --asyncio-mode=strict"
 testpaths = ["tests"]
 
 # Remove deprecation warning
 asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.report]
+precision = 2 # number of decimal places
+fail_under = 80
+show_missing = true
+skip_covered = false
+skip_empty = false
+sort = "cover"
 exclude_lines = [
   "\\#\\s*pragma: no cover",
   "^\\s*if (t|typing\\.)?TYPE_CHECKING:",
@@ -120,6 +126,13 @@ exclude_lines = [
   "^\\s*\\.\\.\\.\\s",
   "^\\s*if __name__ == \"__main__\":",
 ]
+
+[tool.coverage.run]
+relative_files = true
+parallel = true
+branch = true
+timid = false
+source = ["mcstatus"]
 
 [tool.pyright]
 pythonPlatform = "All"
