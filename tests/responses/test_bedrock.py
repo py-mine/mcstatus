@@ -3,7 +3,14 @@ import typing as t
 import pytest
 
 from mcstatus.motd import Motd
-from mcstatus.responses import BedrockStatusPlayers, BedrockStatusResponse, BedrockStatusVersion
+from mcstatus.responses import (
+    BaseStatusPlayers,
+    BaseStatusResponse,
+    BaseStatusVersion,
+    BedrockStatusPlayers,
+    BedrockStatusResponse,
+    BedrockStatusVersion,
+)
 from tests.helpers import patch_project_version
 from tests.responses import BaseResponseTest
 
@@ -30,6 +37,7 @@ def build():
     )
 
 
+@t.final
 @BaseResponseTest.construct
 class TestBedrockStatusResponse(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [
@@ -44,11 +52,11 @@ class TestBedrockStatusResponse(BaseResponseTest):
     ]
 
     @pytest.fixture(scope="class")
-    def build(self, build):
+    def build(self, build: BedrockStatusResponse) -> BedrockStatusResponse:
         return build
 
     @pytest.mark.parametrize(("field", "pop_index"), [("map_name", 7), ("gamemode", 7), ("gamemode", 8)])
-    def test_optional_parameters_is_none(self, field, pop_index):
+    def test_optional_parameters_is_none(self, field: str, pop_index: int):
         parameters = [
             "MCPE",
             "§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r",
@@ -60,10 +68,10 @@ class TestBedrockStatusResponse(BaseResponseTest):
             "map name here",
             "Default",
         ]
-        parameters.pop(pop_index)
+        _ = parameters.pop(pop_index)
         # remove all variables after `pop_index`
         if len(parameters) - 1 == pop_index:
-            parameters.pop(pop_index)
+            _ = parameters.pop(pop_index)
 
         build = BedrockStatusResponse.build(parameters, 123.0)
         assert getattr(build, field) is None
@@ -82,21 +90,23 @@ class TestBedrockStatusResponse(BaseResponseTest):
         assert build.description == "§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r"
 
 
+@t.final
 @BaseResponseTest.construct
 class TestBedrockStatusPlayers(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [("online", 1), ("max", 69)]
 
     @pytest.fixture(scope="class")
-    def build(self, build):
+    def build(self, build: BaseStatusResponse) -> BaseStatusPlayers:
         return build.players
 
 
+@t.final
 @BaseResponseTest.construct
 class TestBedrockStatusVersion(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [("name", "1.18.100500"), ("protocol", 422), ("brand", "MCPE")]
 
     @pytest.fixture(scope="class")
-    def build(self, build):
+    def build(self, build: BaseStatusResponse) -> BaseStatusVersion:
         return build.version
 
     def test_deprecated_version_alias(self, build: BedrockStatusVersion):

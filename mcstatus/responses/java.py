@@ -8,9 +8,11 @@ from mcstatus.responses.base import BaseStatusPlayers, BaseStatusResponse, BaseS
 from mcstatus.responses.forge import ForgeData
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing_extensions import Self, override
 
     from mcstatus.responses._raw import RawJavaResponse, RawJavaResponsePlayer, RawJavaResponsePlayers, RawJavaResponseVersion
+else:
+    override = lambda f: f  # noqa: E731
 
 __all__ = [
     "JavaStatusPlayer",
@@ -48,6 +50,7 @@ class JavaStatusResponse(BaseStatusResponse):
     forge_data: ForgeData | None
     """Forge mod data (mod list, channels, etc). Only present if this is a forge (modded) server."""
 
+    @override
     @classmethod
     def build(cls, raw: RawJavaResponse, latency: float = 0) -> Self:
         """Build JavaStatusResponse and check is it valid.
@@ -61,7 +64,7 @@ class JavaStatusResponse(BaseStatusResponse):
         :return: :class:`JavaStatusResponse` object.
         """
         forge_data: ForgeData | None = None
-        if (raw_forge := raw.get("forgeData") or raw.get("modinfo")) and raw_forge is not None:
+        if raw_forge := raw.get("forgeData") or raw.get("modinfo"):
             forge_data = ForgeData.build(raw_forge)
 
         return cls(

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import ExitStack
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -15,7 +16,7 @@ from mcstatus.motd._simplifies import (
     get_meaningless_resets_and_colors,
     get_unused_elements,
 )
-from mcstatus.motd.components import Formatting, MinecraftColor, TranslationTag, WebColor
+from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
 
 
 class TestMotdSimplifies:
@@ -32,19 +33,19 @@ class TestMotdSimplifies:
                 ]
             ]
 
-            get_unused_elements([])
+            _ = get_unused_elements([])
 
             for simplifier in mocked:
                 simplifier.assert_called()
 
     def test_simplify_returns_new_instance(self):
-        parsed = ["", Formatting.RESET]
+        parsed: list[ParsedMotdComponent] = ["", Formatting.RESET]
         obj = Motd(parsed.copy(), raw="")
         assert obj.simplify().parsed == []
         assert obj.parsed == parsed
 
     def test_simplifies_work(self):
-        get_unused_elements(["a", "b", "c"])
+        _ = get_unused_elements(["a", "b", "c"])
 
     def test_simplify_runs_few_times(self):
         """See `https://github.com/py-mine/mcstatus/pull/335#discussion_r1051658497`_."""
@@ -53,45 +54,50 @@ class TestMotdSimplifies:
 
     @pytest.mark.parametrize("first", [MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
     @pytest.mark.parametrize("second", [MinecraftColor.BLUE, WebColor.from_hex(hex="#dd0220")])
-    def test_get_double_colors(self, first, second):
+    def test_get_double_colors(self, first: ParsedMotdComponent, second: ParsedMotdComponent):
         assert get_double_colors([first, second]) == {0}
 
     @pytest.mark.parametrize("first", [MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
     @pytest.mark.parametrize("second", [MinecraftColor.BLUE, WebColor.from_hex(hex="#dd0220")])
     @pytest.mark.parametrize("third", [MinecraftColor.BLUE, WebColor.from_hex(hex="dd0220")])
-    def test_get_double_colors_with_three_items(self, first, second, third):
+    def test_get_double_colors_with_three_items(
+        self,
+        first: ParsedMotdComponent,
+        second: ParsedMotdComponent,
+        third: ParsedMotdComponent,
+    ):
         assert get_double_colors([first, second, third]) == {0, 1}
 
     @pytest.mark.parametrize("first", [MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
     @pytest.mark.parametrize("second", [MinecraftColor.BLUE, WebColor.from_hex(hex="#dd0220")])
-    def test_get_double_colors_with_no_double_colors(self, first, second):
+    def test_get_double_colors_with_no_double_colors(self, first: ParsedMotdComponent, second: ParsedMotdComponent):
         assert get_double_colors([first, "", second]) == set()
 
     @pytest.mark.parametrize("item", [Formatting.BOLD, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_get_double_items(self, item):
+    def test_get_double_items(self, item: ParsedMotdComponent):
         assert get_double_items([item, item]) == {0}
 
     @pytest.mark.parametrize("item", [Formatting.BOLD, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_get_double_items_with_three_items(self, item):
+    def test_get_double_items_with_three_items(self, item: ParsedMotdComponent):
         assert get_double_items([item, item, item]) == {0, 1}
 
     @pytest.mark.parametrize("item", [Formatting.BOLD, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_get_double_items_with_no_double_items(self, item):
+    def test_get_double_items_with_no_double_items(self, item: ParsedMotdComponent):
         assert get_double_items([item, "", item]) == set()
 
     @pytest.mark.parametrize("last_item", [MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_get_formatting_before_color(self, last_item):
+    def test_get_formatting_before_color(self, last_item: ParsedMotdComponent):
         assert get_formatting_before_color([Formatting.BOLD, last_item]) == {0}
 
     @pytest.mark.parametrize("first_item", [Formatting.RESET, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000"), "abc"])
-    def test_get_formatting_before_color_without_formatting_before_color(self, first_item):
+    def test_get_formatting_before_color_without_formatting_before_color(self, first_item: ParsedMotdComponent):
         assert get_formatting_before_color([first_item, "abc", MinecraftColor.WHITE]) == set()
 
     def test_skip_get_formatting_before_color(self):
         assert get_formatting_before_color(["abc", Formatting.BOLD, "def", Formatting.RESET, "ghi"]) == set()
 
     @pytest.mark.parametrize("last_item", [MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_get_formatting_before_color_if_space_between(self, last_item):
+    def test_get_formatting_before_color_if_space_between(self, last_item: ParsedMotdComponent):
         assert get_formatting_before_color([Formatting.BOLD, " ", last_item]) == {0}
 
     def test_get_empty_text_removes_empty_string(self):
@@ -106,25 +112,25 @@ class TestMotdSimplifies:
         assert obj.simplify().parsed == []
 
     @pytest.mark.parametrize("item", [Formatting.RESET, MinecraftColor.RED, WebColor.from_hex(hex="#ff1234")])
-    def test_dont_remove_empty_text(self, item):
+    def test_dont_remove_empty_text(self, item: ParsedMotdComponent):
         assert get_empty_text([item]) == set()
 
     @pytest.mark.parametrize("last_item", [Formatting.RESET, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_non_text_in_the_end(self, last_item):
+    def test_non_text_in_the_end(self, last_item: ParsedMotdComponent):
         assert get_end_non_text(["abc", Formatting.BOLD, "def", Formatting.RESET, "ghi", last_item]) == {5}
 
     def test_translation_tag_in_the_end(self):
         assert get_end_non_text(["abc", Formatting.BOLD, "def", Formatting.RESET, "ghi", TranslationTag("key")]) == set()
 
     @pytest.mark.parametrize("item", [Formatting.BOLD, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_meaningless_resets_and_colors_active(self, item):
+    def test_meaningless_resets_and_colors_active(self, item: ParsedMotdComponent):
         assert get_meaningless_resets_and_colors([item, "foo", item, "bar"]) == {2}
 
     def test_meaningless_resets_and_colors_reset_nothing(self):
         assert get_meaningless_resets_and_colors(["foo", Formatting.RESET, "bar"]) == {1}
 
     @pytest.mark.parametrize("item", [Formatting.BOLD, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_meaningless_resets_and_colors_resets(self, item):
+    def test_meaningless_resets_and_colors_resets(self, item: ParsedMotdComponent):
         assert get_meaningless_resets_and_colors([item, "foo", Formatting.RESET, item, "bar"]) == set()
 
     def test_no_conflict_on_poping_items(self):
@@ -132,7 +138,7 @@ class TestMotdSimplifies:
         obj = Motd(["0", "1"], raw="")
         call_count = 0
 
-        def remove_first_element(*_, **__):
+        def remove_first_element(*_: Any, **__: Any) -> set[int]:
             nonlocal call_count
             call_count += 1
             if call_count in (1, 2):
@@ -147,7 +153,7 @@ class TestMotdSimplifies:
                 get_empty_text.__name__,
                 get_end_non_text.__name__,
             ]:
-                stack.enter_context(mock.patch("mcstatus.motd._simplifies." + simplifier, remove_first_element))
+                _ = stack.enter_context(mock.patch("mcstatus.motd._simplifies." + simplifier, remove_first_element))
             assert obj.simplify().parsed == ["1"]
 
     def test_simplify_function_provides_the_same_raw(self):

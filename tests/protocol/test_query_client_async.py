@@ -1,7 +1,10 @@
+from typing import final
+
 from mcstatus._protocol.query_client import AsyncQueryClient
 from tests.protocol.helpers import AsyncDatagramConnection, async_decorator
 
 
+@final
 class TestAsyncQueryClient:
     def setup_method(self):
         self.connection = AsyncDatagramConnection()

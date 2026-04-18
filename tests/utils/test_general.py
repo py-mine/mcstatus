@@ -12,7 +12,7 @@ from mcstatus._utils.general import or_none
         ("a", "b", "a"),
     ],
 )
-def test_or_none(a, b, result):
+def test_or_none(a: object | None, b: object | None, result: object | None):
     assert or_none(a, b) == result
 
 

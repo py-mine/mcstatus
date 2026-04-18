@@ -25,7 +25,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # We need the test & docs groups to allow pyright to type-check the code in tests/ & docs/
+          # We need the test & docs groups to allow basedpyright to type-check the code in tests/ & docs/
           uv sync --no-default-groups --group lint --group test --group docs
 
       - name: Get precommit version
@@ -47,7 +47,7 @@ jobs:
           restore-keys: "precommit-${{ runner.os }}-${{ env.PYTHON_VERSION }}-"
 
       - name: Run pre-commit hooks
-        run: SKIP=black,isort,ruff,pyright,uv-lockfile pre-commit run --all-files
+        run: SKIP=black,isort,ruff,basedpyright,uv-lockfile pre-commit run --all-files
 
       - name: Run ruff linter
         run: ruff check --output-format=github --show-fixes --exit-non-zero-on-fix .
@@ -55,8 +55,8 @@ jobs:
       - name: Run ruff formatter
         run: ruff format --diff .
 
-      - name: Run pyright type checker
-        run: pyright .
+      - name: Run basedpyright type checker
+        run: basedpyright .
 
       - name: Check UV Lockfile
         run: uv lock --check

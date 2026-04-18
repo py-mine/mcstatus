@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import SupportsIndex, TYPE_CHECKING, final, overload
+from typing import Any, SupportsIndex, TYPE_CHECKING, final, overload
 
 from mcstatus._protocol.io.base_io import BaseSyncReader, BaseSyncWriter
 
@@ -28,7 +28,7 @@ class Buffer(BaseSyncWriter, BaseSyncReader, bytearray):
     @overload
     def __init__(self, string: str, /, encoding: str, errors: str = "strict") -> None: ...
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.pos = 0
 

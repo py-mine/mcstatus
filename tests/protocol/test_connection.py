@@ -1,3 +1,5 @@
+from collections.abc import Iterator
+from typing import cast, final
 from unittest.mock import Mock, patch
 
 import pytest
@@ -8,6 +10,7 @@ from mcstatus._protocol.io.buffer import Buffer
 from mcstatus._protocol.io.connection import TCPSocketConnection, UDPSocketConnection
 
 
+@final
 class TestBuffer:
     def setup_method(self):
         self.connection = Buffer()
@@ -64,7 +67,7 @@ class TestBuffer:
         assert self.connection.read(2) == bytearray.fromhex("7FAA")
         assert self.connection.read(1) == bytearray.fromhex("BB")
 
-    def _assert_varint_read_write(self, hexstr, value) -> None:
+    def _assert_varint_read_write(self, hexstr: str, value: int) -> None:
         self.connection.write(bytearray.fromhex(hexstr))
         assert self.connection.read_varint() == value
 
@@ -84,7 +87,7 @@ class TestBuffer:
         self.connection.write(bytearray.fromhex("FFFFFFFF10"))
 
         with pytest.raises(IOError, match=r"^Received varint was outside the range of 32-bit int.$"):
-            self.connection.read_varint()
+            _ = self.connection.read_varint()
 
     def test_write_invalid_varint(self):
         with pytest.raises(
@@ -245,7 +248,7 @@ class TestBuffer:
             IOError,
             match=r"^Requested to read more data than available. Read 0 bytes: bytearray\(b''\), out of 1 requested bytes.$",
         ):
-            self.connection.read(1)
+            _ = self.connection.read(1)
 
     def test_read_not_enough(self):
         self.connection.write(bytearray(b"a"))
@@ -254,16 +257,16 @@ class TestBuffer:
             IOError,
             match=r"^Requested to read more data than available. Read 1 bytes: bytearray\(b'a'\), out of 2 requested bytes.$",
         ):
-            self.connection.read(2)
+            _ = self.connection.read(2)
 
     def test_read_negative_length(self):
         with pytest.raises(IOError, match=r"^Requested to read a negative amount of data: -1\.$"):
-            self.connection.read(-1)
+            _ = self.connection.read(-1)
 
 
 class TestTCPSocketConnection:
     @pytest.fixture(scope="class")
-    def connection(self):
+    def connection(self) -> Iterator[TCPSocketConnection]:
         test_addr = Address("localhost", 1234)
 
         socket = Mock()
@@ -274,32 +277,32 @@ class TestTCPSocketConnection:
             with TCPSocketConnection(test_addr) as connection:
                 yield connection
 
-    def test_read(self, connection):
-        connection.socket.recv.return_value = bytearray.fromhex("7FAA")
+    def test_read(self, connection: TCPSocketConnection):
+        cast("Mock", connection.socket.recv).return_value = bytearray.fromhex("7FAA")
 
         assert connection.read(2) == bytearray.fromhex("7FAA")
 
-    def test_read_empty(self, connection):
-        connection.socket.recv.return_value = bytearray()
+    def test_read_empty(self, connection: TCPSocketConnection):
+        cast("Mock", connection.socket.recv).return_value = bytearray()
 
         with pytest.raises(IOError, match=r"^Server did not respond with any information!$"):
-            connection.read(1)
+            _ = connection.read(1)
 
-    def test_read_not_enough(self, connection):
-        connection.socket.recv.side_effect = [bytearray(b"a"), bytearray()]
+    def test_read_not_enough(self, connection: TCPSocketConnection):
+        cast("Mock", connection.socket.recv).side_effect = [bytearray(b"a"), bytearray()]
 
         with pytest.raises(IOError, match=r"^Server did not respond with any information!$"):
-            connection.read(2)
+            _ = connection.read(2)
 
-    def test_write(self, connection):
+    def test_write(self, connection: TCPSocketConnection):
         connection.write(bytearray.fromhex("7FAA"))
 
-        connection.socket.sendall.assert_called_once_with(bytearray.fromhex("7FAA"))
+        cast("Mock", connection.socket.sendall).assert_called_once_with(bytearray.fromhex("7FAA"))
 
 
 class TestUDPSocketConnection:
     @pytest.fixture(scope="class")
-    def connection(self):
+    def connection(self) -> Iterator[UDPSocketConnection]:
         test_addr = Address("127.0.0.1", 1234)
 
         socket = Mock()
@@ -310,24 +313,24 @@ class TestUDPSocketConnection:
             with UDPSocketConnection(test_addr) as connection:
                 yield connection
 
-    def test_remaining(self, connection):
+    def test_remaining(self, connection: UDPSocketConnection):
         assert connection.remaining == 65535
 
-    def test_read(self, connection):
-        connection.socket.recvfrom.return_value = [bytearray.fromhex("7FAA")]
+    def test_read(self, connection: UDPSocketConnection):
+        cast("Mock", connection.socket.recvfrom).return_value = [bytearray.fromhex("7FAA")]
 
         assert connection.read(2) == bytearray.fromhex("7FAA")
 
-    def test_read_empty(self, connection):
-        connection.socket.recvfrom.return_value = []
+    def test_read_empty(self, connection: UDPSocketConnection):
+        cast("Mock", connection.socket.recvfrom).return_value = []
 
         with pytest.raises(IndexError, match=r"^list index out of range$"):
-            connection.read(1)
+            _ = connection.read(1)
 
-    def test_write(self, connection):
+    def test_write(self, connection: UDPSocketConnection):
         connection.write(bytearray.fromhex("7FAA"))
 
-        connection.socket.sendto.assert_called_once_with(
+        cast("Mock", connection.socket.sendto).assert_called_once_with(
             bytearray.fromhex("7FAA"),
             Address("127.0.0.1", 1234),
         )

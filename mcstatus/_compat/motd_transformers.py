@@ -4,8 +4,8 @@ from mcstatus.motd._transformers import (
     HtmlTransformer,
     MinecraftTransformer,
     PlainTransformer,
-    _BaseTransformer as BaseTransformer,
-    _NothingTransformer as NothingTransformer,
+    _BaseTransformer as BaseTransformer,  # pyright: ignore[reportPrivateUsage]
+    _NothingTransformer as NothingTransformer,  # pyright: ignore[reportPrivateUsage]
 )
 
 __all__ = [

@@ -9,6 +9,7 @@ from tests.helpers import patch_project_version
 from tests.responses import BaseResponseTest
 
 
+@t.final
 @BaseResponseTest.construct
 class TestQueryResponse(BaseResponseTest):
     RAW: t.ClassVar[RawQueryResponse] = RawQueryResponse(
@@ -87,6 +88,7 @@ class TestQueryResponse(BaseResponseTest):
             assert build.map == build.map_name
 
 
+@t.final
 @BaseResponseTest.construct
 class TestQueryPlayers(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [

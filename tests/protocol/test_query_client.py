@@ -1,3 +1,4 @@
+from typing import final
 from unittest.mock import Mock
 
 from mcstatus._protocol.query_client import QueryClient
@@ -5,6 +6,7 @@ from mcstatus.motd import Motd
 from tests.protocol.helpers import SyncDatagramConnection
 
 
+@final
 class TestQueryClient:
     def setup_method(self):
         self.connection = SyncDatagramConnection()
@@ -55,7 +57,7 @@ class TestQueryClient:
             )
         )
         response = self.query_client.read_query()
-        self.connection.flush()
+        _ = self.connection.flush()
 
         assert response.raw["game_id"] == "MINECRAFT"
         assert response.motd == Motd.parse("Geyser")
@@ -71,7 +73,7 @@ class TestQueryClient:
             )
         )
         response = self.query_client.read_query()
-        self.connection.flush()
+        _ = self.connection.flush()
 
         assert response.raw["game_id"] == "MINECRAFT"
         assert response.motd == Motd.parse("\x00*KÕ")
@@ -86,7 +88,7 @@ class TestQueryClient:
             )
         )
         response = self.query_client.read_query()
-        self.connection.flush()
+        _ = self.connection.flush()
 
         assert response.raw["game_id"] == "MINECRAFT"
         assert response.motd == Motd.parse("\x00other")  # "\u2a00other" is actually what is expected,

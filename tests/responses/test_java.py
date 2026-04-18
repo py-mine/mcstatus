@@ -7,9 +7,10 @@ from mcstatus.responses import JavaStatusPlayer, JavaStatusPlayers, JavaStatusRe
 from tests.responses import BaseResponseTest
 
 
+@t.final
 @BaseResponseTest.construct
 class TestJavaStatusResponse(BaseResponseTest):
-    RAW: t.ClassVar = {
+    RAW: t.ClassVar[dict[str, t.Any]] = {
         "players": {"max": 20, "online": 0},
         "version": {"name": "1.8-pre1", "protocol": 44},
         "description": "A Minecraft Server",
@@ -64,6 +65,7 @@ class TestJavaStatusResponse(BaseResponseTest):
         assert build.description == "A Minecraft Server"
 
 
+@t.final
 @BaseResponseTest.construct
 class TestJavaStatusPlayers(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [
@@ -122,6 +124,7 @@ class TestJavaStatusPlayers(BaseResponseTest):
         )
 
 
+@t.final
 @BaseResponseTest.construct
 class TestJavaStatusPlayer(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")]
@@ -137,6 +140,7 @@ class TestJavaStatusPlayer(BaseResponseTest):
         assert build.uuid is unique
 
 
+@t.final
 @BaseResponseTest.construct
 class TestJavaStatusVersion(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [("name", "1.8-pre1"), ("protocol", 44)]

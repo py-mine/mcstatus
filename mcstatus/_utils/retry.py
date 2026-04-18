@@ -39,7 +39,7 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
             last_exc: BaseException
             for _ in range(tries):
                 try:
-                    return await func(*args, **kwargs)  # pyright: ignore[reportGeneralTypeIssues] # We know func is awaitable here
+                    return await func(*args, **kwargs)  # pyright: ignore[reportGeneralTypeIssues, reportUnknownVariableType] # We know func is awaitable here
                 except exceptions as exc:  # noqa: PERF203 # try-except within a loop
                     last_exc = exc
             # This won't actually be unbound

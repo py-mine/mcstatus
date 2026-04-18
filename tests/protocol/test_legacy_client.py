@@ -8,7 +8,7 @@ from tests.protocol.helpers import SyncBufferConnection
 
 def test_invalid_kick_reason():
     with pytest.raises(IOError, match=r"^Received invalid kick packet reason$"):
-        LegacyClient.parse_response("Invalid Reason".encode("UTF-16BE"), 123.0)
+        _ = LegacyClient.parse_response("Invalid Reason".encode("UTF-16BE"), 123.0)
 
 
 @pytest.mark.parametrize(
@@ -44,4 +44,4 @@ def test_invalid_packet_id():
     socket.receive(bytearray.fromhex("00"))
     server = LegacyClient(socket)
     with pytest.raises(IOError, match=r"^Received invalid packet ID$"):
-        server.read_status()
+        _ = server.read_status()

@@ -8,9 +8,15 @@ import pytest
 from mcstatus._net.address import Address
 from mcstatus._protocol.io.connection import TCPAsyncSocketConnection
 
+if typing.TYPE_CHECKING:
+    from typing_extensions import override
+else:
+    override = lambda f: f  # noqa: E731
+
 
 class FakeAsyncStream(asyncio.StreamReader):
-    async def read(self, *args, **kwargs) -> typing.NoReturn:
+    @override
+    async def read(self, *args: typing.Any, **kwargs: typing.Any) -> typing.NoReturn:
         await asyncio.sleep(2)
         raise NotImplementedError("tests are designed to timeout before reaching this line")
 
@@ -25,7 +31,7 @@ class TestAsyncSocketConnection:
         with patch("asyncio.open_connection", fake_asyncio_asyncio_open_connection):
             async with TCPAsyncSocketConnection(Address("dummy_address", 1234), timeout=0.01) as tcp_async_socket:
                 with pytest.raises(AsyncioTimeoutError):
-                    await tcp_async_socket.read(10)
+                    _ = await tcp_async_socket.read(10)
 
     @pytest.mark.asyncio
     async def test_tcp_socket_read_partial_data_then_eof(self):
@@ -40,7 +46,7 @@ class TestAsyncSocketConnection:
                 r"Partial obtained data: bytearray\(b'a'\)$"
             ),
         ):
-            await tcp_async_socket.read(2)
+            _ = await tcp_async_socket.read(2)
 
     @pytest.mark.asyncio
     async def test_tcp_socket_read_eof_without_any_data(self):
@@ -49,7 +55,7 @@ class TestAsyncSocketConnection:
         tcp_async_socket.reader = Mock(read=AsyncMock(return_value=b""))
 
         with pytest.raises(OSError, match=r"^Server did not respond with any information!$"):
-            await tcp_async_socket.read(2)
+            _ = await tcp_async_socket.read(2)
 
     @pytest.mark.asyncio
     async def test_tcp_socket_write_awaits_drain(self):

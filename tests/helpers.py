@@ -8,7 +8,7 @@ from mcstatus._utils.deprecation import LIB_NAME, _get_project_version
 
 
 @contextmanager
-def patch_project_version(version: str | None) -> c.Iterator[None]:
+def patch_project_version(version: str | None) -> c.Generator[None]:
     """Patch the project version reported by ``importlib.metadata.version``.
 
     This is used to simulate different project versions for testing purposes.

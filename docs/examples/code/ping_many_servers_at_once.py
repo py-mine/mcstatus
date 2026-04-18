@@ -25,7 +25,7 @@ async def ping_ips(ips: list[str]) -> None:
 
 
 def main() -> None:
-    ips = ["hypixel.net", "play.hivemc.com", "play.cubecraft.net", ...]  # insert here your ips!
+    ips = ["hypixel.net", "play.hivemc.com", "play.cubecraft.net"]  # insert your ips here!
     asyncio.run(ping_ips(ips))
 
 

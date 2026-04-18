@@ -48,7 +48,7 @@ dev = ["poethepoet~=0.44.0"]
 lint = [
   "pre-commit~=4.5.1",
   "ruff~=0.15.0",
-  "pyright==1.1.408",
+  "basedpyright~=1.39.2",
   "typing-extensions~=4.15.0",
 ]
 test = [
@@ -67,7 +67,7 @@ release = ["hatchling~=1.29.0", "uv-dynamic-versioning~=0.14.0"]
 
 [tool.poe.tasks]
 _lint_ruff = "ruff check ."
-_lint_pyright = "pyright ."
+_lint_pyright = "basedpyright ."
 
 [tool.poe.tasks.build]
 cmd = "uv build"
@@ -134,14 +134,41 @@ branch = true
 timid = false
 source = ["mcstatus"]
 
-[tool.pyright]
+[tool.basedpyright]
 pythonPlatform = "All"
 pythonVersion = "3.10"
-typeCheckingMode = "standard"
+typeCheckingMode = "all"
 
-disableBytesTypePromotions = true
+# Diagnostic behavior settings
+strictListInference = false
+strictDictionaryInference = false
+strictSetInference = false
+strictParameterNoneValue = true
+analyzeUnannotatedFunctions = true
 enableTypeIgnoreComments = false
-reportUnnecessaryTypeIgnoreComment = true
+enableExperimentalFeatures = false
+
+# Diagnostic rules
+reportAny = false
+reportExplicitAny = false
+reportImplicitStringConcatenation = false
+reportUnreachable = "hint"
+reportUnusedParameter = "hint"
+reportUnannotatedClassAttribute = true        # might be too strict
+reportUnknownVariableType = true              # might be too strict
+reportUnknownMemberType = true                # might be too strict
+reportUnknownArgumentType = true              # might be too strict
+reportUnknownParameterType = true             # might be too strict
+reportUnknownLambdaType = false
+reportMissingTypeStubs = "information"
+reportMissingParameterType = false            # ruff's flake8-annotations (ANN) already covers this + gives us more control
+reportIncompatibleUnannotatedOverride = false # https://github.com/DetachHead/basedpyright/issues/1349
+reportUninitializedInstanceVariable = false   # consider enabling
+
+executionEnvironments = [
+  { root = "tests", extraPaths = ["."], reportPrivateUsage = false },
+  { root = "docs/examples", extraPaths = ["."], reportUnusedCallResult = false }
+]
 
 [tool.ruff]
 target-version = "py310"
@@ -164,6 +191,9 @@ ignore = [
   "TD003",   # Missing issue link for this TODO
   "TRY003",  # Avoid specifying long messages outside the exception class
   "ISC002",  # Multi line implicit string concatenation
+  "RUF067",  # __init__ module should only contain docstrings and re-exports
+  "PLC1901", # Explicit comparison against empty string (already falsy)
+  "PLR6301", # Method could be a function, class method, or static method -> https://github.com/astral-sh/ruff/issues/24713
 
   # Ruff often identifies private modules as public, because we don't prefix them with `_`
   "D100", # Missing docstring in public module

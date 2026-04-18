@@ -16,9 +16,10 @@ JAVA_RAW_RESPONSE: RawJavaResponse = {
 }
 
 
+@t.final
 @BaseResponseTest.construct
 class TestForgeDataV1(BaseResponseTest):
-    RAW: t.ClassVar = {
+    RAW: t.ClassVar[dict[str, t.Any]] = {
         "type": "FML",
         "modList": [
             {"modid": "minecraft", "version": "1.12.2"},
@@ -51,9 +52,10 @@ class TestForgeDataV1(BaseResponseTest):
         return ForgeData.build(self.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
 
+@t.final
 @BaseResponseTest.construct
 class TestForgeDataV2(BaseResponseTest):
-    RAW: t.ClassVar = {
+    RAW: t.ClassVar[dict[str, t.Any]] = {
         "fmlNetworkVersion": 2,
         "channels": [
             {"res": "fml:handshake", "version": "1.2.3.4", "required": True},
@@ -76,9 +78,10 @@ class TestForgeDataV2(BaseResponseTest):
         return ForgeData.build(self.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
 
+@t.final
 @BaseResponseTest.construct
 class TestForgeDataV3(BaseResponseTest):
-    RAW: t.ClassVar = {
+    RAW: t.ClassVar[dict[str, t.Any]] = {
         "channels": [],
         "mods": [],
         "truncated": False,
@@ -117,18 +120,20 @@ class TestForgeDataV3(BaseResponseTest):
         return ForgeData.build(self.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
 
+@t.final
 class TestForgeDataMod:
     def test_build_with_empty_input(self):
         with pytest.raises(KeyError, match=r"^'Mod version in Forge mod data must be provided\. Mod info: {}'$"):
-            ForgeDataMod.build({})
+            _ = ForgeDataMod.build({})
 
     def test_build_without_mod_id(self):
         with pytest.raises(
             KeyError, match=r"^\"Mod ID in Forge mod data must be provided\. Mod info: {'modmarker': 'foo'}\.\"$"
         ):
-            ForgeDataMod.build({"modmarker": "foo"})
+            _ = ForgeDataMod.build({"modmarker": "foo"})
 
 
+@t.final
 @BaseResponseTest.construct
 class TestForgeData(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [
@@ -684,13 +689,13 @@ class TestForgeData(BaseResponseTest):
 
     def test_build_with_empty_input(self):
         with pytest.raises(KeyError, match=r"^'Neither `mods` or `modList` keys exist\.'$"):
-            ForgeData.build({})
+            _ = ForgeData.build({})
 
 
 @pytest.mark.parametrize("key", ["forgeData", "modinfo"])
-def test_java_status_response_forge_data_is_none(key):
+def test_java_status_response_forge_data_is_none(key: str):
     # should not raise
-    JavaStatusResponse.build(
+    _ = JavaStatusResponse.build(
         JAVA_RAW_RESPONSE | {key: None},  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
     )
 

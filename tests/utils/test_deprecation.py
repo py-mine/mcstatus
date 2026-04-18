@@ -16,7 +16,7 @@ def test_invalid_lib_version():
         patch_project_version("foo bar"),
         pytest.warns(match=f"^Failed to parse {LIB_NAME} project version \\(foo bar\\), assuming v0\\.0\\.0$"),
     ):
-        _get_project_version()
+        _ = _get_project_version()
 
 
 def test_epoch_in_lib_version():
@@ -26,7 +26,7 @@ def test_epoch_in_lib_version():
             match=f"^Failed to parse {LIB_NAME} project version, assuming v0\\.0\\.0$",
         ),
     ):
-        _get_project_version()
+        _ = _get_project_version()
 
 
 @pytest.mark.parametrize("removal_version", ["0.9.0", (0, 9, 0)])
@@ -125,7 +125,7 @@ def test_deprecation_decorator_missing_docstring_directive():
     ):
 
         @deprecated(display_name="func", removal_version="1.0.1")
-        def func(x: object) -> object:
+        def func(x: object) -> object:  # pyright: ignore[reportUnusedFunction]
             return x
 
 

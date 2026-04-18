@@ -4,7 +4,7 @@ import asyncio
 import socket
 import struct
 from time import perf_counter
-from typing import TYPE_CHECKING
+from typing import ClassVar, TYPE_CHECKING, final
 
 import asyncio_dgram
 
@@ -16,8 +16,9 @@ if TYPE_CHECKING:
 __all__ = ["BedrockClient"]
 
 
+@final
 class BedrockClient:
-    request_status_data = bytes.fromhex(
+    request_status_data: ClassVar[bytes] = bytes.fromhex(
         # see https://minecraft.wiki/w/RakNet#Unconnected_Ping
         "01" + "0000000000000000" + "00ffff00fefefefefdfdfdfd12345678" + "0000000000000000"
     )
@@ -44,7 +45,7 @@ class BedrockClient:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.settimeout(self.timeout)
 
-        s.sendto(self.request_status_data, self.address)
+        _ = s.sendto(self.request_status_data, self.address)
         data, _ = s.recvfrom(2048)
 
         return data

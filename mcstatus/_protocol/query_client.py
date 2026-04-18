@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import random
 import re
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import ClassVar, TYPE_CHECKING, final
+from typing import Any, ClassVar, TYPE_CHECKING, final
 
 from mcstatus._protocol.io.base_io import StructFormat
 from mcstatus._protocol.io.buffer import Buffer
@@ -16,15 +16,19 @@ __all__ = ["AsyncQueryClient", "QueryClient"]
 if TYPE_CHECKING:
     from collections.abc import Awaitable
 
+    from typing_extensions import override
+
     from mcstatus._protocol.io.connection import UDPAsyncSocketConnection, UDPSocketConnection
+else:
+    override = lambda f: f  # noqa: E731
 
 
 @dataclass
-class _BaseQueryClient:
-    MAGIC_PREFIX: ClassVar = bytearray.fromhex("FEFD")
-    PADDING: ClassVar = bytearray.fromhex("00000000")
-    PACKET_TYPE_CHALLENGE: ClassVar = 9
-    PACKET_TYPE_QUERY: ClassVar = 0
+class _BaseQueryClient(ABC):
+    MAGIC_PREFIX: ClassVar[bytearray] = bytearray.fromhex("FEFD")
+    PADDING: ClassVar[bytearray] = bytearray.fromhex("00000000")
+    PACKET_TYPE_CHALLENGE: ClassVar[int] = 9
+    PACKET_TYPE_QUERY: ClassVar[int] = 0
 
     connection: UDPSocketConnection | UDPAsyncSocketConnection
     challenge: int = field(init=False, default=0)
@@ -67,8 +71,8 @@ class _BaseQueryClient:
 
         :return: A tuple with two elements. First is `raw` answer and second is list of players.
         """
-        response.read(len("splitnum") + 3)
-        data = {}
+        _ = response.read(len("splitnum") + 3)
+        data: dict[str, Any] = {}
 
         while True:
             key = response.read_ascii()
@@ -82,17 +86,17 @@ class _BaseQueryClient:
                 # Since the query protocol does not properly support unicode, the motd is still not resolved
                 # correctly; however, this will avoid other parameter parsing errors.
                 data[key] = response.read(len(motd)).decode("ISO-8859-1")
-                response.read(1)  # ignore null byte
+                _ = response.read(1)  # ignore null byte
             elif len(key) == 0:
-                response.read(1)
+                _ = response.read(1)
                 break
             else:
                 value = response.read_ascii()
                 data[key] = value
 
-        response.read(len("player_") + 2)
+        _ = response.read(len("player_") + 2)
 
-        players_list = []
+        players_list: list[str] = []
         while True:
             player = response.read_ascii()
             if len(player) == 0:
@@ -107,17 +111,20 @@ class _BaseQueryClient:
 class QueryClient(_BaseQueryClient):
     connection: UDPSocketConnection  # pyright: ignore[reportIncompatibleVariableOverride]
 
+    @override
     def _read_packet(self) -> Buffer:
         packet = Buffer(self.connection.read(self.connection.remaining))
-        packet.read(1 + 4)
+        _ = packet.read(1 + 4)
         return packet
 
+    @override
     def handshake(self) -> None:
         self.connection.write(self._create_handshake_packet())
 
         packet = self._read_packet()
         self.challenge = int(packet.read_ascii())
 
+    @override
     def read_query(self) -> QueryResponse:
         request = self._create_packet()
         self.connection.write(request)
@@ -131,17 +138,20 @@ class QueryClient(_BaseQueryClient):
 class AsyncQueryClient(_BaseQueryClient):
     connection: UDPAsyncSocketConnection  # pyright: ignore[reportIncompatibleVariableOverride]
 
+    @override
     async def _read_packet(self) -> Buffer:
         packet = Buffer(await self.connection.read(self.connection.remaining))
-        packet.read(1 + 4)
+        _ = packet.read(1 + 4)
         return packet
 
+    @override
     async def handshake(self) -> None:
         await self.connection.write(self._create_handshake_packet())
 
         packet = await self._read_packet()
         self.challenge = int(packet.read_ascii())
 
+    @override
     async def read_query(self) -> QueryResponse:
         request = self._create_packet()
         await self.connection.write(request)

@@ -4,7 +4,7 @@ import math
 import struct
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Literal, TYPE_CHECKING, TypeAlias, TypeVar, overload
+from typing import ClassVar, Literal, TYPE_CHECKING, TypeAlias, TypeVar, overload
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -123,7 +123,7 @@ FLOAT_FORMATS_TYPE: TypeAlias = Literal[
 class BaseAsyncWriter(ABC):
     """Base class holding asynchronous write buffer/connection interactions."""
 
-    __slots__ = ()
+    __slots__: ClassVar[tuple[str, ...]] = ()
 
     @abstractmethod
     async def write(self, data: bytes | bytearray, /) -> None:
@@ -262,7 +262,7 @@ class BaseAsyncWriter(ABC):
 class BaseSyncWriter(ABC):
     """Base class holding synchronous write buffer/connection interactions."""
 
-    __slots__ = ()
+    __slots__: ClassVar[tuple[str, ...]] = ()
 
     @abstractmethod
     def write(self, data: bytes | bytearray, /) -> None:
@@ -405,7 +405,7 @@ class BaseSyncWriter(ABC):
 class BaseAsyncReader(ABC):
     """Base class holding asynchronous read buffer/connection interactions."""
 
-    __slots__ = ()
+    __slots__: ClassVar[tuple[str, ...]] = ()
 
     @abstractmethod
     async def read(self, length: int, /) -> bytes:
@@ -591,7 +591,7 @@ class BaseAsyncReader(ABC):
 class BaseSyncReader(ABC):
     """Base class holding synchronous read buffer/connection interactions."""
 
-    __slots__ = ()
+    __slots__: ClassVar[tuple[str, ...]] = ()
 
     @abstractmethod
     def read(self, length: int, /) -> bytes:

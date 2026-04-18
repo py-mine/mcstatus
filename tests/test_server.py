@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from typing import TYPE_CHECKING, final
 from unittest.mock import call, patch
 
 import pytest
@@ -10,32 +11,46 @@ from mcstatus._net.address import Address
 from mcstatus.server import BedrockServer, JavaServer, LegacyServer
 from tests.protocol.helpers import AsyncBufferConnection, SyncBufferConnection, SyncDatagramConnection
 
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
 
+    from typing_extensions import override
+else:
+    override = lambda f: f  # noqa: E731
+
+
+@final
 class MockProtocolFactory(asyncio.Protocol):
     transport: asyncio.Transport
 
-    def __init__(self, data_expected_to_receive, data_to_respond_with):
+    def __init__(self, data_expected_to_receive: bytes, data_to_respond_with: bytes):
         self.data_expected_to_receive = data_expected_to_receive
         self.data_to_respond_with = data_to_respond_with
 
+    @override
     def connection_made(self, transport: asyncio.Transport):  # pyright: ignore[reportIncompatibleMethodOverride]
         print("connection_made")
         self.transport = transport
 
+    @override
     def connection_lost(self, exc):
         print("connection_lost")
         self.transport.close()
 
+    @override
     def data_received(self, data):
         assert self.data_expected_to_receive in data
         self.transport.write(self.data_to_respond_with)
 
+    @override
     def eof_received(self):
         print("eof_received")
 
+    @override
     def pause_writing(self):
         print("pause_writing")
 
+    @override
     def resume_writing(self):
         print("resume_writing")
 
@@ -44,9 +59,9 @@ class MockProtocolFactory(asyncio.Protocol):
 async def create_mock_packet_server():
     """Create a temporary asyncio packet servers used by tests."""
     event_loop = asyncio.get_running_loop()
-    servers = []
+    servers: list[asyncio.Server] = []
 
-    async def create_server(port, data_expected_to_receive, data_to_respond_with):
+    async def create_server(port: int, data_expected_to_receive: bytes, data_to_respond_with: bytes) -> asyncio.Server:
         """Start a server that validates one request pattern and returns a fixed payload."""
         server = await event_loop.create_server(
             lambda: MockProtocolFactory(data_expected_to_receive, data_to_respond_with),
@@ -63,6 +78,7 @@ async def create_mock_packet_server():
         await server.wait_closed()
 
 
+@final
 class TestBedrockServer:
     def setup_method(self):
         self.server = BedrockServer("127.0.0.1")
@@ -76,10 +92,15 @@ class TestBedrockServer:
         assert s.address.port == 19132
 
 
+@final
 class TestAsyncJavaServer:
     @pytest.mark.asyncio
-    async def test_async_ping(self, unused_tcp_port, create_mock_packet_server):
-        await create_mock_packet_server(
+    async def test_async_ping(
+        self,
+        unused_tcp_port: int,
+        create_mock_packet_server: Callable[..., Awaitable[asyncio.Server]],
+    ):
+        _ = await create_mock_packet_server(
             port=unused_tcp_port,
             data_expected_to_receive=bytearray.fromhex("09010000000001C54246"),
             data_to_respond_with=bytearray.fromhex("0F002F096C6F63616C686F737463DD0109010000000001C54246"),
@@ -99,7 +120,7 @@ class TestAsyncJavaServer:
 def test_java_server_with_query_port():
     with patch("mcstatus.server.JavaServer._retry_query") as patched_query_func:
         server = JavaServer("127.0.0.1", query_port=12345)
-        server.query()
+        _ = server.query()
         assert server.query_port == 12345
         assert patched_query_func.call_args == call(Address("127.0.0.1", port=12345), tries=3)
 
@@ -108,11 +129,12 @@ def test_java_server_with_query_port():
 async def test_java_server_with_query_port_async():
     with patch("mcstatus.server.JavaServer._retry_async_query") as patched_query_func:
         server = JavaServer("127.0.0.1", query_port=12345)
-        await server.async_query()
+        _ = await server.async_query()
         assert server.query_port == 12345
         assert patched_query_func.call_args == call(Address("127.0.0.1", port=12345), tries=3)
 
 
+@final
 class TestJavaServer:
     def setup_method(self):
         self.socket = SyncBufferConnection()
@@ -137,7 +159,7 @@ class TestJavaServer:
         with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.JavaClient") as java_client:
             java_client.side_effect = [RuntimeError, RuntimeError, RuntimeError]
             with pytest.raises(RuntimeError, match=r"^$"):
-                self.server.ping()
+                _ = self.server.ping()
             assert java_client.call_count == 3
 
     def test_status(self):
@@ -167,7 +189,7 @@ class TestJavaServer:
         with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.JavaClient") as java_client:
             java_client.side_effect = [RuntimeError, RuntimeError, RuntimeError]
             with pytest.raises(RuntimeError, match=r"^$"):
-                self.server.status()
+                _ = self.server.status()
             assert java_client.call_count == 3
 
     def test_query(self):
@@ -207,7 +229,7 @@ class TestJavaServer:
         with patch("mcstatus.server.UDPSocketConnection"), patch("mcstatus.server.QueryClient") as query_client:
             query_client.side_effect = [RuntimeError, RuntimeError, RuntimeError]
             with pytest.raises(RuntimeError, match=r"^$"):
-                self.server.query()
+                _ = self.server.query()
             assert query_client.call_count == 3
 
     def test_lookup_constructor(self):
@@ -216,6 +238,7 @@ class TestJavaServer:
         assert s.address.port == 4444
 
 
+@final
 class TestLegacyServer:
     def setup_method(self):
         self.socket = SyncBufferConnection()
@@ -255,6 +278,7 @@ class TestLegacyServer:
         assert info.latency >= 0
 
 
+@final
 class TestAsyncLegacyServer:
     def setup_method(self):
         self.socket = AsyncBufferConnection()

@@ -11,8 +11,10 @@ if typing.TYPE_CHECKING:
 
 
 def pytest_generate_tests(metafunc: Metafunc) -> None:
-    if metafunc.cls is not None and issubclass(typing.cast("type", metafunc.cls), BaseResponseTest):
-        instance = typing.cast("type", metafunc.cls)()
+    cls_ = typing.cast("type[typing.Any] | None", metafunc.cls)
+
+    if cls_ is not None and issubclass(cls_, BaseResponseTest):
+        instance = cls_()
         if metafunc.definition.name not in instance._marks_table():
             return
 

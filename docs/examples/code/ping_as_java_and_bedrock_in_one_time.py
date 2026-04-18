@@ -1,10 +1,16 @@
 from __future__ import annotations
 
 import asyncio
+from typing import TYPE_CHECKING, TypeVar
 
 from mcstatus import BedrockServer, JavaServer
 from mcstatus.responses.bedrock import BedrockStatusResponse
 from mcstatus.responses.java import JavaStatusResponse
+
+if TYPE_CHECKING:
+    from collections.abc import Collection
+
+T = TypeVar("T")
 
 
 async def status(host: str) -> JavaStatusResponse | BedrockStatusResponse:
@@ -30,7 +36,7 @@ async def status(host: str) -> JavaStatusResponse | BedrockStatusResponse:
     return success_task.result()
 
 
-async def handle_exceptions(done: set[asyncio.Task], pending: set[asyncio.Task]) -> asyncio.Task | None:
+async def handle_exceptions(done: Collection[asyncio.Task[T]], pending: Collection[asyncio.Task[T]]) -> asyncio.Task[T] | None:
     """Handle exceptions from tasks.
 
     Also, cancel all pending tasks, if found the correct one.
@@ -49,6 +55,7 @@ async def handle_exceptions(done: set[asyncio.Task], pending: set[asyncio.Task])
             for pending_task in pending:
                 pending_task.cancel()
             return task
+
     return None
 
 
