@@ -210,7 +210,8 @@ class ForgeData:
         """
         fml_network_version = raw.get("fmlNetworkVersion", 1)
 
-        # see https://github.com/MinecraftForge/MinecraftForge/blob/7d0330eb08299935714e34ac651a293e2609aa86/src/main/java/net/minecraftforge/network/ServerStatusPing.java#L27-L73  # noqa: E501  # line too long
+        # see:
+        # https://github.com/MinecraftForge/MinecraftForge/blob/7d0330eb08299935714e34ac651a293e2609aa86/src/main/java/net/minecraftforge/network/ServerStatusPing.java#L27-L73
         if "d" not in raw:
             mod_list = raw.get("mods") or raw.get("modList")
             if mod_list is None:

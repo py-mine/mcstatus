@@ -39,7 +39,7 @@ def test_async_success():
     x = -1
 
     @retry(tries=2)
-    async def func():
+    async def func():  # should be async without await # noqa: RUF029
         nonlocal x
         x += 1
         return 5 / x
@@ -53,7 +53,7 @@ def test_async_fail():
     x = -1
 
     @retry(tries=2)
-    async def func():
+    async def func():  # should be async without await # noqa: RUF029
         nonlocal x
         x += 1
         if x == 0:

@@ -59,7 +59,7 @@ def squash_nearby_strings(parsed: _PARSED_MOTD_COMPONENTS_TYPEVAR) -> _PARSED_MO
             break
 
         if isinstance(next_item, str):
-            parsed[index + 1] = item + next_item
+            parsed[index + 1] = item + next_item  # intentional mutation during iteration  # noqa: B909
             fillers.add(index)
 
     for already_removed, index_to_remove in enumerate(fillers):

@@ -59,7 +59,7 @@ class _BaseQueryClient(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def handshake(self) -> None | Awaitable[None]:
+    def handshake(self) -> Awaitable[None] | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -78,7 +78,7 @@ class _BaseQueryClient(ABC):
             key = response.read_ascii()
             if key == "hostname":  # hostname is actually motd in the query protocol
                 match = re.search(
-                    b"(.*?)\x00(hostip|hostport|game_id|gametype|map|maxplayers|numplayers|plugins|version)",
+                    rb"(.*?)\x00(hostip|hostport|game_id|gametype|map|maxplayers|numplayers|plugins|version)",
                     bytes(response.unread_view()),
                     flags=re.DOTALL,
                 )

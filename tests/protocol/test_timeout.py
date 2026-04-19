@@ -21,7 +21,7 @@ class FakeAsyncStream(asyncio.StreamReader):
         raise NotImplementedError("tests are designed to timeout before reaching this line")
 
 
-async def fake_asyncio_asyncio_open_connection(hostname: str, port: int):
+async def fake_asyncio_asyncio_open_connection(hostname: str, port: int):  # should be async without await # noqa: RUF029
     return FakeAsyncStream(), None
 
 

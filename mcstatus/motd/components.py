@@ -101,7 +101,7 @@ class WebColor:
         """
         hex = hex.lstrip("#")  # noqa: A001 # shadowing a hex builtin
 
-        if len(hex) not in (3, 6):
+        if len(hex) not in {3, 6}:
             raise ValueError(f"Got too long/short hex color: {'#' + hex!r}")
         if len(hex) == 3:
             hex = "{0}{0}{1}{1}{2}{2}".format(*hex)  # noqa: A001 # shadowing a hex builtin
