@@ -41,7 +41,6 @@ def test_latency_is_real_number():
         assert mocked_parse_response.call_args[0][1] >= 1
 
 
-@pytest.mark.asyncio
 @pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
 async def test_async_latency_is_real_number():
     """``time.perf_counter`` returns fractional seconds, we must convert it to milliseconds."""

@@ -60,7 +60,6 @@ async def maybe_await(value: Awaitable[T] | T, /) -> T:
         pytest.param(StructFormat.BYTE, -128, b"\x80", id="byte-min"),
     ],
 )
-@pytest.mark.asyncio
 async def test_write_value_matches_reference(
     conn_cls: ConnectionClass,
     fmt: INT_FORMATS_TYPE,
@@ -72,14 +71,12 @@ async def test_write_value_matches_reference(
     assert conn.flush() == expected
 
 
-@pytest.mark.asyncio
 async def test_write_value_char_uses_single_byte(conn_cls: ConnectionClass):
     conn = conn_cls()
     _ = await maybe_await(conn.write_value(StructFormat.CHAR, b"a"))
     assert conn.flush() == b"a"
 
 
-@pytest.mark.asyncio
 async def test_write_value_char_rejects_non_single_byte(conn_cls: ConnectionClass):
     conn = conn_cls()
     with pytest.raises(struct.error):
@@ -95,7 +92,6 @@ async def test_write_value_char_rejects_non_single_byte(conn_cls: ConnectionClas
         pytest.param(StructFormat.BYTE, 128, id="byte-overflow"),
     ],
 )
-@pytest.mark.asyncio
 async def test_write_value_rejects_out_of_range(conn_cls: ConnectionClass, fmt: INT_FORMATS_TYPE, value: int):
     conn = conn_cls()
     with pytest.raises(struct.error):
@@ -115,7 +111,6 @@ async def test_write_value_rejects_out_of_range(conn_cls: ConnectionClass, fmt: 
         pytest.param(b"\x80", StructFormat.BYTE, -128, id="byte-min"),
     ],
 )
-@pytest.mark.asyncio
 async def test_read_value_matches_reference(
     conn_cls: ConnectionClass,
     encoded: bytes,
@@ -126,7 +121,6 @@ async def test_read_value_matches_reference(
     assert await maybe_await(conn.read_value(fmt)) == expected
 
 
-@pytest.mark.asyncio
 async def test_read_value_char_returns_bytes(conn_cls: ConnectionClass):
     conn = conn_cls(b"a")
     value = await maybe_await(conn.read_value(StructFormat.CHAR))
@@ -145,7 +139,6 @@ async def test_read_value_char_returns_bytes(conn_cls: ConnectionClass):
         pytest.param((2**31) - 1, b"\xff\xff\xff\xff\x07", id="max-32"),
     ],
 )
-@pytest.mark.asyncio
 async def test_write_varuint_matches_reference(conn_cls: ConnectionClass, number: int, expected: bytes):
     conn = conn_cls()
     _ = await maybe_await(conn._write_varuint(number))
@@ -163,13 +156,11 @@ async def test_write_varuint_matches_reference(conn_cls: ConnectionClass, number
         pytest.param(b"\xff\xff\xff\xff\x07", (2**31) - 1, id="max-32"),
     ],
 )
-@pytest.mark.asyncio
 async def test_read_varuint_matches_reference(conn_cls: ConnectionClass, encoded: bytes, expected: int):
     conn = conn_cls(encoded)
     assert await maybe_await(conn._read_varuint()) == expected
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("number", "max_bits"),
     [
@@ -185,7 +176,6 @@ async def test_write_varuint_rejects_out_of_range(conn_cls: ConnectionClass, num
         _ = await maybe_await(conn._write_varuint(number, max_bits=max_bits))
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("encoded", "max_bits"),
     [
@@ -199,7 +189,6 @@ async def test_read_varuint_rejects_out_of_range(conn_cls: ConnectionClass, enco
         _ = await maybe_await(conn._read_varuint(max_bits=max_bits))
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("encoded", "max_bits", "max_bytes"),
     [
@@ -230,7 +219,6 @@ async def test_read_varuint_rejects_too_many_bytes(
         pytest.param(-16_383, b"\x81\x80\xff\xff\x0f", id="-16383"),
     ],
 )
-@pytest.mark.asyncio
 async def test_write_varint_matches_reference(conn_cls: ConnectionClass, number: int, expected: bytes):
     conn = conn_cls()
     _ = await maybe_await(conn.write_varint(number))
@@ -246,7 +234,6 @@ async def test_write_varint_matches_reference(conn_cls: ConnectionClass, number:
         pytest.param(b"\x81\x80\xff\xff\x0f", -16_383, id="-16383"),
     ],
 )
-@pytest.mark.asyncio
 async def test_read_varint_matches_reference(conn_cls: ConnectionClass, encoded: bytes, expected: int):
     conn = conn_cls(encoded)
     assert await maybe_await(conn.read_varint()) == expected
@@ -261,7 +248,6 @@ async def test_read_varint_matches_reference(conn_cls: ConnectionClass, encoded:
         pytest.param(-16_383, b"\x81\x80\xff\xff\xff\xff\xff\xff\xff\x01", id="-16383"),
     ],
 )
-@pytest.mark.asyncio
 async def test_write_varlong_matches_reference(conn_cls: ConnectionClass, number: int, expected: bytes):
     conn = conn_cls()
     _ = await maybe_await(conn.write_varlong(number))
@@ -277,13 +263,11 @@ async def test_write_varlong_matches_reference(conn_cls: ConnectionClass, number
         pytest.param(b"\x81\x80\xff\xff\xff\xff\xff\xff\xff\x01", -16_383, id="-16383"),
     ],
 )
-@pytest.mark.asyncio
 async def test_read_varlong_matches_reference(conn_cls: ConnectionClass, encoded: bytes, expected: int):
     conn = conn_cls(encoded)
     assert await maybe_await(conn.read_varlong()) == expected
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize("number", [0, 1, 127, 16_384, -1, -(2**31), (2**31) - 1])
 async def test_varint_roundtrip(conn_cls: ConnectionClass, number: int):
     conn = conn_cls()
@@ -292,7 +276,6 @@ async def test_varint_roundtrip(conn_cls: ConnectionClass, number: int):
     assert await maybe_await(conn.read_varint()) == number
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize("number", [127, 16_384, -128, -16_383, -(2**63), (2**63) - 1])
 async def test_varlong_roundtrip(conn_cls: ConnectionClass, number: int):
     conn = conn_cls()
@@ -301,7 +284,6 @@ async def test_varlong_roundtrip(conn_cls: ConnectionClass, number: int):
     assert await maybe_await(conn.read_varlong()) == number
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize("number", [-(2**63) - 1, 2**63])
 async def test_write_varlong_rejects_out_of_range(conn_cls: ConnectionClass, number: int):
     conn = conn_cls()
@@ -309,7 +291,6 @@ async def test_write_varlong_rejects_out_of_range(conn_cls: ConnectionClass, num
         _ = await maybe_await(conn.write_varlong(number))
 
 
-@pytest.mark.asyncio
 async def test_optional_helpers(conn_cls: ConnectionClass):
     conn = conn_cls()
 
@@ -354,7 +335,6 @@ async def test_optional_helpers(conn_cls: ConnectionClass):
     reader.assert_called_once_with()
 
 
-@pytest.mark.asyncio
 async def test_write_and_read_ascii(conn_cls: ConnectionClass):
     conn = conn_cls()
     _ = await maybe_await(conn.write_ascii("hello"))
@@ -363,7 +343,6 @@ async def test_write_and_read_ascii(conn_cls: ConnectionClass):
     assert await maybe_await(conn.read_ascii()) == "hello"
 
 
-@pytest.mark.asyncio
 async def test_write_and_read_bytearray(conn_cls: ConnectionClass):
     conn = conn_cls()
     data = b"\x00\x01hello\xff"
@@ -383,7 +362,6 @@ async def test_write_and_read_bytearray(conn_cls: ConnectionClass):
         pytest.param(b"\x01\x02\x03four\x05", b"\x08\x01\x02\x03four\x05", id="mixed"),
     ],
 )
-@pytest.mark.asyncio
 async def test_write_bytearray_matches_reference(conn_cls: ConnectionClass, data: bytes, expected: bytes):
     conn = conn_cls()
     _ = await maybe_await(conn.write_bytearray(data))
@@ -399,13 +377,11 @@ async def test_write_bytearray_matches_reference(conn_cls: ConnectionClass, data
         pytest.param(b"\x08\x01\x02\x03four\x05", b"\x01\x02\x03four\x05", id="mixed"),
     ],
 )
-@pytest.mark.asyncio
 async def test_read_bytearray_matches_reference(conn_cls: ConnectionClass, encoded: bytes, expected: bytes):
     conn = conn_cls(encoded)
     assert await maybe_await(conn.read_bytearray()) == expected
 
 
-@pytest.mark.asyncio
 async def test_read_bytearray_rejects_negative_length(conn_cls: ConnectionClass):
     conn = conn_cls(b"\xff\xff\xff\xff\x0f")
     with pytest.raises(OSError, match=r"^Length prefix for byte arrays must be non-negative, got -1\.$"):
@@ -420,7 +396,6 @@ async def test_read_bytearray_rejects_negative_length(conn_cls: ConnectionClass)
         pytest.param("", b"\x00", id="empty"),
     ],
 )
-@pytest.mark.asyncio
 async def test_write_ascii_matches_reference(conn_cls: ConnectionClass, value: str, expected: bytes):
     conn = conn_cls()
     _ = await maybe_await(conn.write_ascii(value))
@@ -435,7 +410,6 @@ async def test_write_ascii_matches_reference(conn_cls: ConnectionClass, value: s
         pytest.param(b"\x00", "", id="empty"),
     ],
 )
-@pytest.mark.asyncio
 async def test_read_ascii_matches_reference(conn_cls: ConnectionClass, encoded: bytes, expected: str):
     conn = conn_cls(encoded)
     assert await maybe_await(conn.read_ascii()) == expected
@@ -450,7 +424,6 @@ async def test_read_ascii_matches_reference(conn_cls: ConnectionClass, encoded: 
         pytest.param("नमस्ते", b"\x12" + "नमस्ते".encode(), id="hindi"),
     ],
 )
-@pytest.mark.asyncio
 async def test_write_utf_matches_reference(conn_cls: ConnectionClass, value: str, expected: bytes):
     conn = conn_cls()
     _ = await maybe_await(conn.write_utf(value))
@@ -466,20 +439,17 @@ async def test_write_utf_matches_reference(conn_cls: ConnectionClass, value: str
         pytest.param(b"\x12" + "नमस्ते".encode(), "नमस्ते", id="hindi"),
     ],
 )
-@pytest.mark.asyncio
 async def test_read_utf_matches_reference(conn_cls: ConnectionClass, encoded: bytes, expected: str):
     conn = conn_cls(encoded)
     assert await maybe_await(conn.read_utf()) == expected
 
 
-@pytest.mark.asyncio
 async def test_write_utf_rejects_too_many_characters(conn_cls: ConnectionClass):
     conn = conn_cls()
     with pytest.raises(ValueError, match=r"Maximum character limit for writing strings is 32767 characters"):
         _ = await maybe_await(conn.write_utf("a" * 32768))
 
 
-@pytest.mark.asyncio
 async def test_read_utf_rejects_too_many_bytes(conn_cls: ConnectionClass):
     payload = Buffer()
     payload.write_varint(131069)
@@ -489,14 +459,12 @@ async def test_read_utf_rejects_too_many_bytes(conn_cls: ConnectionClass):
         _ = await maybe_await(conn.read_utf())
 
 
-@pytest.mark.asyncio
 async def test_read_utf_rejects_negative_length(conn_cls: ConnectionClass):
     conn = conn_cls(b"\xff\xff\xff\xff\x0f")
     with pytest.raises(OSError, match=r"^Length prefix for utf strings must be non-negative, got -1\.$"):
         _ = await maybe_await(conn.read_utf())
 
 
-@pytest.mark.asyncio
 async def test_read_utf_rejects_too_many_characters(conn_cls: ConnectionClass):
     text = "a" * 32768
     payload = Buffer()

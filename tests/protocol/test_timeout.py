@@ -26,14 +26,12 @@ async def fake_asyncio_asyncio_open_connection(hostname: str, port: int):  # sho
 
 
 class TestAsyncSocketConnection:
-    @pytest.mark.asyncio
     async def test_tcp_socket_read(self):
         with patch("asyncio.open_connection", fake_asyncio_asyncio_open_connection):
             async with TCPAsyncSocketConnection(Address("dummy_address", 1234), timeout=0.01) as tcp_async_socket:
                 with pytest.raises(AsyncioTimeoutError):
                     _ = await tcp_async_socket.read(10)
 
-    @pytest.mark.asyncio
     async def test_tcp_socket_read_partial_data_then_eof(self):
         """Raise when the stream ends after only partial payload delivery."""
         tcp_async_socket = TCPAsyncSocketConnection(Address("dummy_address", 1234), timeout=0.01)
@@ -48,7 +46,6 @@ class TestAsyncSocketConnection:
         ):
             _ = await tcp_async_socket.read(2)
 
-    @pytest.mark.asyncio
     async def test_tcp_socket_read_eof_without_any_data(self):
         """Raise when the stream immediately ends without returning any data."""
         tcp_async_socket = TCPAsyncSocketConnection(Address("dummy_address", 1234), timeout=0.01)
@@ -57,7 +54,6 @@ class TestAsyncSocketConnection:
         with pytest.raises(OSError, match=r"^Server did not respond with any information!$"):
             _ = await tcp_async_socket.read(2)
 
-    @pytest.mark.asyncio
     async def test_tcp_socket_write_awaits_drain(self):
         """Ensure writes await ``drain`` so buffered data is flushed."""
         writer = Mock()
@@ -72,7 +68,6 @@ class TestAsyncSocketConnection:
         writer.write.assert_called_once_with(b"hello")
         writer.drain.assert_awaited_once_with()
 
-    @pytest.mark.asyncio
     async def test_tcp_socket_close_waits_for_writer(self):
         """Ensure close awaits ``wait_closed`` on the stream writer."""
         writer = Mock()

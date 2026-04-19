@@ -48,7 +48,6 @@ class TestSRVLookup:
         assert address.host == "different.example.org"
         assert address.port == 12345
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
     async def test_async_address_no_srv(self, exception: DNSException):
         with patch("dns.asyncresolver.resolve") as resolve:
@@ -59,7 +58,6 @@ class TestSRVLookup:
         assert address.host == "example.org"
         assert address.port == 25565
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
     async def test_async_address_no_srv_no_default_port(self, exception: DNSException):
         with patch("dns.asyncresolver.resolve") as resolve:
@@ -68,7 +66,6 @@ class TestSRVLookup:
                 _ = await async_minecraft_srv_address_lookup("example.org", lifetime=3)
             resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3, search=True)
 
-    @pytest.mark.asyncio
     async def test_async_address_with_srv(self):
         with patch("dns.asyncresolver.resolve") as resolve:
             answer = Mock()
@@ -198,7 +195,6 @@ class TestAddressIPResolving:
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == "48.225.1.104"
 
-    @pytest.mark.asyncio
     async def test_async_ip_resolver_with_hostname(self):
         with patch("dns.asyncresolver.resolve") as resolve:
             answer = MagicMock()
@@ -217,7 +213,6 @@ class TestAddressIPResolving:
             assert getattr(self, ip_version).resolve_ip(lifetime=3) is getattr(self, ip_version).resolve_ip(lifetime=3)
             resolve.assert_called_once()  # Make sure we didn't needlessly try to resolve
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize("ip_version", ["ipv4_addr", "ipv6_addr"])
     async def test_async_ip_resolver_cache(self, ip_version: str):
         with patch("dns.resolver.resolve"), patch("ipaddress.ip_address") as resolve:
@@ -234,7 +229,6 @@ class TestAddressIPResolving:
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == self.ipv4_addr.host
 
-    @pytest.mark.asyncio
     async def test_async_ip_resolver_with_ipv4(self):
         with patch("dns.asyncresolver.resolve") as resolve:
             resolved_ip = await self.ipv4_addr.async_resolve_ip(lifetime=3)
@@ -251,7 +245,6 @@ class TestAddressIPResolving:
             assert isinstance(resolved_ip, ipaddress.IPv6Address)
             assert str(resolved_ip) == self.ipv6_addr.host
 
-    @pytest.mark.asyncio
     async def test_async_ip_resolver_with_ipv6(self):
         with patch("dns.asyncresolver.resolve") as resolve:
             resolved_ip = await self.ipv6_addr.async_resolve_ip(lifetime=3)
@@ -267,7 +260,6 @@ class TestAddressIPResolving:
         with context_manager:
             assert addr.resolve_ip() == ipaddress.ip_address("127.0.0.1")
 
-    @pytest.mark.asyncio
     async def test_async_resolve_localhost(self):
         addr = Address("localhost", 25565)
 

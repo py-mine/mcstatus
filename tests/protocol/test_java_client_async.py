@@ -84,7 +84,6 @@ class TestAsyncJavaClient:
         with pytest.raises(IOError, match=r"^Received mangled ping response \(expected token 12345, got 14515484\)$"):
             _ = async_decorator(self.java_client.test_ping)()
 
-    @pytest.mark.asyncio
     # Windows CI can occasionally measure <1ms despite a 1ms sleep;
     # see https://github.com/py-mine/mcstatus/issues/442.
     @pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
@@ -112,7 +111,6 @@ class TestAsyncJavaClient:
             latency = (await self.java_client.read_status()).latency
             assert 1 <= latency <= 20
 
-    @pytest.mark.asyncio
     # Windows CI can occasionally measure <1ms despite a 1ms sleep;
     # see https://github.com/py-mine/mcstatus/issues/442.
     @pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
