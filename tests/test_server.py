@@ -94,7 +94,6 @@ class TestBedrockServer:
 
 @final
 class TestAsyncJavaServer:
-    @pytest.mark.asyncio
     async def test_async_ping(
         self,
         unused_tcp_port: int,
@@ -110,7 +109,6 @@ class TestAsyncJavaServer:
         latency = await minecraft_server.async_ping(ping_token=29704774, version=47)
         assert latency >= 0
 
-    @pytest.mark.asyncio
     async def test_async_lookup_constructor(self):
         s = await JavaServer.async_lookup("example.org:3333")
         assert s.address.host == "example.org"
@@ -125,7 +123,6 @@ def test_java_server_with_query_port():
         assert patched_query_func.call_args == call(Address("127.0.0.1", port=12345), tries=3)
 
 
-@pytest.mark.asyncio
 async def test_java_server_with_query_port_async():
     with patch("mcstatus.server.JavaServer._retry_async_query") as patched_query_func:
         server = JavaServer("127.0.0.1", query_port=12345)
@@ -284,13 +281,11 @@ class TestAsyncLegacyServer:
         self.socket = AsyncBufferConnection()
         self.server = LegacyServer("127.0.0.1")
 
-    @pytest.mark.asyncio
     async def test_async_lookup_constructor(self):
         s = await LegacyServer.async_lookup("example.org:3333")
         assert s.address.host == "example.org"
         assert s.address.port == 3333
 
-    @pytest.mark.asyncio
     async def test_async_status(self):
         self.socket.receive(
             bytearray.fromhex(
