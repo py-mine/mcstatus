@@ -365,7 +365,7 @@ def test_ping(mock_network_requests: None):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "ping"]) == 0
 
-    assert float(out.getvalue()) == 0
+    assert float(out.getvalue()) == 0  # this floating comparison is safe  # noqa: RUF069
     assert err.getvalue() == ""
 
 
@@ -373,7 +373,7 @@ def test_ping_bedrock(mock_network_requests: None):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "--bedrock", "ping"]) == 0
 
-    assert float(out.getvalue()) == 123
+    assert float(out.getvalue()) == 123  # this floating comparison is safe  # noqa: RUF069
     assert err.getvalue() == ""
 
 
@@ -381,7 +381,7 @@ def test_ping_legacy(mock_network_requests: None):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "--legacy", "ping"]) == 0
 
-    assert float(out.getvalue()) == 123
+    assert float(out.getvalue()) == 123  # this floating comparison is safe  # noqa: RUF069
     assert err.getvalue() == ""
 
 
@@ -389,5 +389,5 @@ def test_ping_server_doesnt_support(mock_network_requests: None):
     with patch_stdout_stderr() as (out, err), patch("mcstatus.server.JavaServer.ping", side_effect=TimeoutError("timeout")):
         assert main_under_test(["example.com", "ping"]) == 0
 
-    assert float(out.getvalue()) == 0
+    assert float(out.getvalue()) == 0  # this floating comparison is safe  # noqa: RUF069
     assert err.getvalue() == PING_PACKET_FAIL_WARNING.format(address="example.com:25565", ping_exc="timeout") + "\n"

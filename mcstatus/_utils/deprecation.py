@@ -75,17 +75,17 @@ def _get_project_version() -> tuple[int, int, int]:
     is emitted.
     """
     try:
-        _project_version = importlib.metadata.version(LIB_NAME)
+        project_version = importlib.metadata.version(LIB_NAME)
     except importlib.metadata.PackageNotFoundError:
         # v0.0.0 will never mark things as already deprecated (removal_version will always be newer)
         warnings.warn(f"Failed to get {LIB_NAME} project version, assuming v0.0.0", category=RuntimeWarning, stacklevel=1)
         return (0, 0, 0)
 
-    m = VERSION_PATTERN_FULL.fullmatch(_project_version)
+    m = VERSION_PATTERN_FULL.fullmatch(project_version)
     if m is None:
         # This should never happen
         warnings.warn(
-            f"Failed to parse {LIB_NAME} project version ({_project_version}), assuming v0.0.0",
+            f"Failed to parse {LIB_NAME} project version ({project_version}), assuming v0.0.0",
             category=RuntimeWarning,
             stacklevel=1,
         )

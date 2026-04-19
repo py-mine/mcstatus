@@ -141,7 +141,7 @@ class TestMotdSimplifies:
         def remove_first_element(*_: Any, **__: Any) -> set[int]:
             nonlocal call_count
             call_count += 1
-            if call_count in (1, 2):
+            if call_count in {1, 2}:
                 return {0}
             return set()
 
