@@ -1,70 +1,50 @@
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING, TypeVar
 
 from mcstatus import BedrockServer, JavaServer
 from mcstatus.responses.bedrock import BedrockStatusResponse
 from mcstatus.responses.java import JavaStatusResponse
 
-if TYPE_CHECKING:
-    from collections.abc import Collection
-
-T = TypeVar("T")
-
-
-async def status(host: str) -> JavaStatusResponse | BedrockStatusResponse:
-    """Get status from server, which can be Java or Bedrock.
-
-    The function will ping server as Java and as Bedrock in one time, and return the first response.
-    """
-    success_task = await handle_exceptions(
-        *(
-            await asyncio.wait(
-                {
-                    asyncio.create_task(handle_java(host), name="Get status as Java"),
-                    asyncio.create_task(handle_bedrock(host), name="Get status as Bedrock"),
-                },
-                return_when=asyncio.FIRST_COMPLETED,
-            )
-        )
-    )
-
-    if success_task is None:
-        raise ValueError("No tasks were successful. Is server offline?")
-
-    return success_task.result()
-
-
-async def handle_exceptions(done: Collection[asyncio.Task[T]], pending: Collection[asyncio.Task[T]]) -> asyncio.Task[T] | None:
-    """Handle exceptions from tasks.
-
-    Also, cancel all pending tasks, if found the correct one.
-    """
-    if len(done) == 0:
-        raise ValueError("No tasks was given to `done` set.")
-
-    for i, task in enumerate(done):
-        if task.exception() is not None:
-            if len(pending) == 0:
-                continue
-
-            if i == len(done) - 1:  # firstly check all items from `done` set, and then handle pending set
-                return await handle_exceptions(*(await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)))
-        else:
-            for pending_task in pending:
-                pending_task.cancel()
-            return task
-
-    return None
-
 
 async def handle_java(host: str) -> JavaStatusResponse:
     """Wrap mcstatus, to compress lookup and status into one function."""
-    return await (await JavaServer.async_lookup(host)).async_status()
+    server = await JavaServer.async_lookup(host)
+    return await server.async_status()
 
 
 async def handle_bedrock(host: str) -> BedrockStatusResponse:
     """Wrap mcstatus, to compress lookup and status into one function."""
     # note: `BedrockServer` doesn't have `async_lookup` method, see it's docstring
-    return await BedrockServer.lookup(host).async_status()
+    server = BedrockServer.lookup(host)
+    return await server.async_status()
+
+
+async def status(host: str) -> JavaStatusResponse | BedrockStatusResponse:
+    """Get status from a server which can be either Java or Bedrock.
+
+    The function will ping the server as both Java and as Bedrock at once, and return the first valid response, or fail.
+    """
+    tasks: list[asyncio.Task[JavaStatusResponse | BedrockStatusResponse]] = [
+        asyncio.create_task(handle_java(host)),
+        asyncio.create_task(handle_bedrock(host)),
+    ]
+
+    try:
+        for task in asyncio.as_completed(tasks):
+            try:
+                result = await task
+            except Exception:  # noqa: S112,PERF203
+                continue
+            else:
+                # Cancel the remaining task, we succeeded
+                for t in tasks:
+                    if t is not task:
+                        t.cancel()
+                return result
+    finally:
+        # Ensure all tasks are cleaned up
+        for t in tasks:
+            t.cancel()
+
+    raise ValueError("No tasks were successful. Is the server offline?")
