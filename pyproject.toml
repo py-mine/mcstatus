@@ -193,7 +193,6 @@ ignore = [
   "TD003",   # Missing issue link for this TODO
   "TRY003",  # Avoid specifying long messages outside the exception class
   "ISC002",  # Multi line implicit string concatenation
-  "RUF067",  # __init__ module should only contain docstrings and re-exports
   "PLC1901", # Explicit comparison against empty string (already falsy)
   "PLR6301", # Method could be a function, class method, or static method -> https://github.com/astral-sh/ruff/issues/24713
 
@@ -224,6 +223,7 @@ ignore = [
   "PLC2701", # Private name import from external module (mcstatus is external to tests/)
   "PLR6301", # Method could be a function, class method, or static method
   "PLR0904", # Too many public methods
+  "RUF067",  # __init__ module should only contain docstrings and re-exports
 ]
 "docs/**" = [
   "INP001", # Implicit namespace package
