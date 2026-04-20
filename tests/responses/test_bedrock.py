@@ -11,7 +11,6 @@ from mcstatus.responses import (
     BedrockStatusResponse,
     BedrockStatusVersion,
 )
-from tests.helpers import patch_project_version
 from tests.responses import BaseResponseTest
 
 
@@ -108,15 +107,3 @@ class TestBedrockStatusVersion(BaseResponseTest):
     @pytest.fixture(scope="class")
     def build(self, build: BaseStatusResponse) -> BaseStatusVersion:
         return build.version
-
-    def test_deprecated_version_alias(self, build: BedrockStatusVersion):
-        with (
-            patch_project_version("0.0.0"),
-            pytest.deprecated_call(
-                match=(
-                    r"^BedrockStatusVersion\.version is deprecated and scheduled for removal in 13\.0\.0, "
-                    r"use name instead\.$"
-                ),
-            ),
-        ):
-            assert build.version == build.name

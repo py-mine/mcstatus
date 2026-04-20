@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Any, TYPE_CHECKING
 
-from mcstatus._utils import deprecated
 from mcstatus.motd import Motd
 
 if TYPE_CHECKING:
@@ -82,15 +81,6 @@ class QueryResponse:
         as_dict["software"] = asdict(self.software)
         return as_dict
 
-    @property
-    @deprecated(replacement="map_name", removal_version="13.0.0")
-    def map(self) -> str | None:
-        """
-        .. deprecated:: 12.0.0
-            Will be removed in 13.0.0, use :attr:`.map_name` instead.
-        """  # noqa: D205, D212 # no summary line
-        return self.map_name
-
 
 @dataclass(frozen=True)
 class QueryPlayers:
@@ -110,15 +100,6 @@ class QueryPlayers:
             max=int(raw["maxplayers"]),
             list=players_list,
         )
-
-    @property
-    @deprecated(replacement="'list' attribute", removal_version="13.0.0")
-    def names(self) -> list[str]:
-        """
-        .. deprecated:: 12.0.0
-            Will be removed in 13.0.0, use :attr:`.list` instead.
-        """  # noqa: D205, D212 # no summary line
-        return self.list
 
 
 @dataclass(frozen=True)
