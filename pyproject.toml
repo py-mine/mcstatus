@@ -284,6 +284,4 @@ metadata = false
 fallback-version = "0.0.0"
 
 [tool.hatch.build.targets.sdist.force-include]
-"mcstatus/_compat/status_response.py" = "mcstatus/status_response.py"
 "mcstatus/_compat/forge_data.py" = "mcstatus/forge_data.py"
-"mcstatus/_compat/motd_transformers.py" = "mcstatus/motd/transformers.py"

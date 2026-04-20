@@ -54,8 +54,6 @@ def _extractall_compat(tar: tarfile.TarFile, destination: Path) -> None:
     ("module", "msg_pattern"),
     [
         ("mcstatus._compat.forge_data", r"use mcstatus\.responses\.forge instead"),
-        ("mcstatus._compat.motd_transformers", r"MOTD Transformers are no longer a part of mcstatus public API"),
-        ("mcstatus._compat.status_response", r"use mcstatus\.responses instead"),
     ],
 )
 def test_deprecated_import_path(raises: bool, module: str, msg_pattern: str):
@@ -150,9 +148,7 @@ def wheel_member_names(sdist_path: Path, tmp_path_factory: pytest.TempPathFactor
 @pytest.mark.parametrize(
     "expected_path",
     [
-        "mcstatus/status_response.py",
         "mcstatus/forge_data.py",
-        "mcstatus/motd/transformers.py",
     ],
 )
 def test_includes_compat_shims(
