@@ -430,7 +430,7 @@ wheels = [
 
 [[package]]
 name = "hatchling"
-version = "1.29.0"
+version = "1.30.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "packaging" },
@@ -439,9 +439,9 @@ dependencies = [
     { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "trove-classifiers" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/cf/9c/b4cfe330cd4f49cff17fd771154730555fa4123beb7f292cf0098b4e6c20/hatchling-1.29.0.tar.gz", hash = "sha256:793c31816d952cee405b83488ce001c719f325d9cda69f1fc4cd750527640ea6", size = 55656, upload-time = "2026-02-23T19:42:06.539Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/63/4c/8717ccb844b4fa5a5ba6352e97d743ed24e9a22cf90b7c109c17030a46a1/hatchling-1.30.1.tar.gz", hash = "sha256:eee4fd45357f72ebb3d7a42e5d72cfb5e29ed426d79e8836288926c4258d5f2e", size = 56929, upload-time = "2026-06-02T00:09:41.487Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d3/8a/44032265776062a89171285ede55a0bdaadc8ac00f27f0512a71a9e3e1c8/hatchling-1.29.0-py3-none-any.whl", hash = "sha256:50af9343281f34785fab12da82e445ed987a6efb34fd8c2fc0f6e6630dbcc1b0", size = 76356, upload-time = "2026-02-23T19:42:05.197Z" },
+    { url = "https://files.pythonhosted.org/packages/56/49/2797ec0ef88008a653a8867bb8d1e5c223cd2df8e40390dd5c6a0279cbc5/hatchling-1.30.1-py3-none-any.whl", hash = "sha256:161eacafb3c6f91526e92116d21426369f2c36e98c36a864f11a96345ad4ee31", size = 77489, upload-time = "2026-06-02T00:09:40.139Z" },
 ]
 
 [[package]]
@@ -642,7 +642,7 @@ lint = [
     { name = "typing-extensions", specifier = "~=4.15.0" },
 ]
 release = [
-    { name = "hatchling", specifier = "~=1.29.0" },
+    { name = "hatchling", specifier = "~=1.30.1" },
     { name = "uv-dynamic-versioning", specifier = "~=0.14.0" },
 ]
 test = [
