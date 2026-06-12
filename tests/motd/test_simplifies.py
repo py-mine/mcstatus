@@ -10,7 +10,6 @@ from mcstatus.motd import Motd
 from mcstatus.motd._simplifies import (
     get_double_colors,
     get_double_items,
-    get_empty_text,
     get_end_non_text,
     get_formatting_before_color,
     get_meaningless_resets_and_colors,
@@ -28,7 +27,6 @@ class TestMotdSimplifies:
                     get_double_items.__name__,
                     get_double_colors.__name__,
                     get_formatting_before_color.__name__,
-                    get_empty_text.__name__,
                     get_end_non_text.__name__,
                 ]
             ]
@@ -39,7 +37,7 @@ class TestMotdSimplifies:
                 simplifier.assert_called()
 
     def test_simplify_returns_new_instance(self):
-        parsed: list[ParsedMotdComponent] = ["", Formatting.RESET]
+        parsed: list[ParsedMotdComponent] = [Formatting.RESET]
         obj = Motd(parsed.copy(), raw="")
         assert obj.simplify().parsed == []
         assert obj.parsed == parsed
@@ -49,7 +47,7 @@ class TestMotdSimplifies:
 
     def test_simplify_runs_few_times(self):
         """See `https://github.com/py-mine/mcstatus/pull/335#discussion_r1051658497`_."""
-        obj = Motd([Formatting.BOLD, "", Formatting.RESET, "", MinecraftColor.RED, ""], raw="")
+        obj = Motd([Formatting.BOLD, Formatting.RESET, MinecraftColor.RED], raw="")
         assert obj.simplify() == Motd([], raw="")
 
     @pytest.mark.parametrize("first", [MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
@@ -71,7 +69,7 @@ class TestMotdSimplifies:
     @pytest.mark.parametrize("first", [MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
     @pytest.mark.parametrize("second", [MinecraftColor.BLUE, WebColor.from_hex(hex="#dd0220")])
     def test_get_double_colors_with_no_double_colors(self, first: ParsedMotdComponent, second: ParsedMotdComponent):
-        assert get_double_colors([first, "", second]) == set()
+        assert get_double_colors([first, "foo", second]) == set()
 
     @pytest.mark.parametrize("item", [Formatting.BOLD, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
     def test_get_double_items(self, item: ParsedMotdComponent):
@@ -83,7 +81,7 @@ class TestMotdSimplifies:
 
     @pytest.mark.parametrize("item", [Formatting.BOLD, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
     def test_get_double_items_with_no_double_items(self, item: ParsedMotdComponent):
-        assert get_double_items([item, "", item]) == set()
+        assert get_double_items([item, "foo", item]) == set()
 
     @pytest.mark.parametrize("last_item", [MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
     def test_get_formatting_before_color(self, last_item: ParsedMotdComponent):
@@ -100,9 +98,6 @@ class TestMotdSimplifies:
     def test_get_formatting_before_color_if_space_between(self, last_item: ParsedMotdComponent):
         assert get_formatting_before_color([Formatting.BOLD, " ", last_item]) == {0}
 
-    def test_get_empty_text_removes_empty_string(self):
-        assert get_empty_text([Formatting.BOLD, "", Formatting.RESET, "", MinecraftColor.RED, ""]) == {1, 3, 5}
-
     def test_two_formattings_before_minecraft_color(self):
         """See `https://github.com/py-mine/mcstatus/pull/335#discussion_r1048476090`_."""
         assert get_formatting_before_color([Formatting.BOLD, Formatting.ITALIC, MinecraftColor.RED]) == {0, 1}
@@ -110,10 +105,6 @@ class TestMotdSimplifies:
     def test_two_formattings_one_by_one(self):
         obj = Motd([Formatting.BOLD, Formatting.ITALIC], raw="")
         assert obj.simplify().parsed == []
-
-    @pytest.mark.parametrize("item", [Formatting.RESET, MinecraftColor.RED, WebColor.from_hex(hex="#ff1234")])
-    def test_dont_remove_empty_text(self, item: ParsedMotdComponent):
-        assert get_empty_text([item]) == set()
 
     @pytest.mark.parametrize("last_item", [Formatting.RESET, MinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
     def test_non_text_in_the_end(self, last_item: ParsedMotdComponent):
@@ -150,7 +141,6 @@ class TestMotdSimplifies:
                 get_double_items.__name__,
                 get_double_colors.__name__,
                 get_formatting_before_color.__name__,
-                get_empty_text.__name__,
                 get_end_non_text.__name__,
             ]:
                 _ = stack.enter_context(mock.patch("mcstatus.motd._simplifies." + simplifier, remove_first_element))

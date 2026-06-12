@@ -72,7 +72,10 @@ class Motd:
     def _parse_as_str(raw: str, *, bedrock: bool = False) -> list[ParsedMotdComponent]:
         """Parse a MOTD when it's string.
 
-        .. note:: This method returns a lot of empty strings, use :meth:`Motd.simplify` to remove them.
+        .. note::
+
+            This method may return a lot of unnecessary noise, like extra
+            :attr:`Formatting.RESET`. Use :meth:`Motd.simplify` to remove it.
 
         :param raw: Raw MOTD, directly from server.
         :param bedrock: Is server Bedrock Edition?
@@ -83,6 +86,9 @@ class Motd:
 
         split_raw = _MOTD_COLORS_RE.split(raw)
         for element in split_raw:
+            if not element:
+                continue
+
             clean_element = element.lstrip("&§").lower()
             standardized_element = element.replace("&", "§").lower()
 
