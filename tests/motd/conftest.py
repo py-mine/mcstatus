@@ -45,41 +45,35 @@ def source_bedrock() -> RawJavaResponseMotd:
     If feature can handle all from this dict, it's fully tested.
     Parser should have more tests, on additional features.
     """
-    return {
-        "extra": [
-            {"text": "1"},
-            {"color": "#b3eeff", "text": "2"},
-            {"obfuscated": True, "color": "black", "text": "3"},
-            {"bold": True, "strikethrough": True, "color": "dark_blue", "text": "4"},
-            {"italic": True, "color": "dark_green", "text": "5"},
-            {"underlined": True, "color": "dark_aqua", "text": "6"},
-            {"color": "dark_aqua", "text": "7"},
-            {"color": "dark_red", "text": "8"},
-            {"color": "dark_purple", "text": "9"},
-            {"color": "gold", "text": "10"},
-            {"color": "gray", "text": "11"},
-            {"color": "dark_gray", "text": "12"},
-            {"color": "blue", "text": "13"},
-            {"color": "green", "text": "14"},
-            {"color": "aqua", "text": "15"},
-            {"color": "red", "text": "16"},
-            {"color": "light_purple", "text": "17"},
-            {"color": "yellow", "text": "18"},
-            {"color": "white", "text": "19"},
-            {"color": "minecoin_gold", "text": "20"},
-            {"color": "material_quartz", "text": "21"},
-            {"color": "material_iron", "text": "22"},
-            {"color": "material_netherite", "text": "23"},
-            {"color": "material_redstone", "text": "24"},
-            {"color": "material_copper", "text": "25"},
-            {"color": "material_gold", "text": "26"},
-            {"color": "material_emerald", "text": "27"},
-            {"color": "material_diamond", "text": "28"},
-            {"color": "material_lapis", "text": "29"},
-            {"color": "material_amethyst", "text": "30"},
-            {"color": "material_resin", "text": "31"},
-            {"color": "reset", "text": "32"},
-            {"translate": "some.random.string"},
-        ],
-        "text": "top",
-    }
+    return (
+        "1"
+        "§0§k2"
+        "§1§l3"
+        "§2§o4"
+        "§35"
+        "§46"
+        "§57"
+        "§68"
+        "§79"
+        "§810"
+        "§911"
+        "§a12"
+        "§b13"
+        "§c14"
+        "§d15"
+        "§e16"
+        "§f17"
+        "§g18"
+        "§h19"
+        "§i20"
+        "§j21"
+        "§m22"
+        "§n23"
+        "§p24"
+        "§q25"
+        "§s26"
+        "§t27"
+        "§u28"
+        "§v29"
+        "§r30"
+    )  # fmt: skip
