@@ -52,7 +52,7 @@ lint = [
   "typing-extensions~=4.15.0",
 ]
 test = [
-  "pytest~=9.0.2",
+  "pytest~=9.1.0",
   "pytest-asyncio~=1.4.0",
   "pytest-cov~=7.1.0",
   "pytest-rerunfailures~=16.1",
