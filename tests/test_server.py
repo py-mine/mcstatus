@@ -55,7 +55,7 @@ class MockProtocolFactory(asyncio.Protocol):
         print("resume_writing")
 
 
-@pytest_asyncio.fixture()
+@pytest_asyncio.fixture
 async def create_mock_packet_server():
     """Create a temporary asyncio packet servers used by tests."""
     event_loop = asyncio.get_running_loop()
