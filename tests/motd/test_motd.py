@@ -67,10 +67,10 @@ class TestMotdParse:
         assert Motd.parse("&z").parsed == ["&z"]
 
     def test_parse_uppercase_passes(self):
-        assert Motd.parse("&A").parsed == ["", MinecraftColor.GREEN, ""]
+        assert Motd.parse("&A").parsed == [MinecraftColor.GREEN]
 
     @pytest.mark.parametrize(
-        ("input_", "expected"), [("", [""]), ([], [Formatting.RESET]), ({"extra": [], "text": ""}, ["", Formatting.RESET])]
+        ("input_", "expected"), [("", []), ([], [Formatting.RESET]), ({"extra": [], "text": ""}, [Formatting.RESET])]
     )
     def test_empty_input_also_empty_raw(self, input_: RawJavaResponseMotd, expected: list[ParsedMotdComponent]):
         assert Motd.parse(input_).parsed == expected
@@ -136,7 +136,7 @@ class TestMotdParse:
 
     def test_text_field_contains_formatting(self):
         """See `https://github.com/py-mine/mcstatus/pull/335#issuecomment-1264191303`_."""
-        assert Motd.parse({"text": "&aHello!"}).parsed == ["", MinecraftColor.GREEN, "Hello!", Formatting.RESET]
+        assert Motd.parse({"text": "&aHello!"}).parsed == [MinecraftColor.GREEN, "Hello!", Formatting.RESET]
 
     def test_invalid_raw_input(self):
         obj = object()

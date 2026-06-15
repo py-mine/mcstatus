@@ -10,7 +10,6 @@ if t.TYPE_CHECKING:
 __all__ = [
     "get_double_colors",
     "get_double_items",
-    "get_empty_text",
     "get_end_non_text",
     "get_formatting_before_color",
     "get_meaningless_resets_and_colors",
@@ -33,7 +32,6 @@ def get_unused_elements(parsed: Sequence[ParsedMotdComponent]) -> set[int]:
         get_double_colors,
         get_formatting_before_color,
         get_meaningless_resets_and_colors,
-        get_empty_text,
         get_end_non_text,
     ]:
         to_remove.update(simplifier(parsed))
@@ -143,20 +141,6 @@ def get_formatting_before_color(parsed: Sequence[ParsedMotdComponent]) -> set[in
         if isinstance(item, (MinecraftColor, WebColor)):
             to_remove.update(collected_formattings)
             collected_formattings = []
-    return to_remove
-
-
-def get_empty_text(parsed: Sequence[ParsedMotdComponent]) -> set[int]:
-    """Get indices of all empty text items.
-
-    Empty strings in motd serve no purpose and can be marked for removal.
-    """
-    to_remove: set[int] = set()
-
-    for index, item in enumerate(parsed):
-        if isinstance(item, str) and len(item) == 0:
-            to_remove.add(index)
-
     return to_remove
 
 
