@@ -15,7 +15,7 @@ MotdParseFuncBedrockFlag: typing.TypeAlias = Callable[[RawJavaResponseMotd, bool
 
 
 def test_nothing_transformer():
-    assert _NothingTransformer().transform(Motd.parse("&1a&bfoo&r").parsed) == ""
+    assert _NothingTransformer(bedrock=False).transform(Motd.parse("&1a&bfoo&r").parsed) == ""
 
 
 class TestMotdPlain:
