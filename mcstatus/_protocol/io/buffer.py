@@ -116,5 +116,5 @@ class Buffer(BaseSyncWriter, BaseSyncReader, bytearray):
 
     @property
     def remaining(self) -> int:
-        """Get the amount of bytes that's still remaining in the buffer to be read."""
+        """The amount of bytes that's still remaining in the buffer to be read."""
         return len(self) - self.pos
