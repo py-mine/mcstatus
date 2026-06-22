@@ -117,7 +117,7 @@ skip_empty = false
 sort = "cover"
 exclude_lines = [
   "\\#\\s*pragma: no cover",
-  "^\\s*if (t|typing\\.)?TYPE_CHECKING:",
+  "^\\s*if (t\\.|typing\\.)?TYPE_CHECKING:",
   "^\\s*@(t|typing\\.)?overload",
   "^\\s*@(abc\\.)?abstractmethod",
   "^\\s*def __repr__\\(",
