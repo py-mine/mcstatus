@@ -15,7 +15,7 @@ if t.TYPE_CHECKING:
 
 __all__ = ["Motd"]
 
-_MOTD_COLORS_RE = re.compile(r"([\xA7|&][0-9A-FK-OR])", re.IGNORECASE)
+_MOTD_COLORS_RE = re.compile(r"([\xA7|&][0-9A-Z])", re.IGNORECASE)
 
 
 @dataclass(frozen=True)

@@ -3,49 +3,46 @@ from __future__ import annotations
 import pytest
 
 from mcstatus.motd import Motd
-from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
+from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag
 from mcstatus.responses._raw import RawJavaResponseMotd, RawJavaResponseMotdWhenDict
 
 
 class TestMotdParse:
-    def test_correct_result(self, source_bedrock: RawJavaResponseMotd):
-        assert Motd.parse(source_bedrock) == Motd(
+    def test_correct_result_bedrock(self, source_bedrock: RawJavaResponseMotd):
+        assert Motd.parse(source_bedrock, bedrock=True) == Motd(
             [
-                "top", Formatting.RESET,
-                "1", Formatting.RESET,
-                WebColor.from_hex(hex="#b3eeff"), "2", Formatting.RESET,
-                MinecraftColor.BLACK, Formatting.OBFUSCATED, "3", Formatting.RESET,
-                MinecraftColor.DARK_BLUE, Formatting.BOLD, Formatting.STRIKETHROUGH, "4", Formatting.RESET,
-                MinecraftColor.DARK_GREEN, Formatting.ITALIC, "5", Formatting.RESET,
-                MinecraftColor.DARK_AQUA, Formatting.UNDERLINED, "6", Formatting.RESET,
-                MinecraftColor.DARK_AQUA, "7", Formatting.RESET,
-                MinecraftColor.DARK_RED, "8", Formatting.RESET,
-                MinecraftColor.DARK_PURPLE, "9", Formatting.RESET,
-                MinecraftColor.GOLD, "10", Formatting.RESET,
-                MinecraftColor.GRAY, "11", Formatting.RESET,
-                MinecraftColor.DARK_GRAY, "12", Formatting.RESET,
-                MinecraftColor.BLUE, "13", Formatting.RESET,
-                MinecraftColor.GREEN, "14", Formatting.RESET,
-                MinecraftColor.AQUA, "15", Formatting.RESET,
-                MinecraftColor.RED, "16", Formatting.RESET,
-                MinecraftColor.LIGHT_PURPLE, "17", Formatting.RESET,
-                MinecraftColor.YELLOW, "18", Formatting.RESET,
-                MinecraftColor.WHITE, "19", Formatting.RESET,
-                MinecraftColor.MINECOIN_GOLD, "20", Formatting.RESET,
-                MinecraftColor.MATERIAL_QUARTZ, "21", Formatting.RESET,
-                MinecraftColor.MATERIAL_IRON, "22", Formatting.RESET,
-                MinecraftColor.MATERIAL_NETHERITE, "23", Formatting.RESET,
-                MinecraftColor.MATERIAL_REDSTONE, "24", Formatting.RESET,
-                MinecraftColor.MATERIAL_COPPER, "25", Formatting.RESET,
-                MinecraftColor.MATERIAL_GOLD, "26", Formatting.RESET,
-                MinecraftColor.MATERIAL_EMERALD, "27", Formatting.RESET,
-                MinecraftColor.MATERIAL_DIAMOND, "28", Formatting.RESET,
-                MinecraftColor.MATERIAL_LAPIS, "29", Formatting.RESET,
-                MinecraftColor.MATERIAL_AMETHYST, "30", Formatting.RESET,
-                MinecraftColor.MATERIAL_RESIN, "31", Formatting.RESET,
-                Formatting.RESET, "32", Formatting.RESET,
-                TranslationTag("some.random.string"), Formatting.RESET,
+                "1",
+                MinecraftColor.BLACK, Formatting.OBFUSCATED, "2",
+                MinecraftColor.DARK_BLUE, Formatting.BOLD, "3",
+                MinecraftColor.DARK_GREEN, Formatting.ITALIC, "4",
+                MinecraftColor.DARK_AQUA, "5",
+                MinecraftColor.DARK_RED, "6",
+                MinecraftColor.DARK_PURPLE, "7",
+                MinecraftColor.GOLD, "8",
+                MinecraftColor.GRAY, "9",
+                MinecraftColor.DARK_GRAY, "10",
+                MinecraftColor.BLUE, "11",
+                MinecraftColor.GREEN, "12",
+                MinecraftColor.AQUA, "13",
+                MinecraftColor.RED, "14",
+                MinecraftColor.LIGHT_PURPLE, "15",
+                MinecraftColor.YELLOW, "16",
+                MinecraftColor.WHITE, "17",
+                MinecraftColor.MINECOIN_GOLD, "18",
+                MinecraftColor.MATERIAL_QUARTZ, "19",
+                MinecraftColor.MATERIAL_IRON, "20",
+                MinecraftColor.MATERIAL_NETHERITE, "21",
+                MinecraftColor.MATERIAL_REDSTONE, "22",
+                MinecraftColor.MATERIAL_COPPER, "23",
+                MinecraftColor.MATERIAL_GOLD, "24",
+                MinecraftColor.MATERIAL_EMERALD, "25",
+                MinecraftColor.MATERIAL_DIAMOND, "26",
+                MinecraftColor.MATERIAL_LAPIS, "27",
+                MinecraftColor.MATERIAL_AMETHYST, "28",
+                MinecraftColor.MATERIAL_RESIN, "29",
+                Formatting.RESET, "30",
             ],
+            bedrock=True,
             raw=source_bedrock,
         )  # fmt: skip
 
