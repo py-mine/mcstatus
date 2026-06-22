@@ -51,7 +51,8 @@ class TestBedrockStatusResponse(BaseResponseTest):
     ]
 
     @pytest.fixture(scope="class")
-    def build(self, build: BedrockStatusResponse) -> BedrockStatusResponse:
+    @staticmethod
+    def build(build: BedrockStatusResponse) -> BedrockStatusResponse:
         return build
 
     @pytest.mark.parametrize(("field", "pop_index"), [("map_name", 7), ("gamemode", 7), ("gamemode", 8)])
@@ -95,7 +96,8 @@ class TestBedrockStatusPlayers(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [("online", 1), ("max", 69)]
 
     @pytest.fixture(scope="class")
-    def build(self, build: BaseStatusResponse) -> BaseStatusPlayers:
+    @staticmethod
+    def build(build: BaseStatusResponse) -> BaseStatusPlayers:
         return build.players
 
 
@@ -105,5 +107,6 @@ class TestBedrockStatusVersion(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [("name", "1.18.100500"), ("protocol", 422), ("brand", "MCPE")]
 
     @pytest.fixture(scope="class")
-    def build(self, build: BaseStatusResponse) -> BaseStatusVersion:
+    @staticmethod
+    def build(build: BaseStatusResponse) -> BaseStatusVersion:
         return build.version

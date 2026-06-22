@@ -40,8 +40,9 @@ class TestJavaStatusResponse(BaseResponseTest):
     )
 
     @pytest.fixture(scope="class")
-    def build(self) -> JavaStatusResponse:
-        return JavaStatusResponse.build(self.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
+    @classmethod
+    def build(cls) -> JavaStatusResponse:
+        return JavaStatusResponse.build(cls.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
     def test_as_dict(self, build: JavaStatusResponse):
         assert build.as_dict() == {
@@ -94,7 +95,8 @@ class TestJavaStatusPlayers(BaseResponseTest):
     )
 
     @pytest.fixture(scope="class")
-    def build(self) -> JavaStatusPlayers:
+    @staticmethod
+    def build() -> JavaStatusPlayers:
         return JavaStatusPlayers.build(
             {
                 "max": 20,
@@ -130,7 +132,8 @@ class TestJavaStatusPlayer(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [("name", "foo"), ("id", "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89")]
 
     @pytest.fixture(scope="class")
-    def build(self) -> JavaStatusPlayer:
+    @staticmethod
+    def build() -> JavaStatusPlayer:
         return JavaStatusPlayer.build({"name": "foo", "id": "0b3717c4-f45d-47c8-b8e2-3d9ff6f93a89"})
 
     def test_id_field_the_same_as_uuid(self) -> None:
@@ -146,5 +149,6 @@ class TestJavaStatusVersion(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [("name", "1.8-pre1"), ("protocol", 44)]
 
     @pytest.fixture(scope="class")
-    def build(self) -> JavaStatusVersion:
+    @staticmethod
+    def build() -> JavaStatusVersion:
         return JavaStatusVersion.build({"name": "1.8-pre1", "protocol": 44})

@@ -48,8 +48,9 @@ class TestForgeDataV1(BaseResponseTest):
     ]
 
     @pytest.fixture(scope="class")
-    def build(self) -> ForgeData:
-        return ForgeData.build(self.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
+    @classmethod
+    def build(cls) -> ForgeData:
+        return ForgeData.build(cls.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
 
 @t.final
@@ -74,8 +75,9 @@ class TestForgeDataV2(BaseResponseTest):
     ]
 
     @pytest.fixture(scope="class")
-    def build(self) -> ForgeData:
-        return ForgeData.build(self.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
+    @classmethod
+    def build(cls) -> ForgeData:
+        return ForgeData.build(cls.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
 
 @t.final
@@ -116,8 +118,9 @@ class TestForgeDataV3(BaseResponseTest):
     ]
 
     @pytest.fixture(scope="class")
-    def build(self) -> ForgeData:
-        return ForgeData.build(self.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
+    @classmethod
+    def build(cls) -> ForgeData:
+        return ForgeData.build(cls.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
 
 @t.final
@@ -550,7 +553,8 @@ class TestForgeData(BaseResponseTest):
     ]
 
     @pytest.fixture(scope="class")
-    def build(self) -> ForgeData:
+    @staticmethod
+    def build() -> ForgeData:
         value = ForgeData.build(
             RawForgeData(
                 {

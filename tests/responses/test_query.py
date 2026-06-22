@@ -38,8 +38,9 @@ class TestQueryResponse(BaseResponseTest):
     ]
 
     @pytest.fixture(scope="class")
-    def build(self):
-        return QueryResponse.build(raw=self.RAW, players_list=self.RAW_PLAYERS)
+    @classmethod
+    def build(cls):
+        return QueryResponse.build(raw=cls.RAW, players_list=cls.RAW_PLAYERS)
 
     def test_as_dict(self, build: QueryResponse):
         assert build.as_dict() == {
@@ -88,7 +89,8 @@ class TestQueryPlayers(BaseResponseTest):
     ]
 
     @pytest.fixture(scope="class")
-    def build(self):
+    @staticmethod
+    def build():
         return QueryPlayers.build(
             raw={
                 "hostname": "A Minecraft Server",

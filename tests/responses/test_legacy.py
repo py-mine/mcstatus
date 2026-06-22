@@ -34,7 +34,8 @@ class TestLegacyStatusResponse(BaseResponseTest):
     ]
 
     @pytest.fixture(scope="class")
-    def build(self, build: LegacyStatusResponse) -> LegacyStatusResponse:
+    @staticmethod
+    def build(build: LegacyStatusResponse) -> LegacyStatusResponse:
         return build
 
     def test_as_dict(self, build: LegacyStatusResponse):
@@ -52,7 +53,8 @@ class TestLegacyStatusPlayers(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [("online", 0), ("max", 20)]
 
     @pytest.fixture(scope="class")
-    def build(self, build: LegacyStatusResponse) -> LegacyStatusPlayers:
+    @staticmethod
+    def build(build: LegacyStatusResponse) -> LegacyStatusPlayers:
         return build.players
 
 
@@ -62,5 +64,6 @@ class TestLegacyStatusVersion(BaseResponseTest):
     EXPECTED_VALUES: t.ClassVar = [("name", "1.4.2"), ("protocol", 47)]
 
     @pytest.fixture(scope="class")
-    def build(self, build: LegacyStatusResponse) -> LegacyStatusVersion:
+    @staticmethod
+    def build(build: LegacyStatusResponse) -> LegacyStatusVersion:
         return build.version
