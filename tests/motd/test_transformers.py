@@ -20,7 +20,8 @@ def test_nothing_transformer():
 
 class TestMotdPlain:
     @pytest.fixture(scope="class")
-    def result(self) -> MotdParseFunc:
+    @staticmethod
+    def result() -> MotdParseFunc:
         return lambda text: Motd.parse(text).to_plain()
 
     def test_plain_text(self, result: MotdParseFunc):
@@ -38,11 +39,13 @@ class TestMotdPlain:
 
 class TestMotdMinecraft:
     @pytest.fixture(scope="class")
-    def result(self) -> MotdParseFunc:
+    @staticmethod
+    def result() -> MotdParseFunc:
         return lambda text: Motd.parse(text).to_minecraft()
 
     @pytest.mark.parametrize("motd", ["&1&2&3", "§123§5bc", "§1§2§3"])
-    def test_return_the_same(self, motd: str, result: MotdParseFunc):
+    @staticmethod
+    def test_return_the_same(motd: str, result: MotdParseFunc):
         assert result(motd) == motd.replace("&", "§")
 
     def test_skip_web_colors(self, result: MotdParseFunc):
@@ -51,7 +54,8 @@ class TestMotdMinecraft:
 
 class TestMotdHTML:
     @pytest.fixture(scope="class")
-    def result(self) -> MotdParseFuncBedrockFlag:
+    @staticmethod
+    def result() -> MotdParseFuncBedrockFlag:
         return lambda text, bedrock: Motd.parse(text, bedrock=bedrock).to_html()
 
     def test_correct_output_java(self, result: MotdParseFuncBedrockFlag, source_java: RawJavaResponseMotd):
@@ -122,7 +126,8 @@ class TestMotdHTML:
 
 class TestMotdAnsi:
     @pytest.fixture(scope="class")
-    def result(self) -> MotdParseFuncBedrockFlag:
+    @staticmethod
+    def result() -> MotdParseFuncBedrockFlag:
         return lambda text, bedrock: Motd.parse(text, bedrock=bedrock).to_ansi()
 
     def test_correct_output_java(self, result: MotdParseFuncBedrockFlag, source_java: RawJavaResponseMotd):

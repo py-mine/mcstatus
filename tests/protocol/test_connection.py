@@ -266,7 +266,8 @@ class TestBuffer:
 
 class TestTCPSocketConnection:
     @pytest.fixture(scope="class")
-    def connection(self) -> Iterator[TCPSocketConnection]:
+    @staticmethod
+    def connection() -> Iterator[TCPSocketConnection]:
         test_addr = Address("localhost", 1234)
 
         socket = Mock()
@@ -302,7 +303,8 @@ class TestTCPSocketConnection:
 
 class TestUDPSocketConnection:
     @pytest.fixture(scope="class")
-    def connection(self) -> Iterator[UDPSocketConnection]:
+    @staticmethod
+    def connection() -> Iterator[UDPSocketConnection]:
         test_addr = Address("127.0.0.1", 1234)
 
         socket = Mock()
