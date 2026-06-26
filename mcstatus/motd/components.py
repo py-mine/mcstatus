@@ -23,7 +23,12 @@ __all__ = [
 # NOTE: keep in sync with the definition in docs (`docs/api/motd_parsing.rst`)
 # the autodocs plugin does not support type aliases yet, so those have to be
 # defined manually in docs
-ParsedMotdComponent: t.TypeAlias = "AnyFormatting | AnyMinecraftColor | WebColor | TranslationTag | str"
+ParsedMotdComponent: t.TypeAlias = "AnyFormatting | AnyMinecraftColor | InvalidFormatting | WebColor | TranslationTag | str"
+
+
+@dataclass(frozen=True)
+class InvalidFormatting:
+    value: str
 
 
 class JavaFormatting(Enum):

@@ -9,6 +9,7 @@ from mcstatus.motd._transformers import AnsiTransformer, HtmlTransformer, Minecr
 from mcstatus.motd.components import (
     BedrockFormatting,
     BedrockMinecraftColor,
+    InvalidFormatting,
     JavaFormatting,
     JavaMinecraftColor,
     ParsedMotdComponent,
@@ -111,8 +112,7 @@ class Motd:
                     try:
                         parsed_motd.append(formatting_enum(clean_element))
                     except ValueError:
-                        # just a text
-                        parsed_motd.append(element)
+                        parsed_motd.append(InvalidFormatting(clean_element))
             else:
                 parsed_motd.append(element)
 

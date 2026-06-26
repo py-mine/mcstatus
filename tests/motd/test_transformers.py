@@ -15,7 +15,7 @@ MotdParseFuncBedrockFlag: typing.TypeAlias = Callable[[RawJavaResponseMotd, bool
 
 
 def test_nothing_transformer():
-    assert _NothingTransformer(bedrock=False).transform(Motd.parse("&1a&bfoo&r").parsed) == ""
+    assert _NothingTransformer(bedrock=False).transform(Motd.parse("&1a&bfo&zo&r").parsed) == ""
 
 
 class TestMotdPlain:
@@ -43,7 +43,7 @@ class TestMotdMinecraft:
     def result() -> MotdParseFunc:
         return lambda text: Motd.parse(text).to_minecraft()
 
-    @pytest.mark.parametrize("motd", ["&1&2&3", "§123§5bc", "§1§2§3"])
+    @pytest.mark.parametrize("motd", ["&1&2&3&z", "§123§5bc&z", "§1§2§3§z"])
     @staticmethod
     def test_return_the_same(motd: str, result: MotdParseFunc):
         assert result(motd) == motd.replace("&", "§")
@@ -114,8 +114,8 @@ class TestMotdHTML:
             "<span style='color:rgb(44, 186, 168);text-shadow:0 0 1px rgb(11, 46, 42)'>26</span>"
             "<span style='color:rgb(33, 73, 123);text-shadow:0 0 1px rgb(8, 18, 30)'>27</span>"
             "<span style='color:rgb(154, 92, 198);text-shadow:0 0 1px rgb(38, 23, 49)'>28</span>"
-            "<span style='color:rgb(235, 114, 20);text-shadow:0 0 1px rgb(59, 29, 5)'>29</span>"
-            "30"
+            "<span style='color:rgb(235, 114, 20);text-shadow:0 0 1px rgb(59, 29, 5)'>2930</span>"
+            "31"
             "</p>"
         )
 
@@ -188,5 +188,5 @@ class TestMotdAnsi:
             "\033[0m\033[38;2;33;73;123m27"
             "\033[0m\033[38;2;154;92;198m28"
             "\033[0m\033[38;2;235;114;20m29"
-            "\033[0m30\033[0m"
+            "30\033[0m31\033[0m"
         )
