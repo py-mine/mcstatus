@@ -86,8 +86,7 @@ class _BaseTransformer(abc.ABC, t.Generic[_HOOK_RETURN_TYPE, _END_RESULT_TYPE]):
     :type:`~mcstatus.motd.components.ParsedMotdComponent` individually.
     """
 
-    # TODO: When dropping v13 support, make sure to drop the default value for the bedrock arg
-    def __init__(self, *, bedrock: bool = False) -> None:
+    def __init__(self, *, bedrock: bool) -> None:
         self.bedrock: bool = bedrock
 
     def transform(self, motd_components: Sequence[ParsedMotdComponent]) -> _END_RESULT_TYPE:
@@ -216,8 +215,7 @@ class HtmlTransformer(PlainTransformer):
         "UNDERLINED": "u",
     }
 
-    # TODO: When dropping v13 support, make sure to drop the default value for the bedrock arg
-    def __init__(self, *, bedrock: bool = False) -> None:
+    def __init__(self, *, bedrock: bool) -> None:
         super().__init__(bedrock=bedrock)
         self.on_reset: list[str] = []
 
@@ -279,8 +277,7 @@ class AnsiTransformer(PlainTransformer):
         key: foreground for key, (foreground, _background) in _MINECRAFT_COLOR_TO_RGB_BEDROCK.items()
     }
 
-    # TODO: When dropping v13 support, make sure to drop the default value for the bedrock arg
-    def __init__(self, *, bedrock: bool = True) -> None:
+    def __init__(self, *, bedrock: bool) -> None:
         super().__init__(bedrock=bedrock)
 
     def ansi_color(self, color: tuple[int, int, int] | AnyMinecraftColor) -> str:
