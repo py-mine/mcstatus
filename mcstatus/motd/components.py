@@ -8,8 +8,12 @@ if t.TYPE_CHECKING:
     from typing_extensions import Self
 
 __all__ = [
-    "Formatting",
-    "MinecraftColor",
+    "AnyFormatting",
+    "AnyMinecraftColor",
+    "BedrockFormatting",
+    "BedrockMinecraftColor",
+    "JavaFormatting",
+    "JavaMinecraftColor",
     "ParsedMotdComponent",
     "TranslationTag",
     "WebColor",
@@ -19,18 +23,14 @@ __all__ = [
 # NOTE: keep in sync with the definition in docs (`docs/api/motd_parsing.rst`)
 # the autodocs plugin does not support type aliases yet, so those have to be
 # defined manually in docs
-ParsedMotdComponent: t.TypeAlias = "Formatting | MinecraftColor | WebColor | TranslationTag | str"
+ParsedMotdComponent: t.TypeAlias = "AnyFormatting | AnyMinecraftColor | WebColor | TranslationTag | str"
 
 
-class Formatting(Enum):
-    """Enum for Formatting codes.
+class JavaFormatting(Enum):
+    """Enum for Java Formatting codes.
 
     See `Minecraft wiki <https://minecraft.wiki/w/Formatting_codes#Formatting_codes>`__
     for more info.
-
-    .. note::
-        :attr:`.STRIKETHROUGH` and :attr:`.UNDERLINED` don't work on Bedrock, which our parser
-        doesn't keep it in mind. See `MCPE-41729 <https://bugs.mojang.com/browse/MCPE-41729>`_.
     """
 
     BOLD = "l"
@@ -41,8 +41,25 @@ class Formatting(Enum):
     RESET = "r"
 
 
-class MinecraftColor(Enum):
-    """Enum for Color codes.
+class BedrockFormatting(Enum):
+    """Enum for Bedrock Formatting codes.
+
+    The same as :class:`.JavaFormatting`, but excludes
+    :attr:`JavaFormatting.UNDERLINED` and :attr:`JavaFormatting.STRIKETHROUGH`,
+    as they don't work on Bedrock (see `MCPE-41729 <https://bugs.mojang.com/browse/MCPE-41729>`_)
+
+    See `Minecraft wiki <https://minecraft.wiki/w/Formatting_codes#Formatting_codes>`__
+    for more info.
+    """
+
+    BOLD = "l"
+    ITALIC = "o"
+    OBFUSCATED = "k"
+    RESET = "r"
+
+
+class JavaMinecraftColor(Enum):
+    """Enum for Java color codes.
 
     See `Minecraft wiki <https://minecraft.wiki/w/Formatting_codes#Color_codes>`_
     for more info.
@@ -65,7 +82,31 @@ class MinecraftColor(Enum):
     YELLOW = "e"
     WHITE = "f"
 
-    # Only for bedrock
+
+class BedrockMinecraftColor(Enum):
+    """Enum for Bedrock color codes.
+
+    See `Minecraft wiki <https://minecraft.wiki/w/Formatting_codes#Color_codes>`_
+    for more info.
+    """
+
+    BLACK = "0"
+    DARK_BLUE = "1"
+    DARK_GREEN = "2"
+    DARK_AQUA = "3"
+    DARK_RED = "4"
+    DARK_PURPLE = "5"
+    GOLD = "6"
+    GRAY = "7"
+    DARK_GRAY = "8"
+    BLUE = "9"
+    GREEN = "a"
+    AQUA = "b"
+    RED = "c"
+    LIGHT_PURPLE = "d"
+    YELLOW = "e"
+    WHITE = "f"
+
     MINECOIN_GOLD = "g"
     MATERIAL_QUARTZ = "h"
     MATERIAL_IRON = "i"
@@ -78,6 +119,11 @@ class MinecraftColor(Enum):
     MATERIAL_LAPIS = "t"
     MATERIAL_AMETHYST = "u"
     MATERIAL_RESIN = "v"
+
+
+# having these as unions, means that we can use `isinstance`
+AnyFormatting: t.TypeAlias = JavaFormatting | BedrockFormatting
+AnyMinecraftColor: t.TypeAlias = JavaMinecraftColor | BedrockMinecraftColor
 
 
 @dataclass(frozen=True)

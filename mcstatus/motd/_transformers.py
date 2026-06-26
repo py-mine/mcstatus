@@ -3,7 +3,17 @@ from __future__ import annotations
 import abc
 import typing as t
 
-from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
+from mcstatus.motd.components import (
+    AnyFormatting,
+    AnyMinecraftColor,
+    BedrockFormatting,
+    BedrockMinecraftColor,
+    JavaFormatting,
+    JavaMinecraftColor,
+    ParsedMotdComponent,
+    TranslationTag,
+    WebColor,
+)
 
 if t.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -24,43 +34,43 @@ _END_RESULT_TYPE = t.TypeVar("_END_RESULT_TYPE")
 
 # MinecraftColor: (foreground, background) # noqa: ERA001 # commented-out code
 _SHARED_MINECRAFT_COLOR_TO_RGB = {
-    MinecraftColor.BLACK: ((0, 0, 0), (0, 0, 0)),
-    MinecraftColor.DARK_BLUE: ((0, 0, 170), (0, 0, 42)),
-    MinecraftColor.DARK_GREEN: ((0, 170, 0), (0, 42, 0)),
-    MinecraftColor.DARK_AQUA: ((0, 170, 170), (0, 42, 42)),
-    MinecraftColor.DARK_RED: ((170, 0, 0), (42, 0, 0)),
-    MinecraftColor.DARK_PURPLE: ((170, 0, 170), (42, 0, 42)),
-    MinecraftColor.GOLD: ((255, 170, 0), (64, 42, 0)),
-    MinecraftColor.GRAY: ((170, 170, 170), (42, 42, 42)),
-    MinecraftColor.DARK_GRAY: ((85, 85, 85), (21, 21, 21)),
-    MinecraftColor.BLUE: ((85, 85, 255), (21, 21, 63)),
-    MinecraftColor.GREEN: ((85, 255, 85), (21, 63, 21)),
-    MinecraftColor.AQUA: ((85, 255, 255), (21, 63, 63)),
-    MinecraftColor.RED: ((255, 85, 85), (63, 21, 21)),
-    MinecraftColor.LIGHT_PURPLE: ((255, 85, 255), (63, 21, 63)),
-    MinecraftColor.YELLOW: ((255, 255, 85), (63, 63, 21)),
-    MinecraftColor.WHITE: ((255, 255, 255), (63, 63, 63)),
+    "BLACK": ((0, 0, 0), (0, 0, 0)),
+    "DARK_BLUE": ((0, 0, 170), (0, 0, 42)),
+    "DARK_GREEN": ((0, 170, 0), (0, 42, 0)),
+    "DARK_AQUA": ((0, 170, 170), (0, 42, 42)),
+    "DARK_RED": ((170, 0, 0), (42, 0, 0)),
+    "DARK_PURPLE": ((170, 0, 170), (42, 0, 42)),
+    "GOLD": ((255, 170, 0), (64, 42, 0)),
+    "GRAY": ((170, 170, 170), (42, 42, 42)),
+    "DARK_GRAY": ((85, 85, 85), (21, 21, 21)),
+    "BLUE": ((85, 85, 255), (21, 21, 63)),
+    "GREEN": ((85, 255, 85), (21, 63, 21)),
+    "AQUA": ((85, 255, 255), (21, 63, 63)),
+    "RED": ((255, 85, 85), (63, 21, 21)),
+    "LIGHT_PURPLE": ((255, 85, 255), (63, 21, 63)),
+    "YELLOW": ((255, 255, 85), (63, 63, 21)),
+    "WHITE": ((255, 255, 255), (63, 63, 63)),
 }
 
 _MINECRAFT_COLOR_TO_RGB_JAVA = _SHARED_MINECRAFT_COLOR_TO_RGB.copy()
-_MINECRAFT_COLOR_TO_RGB_JAVA[MinecraftColor.GRAY] = ((170, 170, 170), (42, 42, 42))
+_MINECRAFT_COLOR_TO_RGB_JAVA["GRAY"] = ((170, 170, 170), (42, 42, 42))
 
 _MINECRAFT_COLOR_TO_RGB_BEDROCK = _SHARED_MINECRAFT_COLOR_TO_RGB.copy()
 _MINECRAFT_COLOR_TO_RGB_BEDROCK.update(
     {
-        MinecraftColor.GRAY: ((198, 198, 198), (49, 49, 49)),
-        MinecraftColor.MINECOIN_GOLD: ((221, 214, 5), (55, 53, 1)),
-        MinecraftColor.MATERIAL_QUARTZ: ((227, 212, 209), (56, 53, 52)),
-        MinecraftColor.MATERIAL_IRON: ((206, 202, 202), (51, 50, 50)),
-        MinecraftColor.MATERIAL_NETHERITE: ((68, 58, 59), (17, 14, 14)),
-        MinecraftColor.MATERIAL_REDSTONE: ((151, 22, 7), (37, 5, 1)),
-        MinecraftColor.MATERIAL_COPPER: ((180, 104, 77), (45, 26, 19)),
-        MinecraftColor.MATERIAL_GOLD: ((222, 177, 45), (55, 44, 11)),
-        MinecraftColor.MATERIAL_EMERALD: ((17, 159, 54), (4, 40, 13)),
-        MinecraftColor.MATERIAL_DIAMOND: ((44, 186, 168), (11, 46, 42)),
-        MinecraftColor.MATERIAL_LAPIS: ((33, 73, 123), (8, 18, 30)),
-        MinecraftColor.MATERIAL_AMETHYST: ((154, 92, 198), (38, 23, 49)),
-        MinecraftColor.MATERIAL_RESIN: ((235, 114, 20), (59, 29, 5)),
+        "GRAY": ((198, 198, 198), (49, 49, 49)),
+        "MINECOIN_GOLD": ((221, 214, 5), (55, 53, 1)),
+        "MATERIAL_QUARTZ": ((227, 212, 209), (56, 53, 52)),
+        "MATERIAL_IRON": ((206, 202, 202), (51, 50, 50)),
+        "MATERIAL_NETHERITE": ((68, 58, 59), (17, 14, 14)),
+        "MATERIAL_REDSTONE": ((151, 22, 7), (37, 5, 1)),
+        "MATERIAL_COPPER": ((180, 104, 77), (45, 26, 19)),
+        "MATERIAL_GOLD": ((222, 177, 45), (55, 44, 11)),
+        "MATERIAL_EMERALD": ((17, 159, 54), (4, 40, 13)),
+        "MATERIAL_DIAMOND": ((44, 186, 168), (11, 46, 42)),
+        "MATERIAL_LAPIS": ((33, 73, 123), (8, 18, 30)),
+        "MATERIAL_AMETHYST": ((154, 92, 198), (38, 23, 49)),
+        "MATERIAL_RESIN": ((235, 114, 20), (59, 29, 5)),
     }
 )
 
@@ -75,6 +85,10 @@ class _BaseTransformer(abc.ABC, t.Generic[_HOOK_RETURN_TYPE, _END_RESULT_TYPE]):
     :type:`~mcstatus.motd.components.ParsedMotdComponent` individually.
     """
 
+    # TODO: When dropping v13 support, make sure to drop the default value for the bedrock arg
+    def __init__(self, *, bedrock: bool = False) -> None:
+        self.bedrock: bool = bedrock
+
     def transform(self, motd_components: Sequence[ParsedMotdComponent]) -> _END_RESULT_TYPE:
         return self._format_output([handled for component in motd_components for handled in self._handle_component(component)])
 
@@ -84,13 +98,15 @@ class _BaseTransformer(abc.ABC, t.Generic[_HOOK_RETURN_TYPE, _END_RESULT_TYPE]):
     def _handle_component(
         self, component: ParsedMotdComponent
     ) -> tuple[_HOOK_RETURN_TYPE, _HOOK_RETURN_TYPE] | tuple[_HOOK_RETURN_TYPE]:
+        color_enum = BedrockMinecraftColor if self.bedrock else JavaMinecraftColor
+        formatting_enum = BedrockFormatting if self.bedrock else JavaFormatting
 
         def handler(component: ParsedMotdComponent) -> _HOOK_RETURN_TYPE:
-            if type(component) is MinecraftColor:
+            if type(component) is color_enum:
                 return self._handle_minecraft_color(component)
             if type(component) is WebColor:
                 return self._handle_web_color(component)
-            if type(component) is Formatting:
+            if type(component) is formatting_enum:
                 return self._handle_formatting(component)
             if type(component) is TranslationTag:
                 return self._handle_translation_tag(component)
@@ -100,8 +116,8 @@ class _BaseTransformer(abc.ABC, t.Generic[_HOOK_RETURN_TYPE, _END_RESULT_TYPE]):
             raise RuntimeError(f"Invalid component type: {type(component)}: {component!r}")
 
         additional = None
-        if isinstance(component, MinecraftColor):
-            additional = self._handle_formatting(Formatting.RESET)
+        if isinstance(component, color_enum):
+            additional = self._handle_formatting(formatting_enum.RESET)
 
         return (additional, handler(component)) if additional is not None else (handler(component),)
 
@@ -115,10 +131,10 @@ class _BaseTransformer(abc.ABC, t.Generic[_HOOK_RETURN_TYPE, _END_RESULT_TYPE]):
     def _handle_web_color(self, element: WebColor, /) -> _HOOK_RETURN_TYPE: ...
 
     @abc.abstractmethod
-    def _handle_formatting(self, element: Formatting, /) -> _HOOK_RETURN_TYPE: ...
+    def _handle_formatting(self, element: AnyFormatting, /) -> _HOOK_RETURN_TYPE: ...
 
     @abc.abstractmethod
-    def _handle_minecraft_color(self, element: MinecraftColor, /) -> _HOOK_RETURN_TYPE: ...
+    def _handle_minecraft_color(self, element: AnyMinecraftColor, /) -> _HOOK_RETURN_TYPE: ...
 
 
 class _NothingTransformer(_BaseTransformer[str, str]):
@@ -136,7 +152,7 @@ class _NothingTransformer(_BaseTransformer[str, str]):
         return ""
 
     @override
-    def _handle_minecraft_color(self, _element: MinecraftColor, /) -> str:
+    def _handle_minecraft_color(self, _element: AnyMinecraftColor, /) -> str:
         return ""
 
     @override
@@ -144,7 +160,7 @@ class _NothingTransformer(_BaseTransformer[str, str]):
         return ""
 
     @override
-    def _handle_formatting(self, _element: Formatting, /) -> str:
+    def _handle_formatting(self, _element: AnyFormatting, /) -> str:
         return ""
 
     @override
@@ -168,26 +184,26 @@ class MinecraftTransformer(PlainTransformer):
         return result
 
     @override
-    def _handle_minecraft_color(self, element: MinecraftColor, /) -> str:
+    def _handle_minecraft_color(self, element: AnyMinecraftColor, /) -> str:
         return "§" + element.value
 
     @override
-    def _handle_formatting(self, element: Formatting, /) -> str:
+    def _handle_formatting(self, element: AnyFormatting, /) -> str:
         return "§" + element.value
 
 
 @t.final
 class HtmlTransformer(PlainTransformer):
     _FORMATTING_TO_HTML_TAGS: t.ClassVar = {
-        Formatting.BOLD: "b",
-        Formatting.STRIKETHROUGH: "s",
-        Formatting.ITALIC: "i",
-        Formatting.UNDERLINED: "u",
+        "BOLD": "b",
+        "STRIKETHROUGH": "s",
+        "ITALIC": "i",
+        "UNDERLINED": "u",
     }
 
     # TODO: When dropping v13 support, make sure to drop the default value for the bedrock arg
     def __init__(self, *, bedrock: bool = False) -> None:
-        self.bedrock = bedrock
+        super().__init__(bedrock=bedrock)
         self.on_reset: list[str] = []
 
     @override
@@ -204,9 +220,9 @@ class HtmlTransformer(PlainTransformer):
         return element.replace("\n", "<br>")
 
     @override
-    def _handle_minecraft_color(self, element: MinecraftColor, /) -> str:
+    def _handle_minecraft_color(self, element: AnyMinecraftColor, /) -> str:
         color_map = _MINECRAFT_COLOR_TO_RGB_BEDROCK if self.bedrock else _MINECRAFT_COLOR_TO_RGB_JAVA
-        fg_color, bg_color = color_map[element]
+        fg_color, bg_color = color_map[element.name]
 
         self.on_reset.append("</span>")
         return f"<span style='color:rgb{fg_color};text-shadow:0 0 1px rgb{bg_color}'>"
@@ -217,17 +233,17 @@ class HtmlTransformer(PlainTransformer):
         return f"<span style='color:rgb{element.rgb}'>"
 
     @override
-    def _handle_formatting(self, element: Formatting, /) -> str:
-        if element is Formatting.RESET:
+    def _handle_formatting(self, element: AnyFormatting, /) -> str:
+        if element.name == "RESET":
             to_return = "".join(self.on_reset)
             self.on_reset = []
             return to_return
 
-        if element is Formatting.OBFUSCATED:
+        if element.name == "OBFUSCATED":
             self.on_reset.append("</span>")
             return "<span class=obfuscated>"
 
-        tag_name = self._FORMATTING_TO_HTML_TAGS[element]
+        tag_name = self._FORMATTING_TO_HTML_TAGS[element.name]
         self.on_reset.append(f"</{tag_name}>")
         return f"<{tag_name}>"
 
@@ -235,11 +251,11 @@ class HtmlTransformer(PlainTransformer):
 @t.final
 class AnsiTransformer(PlainTransformer):
     _FORMATTING_TO_ANSI_TAGS: t.ClassVar = {
-        Formatting.BOLD: "1",
-        Formatting.STRIKETHROUGH: "9",
-        Formatting.ITALIC: "3",
-        Formatting.UNDERLINED: "4",
-        Formatting.OBFUSCATED: "5",
+        "BOLD": "1",
+        "STRIKETHROUGH": "9",
+        "ITALIC": "3",
+        "UNDERLINED": "4",
+        "OBFUSCATED": "5",
     }
     _MINECRAFT_COLOR_TO_RGB_JAVA: t.ClassVar = {
         key: foreground for key, (foreground, _background) in _MINECRAFT_COLOR_TO_RGB_JAVA.items()
@@ -250,13 +266,13 @@ class AnsiTransformer(PlainTransformer):
 
     # TODO: When dropping v13 support, make sure to drop the default value for the bedrock arg
     def __init__(self, *, bedrock: bool = True) -> None:
-        self.bedrock = bedrock
+        super().__init__(bedrock=bedrock)
 
-    def ansi_color(self, color: tuple[int, int, int] | MinecraftColor) -> str:
+    def ansi_color(self, color: tuple[int, int, int] | AnyMinecraftColor) -> str:
         """Transform RGB color to ANSI color code."""
-        if isinstance(color, MinecraftColor):
+        if isinstance(color, AnyMinecraftColor):
             color_to_rgb = self._MINECRAFT_COLOR_TO_RGB_BEDROCK if self.bedrock else self._MINECRAFT_COLOR_TO_RGB_JAVA
-            color = color_to_rgb[color]
+            color = color_to_rgb[color.name]
 
         return "\033[38;2;{};{};{}m".format(*color)
 
@@ -265,7 +281,7 @@ class AnsiTransformer(PlainTransformer):
         return "\033[0m" + super()._format_output(results) + "\033[0m"
 
     @override
-    def _handle_minecraft_color(self, element: MinecraftColor, /) -> str:
+    def _handle_minecraft_color(self, element: AnyMinecraftColor, /) -> str:
         return self.ansi_color(element)
 
     @override
@@ -273,7 +289,7 @@ class AnsiTransformer(PlainTransformer):
         return self.ansi_color(element.rgb)
 
     @override
-    def _handle_formatting(self, element: Formatting, /) -> str:
-        if element is Formatting.RESET:
+    def _handle_formatting(self, element: AnyFormatting, /) -> str:
+        if element.name == "RESET":
             return "\033[0m"
-        return "\033[" + self._FORMATTING_TO_ANSI_TAGS[element] + "m"
+        return "\033[" + self._FORMATTING_TO_ANSI_TAGS[element.name] + "m"

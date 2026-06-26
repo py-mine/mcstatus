@@ -6,7 +6,15 @@ from dataclasses import dataclass
 
 from mcstatus.motd._simplifies import get_unused_elements, squash_nearby_strings
 from mcstatus.motd._transformers import AnsiTransformer, HtmlTransformer, MinecraftTransformer, PlainTransformer
-from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, TranslationTag, WebColor
+from mcstatus.motd.components import (
+    BedrockFormatting,
+    BedrockMinecraftColor,
+    JavaFormatting,
+    JavaMinecraftColor,
+    ParsedMotdComponent,
+    TranslationTag,
+    WebColor,
+)
 
 if t.TYPE_CHECKING:
     from typing_extensions import Self
@@ -79,10 +87,14 @@ class Motd:
 
         :param raw: Raw MOTD, directly from server.
         :param bedrock: Is server Bedrock Edition?
-            Ignores :attr:`MinecraftColor.MINECOIN_GOLD` if it's :obj:`False`.
+            If it isn't, ignores any color that starts with ``MATERIAL`` or
+            :attr:`MinecraftColor.MINECOIN_GOLD`.
         :returns: :obj:`ParsedMotdComponent` list, which need to be passed to ``__init__``.
         """
         parsed_motd: list[ParsedMotdComponent] = []
+
+        color_enum = BedrockMinecraftColor if bedrock else JavaMinecraftColor
+        formatting_enum = BedrockFormatting if bedrock else JavaFormatting
 
         split_raw = _MOTD_COLORS_RE.split(raw)
         for element in split_raw:
@@ -92,16 +104,12 @@ class Motd:
             clean_element = element.lstrip("&§").lower()
             standardized_element = element.replace("&", "§").lower()
 
-            if standardized_element == "§g" and not bedrock:
-                parsed_motd.append(element)  # minecoin_gold on java server, treat as string
-                continue
-
             if standardized_element.startswith("§"):
                 try:
-                    parsed_motd.append(MinecraftColor(clean_element))
+                    parsed_motd.append(color_enum(clean_element))
                 except ValueError:
                     try:
-                        parsed_motd.append(Formatting(clean_element))
+                        parsed_motd.append(formatting_enum(clean_element))
                     except ValueError:
                         # just a text
                         parsed_motd.append(element)
@@ -115,7 +123,7 @@ class Motd:
         cls,
         item: RawJavaResponseMotdWhenDict,
         *,
-        bedrock: bool = False,
+        bedrock: bool,
         auto_add: list[ParsedMotdComponent] | None = None,
     ) -> list[ParsedMotdComponent]:
         """Parse a MOTD when it's dict.
@@ -127,12 +135,13 @@ class Motd:
             Most time, this is :class:`Formatting` from top level.
         :returns: :obj:`ParsedMotdComponent` list, which need to be passed to ``__init__``.
         """
+        formatting_enum = BedrockFormatting if bedrock else JavaFormatting
         parsed_motd: list[ParsedMotdComponent] = auto_add if auto_add is not None else []
 
         if (color := item.get("color")) is not None:
-            parsed_motd.append(cls._parse_color(color))
+            parsed_motd.append(cls._parse_color(color, bedrock=bedrock))
 
-        for style_key, style_val in Formatting.__members__.items():
+        for style_key, style_val in formatting_enum.__members__.items():
             lowered_style_key = style_key.lower()
             if item.get(lowered_style_key) is False:
                 try:
@@ -147,14 +156,14 @@ class Motd:
             parsed_motd.extend(cls._parse_as_str(text, bedrock=bedrock))
         if (translate := item.get("translate")) is not None:
             parsed_motd.append(TranslationTag(translate))
-        parsed_motd.append(Formatting.RESET)
+        parsed_motd.append(formatting_enum.RESET)
 
         if "extra" in item:
-            auto_add = list(filter(lambda e: type(e) is Formatting and e != Formatting.RESET, parsed_motd))
+            auto_add = list(filter(lambda e: type(e) is formatting_enum and e != formatting_enum.RESET, parsed_motd))
 
             for element in item["extra"]:
                 parsed_motd.extend(
-                    cls._parse_as_dict(element, auto_add=auto_add.copy())
+                    cls._parse_as_dict(element, bedrock=bedrock, auto_add=auto_add.copy())
                     if isinstance(element, dict)
                     else auto_add + cls._parse_as_str(element, bedrock=bedrock)
                 )
@@ -162,10 +171,12 @@ class Motd:
         return parsed_motd
 
     @staticmethod
-    def _parse_color(color: str) -> ParsedMotdComponent:
+    def _parse_color(color: str, *, bedrock: bool) -> ParsedMotdComponent:
         """Parse a color string."""
+        color_enum = BedrockMinecraftColor if bedrock else JavaMinecraftColor
+        formatting_enum = BedrockFormatting if bedrock else JavaFormatting
         try:
-            return MinecraftColor[color.upper()]
+            return color_enum[color.upper()]
         except KeyError:
             if color == "reset":
                 # Minecraft servers actually can't return {"reset": True}, instead, they treat
@@ -175,7 +186,7 @@ class Motd:
                 #
                 # see `color` field in
                 # https://minecraft.wiki/w/Java_Edition_protocol/Chat?oldid=2763811#Shared_between_all_components
-                return Formatting.RESET
+                return formatting_enum.RESET
 
             # Last attempt: try parsing as HTML (hex rgb) color. Some servers use these to
             # achieve gradients.
@@ -210,7 +221,7 @@ class Motd:
         Example:
             ``&0Hello &oWorld`` turns into ``Hello World``.
         """
-        return PlainTransformer().transform(self.parsed)
+        return PlainTransformer(bedrock=self.bedrock).transform(self.parsed)
 
     def to_minecraft(self) -> str:
         """Transform MOTD to the Minecraft representation.
@@ -223,7 +234,7 @@ class Motd:
                 >>> Motd.parse("&0Hello &oWorld")
                 "§0Hello §oWorld"
         """
-        return MinecraftTransformer().transform(self.parsed)
+        return MinecraftTransformer(bedrock=self.bedrock).transform(self.parsed)
 
     def to_html(self) -> str:
         """Transform MOTD to the HTML format.

@@ -2,7 +2,14 @@ from __future__ import annotations
 
 import typing as t
 
-from mcstatus.motd.components import Formatting, MinecraftColor, ParsedMotdComponent, WebColor
+from mcstatus.motd.components import (
+    AnyFormatting,
+    AnyMinecraftColor,
+    BedrockMinecraftColor,
+    JavaMinecraftColor,
+    ParsedMotdComponent,
+    WebColor,
+)
 
 if t.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -79,7 +86,7 @@ def get_double_items(parsed: Sequence[ParsedMotdComponent]) -> set[int]:
         except IndexError:  # Last item (without any next item)
             break
 
-        if isinstance(item, (Formatting, MinecraftColor, WebColor)) and item == next_item:
+        if isinstance(item, (AnyFormatting, AnyMinecraftColor, WebColor)) and item == next_item:
             to_remove.add(index)
 
     return to_remove
@@ -96,7 +103,7 @@ def get_double_colors(parsed: Sequence[ParsedMotdComponent]) -> set[int]:
 
     prev_color: int | None = None
     for index, item in enumerate(parsed):
-        if isinstance(item, (MinecraftColor, WebColor)):
+        if isinstance(item, (AnyMinecraftColor, WebColor)):
             # If we found a color after another, remove the previous color
             if prev_color is not None:
                 to_remove.add(prev_color)
@@ -122,7 +129,7 @@ def get_formatting_before_color(parsed: Sequence[ParsedMotdComponent]) -> set[in
     collected_formattings: list[int] = []
     for index, item in enumerate(parsed):
         # Collect the indices of formatting items
-        if isinstance(item, Formatting):
+        if isinstance(item, AnyFormatting):
             collected_formattings.append(index)
 
         # Only run checks if we have some collected formatting items
@@ -138,7 +145,7 @@ def get_formatting_before_color(parsed: Sequence[ParsedMotdComponent]) -> set[in
         # If there's a color after some formattings, these formattings will be overridden
         # as colors reset everything. This makes these formattings pointless, mark them
         # for removal.
-        if isinstance(item, (MinecraftColor, WebColor)):
+        if isinstance(item, (AnyMinecraftColor, WebColor)):
             to_remove.update(collected_formattings)
             collected_formattings = []
     return to_remove
@@ -159,7 +166,7 @@ def get_end_non_text(parsed: Sequence[ParsedMotdComponent]) -> set[int]:
             break
 
         # Remove any color/formatting that doesn't apply to text
-        if isinstance(item, (MinecraftColor, WebColor, Formatting)):
+        if isinstance(item, (AnyMinecraftColor, AnyFormatting, WebColor)):
             index = len(parsed) - 1 - rev_index
             to_remove.add(index)
 
@@ -169,16 +176,16 @@ def get_end_non_text(parsed: Sequence[ParsedMotdComponent]) -> set[int]:
 def get_meaningless_resets_and_colors(parsed: Sequence[ParsedMotdComponent]) -> set[int]:
     to_remove: set[int] = set()
 
-    active_color: MinecraftColor | WebColor | None = None
-    active_formatting: Formatting | None = None
+    active_color: AnyMinecraftColor | WebColor | None = None
+    active_formatting: AnyFormatting | None = None
     for index, item in enumerate(parsed):
-        if isinstance(item, (MinecraftColor, WebColor)):
+        if isinstance(item, (JavaMinecraftColor, BedrockMinecraftColor, WebColor)):
             if active_color == item:
                 to_remove.add(index)
             active_color = item
             continue
-        if isinstance(item, Formatting):
-            if item == Formatting.RESET:
+        if isinstance(item, AnyFormatting):
+            if item.name == "RESET":
                 if active_color is None and active_formatting is None:
                     to_remove.add(index)
                     continue
