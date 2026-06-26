@@ -12,6 +12,7 @@ __all__ = [
     "AnyMinecraftColor",
     "BedrockFormatting",
     "BedrockMinecraftColor",
+    "InvalidFormatting",
     "JavaFormatting",
     "JavaMinecraftColor",
     "ParsedMotdComponent",
@@ -28,6 +29,12 @@ ParsedMotdComponent: t.TypeAlias = "AnyFormatting | AnyMinecraftColor | InvalidF
 
 @dataclass(frozen=True)
 class InvalidFormatting:
+    """Unrecognized color formatting.
+
+    This might be because the color returned is genuinely invalid, or because
+    this is a new color which mcstatus doesn't yet recognize.
+    """
+
     value: str
 
 
