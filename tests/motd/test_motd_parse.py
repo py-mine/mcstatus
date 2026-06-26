@@ -6,6 +6,7 @@ from mcstatus.motd import Motd
 from mcstatus.motd.components import (
     BedrockFormatting,
     BedrockMinecraftColor,
+    InvalidFormatting,
     JavaFormatting,
     JavaMinecraftColor,
     ParsedMotdComponent,
@@ -47,17 +48,22 @@ class TestMotdParse:
                 BedrockMinecraftColor.MATERIAL_LAPIS, "27",
                 BedrockMinecraftColor.MATERIAL_AMETHYST, "28",
                 BedrockMinecraftColor.MATERIAL_RESIN, "29",
-                BedrockFormatting.RESET, "30",
+                InvalidFormatting("z"), "30",
+                BedrockFormatting.RESET, "31",
             ],
             bedrock=True,
             raw=source_bedrock,
         )  # fmt: skip
 
-    @pytest.mark.parametrize(("bedrock", "expected"), [(True, BedrockMinecraftColor.MINECOIN_GOLD), (False, "&g")])
+    @pytest.mark.parametrize(
+        ("bedrock", "expected"), [(True, BedrockMinecraftColor.MINECOIN_GOLD), (False, InvalidFormatting("g"))]
+    )
     def test_parse_as_str_ignore_minecoin_gold_on_java(self, bedrock: bool, expected: ParsedMotdComponent):
         assert Motd.parse("&g", bedrock=bedrock).parsed == [expected]
 
-    @pytest.mark.parametrize(("bedrock", "expected"), [(True, BedrockMinecraftColor.MATERIAL_IRON), (False, "&i")])
+    @pytest.mark.parametrize(
+        ("bedrock", "expected"), [(True, BedrockMinecraftColor.MATERIAL_IRON), (False, InvalidFormatting("i"))]
+    )
     def test_parse_as_str_ignore_material_colors_on_java(self, bedrock: bool, expected: ParsedMotdComponent):
         assert Motd.parse("&i", bedrock=bedrock).parsed == [expected]
 
@@ -67,9 +73,8 @@ class TestMotdParse:
     def test_parse_as_str_underlined_on_java(self, bedrock: bool, expected: ParsedMotdComponent):
         assert Motd.parse("&n", bedrock=bedrock).parsed == [expected]
 
-    def test_parse_incorrect_color_passes(self):
-        """See `https://github.com/py-mine/mcstatus/pull/335#discussion_r985084188`_."""
-        assert Motd.parse("&z").parsed == ["&z"]
+    def test_parse_incorrect_formatting(self):
+        assert Motd.parse("&z").parsed == [InvalidFormatting("z")]
 
     def test_parse_uppercase_passes(self):
         assert Motd.parse("&A").parsed == [JavaMinecraftColor.GREEN]

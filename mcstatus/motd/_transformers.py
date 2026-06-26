@@ -8,6 +8,7 @@ from mcstatus.motd.components import (
     AnyMinecraftColor,
     BedrockFormatting,
     BedrockMinecraftColor,
+    InvalidFormatting,
     JavaFormatting,
     JavaMinecraftColor,
     ParsedMotdComponent,
@@ -108,6 +109,8 @@ class _BaseTransformer(abc.ABC, t.Generic[_HOOK_RETURN_TYPE, _END_RESULT_TYPE]):
                 return self._handle_web_color(component)
             if type(component) is formatting_enum:
                 return self._handle_formatting(component)
+            if type(component) is InvalidFormatting:
+                return self._handle_invalid_formatting(component)
             if type(component) is TranslationTag:
                 return self._handle_translation_tag(component)
             if type(component) is str:
@@ -132,6 +135,9 @@ class _BaseTransformer(abc.ABC, t.Generic[_HOOK_RETURN_TYPE, _END_RESULT_TYPE]):
 
     @abc.abstractmethod
     def _handle_formatting(self, element: AnyFormatting, /) -> _HOOK_RETURN_TYPE: ...
+
+    @abc.abstractmethod
+    def _handle_invalid_formatting(self, element: InvalidFormatting, /) -> _HOOK_RETURN_TYPE: ...
 
     @abc.abstractmethod
     def _handle_minecraft_color(self, element: AnyMinecraftColor, /) -> _HOOK_RETURN_TYPE: ...
@@ -164,6 +170,10 @@ class _NothingTransformer(_BaseTransformer[str, str]):
         return ""
 
     @override
+    def _handle_invalid_formatting(self, _element: InvalidFormatting, /) -> str:
+        return ""
+
+    @override
     def _handle_translation_tag(self, _element: TranslationTag, /) -> str:
         return ""
 
@@ -189,6 +199,11 @@ class MinecraftTransformer(PlainTransformer):
 
     @override
     def _handle_formatting(self, element: AnyFormatting, /) -> str:
+        return "§" + element.value
+
+    # future compatibility
+    @override
+    def _handle_invalid_formatting(self, element: InvalidFormatting, /) -> str:
         return "§" + element.value
 
 

@@ -75,5 +75,6 @@ def source_bedrock() -> RawJavaResponseMotd:
         "§t27"
         "§u28"
         "§v29"
-        "§r30"
+        "§z30"
+        "§r31"
     )  # fmt: skip
