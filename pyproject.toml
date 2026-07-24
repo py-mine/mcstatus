@@ -47,7 +47,7 @@ default-groups = ["dev", "lint", "test", "docs"]
 dev = ["poethepoet~=0.48.0"]
 lint = [
   "pre-commit~=4.6.0",
-  "ruff~=0.15.0",
+  "ruff~=0.16.0",
   "basedpyright~=1.39.2",
   "typing-extensions~=4.16.0",
 ]
