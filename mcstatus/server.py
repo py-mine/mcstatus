@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
     from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse, QueryResponse
 else:
-    override = lambda f: f  # noqa: E731
+    override = lambda f: f  # ruff: ignore[lambda-assignment]
 
 
 __all__ = ["BedrockServer", "JavaServer", "LegacyServer", "MCServer"]
@@ -41,7 +41,7 @@ class MCServer(ABC):
         :param host: The host/ip of the minecraft server.
         :param port: The port that the server is on.
         :param timeout: The timeout in seconds before failing to connect.
-        """  # noqa: D205, D212 # no summary line
+        """  # ruff: ignore[missing-blank-line-after-summary, multi-line-summary-first-line]
         if port is None:
             port = self.DEFAULT_PORT
         self.address: Address = Address(host, port)
@@ -102,7 +102,7 @@ class JavaServer(BaseJavaServer):
         :param port: The port that the server is on.
         :param timeout: The timeout in seconds before failing to connect.
         :param query_port: Typically the same as ``port`` but can be different.
-        """  # noqa: D205, D212 # no summary line
+        """  # ruff: ignore[missing-blank-line-after-summary, multi-line-summary-first-line]
         super().__init__(host, port, timeout)
         if query_port is None:
             query_port = port or self.DEFAULT_PORT
@@ -130,7 +130,7 @@ class JavaServer(BaseJavaServer):
         self,
         connection: TCPSocketConnection,
         *,
-        tries: int = 3,  # noqa: ARG002 # unused argument
+        tries: int = 3,  # ruff: ignore[unused-method-argument]
         version: int,
         ping_token: int | None,
     ) -> float:
@@ -164,7 +164,7 @@ class JavaServer(BaseJavaServer):
         self,
         connection: TCPAsyncSocketConnection,
         *,
-        tries: int = 3,  # noqa: ARG002 # unused argument
+        tries: int = 3,  # ruff: ignore[unused-method-argument]
         version: int,
         ping_token: int | None,
     ) -> float:
@@ -194,7 +194,7 @@ class JavaServer(BaseJavaServer):
         self,
         connection: TCPSocketConnection,
         *,
-        tries: int = 3,  # noqa: ARG002 # unused argument
+        tries: int = 3,  # ruff: ignore[unused-method-argument]
         version: int,
         ping_token: int | None,
     ) -> JavaStatusResponse:
@@ -224,7 +224,7 @@ class JavaServer(BaseJavaServer):
         self,
         connection: TCPAsyncSocketConnection,
         *,
-        tries: int = 3,  # noqa: ARG002 # unused argument
+        tries: int = 3,  # ruff: ignore[unused-method-argument]
         version: int,
         ping_token: int | None,
     ) -> JavaStatusResponse:
@@ -248,7 +248,7 @@ class JavaServer(BaseJavaServer):
         return self._retry_query(Address(ip, self.query_port), tries=tries)
 
     @retry(tries=3)
-    def _retry_query(self, addr: Address, tries: int = 3) -> QueryResponse:  # noqa: ARG002 # unused argument
+    def _retry_query(self, addr: Address, tries: int = 3) -> QueryResponse:  # ruff: ignore[unused-method-argument]
         with UDPSocketConnection(addr, self.timeout) as connection:
             query_client = QueryClient(connection)
             query_client.handshake()
@@ -264,7 +264,7 @@ class JavaServer(BaseJavaServer):
         return await self._retry_async_query(Address(ip, self.query_port), tries=tries)
 
     @retry(tries=3)
-    async def _retry_async_query(self, address: Address, tries: int = 3) -> QueryResponse:  # noqa: ARG002 # unused argument
+    async def _retry_async_query(self, address: Address, tries: int = 3) -> QueryResponse:  # ruff: ignore[unused-method-argument]
         async with UDPAsyncSocketConnection(address, self.timeout) as connection:
             query_client = AsyncQueryClient(connection)
             await query_client.handshake()
@@ -279,7 +279,7 @@ class LegacyServer(BaseJavaServer):
     """
 
     @retry(tries=3)
-    def status(self, *, tries: int = 3) -> LegacyStatusResponse:  # noqa: ARG002 # unused argument
+    def status(self, *, tries: int = 3) -> LegacyStatusResponse:  # ruff: ignore[unused-method-argument]
         """Check the status of a pre-1.7 Minecraft Java Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
@@ -289,7 +289,7 @@ class LegacyServer(BaseJavaServer):
             return LegacyClient(connection).read_status()
 
     @retry(tries=3)
-    async def async_status(self, *, tries: int = 3) -> LegacyStatusResponse:  # noqa: ARG002 # unused argument
+    async def async_status(self, *, tries: int = 3) -> LegacyStatusResponse:  # ruff: ignore[unused-method-argument]
         """Asynchronously check the status of a pre-1.7 Minecraft Java Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
@@ -306,7 +306,7 @@ class BedrockServer(MCServer):
     DEFAULT_PORT = 19132
 
     @retry(tries=3)
-    def status(self, *, tries: int = 3) -> BedrockStatusResponse:  # noqa: ARG002 # unused argument
+    def status(self, *, tries: int = 3) -> BedrockStatusResponse:  # ruff: ignore[unused-method-argument]
         """Check the status of a Minecraft Bedrock Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
@@ -315,7 +315,7 @@ class BedrockServer(MCServer):
         return BedrockClient(self.address, self.timeout).read_status()
 
     @retry(tries=3)
-    async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:  # noqa: ARG002 # unused argument
+    async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:  # ruff: ignore[unused-method-argument]
         """Asynchronously check the status of a Minecraft Bedrock Edition server.
 
         :param tries: The number of times to retry if an error is encountered.

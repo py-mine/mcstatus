@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from mcstatus._protocol.io.connection import TCPAsyncSocketConnection, TCPSocketConnection
     from mcstatus.responses._raw import RawJavaResponse
 else:
-    override = lambda f: f  # noqa: E731
+    override = lambda f: f  # ruff: ignore[lambda-assignment]
 
 __all__ = ["AsyncJavaClient", "JavaClient"]
 

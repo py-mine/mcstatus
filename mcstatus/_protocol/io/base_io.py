@@ -139,7 +139,7 @@ class BaseAsyncWriter(ABC):
     async def write_value(self, fmt: FLOAT_FORMATS_TYPE, value: float, /) -> None: ...
 
     @overload
-    async def write_value(self, fmt: Literal[StructFormat.BOOL], value: bool, /) -> None: ...  # noqa: FBT001
+    async def write_value(self, fmt: Literal[StructFormat.BOOL], value: bool, /) -> None: ...  # ruff: ignore[boolean-type-hint-positional-argument]
 
     @overload
     async def write_value(self, fmt: Literal[StructFormat.CHAR], value: bytes, /) -> None: ...
@@ -252,10 +252,10 @@ class BaseAsyncWriter(ABC):
         :return: ``None`` if the value is absent, otherwise the result of ``writer``.
         """
         if value is None:
-            await self.write_value(StructFormat.BOOL, False)  # noqa: FBT003
+            await self.write_value(StructFormat.BOOL, False)  # ruff: ignore[boolean-positional-value-in-call]
             return None
 
-        await self.write_value(StructFormat.BOOL, True)  # noqa: FBT003
+        await self.write_value(StructFormat.BOOL, True)  # ruff: ignore[boolean-positional-value-in-call]
         return await writer(value)
 
 
@@ -278,7 +278,7 @@ class BaseSyncWriter(ABC):
     def write_value(self, fmt: FLOAT_FORMATS_TYPE, value: float, /) -> None: ...
 
     @overload
-    def write_value(self, fmt: Literal[StructFormat.BOOL], value: bool, /) -> None: ...  # noqa: FBT001
+    def write_value(self, fmt: Literal[StructFormat.BOOL], value: bool, /) -> None: ...  # ruff: ignore[boolean-type-hint-positional-argument]
 
     @overload
     def write_value(self, fmt: Literal[StructFormat.CHAR], value: bytes, /) -> None: ...
@@ -391,10 +391,10 @@ class BaseSyncWriter(ABC):
         :return: ``None`` if the value is absent, otherwise the result of ``writer``.
         """
         if value is None:
-            self.write_value(StructFormat.BOOL, False)  # noqa: FBT003
+            self.write_value(StructFormat.BOOL, False)  # ruff: ignore[boolean-positional-value-in-call]
             return None
 
-        self.write_value(StructFormat.BOOL, True)  # noqa: FBT003
+        self.write_value(StructFormat.BOOL, True)  # ruff: ignore[boolean-positional-value-in-call]
         return writer(value)
 
 

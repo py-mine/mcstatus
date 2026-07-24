@@ -21,7 +21,7 @@ if t.TYPE_CHECKING:
 
     from typing_extensions import override
 else:
-    override = lambda f: f  # noqa: E731
+    override = lambda f: f  # ruff: ignore[lambda-assignment]
 
 __all__ = [
     "AnsiTransformer",
@@ -33,7 +33,7 @@ __all__ = [
 _HOOK_RETURN_TYPE = t.TypeVar("_HOOK_RETURN_TYPE")
 _END_RESULT_TYPE = t.TypeVar("_END_RESULT_TYPE")
 
-# MinecraftColor: (foreground, background) # noqa: ERA001 # commented-out code
+# MinecraftColor: (foreground, background) # ruff: ignore[commented-out-code]
 _SHARED_MINECRAFT_COLOR_TO_RGB = {
     "BLACK": ((0, 0, 0), (0, 0, 0)),
     "DARK_BLUE": ((0, 0, 170), (0, 0, 42)),

@@ -86,7 +86,7 @@ commands:
     status              Prints server status.
     query               Prints detailed server information. Must be enabled in servers' server.properties file.
     json                Prints server status and query in json.
-"""  # noqa: E501 (line length)
+"""  # ruff: ignore[line-too-long]
 
 
 @contextlib.contextmanager
@@ -365,7 +365,7 @@ def test_ping(mock_network_requests: None):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "ping"]) == 0
 
-    assert float(out.getvalue()) == 0  # this floating comparison is safe  # noqa: RUF069
+    assert float(out.getvalue()) == 0  # this floating comparison is safe  # ruff: ignore[float-equality-comparison]
     assert err.getvalue() == ""
 
 
@@ -373,7 +373,7 @@ def test_ping_bedrock(mock_network_requests: None):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "--bedrock", "ping"]) == 0
 
-    assert float(out.getvalue()) == 123  # this floating comparison is safe  # noqa: RUF069
+    assert float(out.getvalue()) == 123  # this floating comparison is safe  # ruff: ignore[float-equality-comparison]
     assert err.getvalue() == ""
 
 
@@ -381,7 +381,7 @@ def test_ping_legacy(mock_network_requests: None):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "--legacy", "ping"]) == 0
 
-    assert float(out.getvalue()) == 123  # this floating comparison is safe  # noqa: RUF069
+    assert float(out.getvalue()) == 123  # this floating comparison is safe  # ruff: ignore[float-equality-comparison]
     assert err.getvalue() == ""
 
 
@@ -389,5 +389,5 @@ def test_ping_server_doesnt_support(mock_network_requests: None):
     with patch_stdout_stderr() as (out, err), patch("mcstatus.server.JavaServer.ping", side_effect=TimeoutError("timeout")):
         assert main_under_test(["example.com", "ping"]) == 0
 
-    assert float(out.getvalue()) == 0  # this floating comparison is safe  # noqa: RUF069
+    assert float(out.getvalue()) == 0  # this floating comparison is safe  # ruff: ignore[float-equality-comparison]
     assert err.getvalue() == PING_PACKET_FAIL_WARNING.format(address="example.com:25565", ping_exc="timeout") + "\n"

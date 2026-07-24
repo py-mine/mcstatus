@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
     from mcstatus.responses._raw import RawJavaResponse, RawJavaResponsePlayer, RawJavaResponsePlayers, RawJavaResponseVersion
 else:
-    override = lambda f: f  # noqa: E731
+    override = lambda f: f  # ruff: ignore[lambda-assignment]
 
 __all__ = [
     "JavaStatusPlayer",

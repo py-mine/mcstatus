@@ -46,7 +46,7 @@ def _extractall_compat(tar: tarfile.TarFile, destination: Path) -> None:
         # with ../foo getting placed outside of our destination) but we know what we
         # built and this is only used within unit-tests, so it's not really important
         # to be strict about handling this.
-        tar.extractall(destination)  # noqa: S202
+        tar.extractall(destination)  # ruff: ignore[tarfile-unsafe-members]
 
 
 @pytest.mark.parametrize("raises", [False, True])

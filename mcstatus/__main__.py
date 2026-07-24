@@ -1,4 +1,4 @@
-# ruff: noqa: T201 # usage of `print`
+# ruff: file-ignore[print]
 from __future__ import annotations
 
 import argparse
@@ -56,7 +56,7 @@ def _ping_with_fallback(server: SupportedServers) -> float:
     # try faster ping packet first, falling back to status with a warning.
     try:
         return server.ping(tries=1)
-    except Exception as e:  # noqa: BLE001 # blindly catching Exception
+    except Exception as e:  # ruff: ignore[blind-except]
         ping_exc = e
 
     latency = server.status().latency
@@ -98,13 +98,13 @@ def json_cmd(server: SupportedServers) -> int:
     status_res = query_res = exn = None
     try:
         status_res = server.status(tries=1)
-    except Exception as e:  # noqa: BLE001 # blindly catching Exception
+    except Exception as e:  # ruff: ignore[blind-except]
         exn = exn or e
 
     try:
         if isinstance(server, JavaServer):
             query_res = server.query(tries=1)
-    except Exception as e:  # noqa: BLE001 # blindly catching Exception
+    except Exception as e:  # ruff: ignore[blind-except]
         exn = exn or e
 
     # construct 'data' dict outside try/except to ensure data processing errors

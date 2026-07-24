@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import override
 else:
-    override = lambda f: f  # noqa: E731
+    override = lambda f: f  # ruff: ignore[lambda-assignment]
 
 
 @final

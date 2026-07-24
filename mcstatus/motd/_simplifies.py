@@ -64,7 +64,9 @@ def squash_nearby_strings(parsed: _PARSED_MOTD_COMPONENTS_TYPEVAR) -> _PARSED_MO
             break
 
         if isinstance(next_item, str):
-            parsed[index + 1] = item + next_item  # intentional mutation during iteration  # noqa: B909
+            parsed[index + 1] = (  # intentional mutation during iteration  # ruff: ignore[loop-iterator-mutation]
+                item + next_item
+            )
             fillers.add(index)
 
     for already_removed, index_to_remove in enumerate(fillers):
@@ -136,14 +138,14 @@ def get_formatting_before_color(parsed: Sequence[ParsedMotdComponent]) -> set[in
         if len(collected_formattings) == 0:
             continue
 
-        # If there's a string after some formattings, the formattings apply to it.
+        # If there's a string after some formatting, the formatting apply to it.
         # This means they're not unused, remove them.
         if isinstance(item, str) and not item.isspace():
             collected_formattings = []
             continue
 
-        # If there's a color after some formattings, these formattings will be overridden
-        # as colors reset everything. This makes these formattings pointless, mark them
+        # If there's a color after some formatting, these formatting will be overridden
+        # as colors reset everything. This makes these formatting pointless, mark them
         # for removal.
         if isinstance(item, (AnyMinecraftColor, WebColor)):
             to_remove.update(collected_formattings)
