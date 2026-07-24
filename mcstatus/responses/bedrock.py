@@ -9,7 +9,7 @@ from mcstatus.responses.base import BaseStatusPlayers, BaseStatusResponse, BaseS
 if TYPE_CHECKING:
     from typing_extensions import Self, override
 else:
-    override = lambda f: f  # noqa: E731
+    override = lambda f: f  # ruff: ignore[lambda-assignment]
 
 __all__ = [
     "BedrockStatusPlayers",

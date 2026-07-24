@@ -11,7 +11,7 @@ from mcstatus._protocol.io.connection import TCPAsyncSocketConnection
 if typing.TYPE_CHECKING:
     from typing_extensions import override
 else:
-    override = lambda f: f  # noqa: E731
+    override = lambda f: f  # ruff: ignore[lambda-assignment]
 
 
 class FakeAsyncStream(asyncio.StreamReader):
@@ -21,7 +21,9 @@ class FakeAsyncStream(asyncio.StreamReader):
         raise NotImplementedError("tests are designed to timeout before reaching this line")
 
 
-async def fake_asyncio_asyncio_open_connection(hostname: str, port: int):  # should be async without await # noqa: RUF029
+async def fake_asyncio_asyncio_open_connection(  # should be async without await # ruff: ignore[unused-async]
+    hostname: str, port: int
+):
     return FakeAsyncStream(), None
 
 

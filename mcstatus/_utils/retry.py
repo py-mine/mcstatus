@@ -27,7 +27,7 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
 
     .. note::
         Even if the previous failures caused a different exception, this will only raise the last one.
-    """  # noqa: D401 # imperative mood
+    """  # ruff: ignore[non-imperative-mood]
 
     def decorate(func: Callable[P, R]) -> Callable[P, R]:
         @wraps(func)
@@ -40,7 +40,7 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
             for _ in range(tries):
                 try:
                     return await func(*args, **kwargs)  # pyright: ignore[reportGeneralTypeIssues, reportUnknownVariableType] # We know func is awaitable here
-                except exceptions as exc:  # noqa: PERF203 # try-except within a loop
+                except exceptions as exc:  # ruff: ignore[try-except-in-loop]
                     last_exc = exc
             # This won't actually be unbound
             raise last_exc  # pyright: ignore[reportGeneralTypeIssues,reportPossiblyUnboundVariable]
@@ -55,7 +55,7 @@ def retry(tries: int, exceptions: tuple[type[BaseException]] = (Exception,)) -> 
             for _ in range(tries):
                 try:
                     return func(*args, **kwargs)
-                except exceptions as exc:  # noqa: PERF203 # try-except within a loop
+                except exceptions as exc:  # ruff: ignore[try-except-in-loop]
                     last_exc = exc
             # This won't actually be unbound
             raise last_exc  # pyright: ignore[reportGeneralTypeIssues,reportPossiblyUnboundVariable]

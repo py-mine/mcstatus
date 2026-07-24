@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
     from mcstatus._net.address import Address
 else:
-    override = lambda f: f  # noqa: E731
+    override = lambda f: f  # ruff: ignore[lambda-assignment]
 
 __all__ = [
     "BaseAsyncConnection",

@@ -8,7 +8,7 @@ from dns.rdatatype import RdataType
 
 if TYPE_CHECKING:
     from dns.rdtypes.IN.A import A as ARecordAnswer
-    from dns.rdtypes.IN.SRV import SRV as SRVRecordAnswer  # noqa: N811 # constant imported as non constant (it's class)
+    from dns.rdtypes.IN.SRV import SRV as SRVRecordAnswer  # ruff: ignore[constant-imported-as-non-constant]
 
 __all__ = [
     "async_resolve_a_record",

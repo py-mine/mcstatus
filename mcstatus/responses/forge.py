@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
     from mcstatus.responses._raw import RawForgeData, RawForgeDataChannel, RawForgeDataMod
 else:
-    override = lambda f: f  # noqa: E731
+    override = lambda f: f  # ruff: ignore[lambda-assignment]
 
 __all__ = [
     "ForgeData",

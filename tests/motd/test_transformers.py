@@ -1,4 +1,4 @@
-# ruff: noqa: FBT003 # boolean positional value in `result` fixture
+# ruff: file-ignore[boolean-positional-value-in-call]
 from __future__ import annotations
 
 import typing
