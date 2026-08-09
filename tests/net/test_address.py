@@ -3,12 +3,11 @@ from __future__ import annotations
 import ipaddress
 import sys
 from pathlib import Path
-from typing import Any, TYPE_CHECKING, cast, final
-from unittest.mock import MagicMock, Mock, patch
+from typing import Any, TYPE_CHECKING, final
+from unittest.mock import MagicMock, patch
 
 import dns.resolver
 import pytest
-from dns.rdatatype import RdataType
 
 from mcstatus._net.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 
@@ -20,61 +19,45 @@ if TYPE_CHECKING:
 class TestSRVLookup:
     @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
     def test_address_no_srv(self, exception: DNSException):
-        with patch("dns.resolver.resolve") as resolve:
-            resolve.side_effect = [exception]
+        with patch("mcstatus._net.address.mc_dns.resolve_mc_srv", side_effect=exception):
             address = minecraft_srv_address_lookup("example.org", default_port=25565, lifetime=3)
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3, search=True)
 
         assert address.host == "example.org"
         assert address.port == 25565
 
     @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
     def test_address_no_srv_no_default_port(self, exception: DNSException):
-        with patch("dns.resolver.resolve") as resolve:
-            resolve.side_effect = [exception]
-            with pytest.raises(ValueError, match=r"^Given address 'example.org' doesn't contain port"):
-                _ = minecraft_srv_address_lookup("example.org", lifetime=3)
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3, search=True)
+        with (
+            patch("mcstatus._net.address.mc_dns.resolve_mc_srv", side_effect=exception),
+            pytest.raises(ValueError, match=r"^Given address 'example.org' doesn't contain port"),
+        ):
+            _ = minecraft_srv_address_lookup("example.org", lifetime=3)
 
     def test_address_with_srv(self):
-        with patch("dns.resolver.resolve") as resolve:
-            answer = Mock()
-            answer.target = "different.example.org."
-            answer.port = 12345
-            resolve.return_value = [answer]
-
+        with patch("mcstatus._net.address.mc_dns.resolve_mc_srv", return_value=("different.example.org", 12345)):
             address = minecraft_srv_address_lookup("example.org", lifetime=3)
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3, search=True)
         assert address.host == "different.example.org"
         assert address.port == 12345
 
     @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
     async def test_async_address_no_srv(self, exception: DNSException):
-        with patch("dns.asyncresolver.resolve") as resolve:
-            resolve.side_effect = [exception]
+        with patch("mcstatus._net.address.mc_dns.async_resolve_mc_srv", side_effect=exception):
             address = await async_minecraft_srv_address_lookup("example.org", default_port=25565, lifetime=3)
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3, search=True)
 
         assert address.host == "example.org"
         assert address.port == 25565
 
     @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
     async def test_async_address_no_srv_no_default_port(self, exception: DNSException):
-        with patch("dns.asyncresolver.resolve") as resolve:
-            resolve.side_effect = [exception]
-            with pytest.raises(ValueError, match=r"^Given address 'example.org' doesn't contain port"):
-                _ = await async_minecraft_srv_address_lookup("example.org", lifetime=3)
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3, search=True)
+        with (
+            patch("mcstatus._net.address.mc_dns.async_resolve_mc_srv", side_effect=exception),
+            pytest.raises(ValueError, match=r"^Given address 'example.org' doesn't contain port"),
+        ):
+            _ = await async_minecraft_srv_address_lookup("example.org", lifetime=3)
 
     async def test_async_address_with_srv(self):
-        with patch("dns.asyncresolver.resolve") as resolve:
-            answer = Mock()
-            answer.target = "different.example.org."
-            answer.port = 12345
-            resolve.return_value = [answer]
-
+        with patch("mcstatus._net.address.mc_dns.async_resolve_mc_srv", return_value=("different.example.org", 12345)):
             address = await async_minecraft_srv_address_lookup("example.org", lifetime=3)
-            resolve.assert_called_once_with("_minecraft._tcp.example.org", RdataType.SRV, lifetime=3, search=True)
         assert address.host == "different.example.org"
         assert address.port == 12345
 
@@ -184,26 +167,16 @@ class TestAddressIPResolving:
         self.ipv6_addr = Address("::1", 25565)
 
     def test_ip_resolver_with_hostname(self):
-        with patch("dns.resolver.resolve") as resolve:
-            answer = MagicMock()
-            cast("MagicMock", answer.__str__).return_value = "48.225.1.104."
-            resolve.return_value = [answer]
-
+        with patch("mcstatus._net.address.mc_dns.resolve_a_record", return_value="48.225.1.104"):
             resolved_ip = self.host_addr.resolve_ip(lifetime=3)
 
-            resolve.assert_called_once_with(self.host_addr.host, RdataType.A, lifetime=3, search=True)
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == "48.225.1.104"
 
     async def test_async_ip_resolver_with_hostname(self):
-        with patch("dns.asyncresolver.resolve") as resolve:
-            answer = MagicMock()
-            cast("MagicMock", answer.__str__).return_value = "48.225.1.104."
-            resolve.return_value = [answer]
-
+        with patch("mcstatus._net.address.mc_dns.async_resolve_a_record", return_value="48.225.1.104"):
             resolved_ip = await self.host_addr.async_resolve_ip(lifetime=3)
 
-            resolve.assert_called_once_with(self.host_addr.host, RdataType.A, lifetime=3, search=True)
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == "48.225.1.104"
 
