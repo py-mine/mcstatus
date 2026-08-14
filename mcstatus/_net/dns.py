@@ -51,38 +51,57 @@ async def async_resolve_a_record(hostname: str, lifetime: float | None = None) -
 
     For more details, check it.
     """
-    # This will raise if any exceptions occur in either request, even if the
-    # other one succeeds, however, we will not raise no NoAnswer.
-    a_answer, aaaa_answer = await asyncio.gather(
+    a_task = asyncio.create_task(
         dns.asyncresolver.resolve(
             hostname,
             RdataType.A,
             lifetime=lifetime,
             search=True,
             raise_on_no_answer=False,
-        ),
+        )
+    )
+    aaaa_task = asyncio.create_task(
         dns.asyncresolver.resolve(
             hostname,
             RdataType.AAAA,
             lifetime=lifetime,
             search=True,
             raise_on_no_answer=False,
-        ),
+        )
     )
 
     # prioritize IPv4 if available
-    for answer in (a_answer, aaaa_answer):
-        if answer.rrset is None:
-            continue  # NoAnswer
+    try:
+        a_answer = await a_task
+    except BaseException:
+        # Cancel the AAAA task if still running, then consume its result.
+        # Any exception from the unused lookup is intentionally discarded.
+        _ = aaaa_task.cancel()
+        _ = await asyncio.gather(aaaa_task, return_exceptions=True)
+        raise
 
-        for record in answer:
-            record = cast("ARecordAnswer | AAAARecordAnswer", record)
+    if a_answer.rrset is not None:
+        answer = a_answer
 
-            ip = str(record).rstrip(".")
-            return ip
+        # Cancel the AAAA task if still running, then consume its result.
+        # Any exception from the unused lookup is intentionally discarded.
+        _ = aaaa_task.cancel()
+        _ = await asyncio.gather(aaaa_task, return_exceptions=True)
+    else:
+        aaaa_answer = await aaaa_task
+        if aaaa_answer.rrset is None:
+            # TODO: Consider ExceptionGroup return once we support >=3.11
+            raise dns.resolver.NoAnswer(response=aaaa_answer.response)
 
-    # TODO: Consider ExceptionGroup return once we support >=3.11
-    raise dns.resolver.NoAnswer(response=aaaa_answer.response)
+        answer = aaaa_answer
+
+    for record in answer:
+        record = cast("ARecordAnswer | AAAARecordAnswer", record)
+
+        ip = str(record).rstrip(".")
+        return ip
+
+    raise RuntimeError(f"unreachable - DNS {answer=} was not a NoAnswer, but didn't have any records")
 
 
 def resolve_srv_record(query_name: str, lifetime: float | None = None) -> tuple[str, int]:
