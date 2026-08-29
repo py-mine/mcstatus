@@ -56,7 +56,7 @@ test = [
   "pytest-asyncio~=1.4.0",
   "pytest-cov~=7.1.0",
   "pytest-rerunfailures~=16.1",
-  "coverage~=7.15.0",
+  "coverage~=7.16.0",
   "typing-extensions~=4.16.0",
   # the actual versions are in the `release` group
   "uv-dynamic-versioning",
