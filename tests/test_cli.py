@@ -322,6 +322,7 @@ def test_json(mock_network_requests: None):
             "enforces_secure_chat": True,
             "icon": "data:image/png;base64,foo",
             "forge_data": None,
+            "is_modded": False,
         },
         "query": {
             "ip": "192.168.56.1",

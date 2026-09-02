@@ -49,6 +49,13 @@ class JavaStatusResponse(BaseStatusResponse):
     """
     forge_data: ForgeData | None
     """Forge mod data (mod list, channels, etc). Only present if this is a forge (modded) server."""
+    is_modded: bool
+    """Does the server advertise itself as modded.
+
+    Special attribute sent by NeoForge or when ``forge_data`` is available.
+
+    .. versionadded:: 14.2.0
+    """
 
     @override
     @classmethod
@@ -76,6 +83,7 @@ class JavaStatusResponse(BaseStatusResponse):
             icon=raw.get("favicon"),
             latency=latency,
             forge_data=forge_data,
+            is_modded=bool(forge_data or raw.get("isModded", False)),
         )
 
 

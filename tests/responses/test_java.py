@@ -27,6 +27,7 @@ class TestJavaStatusResponse(BaseResponseTest):
         ("icon", "data:image/png;base64,foo"),
         ("raw", RAW),
         ("forge_data", None),
+        ("is_modded", False),
     ]
     OPTIONAL_FIELDS: t.ClassVar = (
         [("favicon", "icon"), ("enforcesSecureChat", "enforces_secure_chat")],
@@ -49,6 +50,7 @@ class TestJavaStatusResponse(BaseResponseTest):
             "enforces_secure_chat": True,
             "forge_data": None,
             "icon": "data:image/png;base64,foo",
+            "is_modded": False,
             "latency": 0,
             "motd": "A Minecraft Server",
             "players": {"max": 20, "online": 0, "sample": None},
@@ -64,6 +66,25 @@ class TestJavaStatusResponse(BaseResponseTest):
 
     def test_description_alias(self, build: JavaStatusResponse):
         assert build.description == "A Minecraft Server"
+
+    def test_is_modded(self):
+        build = JavaStatusResponse.build({**self.RAW, "isModded": True})  # pyright: ignore[reportArgumentType]
+        assert build.is_modded is True
+
+    def test_is_modded_with_forge_data(self):
+        build = JavaStatusResponse.build(
+            {  # pyright: ignore[reportArgumentType]
+                **self.RAW,
+                "forgeData": {
+                    "fmlNetworkVersion": 2,
+                    "channels": [],
+                    "mods": [
+                        {"modId": "forge", "modmarker": "ANY"},
+                    ],
+                },
+            }
+        )
+        assert build.is_modded is True
 
 
 @t.final

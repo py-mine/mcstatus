@@ -83,6 +83,7 @@ class RawJavaResponse(TypedDict):
     favicon: NotRequired[str]
     forgeData: NotRequired[RawForgeData | None]
     modinfo: NotRequired[RawForgeData | None]
+    isModded: NotRequired[bool]
     enforcesSecureChat: NotRequired[bool]
 
 
