@@ -50,7 +50,7 @@ class JavaStatusResponse(BaseStatusResponse):
     forge_data: ForgeData | None
     """Forge mod data (mod list, channels, etc). Only present if this is a forge (modded) server."""
     is_modded: bool
-    """Is the server modded.
+    """Does the server advertise itself as modded.
 
     Special attribute sent by NeoForge or when ``forge_data`` is available.
 
