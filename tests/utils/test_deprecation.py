@@ -125,7 +125,7 @@ def test_deprecation_decorator_missing_docstring_directive():
     ):
 
         @deprecated(display_name="func", removal_version="1.0.1")
-        def func(x: object) -> object:  # pyright: ignore[reportUnusedFunction]
+        def func(x: object) -> object:
             return x
 
 
