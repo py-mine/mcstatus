@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 from packaging.version import Version, parse as parse_version
 
 if TYPE_CHECKING:
-    from typing_extensions import override
+    from typing_extensions import override  # pyright: ignore[reportUnusedImport]
 else:
     override = lambda f: f  # ruff: ignore[lambda-assignment]
 
@@ -140,8 +140,7 @@ def mock_autodoc() -> None:
     from sphinx.ext import autodoc  # ruff: ignore[import-outside-top-level]
 
     class MockedClassDocumenter(autodoc.ClassDocumenter):
-        @override
-        def add_line(self, line: str, source: str, *lineno: int) -> None:
+        def add_line(self, line: str, source: str, *lineno: int) -> None:  # type: ignore[override]
             if line == "   Bases: :py:class:`object`":
                 return
             super().add_line(line, source, *lineno)
