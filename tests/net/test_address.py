@@ -3,7 +3,7 @@ from __future__ import annotations
 import ipaddress
 import sys
 from pathlib import Path
-from typing import Any, TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final
 from unittest.mock import MagicMock, patch
 
 import dns.resolver
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 @final
 class TestSRVLookup:
     @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
-    def test_address_no_srv(self, exception: DNSException):
+    def test_address_no_srv(self, exception: DNSException) -> None:
         with patch("mcstatus._net.address.mc_dns.resolve_mc_srv", side_effect=exception):
             address = minecraft_srv_address_lookup("example.org", default_port=25565, lifetime=3)
 
@@ -26,21 +26,21 @@ class TestSRVLookup:
         assert address.port == 25565
 
     @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
-    def test_address_no_srv_no_default_port(self, exception: DNSException):
+    def test_address_no_srv_no_default_port(self, exception: DNSException) -> None:
         with (
             patch("mcstatus._net.address.mc_dns.resolve_mc_srv", side_effect=exception),
             pytest.raises(ValueError, match=r"^Given address 'example.org' doesn't contain port"),
         ):
             _ = minecraft_srv_address_lookup("example.org", lifetime=3)
 
-    def test_address_with_srv(self):
+    def test_address_with_srv(self) -> None:
         with patch("mcstatus._net.address.mc_dns.resolve_mc_srv", return_value=("different.example.org", 12345)):
             address = minecraft_srv_address_lookup("example.org", lifetime=3)
         assert address.host == "different.example.org"
         assert address.port == 12345
 
     @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
-    async def test_async_address_no_srv(self, exception: DNSException):
+    async def test_async_address_no_srv(self, exception: DNSException) -> None:
         with patch("mcstatus._net.address.mc_dns.async_resolve_mc_srv", side_effect=exception):
             address = await async_minecraft_srv_address_lookup("example.org", default_port=25565, lifetime=3)
 
@@ -48,14 +48,14 @@ class TestSRVLookup:
         assert address.port == 25565
 
     @pytest.mark.parametrize("exception", [dns.resolver.NXDOMAIN, dns.resolver.NoAnswer])
-    async def test_async_address_no_srv_no_default_port(self, exception: DNSException):
+    async def test_async_address_no_srv_no_default_port(self, exception: DNSException) -> None:
         with (
             patch("mcstatus._net.address.mc_dns.async_resolve_mc_srv", side_effect=exception),
             pytest.raises(ValueError, match=r"^Given address 'example.org' doesn't contain port"),
         ):
             _ = await async_minecraft_srv_address_lookup("example.org", lifetime=3)
 
-    async def test_async_address_with_srv(self):
+    async def test_async_address_with_srv(self) -> None:
         with patch("mcstatus._net.address.mc_dns.async_resolve_mc_srv", return_value=("different.example.org", 12345)):
             address = await async_minecraft_srv_address_lookup("example.org", lifetime=3)
         assert address.host == "different.example.org"
@@ -73,7 +73,7 @@ class TestAddressValidity:
             ("2345:0425:2CA1::0567:5673:23b5", 12345),
         ],
     )
-    def test_address_validation_valid(self, address: str, port: int):
+    def test_address_validation_valid(self, address: str, port: int) -> None:
         Address._ensure_validity(address, port)
 
     @pytest.mark.parametrize(
@@ -83,11 +83,11 @@ class TestAddressValidity:
             ("example.org", -1),
         ],
     )
-    def test_address_validation_range(self, address: str, port: int):
+    def test_address_validation_range(self, address: str, port: int) -> None:
         with pytest.raises(ValueError, match=f"^Port must be within the allowed range \\(0-2\\^16\\), got {port}$"):
             Address._ensure_validity(address, port)
 
-    def test_address_validation_port_invalid_type(self):
+    def test_address_validation_port_invalid_type(self) -> None:
         with pytest.raises(TypeError, match=r"^Port must be an integer port number, got <class 'str'> \('25565'\)$"):
             Address._ensure_validity("example.org", "25565")
 
@@ -95,85 +95,85 @@ class TestAddressValidity:
         ("address", "port"),
         [(25565, "example.org"), (0, 0)],
     )
-    def test_address_validation_host_invalid_type(self, address: Any, port: Any):
+    def test_address_validation_host_invalid_type(self, address: object, port: object) -> None:
         with pytest.raises(TypeError, match=f"^Host must be a string address, got {type(address)!r} \\({address!r}\\)$"):
             Address._ensure_validity(address, port)
 
-    def test_address_host_invalid_format(self):
+    def test_address_host_invalid_format(self) -> None:
         with pytest.raises(ValueError, match=r"^Invalid address 'hello@#', can't parse\.$"):
             _ = Address.parse_address("hello@#")
 
 
 @final
 class TestAddressConstructing:
-    def test_init_constructor(self):
+    def test_init_constructor(self) -> None:
         addr = Address("example.org", 25565)
         assert addr.host == "example.org"
         assert addr.port == 25565
 
-    def test_tuple_behavior(self):
+    def test_tuple_behavior(self) -> None:
         addr = Address("example.org", 25565)
         assert isinstance(addr, tuple)
         assert len(addr) == 2
         assert addr[0] == "example.org"
         assert addr[1] == 25565
 
-    def test_from_tuple_constructor(self):
+    def test_from_tuple_constructor(self) -> None:
         addr = Address.from_tuple(("example.org", 12345))
         assert addr.host == "example.org"
         assert addr.port == 12345
 
-    def test_from_path_constructor(self):
+    def test_from_path_constructor(self) -> None:
         addr = Address.from_path(Path("example.org:25565"))
         assert addr.host == "example.org"
         assert addr.port == 25565
 
-    def test_address_with_port_no_default(self):
+    def test_address_with_port_no_default(self) -> None:
         addr = Address.parse_address("example.org:25565")
         assert addr.host == "example.org"
         assert addr.port == 25565
 
-    def test_address_with_port_default(self):
+    def test_address_with_port_default(self) -> None:
         addr = Address.parse_address("example.org:25565", default_port=12345)
         assert addr.host == "example.org"
         assert addr.port == 25565
 
-    def test_address_without_port_default(self):
+    def test_address_without_port_default(self) -> None:
         addr = Address.parse_address("example.org", default_port=12345)
         assert addr.host == "example.org"
         assert addr.port == 12345
 
-    def test_address_without_port(self):
+    def test_address_without_port(self) -> None:
         with pytest.raises(
             ValueError,
             match=r"^Given address 'example.org' doesn't contain port and default_port wasn't specified, can't parse.$",
         ):
             _ = Address.parse_address("example.org")
 
-    def test_address_with_invalid_port(self):
+    def test_address_with_invalid_port(self) -> None:
         with pytest.raises(ValueError, match=r"^Port could not be cast to integer value as 'port'$"):
             _ = Address.parse_address("example.org:port")
 
-    def test_address_with_multiple_ports(self):
+    def test_address_with_multiple_ports(self) -> None:
         with pytest.raises(ValueError, match=r"^Port could not be cast to integer value as '12345:25565'$"):
             _ = Address.parse_address("example.org:12345:25565")
 
 
 @final
 class TestAddressIPResolving:
-    def setup_method(self):
+    def setup_method(self) -> None:
         self.host_addr = Address("example.org", 25565)
         self.ipv4_addr = Address("1.1.1.1", 25565)
         self.ipv6_addr = Address("::1", 25565)
 
-    def test_ip_resolver_with_hostname(self):
+    def test_ip_resolver_with_hostname(self) -> None:
         with patch("mcstatus._net.address.mc_dns.resolve_a_record", return_value="48.225.1.104"):
             resolved_ip = self.host_addr.resolve_ip(lifetime=3)
 
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == "48.225.1.104"
 
-    async def test_async_ip_resolver_with_hostname(self):
+    async def test_async_ip_resolver_with_hostname(self) -> None:
         with patch("mcstatus._net.address.mc_dns.async_resolve_a_record", return_value="48.225.1.104"):
             resolved_ip = await self.host_addr.async_resolve_ip(lifetime=3)
 
@@ -181,20 +181,20 @@ class TestAddressIPResolving:
             assert str(resolved_ip) == "48.225.1.104"
 
     @pytest.mark.parametrize("ip_version", ["ipv4_addr", "ipv6_addr"])
-    def test_ip_resolver_cache(self, ip_version: str):
+    def test_ip_resolver_cache(self, ip_version: str) -> None:
         with patch("dns.resolver.resolve"), patch("ipaddress.ip_address") as resolve:
             assert getattr(self, ip_version).resolve_ip(lifetime=3) is getattr(self, ip_version).resolve_ip(lifetime=3)
             resolve.assert_called_once()  # Make sure we didn't needlessly try to resolve
 
     @pytest.mark.parametrize("ip_version", ["ipv4_addr", "ipv6_addr"])
-    async def test_async_ip_resolver_cache(self, ip_version: str):
+    async def test_async_ip_resolver_cache(self, ip_version: str) -> None:
         with patch("dns.resolver.resolve"), patch("ipaddress.ip_address") as resolve:
             assert await getattr(self, ip_version).async_resolve_ip(lifetime=3) is await getattr(
                 self, ip_version
             ).async_resolve_ip(lifetime=3)
             resolve.assert_called_once()  # Make sure we didn't needlessly try to resolve
 
-    def test_ip_resolver_with_ipv4(self):
+    def test_ip_resolver_with_ipv4(self) -> None:
         with patch("dns.resolver.resolve") as resolve:
             resolved_ip = self.ipv4_addr.resolve_ip(lifetime=3)
 
@@ -202,7 +202,7 @@ class TestAddressIPResolving:
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == self.ipv4_addr.host
 
-    async def test_async_ip_resolver_with_ipv4(self):
+    async def test_async_ip_resolver_with_ipv4(self) -> None:
         with patch("dns.asyncresolver.resolve") as resolve:
             resolved_ip = await self.ipv4_addr.async_resolve_ip(lifetime=3)
 
@@ -210,7 +210,7 @@ class TestAddressIPResolving:
             assert isinstance(resolved_ip, ipaddress.IPv4Address)
             assert str(resolved_ip) == self.ipv4_addr.host
 
-    def test_ip_resolver_with_ipv6(self):
+    def test_ip_resolver_with_ipv6(self) -> None:
         with patch("dns.resolver.resolve") as resolve:
             resolved_ip = self.ipv6_addr.resolve_ip(lifetime=3)
 
@@ -218,7 +218,7 @@ class TestAddressIPResolving:
             assert isinstance(resolved_ip, ipaddress.IPv6Address)
             assert str(resolved_ip) == self.ipv6_addr.host
 
-    async def test_async_ip_resolver_with_ipv6(self):
+    async def test_async_ip_resolver_with_ipv6(self) -> None:
         with patch("dns.asyncresolver.resolve") as resolve:
             resolved_ip = await self.ipv6_addr.async_resolve_ip(lifetime=3)
 
@@ -226,14 +226,14 @@ class TestAddressIPResolving:
             assert isinstance(resolved_ip, ipaddress.IPv6Address)
             assert str(resolved_ip) == self.ipv6_addr.host
 
-    def test_resolve_localhost(self):
+    def test_resolve_localhost(self) -> None:
         addr = Address("localhost", 25565)
 
         context_manager = pytest.warns(RuntimeWarning) if sys.platform == "darwin" else MagicMock()
         with context_manager:
             assert addr.resolve_ip() == ipaddress.ip_address("127.0.0.1")
 
-    async def test_async_resolve_localhost(self):
+    async def test_async_resolve_localhost(self) -> None:
         addr = Address("localhost", 25565)
 
         context_manager = pytest.warns(RuntimeWarning) if sys.platform == "darwin" else MagicMock()

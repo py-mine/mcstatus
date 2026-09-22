@@ -214,7 +214,6 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = [
-  "ANN", # flake8-annotations
   "boolean-type-hint-positional-argument",
   "import-private-name",
   "no-self-use",

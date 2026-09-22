@@ -12,9 +12,9 @@ from mcstatus._utils.general import or_none
         ("a", "b", "a"),
     ],
 )
-def test_or_none(a: object | None, b: object | None, result: object | None):
+def test_or_none(a: object | None, b: object | None, result: object | None) -> None:
     assert or_none(a, b) == result
 
 
-def test_or_none_many_arguments():
+def test_or_none_many_arguments() -> None:
     assert or_none(*([None] * 100 + ["value"])) == "value"

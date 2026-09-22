@@ -11,7 +11,7 @@ from tests.helpers import patch_project_version
 LIB_NAME = "mcstatus"
 
 
-def test_invalid_lib_version():
+def test_invalid_lib_version() -> None:
     with (
         patch_project_version("foo bar"),
         pytest.warns(match=f"^Failed to parse {LIB_NAME} project version \\(foo bar\\), assuming v0\\.0\\.0$"),
@@ -19,7 +19,7 @@ def test_invalid_lib_version():
         _ = _get_project_version()
 
 
-def test_epoch_in_lib_version():
+def test_epoch_in_lib_version() -> None:
     with (
         patch_project_version("2!1.2.3"),
         pytest.warns(
@@ -30,7 +30,7 @@ def test_epoch_in_lib_version():
 
 
 @pytest.mark.parametrize("removal_version", ["0.9.0", (0, 9, 0)])
-def test_deprecation_warn_produces_error(removal_version: str | tuple[int, int, int]):
+def test_deprecation_warn_produces_error(removal_version: str | tuple[int, int, int]) -> None:
     """Test deprecation_warn with older removal_version than current version produces exception."""
     with (
         patch_project_version("1.0.0"),
@@ -43,7 +43,7 @@ def test_deprecation_warn_produces_error(removal_version: str | tuple[int, int, 
 
 
 @pytest.mark.parametrize("removal_version", ["1.0.1", (1, 0, 1)])
-def test_deprecation_warn_produces_warning(removal_version: str | tuple[int, int, int]):
+def test_deprecation_warn_produces_warning(removal_version: str | tuple[int, int, int]) -> None:
     """Test deprecation_warn with newer removal_version than current version produces warning."""
     with (
         patch_project_version("1.0.0"),
@@ -54,7 +54,7 @@ def test_deprecation_warn_produces_warning(removal_version: str | tuple[int, int
         deprecation_warn(obj_name="test", removal_version=removal_version)
 
 
-def test_deprecation_invalid_removal_version():
+def test_deprecation_invalid_removal_version() -> None:
     """Test deprecation_warn with invalid removal_version."""
     pattern = re.escape(r"(\d+)\.(\d+)\.(\d+)")
     with (
@@ -67,7 +67,7 @@ def test_deprecation_invalid_removal_version():
         deprecation_warn(obj_name="test", removal_version="foo!")
 
 
-def test_deprecation_warn_unknown_version():
+def test_deprecation_warn_unknown_version() -> None:
     """Test deprecation_warn with unknown project version.
 
     This could occur if the project wasn't installed as a package. (e.g. when running directly from
@@ -81,7 +81,7 @@ def test_deprecation_warn_unknown_version():
         deprecation_warn(obj_name="test", removal_version="1.0.0")
 
 
-def test_deprecation_decorator_warn():
+def test_deprecation_decorator_warn() -> None:
     """Check deprecated decorator triggers a deprecation warning."""
     with patch_project_version("1.0.0"):
 
@@ -97,7 +97,7 @@ def test_deprecation_decorator_warn():
             assert func(5) == 5
 
 
-def test_deprecation_decorator_inferred_name():
+def test_deprecation_decorator_inferred_name() -> None:
     """Check deprecated decorator properly infers qualified name of decorated object shown in warning."""
     with patch_project_version("1.0.0"):
 
@@ -114,7 +114,7 @@ def test_deprecation_decorator_inferred_name():
             assert func(5) == 5
 
 
-def test_deprecation_decorator_missing_docstring_directive():
+def test_deprecation_decorator_missing_docstring_directive() -> None:
     """Check deprecated decorator validates a docstring contains a deprecation directive."""
     with (
         patch_project_version("1.0.0"),
@@ -129,7 +129,7 @@ def test_deprecation_decorator_missing_docstring_directive():
             return x
 
 
-def test_deprecation_decorator_no_docstring_check_opt_out():
+def test_deprecation_decorator_no_docstring_check_opt_out() -> None:
     """Check deprecated decorator can skip docstring validation when requested."""
     with patch_project_version("1.0.0"):
 
@@ -157,7 +157,7 @@ def test_deprecation_decorator_no_docstring_check_opt_out():
         ("1.2.3rc1.post2.dev3+loc.1", (1, 2, 3)),
     ],
 )
-def test_project_version_non_normalized_parsing(version: str, expected: tuple[int, int, int]):
+def test_project_version_non_normalized_parsing(version: str, expected: tuple[int, int, int]) -> None:
     """Ensure PEP440 release versions get parsed out properly, with non-release components are ignored."""
     with patch_project_version(version), warnings.catch_warnings():
         warnings.simplefilter("error")  # raise warnings as errors (test there are no warnings)
@@ -185,7 +185,7 @@ def test_project_version_normalizes_release_components(
     version: str,
     expected: tuple[int, int, int],
     warning: str,
-):
+) -> None:
     """Ensure release segments normalize to a 3-component version and warn."""
     with patch_project_version(version), pytest.warns(RuntimeWarning, match=rf"^{re.escape(warning)}$"):
         assert _get_project_version() == expected

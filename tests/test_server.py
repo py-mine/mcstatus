@@ -12,7 +12,7 @@ from mcstatus.server import BedrockServer, JavaServer, LegacyServer
 from tests.protocol.helpers import AsyncBufferConnection, SyncBufferConnection, SyncDatagramConnection
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
+    from collections.abc import AsyncGenerator, Awaitable, Callable
 
     from typing_extensions import override
 else:
@@ -23,40 +23,40 @@ else:
 class MockProtocolFactory(asyncio.Protocol):
     transport: asyncio.Transport
 
-    def __init__(self, data_expected_to_receive: bytes, data_to_respond_with: bytes):
+    def __init__(self, data_expected_to_receive: bytes, data_to_respond_with: bytes) -> None:
         self.data_expected_to_receive = data_expected_to_receive
         self.data_to_respond_with = data_to_respond_with
 
     @override
-    def connection_made(self, transport: asyncio.Transport):  # pyright: ignore[reportIncompatibleMethodOverride]
+    def connection_made(self, transport: asyncio.Transport) -> None:  # pyright: ignore[reportIncompatibleMethodOverride]
         print("connection_made")
         self.transport = transport
 
     @override
-    def connection_lost(self, exc):
+    def connection_lost(self, exc: BaseException | None) -> None:
         print("connection_lost")
         self.transport.close()
 
     @override
-    def data_received(self, data):
+    def data_received(self, data: bytes) -> None:
         assert self.data_expected_to_receive in data
         self.transport.write(self.data_to_respond_with)
 
     @override
-    def eof_received(self):
+    def eof_received(self) -> None:
         print("eof_received")
 
     @override
-    def pause_writing(self):
+    def pause_writing(self) -> None:
         print("pause_writing")
 
     @override
-    def resume_writing(self):
+    def resume_writing(self) -> None:
         print("resume_writing")
 
 
 @pytest_asyncio.fixture
-async def create_mock_packet_server():
+async def create_mock_packet_server() -> AsyncGenerator[Callable[[int, bytes, bytes], Awaitable[asyncio.Server]], None]:
     """Create a temporary asyncio packet servers used by tests."""
     event_loop = asyncio.get_running_loop()
     servers: list[asyncio.Server] = []
@@ -80,13 +80,13 @@ async def create_mock_packet_server():
 
 @final
 class TestBedrockServer:
-    def setup_method(self):
+    def setup_method(self) -> None:
         self.server = BedrockServer("127.0.0.1")
 
-    def test_default_port(self):
+    def test_default_port(self) -> None:
         assert self.server.address.port == 19132
 
-    def test_lookup_constructor(self):
+    def test_lookup_constructor(self) -> None:
         s = BedrockServer.lookup("example.org")
         assert s.address.host == "example.org"
         assert s.address.port == 19132
@@ -98,7 +98,7 @@ class TestAsyncJavaServer:
         self,
         unused_tcp_port: int,
         create_mock_packet_server: Callable[..., Awaitable[asyncio.Server]],
-    ):
+    ) -> None:
         _ = await create_mock_packet_server(
             port=unused_tcp_port,
             data_expected_to_receive=bytearray.fromhex("09010000000001C54246"),
@@ -109,13 +109,13 @@ class TestAsyncJavaServer:
         latency = await minecraft_server.async_ping(ping_token=29704774, version=47)
         assert latency >= 0
 
-    async def test_async_lookup_constructor(self):
+    async def test_async_lookup_constructor(self) -> None:
         s = await JavaServer.async_lookup("example.org:3333")
         assert s.address.host == "example.org"
         assert s.address.port == 3333
 
 
-def test_java_server_with_query_port():
+def test_java_server_with_query_port() -> None:
     with patch("mcstatus.server.JavaServer._retry_query") as patched_query_func:
         server = JavaServer("127.0.0.1", query_port=12345)
         _ = server.query()
@@ -123,7 +123,7 @@ def test_java_server_with_query_port():
         assert patched_query_func.call_args == call(Address("127.0.0.1", port=12345), tries=3)
 
 
-async def test_java_server_with_query_port_async():
+async def test_java_server_with_query_port_async() -> None:
     with patch("mcstatus.server.JavaServer._retry_async_query") as patched_query_func:
         server = JavaServer("127.0.0.1", query_port=12345)
         _ = await server.async_query()
@@ -133,14 +133,14 @@ async def test_java_server_with_query_port_async():
 
 @final
 class TestJavaServer:
-    def setup_method(self):
+    def setup_method(self) -> None:
         self.socket = SyncBufferConnection()
         self.server = JavaServer("127.0.0.1")
 
-    def test_default_port(self):
+    def test_default_port(self) -> None:
         assert self.server.address.port == 25565
 
-    def test_ping(self):
+    def test_ping(self) -> None:
         self.socket.receive(bytearray.fromhex("09010000000001C54246"))
 
         with patch("mcstatus.server.TCPSocketConnection") as connection:
@@ -151,7 +151,7 @@ class TestJavaServer:
         assert self.socket.remaining() == 0, "Data is pending to be read, but should be empty"
         assert latency >= 0
 
-    def test_ping_retry(self):
+    def test_ping_retry(self) -> None:
         # Use a blank mock for the connection, we don't want to actually create any connections
         with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.JavaClient") as java_client:
             java_client.side_effect = [RuntimeError, RuntimeError, RuntimeError]
@@ -159,7 +159,7 @@ class TestJavaServer:
                 _ = self.server.ping()
             assert java_client.call_count == 3
 
-    def test_status(self):
+    def test_status(self) -> None:
         self.socket.receive(
             bytearray.fromhex(
                 "6D006B7B226465736372697074696F6E223A2241204D696E65637261667420536572766572222C22706C6179657273223A7B2"
@@ -181,7 +181,7 @@ class TestJavaServer:
         }
         assert info.latency >= 0
 
-    def test_status_retry(self):
+    def test_status_retry(self) -> None:
         # Use a blank mock for the connection, we don't want to actually create any connections
         with patch("mcstatus.server.TCPSocketConnection"), patch("mcstatus.server.JavaClient") as java_client:
             java_client.side_effect = [RuntimeError, RuntimeError, RuntimeError]
@@ -189,7 +189,7 @@ class TestJavaServer:
                 _ = self.server.status()
             assert java_client.call_count == 3
 
-    def test_query(self):
+    def test_query(self) -> None:
         socket = SyncDatagramConnection()
         socket.receive(bytearray.fromhex("090000000035373033353037373800"))
         socket.receive(
@@ -221,7 +221,7 @@ class TestJavaServer:
             "hostip": "192.168.56.1",
         }
 
-    def test_query_retry(self):
+    def test_query_retry(self) -> None:
         # Use a blank mock for the connection, we don't want to actually create any connections
         with patch("mcstatus.server.UDPSocketConnection"), patch("mcstatus.server.QueryClient") as query_client:
             query_client.side_effect = [RuntimeError, RuntimeError, RuntimeError]
@@ -229,7 +229,7 @@ class TestJavaServer:
                 _ = self.server.query()
             assert query_client.call_count == 3
 
-    def test_lookup_constructor(self):
+    def test_lookup_constructor(self) -> None:
         s = JavaServer.lookup("example.org:4444")
         assert s.address.host == "example.org"
         assert s.address.port == 4444
@@ -237,19 +237,19 @@ class TestJavaServer:
 
 @final
 class TestLegacyServer:
-    def setup_method(self):
+    def setup_method(self) -> None:
         self.socket = SyncBufferConnection()
         self.server = LegacyServer("127.0.0.1")
 
-    def test_default_port(self):
+    def test_default_port(self) -> None:
         assert self.server.address.port == 25565
 
-    def test_lookup_constructor(self):
+    def test_lookup_constructor(self) -> None:
         s = LegacyServer.lookup("example.org:4444")
         assert s.address.host == "example.org"
         assert s.address.port == 4444
 
-    def test_status(self):
+    def test_status(self) -> None:
         self.socket.receive(
             bytearray.fromhex(
                 "ff002300a70031000000340037000000"
@@ -277,16 +277,16 @@ class TestLegacyServer:
 
 @final
 class TestAsyncLegacyServer:
-    def setup_method(self):
+    def setup_method(self) -> None:
         self.socket = AsyncBufferConnection()
         self.server = LegacyServer("127.0.0.1")
 
-    async def test_async_lookup_constructor(self):
+    async def test_async_lookup_constructor(self) -> None:
         s = await LegacyServer.async_lookup("example.org:3333")
         assert s.address.host == "example.org"
         assert s.address.port == 3333
 
-    async def test_async_status(self):
+    async def test_async_status(self) -> None:
         self.socket.receive(
             bytearray.fromhex(
                 "ff002300a70031000000340037000000"
