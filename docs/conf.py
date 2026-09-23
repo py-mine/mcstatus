@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 from packaging.version import Version, parse as parse_version
 
 if TYPE_CHECKING:
-    from typing_extensions import override  # pyright: ignore[reportUnusedImport]
+    from typing_extensions import override
 else:
     override = lambda f: f  # ruff: ignore[lambda-assignment]
 
