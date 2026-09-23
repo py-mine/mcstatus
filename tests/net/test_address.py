@@ -95,7 +95,7 @@ class TestAddressValidity:
         ("address", "port"),
         [(25565, "example.org"), (0, 0)],
     )
-    def test_address_validation_host_invalid_type(self, address: object, port: object) -> None:
+    def test_address_validation_host_invalid_type(self, address: int | str, port: int) -> None:
         with pytest.raises(TypeError, match=f"^Host must be a string address, got {type(address)!r} \\({address!r}\\)$"):
             Address._ensure_validity(address, port)
 
