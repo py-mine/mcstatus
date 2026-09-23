@@ -140,7 +140,8 @@ def mock_autodoc() -> None:
     from sphinx.ext import autodoc  # ruff: ignore[import-outside-top-level]
 
     class MockedClassDocumenter(autodoc.ClassDocumenter):
-        def add_line(self, line: str, source: str, *lineno: int) -> None:  # type: ignore[override]
+        @override
+        def add_line(self, line: str, source: str, *lineno: int) -> None:
             if line == "   Bases: :py:class:`object`":
                 return
             super().add_line(line, source, *lineno)
