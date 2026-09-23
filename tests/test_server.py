@@ -56,7 +56,7 @@ class MockProtocolFactory(asyncio.Protocol):
 
 
 @pytest_asyncio.fixture
-async def create_mock_packet_server() -> AsyncGenerator[Callable[[int, bytes, bytes], Awaitable[asyncio.Server]], None]:
+async def create_mock_packet_server() -> AsyncGenerator[Callable[[int, bytes, bytes], Awaitable[asyncio.Server]]]:
     """Create a temporary asyncio packet servers used by tests."""
     event_loop = asyncio.get_running_loop()
     servers: list[asyncio.Server] = []
