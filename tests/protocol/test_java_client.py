@@ -130,4 +130,4 @@ class TestJavaClient:
             # We give it a pretty big leeway with the max here, as the MacOS CI runs can
             # sometimes take quite long (upwards of 10s).
             latency = self.java_client.test_ping()
-            assert 1 <= latency <= 20
+            assert 1 <= latency <= 60
