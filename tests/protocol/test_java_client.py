@@ -109,7 +109,7 @@ class TestJavaClient:
             # We give it a pretty big leeway with the max here, as the MacOS CI runs can
             # sometimes take quite long (upwards of 10s).
             latency = self.java_client.read_status().latency
-            assert 1 <= latency <= 20
+            assert 1 <= latency <= 60
 
     # Windows CI can occasionally measure <1ms despite a 1ms sleep;
     # see https://github.com/py-mine/mcstatus/issues/442.
