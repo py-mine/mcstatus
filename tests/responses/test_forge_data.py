@@ -125,11 +125,11 @@ class TestForgeDataV3(BaseResponseTest):
 
 @t.final
 class TestForgeDataMod:
-    def test_build_with_empty_input(self):
+    def test_build_with_empty_input(self) -> None:
         with pytest.raises(KeyError, match=r"^'Mod version in Forge mod data must be provided\. Mod info: {}'$"):
             _ = ForgeDataMod.build({})
 
-    def test_build_without_mod_id(self):
+    def test_build_without_mod_id(self) -> None:
         with pytest.raises(
             KeyError, match=r"^\"Mod ID in Forge mod data must be provided\. Mod info: {'modmarker': 'foo'}\.\"$"
         ):
@@ -691,13 +691,13 @@ class TestForgeData(BaseResponseTest):
         assert value is not None
         return value
 
-    def test_build_with_empty_input(self):
+    def test_build_with_empty_input(self) -> None:
         with pytest.raises(KeyError, match=r"^'Neither `mods` or `modList` keys exist\.'$"):
             _ = ForgeData.build({})
 
 
 @pytest.mark.parametrize("key", ["forgeData", "modinfo"])
-def test_java_status_response_forge_data_is_none(key: str):
+def test_java_status_response_forge_data_is_none(key: str) -> None:
     # should not raise
     _ = JavaStatusResponse.build(
         JAVA_RAW_RESPONSE | {key: None},  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict

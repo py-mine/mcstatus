@@ -8,7 +8,7 @@ from tests.responses import BaseResponseTest
 
 
 @pytest.fixture(scope="module")
-def build():
+def build() -> LegacyStatusResponse:
     return LegacyStatusResponse.build(
         [
             "47",
@@ -38,7 +38,7 @@ class TestLegacyStatusResponse(BaseResponseTest):
     def build(build: LegacyStatusResponse) -> LegacyStatusResponse:
         return build
 
-    def test_as_dict(self, build: LegacyStatusResponse):
+    def test_as_dict(self, build: LegacyStatusResponse) -> None:
         assert build.as_dict() == {
             "latency": 123.0,
             "motd": "A Minecraft Server",

@@ -52,7 +52,7 @@ def dns_mock(
 
 
 class TestARecordResolution:
-    def test_prefers_ipv4_record(self):
+    def test_prefers_ipv4_record(self) -> None:
         answers = {
             RdataType.A: dns_answer(RdataType.A, "192.0.2.1"),
             RdataType.AAAA: dns_answer(RdataType.AAAA, "2001:db8::1"),
@@ -60,7 +60,7 @@ class TestARecordResolution:
         with patch("dns.resolver.resolve", side_effect=dns_mock(answers)):
             assert resolve_a_record("example.org", lifetime=3) == "192.0.2.1"
 
-    def test_falls_back_to_ipv6_record(self):
+    def test_falls_back_to_ipv6_record(self) -> None:
         with patch(
             "dns.resolver.resolve",
             side_effect=dns_mock(
@@ -73,14 +73,14 @@ class TestARecordResolution:
             assert resolve_a_record("example.org", lifetime=3) == "2001:db8::1"
 
     @pytest.mark.parametrize("exception", [dns.exception.Timeout, dns.resolver.NXDOMAIN])
-    def test_propagates_resolution_failure(self, exception: type[dns.exception.DNSException]):
+    def test_propagates_resolution_failure(self, exception: type[dns.exception.DNSException]) -> None:
         with (
             patch("dns.resolver.resolve", side_effect=exception),
             pytest.raises(exception),
         ):
             _ = resolve_a_record("example.org")
 
-    async def test_async_prefers_ipv4_record(self):
+    async def test_async_prefers_ipv4_record(self) -> None:
         answers = {
             RdataType.A: dns_answer(RdataType.A, "192.0.2.1"),
             RdataType.AAAA: dns_answer(RdataType.AAAA, "2001:db8::1"),
@@ -92,7 +92,7 @@ class TestARecordResolution:
         ):
             assert await async_resolve_a_record("example.org", lifetime=3) == "192.0.2.1"
 
-    async def test_async_falls_back_to_ipv6_record(self):
+    async def test_async_falls_back_to_ipv6_record(self) -> None:
         with patch(
             "dns.asyncresolver.resolve",
             side_effect=dns_mock(
@@ -105,14 +105,14 @@ class TestARecordResolution:
             assert await async_resolve_a_record("example.org") == "2001:db8::1"
 
     @pytest.mark.parametrize("exception", [dns.exception.Timeout, dns.resolver.NXDOMAIN])
-    async def test_async_propagates_resolution_failure(self, exception: type[dns.exception.DNSException]):
+    async def test_async_propagates_resolution_failure(self, exception: type[dns.exception.DNSException]) -> None:
         with (
             patch("dns.asyncresolver.resolve", side_effect=exception),
             pytest.raises(exception),
         ):
             _ = await async_resolve_a_record("example.org")
 
-    async def test_async_raises_no_answer_when_no_records_exist(self):
+    async def test_async_raises_no_answer_when_no_records_exist(self) -> None:
         with (
             patch(
                 "dns.asyncresolver.resolve",
