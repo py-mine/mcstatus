@@ -128,6 +128,6 @@ class TestJavaClient:
             # Latency should be in milliseconds, so somewhere just above 1
             #
             # We give it a pretty big leeway with the max here, as the MacOS CI runs can
-            # sometimes take quite long (upwards of 10s).
+            # sometimes take quite long.
             latency = self.java_client.test_ping()
             assert 1 <= latency <= 60
