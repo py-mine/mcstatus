@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import ClassVar, TYPE_CHECKING, final
+from typing import ClassVar, Literal, TYPE_CHECKING, final
 
 from mcstatus._net.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus._protocol.bedrock_client import BedrockClient
+from mcstatus._protocol.bedrock_nethernet_client import BedrockNetherNetClient
 from mcstatus._protocol.io.connection import (
     TCPAsyncSocketConnection,
     TCPSocketConnection,
@@ -305,6 +306,39 @@ class BedrockServer(MCServer):
 
     DEFAULT_PORT = 19132
 
+    def __init__(
+        self,
+        host: str,
+        port: int | None = None,
+        timeout: float = 3,
+        transport: Literal["auto", "raknet", "nethernet"] = "auto",
+    ) -> None:
+        """
+        :param host: The host/ip of the minecraft server.
+        :param port: The port that the server is on.
+        :param timeout: The timeout in seconds before failing to connect.
+        :param transport: Transport protocol to use (``auto``, ``raknet``, or ``nethernet``).
+        """  # ruff: ignore[missing-blank-line-after-summary, multi-line-summary-first-line]
+        super().__init__(host, port, timeout)
+        self.transport: Literal["auto", "raknet", "nethernet"] = transport
+
+    @classmethod
+    @override
+    def lookup(
+        cls,
+        address: str,
+        timeout: float = 3,
+        transport: Literal["auto", "raknet", "nethernet"] = "auto",
+    ) -> Self:
+        """Mimics minecraft's server address field.
+
+        :param address: The address of the Minecraft server, like ``example.com:19132``
+        :param timeout: The timeout in seconds before failing to connect.
+        :param transport: The transport protocol to query (``auto``, ``raknet``, or ``nethernet``).
+        """
+        addr = Address.parse_address(address, default_port=cls.DEFAULT_PORT)
+        return cls(addr.host, addr.port, timeout=timeout, transport=transport)
+
     @retry(tries=3)
     def status(self, *, tries: int = 3) -> BedrockStatusResponse:  # ruff: ignore[unused-method-argument]
         """Check the status of a Minecraft Bedrock Edition server.
@@ -312,7 +346,15 @@ class BedrockServer(MCServer):
         :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return BedrockClient(self.address, self.timeout).read_status()
+        if self.transport == "raknet":
+            return BedrockClient(self.address, self.timeout).read_status()
+        if self.transport == "nethernet":
+            return BedrockNetherNetClient(self.address, self.timeout).read_status()
+
+        try:
+            return BedrockClient(self.address, self.timeout).read_status()
+        except (TimeoutError, OSError):
+            return BedrockNetherNetClient(self.address, self.timeout).read_status()
 
     @retry(tries=3)
     async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:  # ruff: ignore[unused-method-argument]
@@ -321,4 +363,12 @@ class BedrockServer(MCServer):
         :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return await BedrockClient(self.address, self.timeout).read_status_async()
+        if self.transport == "raknet":
+            return await BedrockClient(self.address, self.timeout).read_status_async()
+        if self.transport == "nethernet":
+            return await BedrockNetherNetClient(self.address, self.timeout).read_status_async()
+
+        try:
+            return await BedrockClient(self.address, self.timeout).read_status_async()
+        except (TimeoutError, OSError):
+            return await BedrockNetherNetClient(self.address, self.timeout).read_status_async()

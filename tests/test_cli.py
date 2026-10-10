@@ -66,7 +66,7 @@ BEDROCK_RAW_RESPONSE = [
 # NOTE: if updating this, be sure to change other occurrences of this help text!
 # to update, use: `COLUMNS=100000 poetry run mcstatus --help`
 EXPECTED_HELP_OUTPUT = """
-usage: mcstatus [-h] [--bedrock | --legacy] address {ping,status,query,json} ...
+usage: mcstatus [-h] [--bedrock | --legacy] [--bedrock-transport {auto,raknet,nethernet}] address {ping,status,query,json} ...
 
 mcstatus provides an easy way to query Minecraft servers for any information they can expose. It provides three modes of access: query, status, ping and json.
 
@@ -77,6 +77,8 @@ options:
   -h, --help            show this help message and exit
   --bedrock             Specifies that 'address' is a Bedrock server (default: Java).
   --legacy              Specifies that 'address' is a pre-1.7 Java server (default: 1.7+).
+  --bedrock-transport {auto,raknet,nethernet}
+                        Specifies transport protocol for Bedrock servers (default: auto).
 
 commands:
   Command to run, defaults to 'status'.

@@ -5,6 +5,7 @@ import argparse
 import json
 import socket
 import sys
+from functools import partial
 from typing import Any, TYPE_CHECKING, TypeAlias
 
 import dns.resolver
@@ -159,6 +160,12 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     _ = group.add_argument(
         "--legacy", help="Specifies that 'address' is a pre-1.7 Java server (default: 1.7+).", action="store_true"
     )
+    _ = parser.add_argument(
+        "--bedrock-transport",
+        choices=["auto", "raknet", "nethernet"],
+        default="auto",
+        help="Specifies transport protocol for Bedrock servers (default: auto).",
+    )
 
     subparsers = parser.add_subparsers(title="commands", description="Command to run, defaults to 'status'.")
     parser.set_defaults(func=status_cmd)
@@ -175,7 +182,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
 
     args = parser.parse_args(argv)
     if args.bedrock:
-        lookup = BedrockServer.lookup
+        lookup = partial(BedrockServer.lookup, transport=args.bedrock_transport)
     elif args.legacy:
         lookup = LegacyServer.lookup
     else:
