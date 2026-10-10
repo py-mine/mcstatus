@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from abc import ABC
 from typing import ClassVar, Literal, TYPE_CHECKING, final
 
@@ -340,15 +341,22 @@ class BedrockServer(MCServer):
         return cls(addr.host, addr.port, timeout=timeout, transport=transport)
 
     @retry(tries=3)
-    def status(self, *, tries: int = 3) -> BedrockStatusResponse:  # ruff: ignore[unused-method-argument]
+    def status(
+        self,
+        *,
+        tries: int = 3,  # ruff: ignore[unused-method-argument]
+        transport: Literal["auto", "raknet", "nethernet"] | None = None,
+    ) -> BedrockStatusResponse:
         """Check the status of a Minecraft Bedrock Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
+        :param transport: The transport protocol to query (``auto``, ``raknet``, or ``nethernet``).
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        if self.transport == "raknet":
+        target_transport = transport or self.transport
+        if target_transport == "raknet":
             return BedrockClient(self.address, self.timeout).read_status()
-        if self.transport == "nethernet":
+        if target_transport == "nethernet":
             return BedrockNetherNetClient(self.address, self.timeout).read_status()
 
         try:
@@ -356,19 +364,61 @@ class BedrockServer(MCServer):
         except (TimeoutError, OSError):
             return BedrockNetherNetClient(self.address, self.timeout).read_status()
 
+    @staticmethod
+    def _extract_task_result(task: asyncio.Task[BedrockStatusResponse]) -> BedrockStatusResponse | None:
+        try:
+            return task.result()
+        except (TimeoutError, OSError):
+            return None
+
+    @staticmethod
+    async def _await_task_result(task: asyncio.Task[BedrockStatusResponse]) -> BedrockStatusResponse | None:
+        try:
+            return await task
+        except (TimeoutError, OSError):
+            return None
+
     @retry(tries=3)
-    async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:  # ruff: ignore[unused-method-argument]
+    async def async_status(
+        self,
+        *,
+        tries: int = 3,  # ruff: ignore[unused-method-argument]
+        transport: Literal["auto", "raknet", "nethernet"] | None = None,
+    ) -> BedrockStatusResponse:
         """Asynchronously check the status of a Minecraft Bedrock Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
+        :param transport: The transport protocol to query (``auto``, ``raknet``, or ``nethernet``).
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        if self.transport == "raknet":
+        target_transport = transport or self.transport
+        if target_transport == "raknet":
             return await BedrockClient(self.address, self.timeout).read_status_async()
-        if self.transport == "nethernet":
+        if target_transport == "nethernet":
             return await BedrockNetherNetClient(self.address, self.timeout).read_status_async()
 
-        try:
-            return await BedrockClient(self.address, self.timeout).read_status_async()
-        except (TimeoutError, OSError):
-            return await BedrockNetherNetClient(self.address, self.timeout).read_status_async()
+        raknet_task: asyncio.Task[BedrockStatusResponse] = asyncio.create_task(
+            BedrockClient(self.address, self.timeout).read_status_async()
+        )
+        nethernet_task: asyncio.Task[BedrockStatusResponse] = asyncio.create_task(
+            BedrockNetherNetClient(self.address, self.timeout).read_status_async()
+        )
+
+        done: set[asyncio.Task[BedrockStatusResponse]]
+        pending: set[asyncio.Task[BedrockStatusResponse]]
+        done, pending = await asyncio.wait(
+            [raknet_task, nethernet_task],
+            return_when=asyncio.FIRST_COMPLETED,
+        )
+
+        for task in done:
+            if (result := self._extract_task_result(task)) is not None:
+                for p in pending:
+                    _ = p.cancel()
+                return result
+
+        for remaining_task in pending:
+            if (result := await self._await_task_result(remaining_task)) is not None:
+                return result
+
+        raise TimeoutError("Timed out waiting for RakNet and NetherNet responses.")

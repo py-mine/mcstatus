@@ -31,6 +31,11 @@ versions. They are only documented here for linkable reference to them.
     :undoc-members:
     :show-inheritance:
 
+.. autoclass:: mcstatus._protocol.bedrock_nethernet_client.BedrockNetherNetClient
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. automodule:: mcstatus._net.address
     :members:
     :exclude-members: Address

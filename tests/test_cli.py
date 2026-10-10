@@ -263,6 +263,27 @@ def test_status_legacy(mock_network_requests: None):
     assert err.getvalue() == ""
 
 
+def test_status_bedrock_transport_implied():
+    with (
+        patch("mcstatus.server.BedrockServer.lookup") as mock_lookup,
+        patch_stdout_stderr() as (_out, err),
+    ):
+        mock_lookup.return_value = BedrockServer("example.com", port=19132, transport="nethernet")
+        with patch(
+            "mcstatus.server.BedrockServer.status",
+            return_value=BedrockStatusResponse.build(BEDROCK_RAW_RESPONSE, latency=123),
+        ):
+            assert main_under_test(["example.com", "--bedrock-transport", "nethernet", "status"]) == 0
+        mock_lookup.assert_called_once_with("example.com", transport="nethernet")
+    assert err.getvalue() == ""
+
+
+def test_bedrock_transport_legacy_conflict():
+    with pytest.raises(SystemExit), patch_stdout_stderr() as (_out, err):
+        _ = main_under_test(["example.com", "--legacy", "--bedrock-transport", "nethernet", "status"])
+    assert "--bedrock-transport cannot be used with --legacy" in err.getvalue()
+
+
 def test_status_offline(mock_network_requests: None):
     with patch_stdout_stderr() as (out, err), patch("mcstatus.server.JavaServer.status", side_effect=TimeoutError):
         assert main_under_test(["example.com", "status"]) == 1

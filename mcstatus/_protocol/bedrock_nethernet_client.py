@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
+import http.client
 import json
-import socket
 from time import perf_counter
-from typing import TYPE_CHECKING, TypedDict, final
+from typing import TYPE_CHECKING, cast, final
 
 from mcstatus.motd import Motd
 from mcstatus.responses import BedrockStatusPlayers, BedrockStatusResponse, BedrockStatusVersion
@@ -13,63 +14,6 @@ if TYPE_CHECKING:
     from mcstatus._net.address import Address
 
 __all__ = ["BedrockNetherNetClient"]
-
-
-class _RawNetherNetVersion(TypedDict, total=False):
-    name: str
-    protocol: int
-
-
-class _RawNetherNetPlayers(TypedDict, total=False):
-    online: int
-    max: int
-
-
-class _RawNetherNetBody(TypedDict, total=False):
-    motd: str
-    version: _RawNetherNetVersion
-    players: _RawNetherNetPlayers
-
-
-def _parse_headers(header_part: bytes) -> dict[str, str]:
-    headers: dict[str, str] = {}
-    for line in header_part.decode("iso-8859-1", errors="replace").split("\r\n")[1:]:
-        if ":" in line:
-            k, v = line.split(":", 1)
-            headers[k.strip().lower()] = v.strip()
-    return headers
-
-
-def _parse_json_or_semicolon_body(
-    body_part: bytes,
-    latency: float,
-    default_server_name: str,
-) -> BedrockStatusResponse | None:
-    try:
-        decoded_str = body_part.decode("utf-8", errors="replace")
-        raw_json: _RawNetherNetBody = json.loads(decoded_str)
-    except (json.JSONDecodeError, ValueError, TypeError):
-        decoded_body = body_part.decode("utf-8", errors="replace").strip()
-        if decoded_body.startswith("MCPE;") or ";" in decoded_body:
-            return BedrockStatusResponse.build(decoded_body.split(";"), latency)
-        return None
-
-    motd_text = raw_json.get("motd", "NetherNet Bedrock Server")
-    version_data = raw_json.get("version", {})
-    server_name = version_data.get("name", default_server_name)
-    protocol = version_data.get("protocol", -1)
-    players_data = raw_json.get("players", {})
-    online_players = players_data.get("online", -1)
-    max_players = players_data.get("max", -1)
-
-    return BedrockStatusResponse(
-        players=BedrockStatusPlayers(online=online_players, max=max_players),
-        version=BedrockStatusVersion(name=server_name, protocol=protocol, brand="MCPE"),
-        motd=Motd.parse(motd_text, bedrock=True),
-        latency=latency,
-        map_name=None,
-        gamemode=None,
-    )
 
 
 @final
@@ -81,26 +25,75 @@ class BedrockNetherNetClient:
         self.timeout = timeout
 
     @staticmethod
-    def parse_response(data: bytes, latency: float) -> BedrockStatusResponse:
-        """Parse HTTP/signaling response data into BedrockStatusResponse.
+    def _parse_motd(raw_dict: dict[str, object]) -> str:
+        motd_val = raw_dict.get("motd")
+        if isinstance(motd_val, str) and motd_val:
+            return motd_val
+        return "NetherNet Bedrock Server"
 
-        :param data: Raw response bytes from the server.
+    @staticmethod
+    def _parse_version(raw_dict: dict[str, object]) -> BedrockStatusVersion:
+        server_name = "NetherNet"
+        protocol = -1
+        version_val = raw_dict.get("version")
+        if isinstance(version_val, dict):
+            version_dict = cast("dict[str, object]", version_val)
+            name_val = version_dict.get("name")
+            if isinstance(name_val, str):
+                server_name = name_val
+            proto_val = version_dict.get("protocol")
+            if isinstance(proto_val, int):
+                protocol = proto_val
+        return BedrockStatusVersion(name=server_name, protocol=protocol, brand="MCPE")
+
+    @staticmethod
+    def _parse_players(raw_dict: dict[str, object]) -> BedrockStatusPlayers:
+        online_players = -1
+        max_players = -1
+        players_val = raw_dict.get("players")
+        if isinstance(players_val, dict):
+            players_dict = cast("dict[str, object]", players_val)
+            online_val = players_dict.get("online")
+            if isinstance(online_val, int):
+                online_players = online_val
+            max_val = players_dict.get("max")
+            if isinstance(max_val, int):
+                max_players = max_val
+        return BedrockStatusPlayers(online=online_players, max=max_players)
+
+    @classmethod
+    def parse_response(cls, body: bytes, latency: float) -> BedrockStatusResponse:
+        """Parse NetherNet HTTP response payload into BedrockStatusResponse.
+
+        :param body: Response payload bytes from the server.
         :param latency: Latency of the request in milliseconds.
         :return: Parsed BedrockStatusResponse instance.
         """
-        header_part, _, body_part = data.partition(b"\r\n\r\n")
-        headers = _parse_headers(header_part)
-        server_name = headers.get("server") or "NetherNet"
+        if not body:
+            raise OSError("Received empty response from NetherNet server")
 
-        if body_part:
-            parsed = _parse_json_or_semicolon_body(body_part, latency, server_name)
-            if parsed is not None:
-                return parsed
+        decoded = body.decode("utf-8", errors="replace").strip()
+
+        # Support traditional semicolon-delimited payload if returned
+        if decoded.startswith("MCPE;") or (decoded.count(";") >= 5):
+            parts = decoded.split(";")
+            if len(parts) >= 6:
+                return BedrockStatusResponse.build(parts, latency)
+
+        try:
+            raw_data: object = json.loads(decoded)
+        except (json.JSONDecodeError, ValueError) as exc:
+            raise ValueError(f"Invalid NetherNet status payload: {decoded!r}") from exc
+
+        if not isinstance(raw_data, dict):
+            raise TypeError(f"Expected JSON object in NetherNet status response, got {type(raw_data).__name__}")
+
+        raw_dict = cast("dict[str, object]", raw_data)
 
         return BedrockStatusResponse(
-            players=BedrockStatusPlayers(online=-1, max=-1),
-            version=BedrockStatusVersion(name=server_name, protocol=-1, brand="MCPE"),
-            motd=Motd.parse("NetherNet Bedrock Server", bedrock=True),
+            players=cls._parse_players(raw_dict),
+            version=cls._parse_version(raw_dict),
+            motd=Motd.parse(cls._parse_motd(raw_dict), bedrock=True),
             latency=latency,
             map_name=None,
             gamemode=None,
@@ -109,38 +102,34 @@ class BedrockNetherNetClient:
     def read_status(self) -> BedrockStatusResponse:
         """Probe the NetherNet server over TCP synchronously."""
         start = perf_counter()
-        data = self._read_status()
+        body = self._read_status()
         end = perf_counter()
-        return self.parse_response(data, (end - start) * 1000)
+        return self.parse_response(body, (end - start) * 1000)
 
     def _read_status(self) -> bytes:
-        with socket.create_connection(self.address, timeout=self.timeout) as s:
-            s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-            request = (
-                f"GET / HTTP/1.1\r\n"
-                f"Host: {self.address.host}:{self.address.port}\r\n"
-                f"User-Agent: mcstatus\r\n"
-                f"Connection: close\r\n\r\n"
-            ).encode("ascii")
-            s.sendall(request)
-            response = bytearray()
-            while True:
-                chunk = s.recv(4096)
-                if not chunk:
-                    break
-                response.extend(chunk)
-                if b"\r\n\r\n" in response and len(response) > 512:
-                    break
-            if not response:
-                raise OSError("Server closed connection without responding to HTTP signaling probe.")
-            return bytes(response)
+        conn = http.client.HTTPConnection(self.address.host, self.address.port, timeout=self.timeout)
+        try:
+            conn.request(
+                "GET",
+                "/v1/join",
+                headers={
+                    "User-Agent": "mcstatus",
+                    "Accept": "application/json",
+                },
+            )
+            res = conn.getresponse()
+            if res.status != 200:
+                raise OSError(f"Server returned HTTP {res.status} ({res.reason})")
+            return res.read()
+        finally:
+            conn.close()
 
     async def read_status_async(self) -> BedrockStatusResponse:
         """Probe the NetherNet server over TCP asynchronously."""
         start = perf_counter()
-        data = await self._read_status_async()
+        body = await self._read_status_async()
         end = perf_counter()
-        return self.parse_response(data, (end - start) * 1000)
+        return self.parse_response(body, (end - start) * 1000)
 
     async def _read_status_async(self) -> bytes:
         reader, writer = await asyncio.wait_for(
@@ -149,24 +138,42 @@ class BedrockNetherNetClient:
         )
         try:
             request = (
-                f"GET / HTTP/1.1\r\n"
+                f"GET /v1/join HTTP/1.1\r\n"
                 f"Host: {self.address.host}:{self.address.port}\r\n"
                 f"User-Agent: mcstatus\r\n"
+                f"Accept: application/json\r\n"
                 f"Connection: close\r\n\r\n"
             ).encode("ascii")
             writer.write(request)
             await asyncio.wait_for(writer.drain(), timeout=self.timeout)
-            response = bytearray()
-            while True:
-                chunk = await asyncio.wait_for(reader.read(4096), timeout=self.timeout)
-                if not chunk:
-                    break
-                response.extend(chunk)
-                if b"\r\n\r\n" in response and len(response) > 512:
-                    break
-            if not response:
+
+            status_line = await asyncio.wait_for(reader.readline(), timeout=self.timeout)
+            if not status_line:
                 raise OSError("Server closed connection without responding to HTTP signaling probe.")
-            return bytes(response)
+
+            status_parts = status_line.decode("iso-8859-1", errors="replace").split(" ", 2)
+            if len(status_parts) < 2 or not status_parts[1].isdigit() or int(status_parts[1]) != 200:
+                status_code = status_parts[1] if len(status_parts) > 1 else "Unknown"
+                raise OSError(f"Server returned HTTP {status_code}")
+
+            content_length: int | None = None
+            while True:
+                line = await asyncio.wait_for(reader.readline(), timeout=self.timeout)
+                if not line or line in {b"\r\n", b"\n"}:
+                    break
+                header_str = line.decode("iso-8859-1", errors="replace")
+                if ":" in header_str:
+                    name, val = header_str.split(":", 1)
+                    if name.strip().lower() == "content-length":
+                        with contextlib.suppress(ValueError):
+                            content_length = int(val.strip())
+
+            if content_length is not None:
+                body = await asyncio.wait_for(reader.readexactly(content_length), timeout=self.timeout)
+            else:
+                body = await asyncio.wait_for(reader.read(), timeout=self.timeout)
+
+            return body
         finally:
             writer.close()
             await writer.wait_closed()
