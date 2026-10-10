@@ -66,7 +66,7 @@ BEDROCK_RAW_RESPONSE = [
 # NOTE: if updating this, be sure to change other occurrences of this help text!
 # to update, use: `COLUMNS=100000 poetry run mcstatus --help`
 EXPECTED_HELP_OUTPUT = """
-usage: mcstatus [-h] [--bedrock | --legacy] address {ping,status,query,json} ...
+usage: mcstatus [-h] [--bedrock | --legacy] [--bedrock-transport {auto,raknet,nethernet}] address {ping,status,query,json} ...
 
 mcstatus provides an easy way to query Minecraft servers for any information they can expose. It provides three modes of access: query, status, ping and json.
 
@@ -77,6 +77,8 @@ options:
   -h, --help            show this help message and exit
   --bedrock             Specifies that 'address' is a Bedrock server (default: Java).
   --legacy              Specifies that 'address' is a pre-1.7 Java server (default: 1.7+).
+  --bedrock-transport {auto,raknet,nethernet}
+                        Specifies transport protocol for Bedrock servers (default: auto).
 
 commands:
   Command to run, defaults to 'status'.
@@ -259,6 +261,27 @@ def test_status_legacy(mock_network_requests: None):
         "version: Java (pre-1.7) 1.4.2 (protocol 47)\nmotd: \x1b[0mA Minecraft Server\x1b[0m\nplayers: 0/20\nping: 123.00 ms\n"
     )
     assert err.getvalue() == ""
+
+
+def test_status_bedrock_transport_implied():
+    with (
+        patch("mcstatus.server.BedrockServer.lookup") as mock_lookup,
+        patch_stdout_stderr() as (_out, err),
+    ):
+        mock_lookup.return_value = BedrockServer("example.com", port=19132, transport="nethernet")
+        with patch(
+            "mcstatus.server.BedrockServer.status",
+            return_value=BedrockStatusResponse.build(BEDROCK_RAW_RESPONSE, latency=123),
+        ):
+            assert main_under_test(["example.com", "--bedrock-transport", "nethernet", "status"]) == 0
+        mock_lookup.assert_called_once_with("example.com", transport="nethernet")
+    assert err.getvalue() == ""
+
+
+def test_bedrock_transport_legacy_conflict():
+    with pytest.raises(SystemExit), patch_stdout_stderr() as (_out, err):
+        _ = main_under_test(["example.com", "--legacy", "--bedrock-transport", "nethernet", "status"])
+    assert "--bedrock-transport cannot be used with --legacy" in err.getvalue()
 
 
 def test_status_offline(mock_network_requests: None):

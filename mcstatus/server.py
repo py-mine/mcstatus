@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import asyncio
 from abc import ABC
-from typing import ClassVar, TYPE_CHECKING, final
+from typing import ClassVar, Literal, TYPE_CHECKING, final
 
 from mcstatus._net.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus._protocol.bedrock_client import BedrockClient
+from mcstatus._protocol.bedrock_nethernet_client import BedrockNetherNetClient
 from mcstatus._protocol.io.connection import (
     TCPAsyncSocketConnection,
     TCPSocketConnection,
@@ -305,20 +307,118 @@ class BedrockServer(MCServer):
 
     DEFAULT_PORT = 19132
 
+    def __init__(
+        self,
+        host: str,
+        port: int | None = None,
+        timeout: float = 3,
+        transport: Literal["auto", "raknet", "nethernet"] = "auto",
+    ) -> None:
+        """
+        :param host: The host/ip of the minecraft server.
+        :param port: The port that the server is on.
+        :param timeout: The timeout in seconds before failing to connect.
+        :param transport: Transport protocol to use (``auto``, ``raknet``, or ``nethernet``).
+        """  # ruff: ignore[missing-blank-line-after-summary, multi-line-summary-first-line]
+        super().__init__(host, port, timeout)
+        self.transport: Literal["auto", "raknet", "nethernet"] = transport
+
+    @classmethod
+    @override
+    def lookup(
+        cls,
+        address: str,
+        timeout: float = 3,
+        transport: Literal["auto", "raknet", "nethernet"] = "auto",
+    ) -> Self:
+        """Mimics minecraft's server address field.
+
+        :param address: The address of the Minecraft server, like ``example.com:19132``
+        :param timeout: The timeout in seconds before failing to connect.
+        :param transport: The transport protocol to query (``auto``, ``raknet``, or ``nethernet``).
+        """
+        addr = Address.parse_address(address, default_port=cls.DEFAULT_PORT)
+        return cls(addr.host, addr.port, timeout=timeout, transport=transport)
+
     @retry(tries=3)
-    def status(self, *, tries: int = 3) -> BedrockStatusResponse:  # ruff: ignore[unused-method-argument]
+    def status(
+        self,
+        *,
+        tries: int = 3,  # ruff: ignore[unused-method-argument]
+        transport: Literal["auto", "raknet", "nethernet"] | None = None,
+    ) -> BedrockStatusResponse:
         """Check the status of a Minecraft Bedrock Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
+        :param transport: The transport protocol to query (``auto``, ``raknet``, or ``nethernet``).
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return BedrockClient(self.address, self.timeout).read_status()
+        target_transport = transport or self.transport
+        if target_transport == "raknet":
+            return BedrockClient(self.address, self.timeout).read_status()
+        if target_transport == "nethernet":
+            return BedrockNetherNetClient(self.address, self.timeout).read_status()
+
+        try:
+            return BedrockClient(self.address, self.timeout).read_status()
+        except (TimeoutError, OSError):
+            return BedrockNetherNetClient(self.address, self.timeout).read_status()
+
+    @staticmethod
+    def _extract_task_result(task: asyncio.Task[BedrockStatusResponse]) -> BedrockStatusResponse | None:
+        try:
+            return task.result()
+        except (TimeoutError, OSError):
+            return None
+
+    @staticmethod
+    async def _await_task_result(task: asyncio.Task[BedrockStatusResponse]) -> BedrockStatusResponse | None:
+        try:
+            return await task
+        except (TimeoutError, OSError):
+            return None
 
     @retry(tries=3)
-    async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:  # ruff: ignore[unused-method-argument]
+    async def async_status(
+        self,
+        *,
+        tries: int = 3,  # ruff: ignore[unused-method-argument]
+        transport: Literal["auto", "raknet", "nethernet"] | None = None,
+    ) -> BedrockStatusResponse:
         """Asynchronously check the status of a Minecraft Bedrock Edition server.
 
         :param tries: The number of times to retry if an error is encountered.
+        :param transport: The transport protocol to query (``auto``, ``raknet``, or ``nethernet``).
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return await BedrockClient(self.address, self.timeout).read_status_async()
+        target_transport = transport or self.transport
+        if target_transport == "raknet":
+            return await BedrockClient(self.address, self.timeout).read_status_async()
+        if target_transport == "nethernet":
+            return await BedrockNetherNetClient(self.address, self.timeout).read_status_async()
+
+        raknet_task: asyncio.Task[BedrockStatusResponse] = asyncio.create_task(
+            BedrockClient(self.address, self.timeout).read_status_async()
+        )
+        nethernet_task: asyncio.Task[BedrockStatusResponse] = asyncio.create_task(
+            BedrockNetherNetClient(self.address, self.timeout).read_status_async()
+        )
+
+        done: set[asyncio.Task[BedrockStatusResponse]]
+        pending: set[asyncio.Task[BedrockStatusResponse]]
+        done, pending = await asyncio.wait(
+            [raknet_task, nethernet_task],
+            return_when=asyncio.FIRST_COMPLETED,
+        )
+
+        for task in done:
+            if (result := self._extract_task_result(task)) is not None:
+                for p in pending:
+                    _ = p.cancel()
+                return result
+
+        for remaining_task in pending:
+            if (result := await self._await_task_result(remaining_task)) is not None:
+                return result
+
+        raise TimeoutError("Timed out waiting for RakNet and NetherNet responses.")
