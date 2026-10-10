@@ -181,7 +181,10 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     ).set_defaults(func=json_cmd)
 
     args = parser.parse_args(argv)
-    if args.bedrock:
+    if args.bedrock_transport != "auto" and args.legacy:
+        parser.error("--bedrock-transport cannot be used with --legacy")
+
+    if args.bedrock or args.bedrock_transport != "auto":
         lookup = partial(BedrockServer.lookup, transport=args.bedrock_transport)
     elif args.legacy:
         lookup = LegacyServer.lookup
