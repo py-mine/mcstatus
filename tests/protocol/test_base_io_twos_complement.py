@@ -30,7 +30,7 @@ TWOS_COMPLEMENT_CASES = [
     ("number", "bits", "expected_twos"),
     TWOS_COMPLEMENT_CASES,
 )
-def test_to_twos_complement_matches_expected_values(number: int, bits: int, expected_twos: int):
+def test_to_twos_complement_matches_expected_values(number: int, bits: int, expected_twos: int) -> None:
     assert to_twos_complement(number, bits=bits) == expected_twos
 
 
@@ -38,7 +38,7 @@ def test_to_twos_complement_matches_expected_values(number: int, bits: int, expe
     ("twos_value", "bits", "expected_number"),
     [(twos_value, bits, number) for number, bits, twos_value in TWOS_COMPLEMENT_CASES],
 )
-def test_from_twos_complement_matches_expected_values(twos_value: int, bits: int, expected_number: int):
+def test_from_twos_complement_matches_expected_values(twos_value: int, bits: int, expected_number: int) -> None:
     assert from_twos_complement(twos_value, bits=bits) == expected_number
 
 
@@ -53,7 +53,7 @@ def test_from_twos_complement_matches_expected_values(twos_value: int, bits: int
         (2**63, 64),
     ],
 )
-def test_to_twos_complement_rejects_out_of_range(number: int, bits: int):
+def test_to_twos_complement_rejects_out_of_range(number: int, bits: int) -> None:
     with pytest.raises(ValueError, match=r"out of range"):
         _ = to_twos_complement(number, bits=bits)
 
@@ -67,6 +67,6 @@ def test_to_twos_complement_rejects_out_of_range(number: int, bits: int):
         (2**64, 64),
     ],
 )
-def test_from_twos_complement_rejects_out_of_range(number: int, bits: int):
+def test_from_twos_complement_rejects_out_of_range(number: int, bits: int) -> None:
     with pytest.raises(ValueError, match=r"out of range"):
         _ = from_twos_complement(number, bits=bits)

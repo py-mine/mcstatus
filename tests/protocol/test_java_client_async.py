@@ -12,7 +12,7 @@ from tests.protocol.helpers import AsyncBufferConnection, async_decorator
 
 @final
 class TestAsyncJavaClient:
-    def setup_method(self):
+    def setup_method(self) -> None:
         self.connection = AsyncBufferConnection()
         self.java_client = AsyncJavaClient(
             self.connection,  # pyright: ignore[reportArgumentType]
@@ -20,12 +20,12 @@ class TestAsyncJavaClient:
             version=44,
         )
 
-    def test_handshake(self):
+    def test_handshake(self) -> None:
         async_decorator(self.java_client.handshake)()
 
         assert self.connection.flush() == bytearray.fromhex("0F002C096C6F63616C686F737463DD01")
 
-    def test_read_status(self):
+    def test_read_status(self) -> None:
         self.connection.receive(
             bytearray.fromhex(
                 "7200707B226465736372697074696F6E223A2241204D696E65637261667420536572766572222C22706C6179657273223A7B2"
@@ -42,12 +42,12 @@ class TestAsyncJavaClient:
         }
         assert self.connection.flush() == bytearray.fromhex("0100")
 
-    def test_read_status_invalid_json(self):
+    def test_read_status_invalid_json(self) -> None:
         self.connection.receive(bytearray.fromhex("0300017B"))
         with pytest.raises(IOError, match=r"^Received invalid JSON$"):
             _ = async_decorator(self.java_client.read_status)()
 
-    def test_read_status_invalid_reply(self):
+    def test_read_status_invalid_reply(self) -> None:
         self.connection.receive(
             bytearray.fromhex(
                 "4F004D7B22706C6179657273223A7B226D6178223A32302C226F6E6C696E65223A307D2C2276657273696F6E223A7B226E616"
@@ -57,27 +57,27 @@ class TestAsyncJavaClient:
 
         _ = async_decorator(self.java_client.read_status)()
 
-    def test_read_status_invalid_status(self):
+    def test_read_status_invalid_status(self) -> None:
         self.connection.receive(bytearray.fromhex("0105"))
 
         with pytest.raises(IOError, match=r"^Received invalid status response packet.$"):
             _ = async_decorator(self.java_client.read_status)()
 
-    def test_test_ping(self):
+    def test_test_ping(self) -> None:
         self.connection.receive(bytearray.fromhex("09010000000000DD7D1C"))
         self.java_client.ping_token = 14515484
 
         assert async_decorator(self.java_client.test_ping)() >= 0
         assert self.connection.flush() == bytearray.fromhex("09010000000000DD7D1C")
 
-    def test_test_ping_invalid(self):
+    def test_test_ping_invalid(self) -> None:
         self.connection.receive(bytearray.fromhex("011F"))
         self.java_client.ping_token = 14515484
 
         with pytest.raises(IOError, match=r"^Received invalid ping response packet.$"):
             _ = async_decorator(self.java_client.test_ping)()
 
-    def test_test_ping_wrong_token(self):
+    def test_test_ping_wrong_token(self) -> None:
         self.connection.receive(bytearray.fromhex("09010000000000DD7D1C"))
         self.java_client.ping_token = 12345
 
@@ -87,7 +87,7 @@ class TestAsyncJavaClient:
     # Windows CI can occasionally measure <1ms despite a 1ms sleep;
     # see https://github.com/py-mine/mcstatus/issues/442.
     @pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
-    async def test_latency_is_real_number(self):
+    async def test_latency_is_real_number(self) -> None:
         self.connection.receive(
             bytearray.fromhex(
                 "7200707B226465736372697074696F6E223A2241204D696E65637261667420536572766572222C22706C6179657273223A7B2"
@@ -114,7 +114,7 @@ class TestAsyncJavaClient:
     # Windows CI can occasionally measure <1ms despite a 1ms sleep;
     # see https://github.com/py-mine/mcstatus/issues/442.
     @pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
-    async def test_test_ping_is_in_milliseconds(self):
+    async def test_test_ping_is_in_milliseconds(self) -> None:
         self.java_client.ping_token = 14515484
         self.connection.receive(bytearray.fromhex("09010000000000DD7D1C"))
 

@@ -19,7 +19,7 @@ from mcstatus.motd.components import JavaFormatting, JavaMinecraftColor, ParsedM
 
 
 class TestMotdSimplifies:
-    def test_get_unused_elements_call_every_simplifier(self):
+    def test_get_unused_elements_call_every_simplifier(self) -> None:
         with ExitStack() as stack:
             mocked = [
                 stack.enter_context(mock.patch("mcstatus.motd._simplifies." + simplifier))
@@ -36,23 +36,23 @@ class TestMotdSimplifies:
             for simplifier in mocked:
                 simplifier.assert_called()
 
-    def test_simplify_returns_new_instance(self):
+    def test_simplify_returns_new_instance(self) -> None:
         parsed: list[ParsedMotdComponent] = [JavaFormatting.RESET]
         obj = Motd(parsed.copy(), raw="")
         assert obj.simplify().parsed == []
         assert obj.parsed == parsed
 
-    def test_simplifies_work(self):
+    def test_simplifies_work(self) -> None:
         _ = get_unused_elements(["a", "b", "c"])
 
-    def test_simplify_runs_few_times(self):
+    def test_simplify_runs_few_times(self) -> None:
         """See `https://github.com/py-mine/mcstatus/pull/335#discussion_r1051658497`_."""
         obj = Motd([JavaFormatting.BOLD, JavaFormatting.RESET, JavaMinecraftColor.RED], raw="")
         assert obj.simplify() == Motd([], raw="")
 
     @pytest.mark.parametrize("first", [JavaMinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
     @pytest.mark.parametrize("second", [JavaMinecraftColor.BLUE, WebColor.from_hex(hex="#dd0220")])
-    def test_get_double_colors(self, first: ParsedMotdComponent, second: ParsedMotdComponent):
+    def test_get_double_colors(self, first: ParsedMotdComponent, second: ParsedMotdComponent) -> None:
         assert get_double_colors([first, second]) == {0}
 
     @pytest.mark.parametrize("first", [JavaMinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
@@ -63,72 +63,72 @@ class TestMotdSimplifies:
         first: ParsedMotdComponent,
         second: ParsedMotdComponent,
         third: ParsedMotdComponent,
-    ):
+    ) -> None:
         assert get_double_colors([first, second, third]) == {0, 1}
 
     @pytest.mark.parametrize("first", [JavaMinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
     @pytest.mark.parametrize("second", [JavaMinecraftColor.BLUE, WebColor.from_hex(hex="#dd0220")])
-    def test_get_double_colors_with_no_double_colors(self, first: ParsedMotdComponent, second: ParsedMotdComponent):
+    def test_get_double_colors_with_no_double_colors(self, first: ParsedMotdComponent, second: ParsedMotdComponent) -> None:
         assert get_double_colors([first, "foo", second]) == set()
 
     @pytest.mark.parametrize("item", [JavaFormatting.BOLD, JavaMinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_get_double_items(self, item: ParsedMotdComponent):
+    def test_get_double_items(self, item: ParsedMotdComponent) -> None:
         assert get_double_items([item, item]) == {0}
 
     @pytest.mark.parametrize("item", [JavaFormatting.BOLD, JavaMinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_get_double_items_with_three_items(self, item: ParsedMotdComponent):
+    def test_get_double_items_with_three_items(self, item: ParsedMotdComponent) -> None:
         assert get_double_items([item, item, item]) == {0, 1}
 
     @pytest.mark.parametrize("item", [JavaFormatting.BOLD, JavaMinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_get_double_items_with_no_double_items(self, item: ParsedMotdComponent):
+    def test_get_double_items_with_no_double_items(self, item: ParsedMotdComponent) -> None:
         assert get_double_items([item, "foo", item]) == set()
 
     @pytest.mark.parametrize("last_item", [JavaMinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_get_formatting_before_color(self, last_item: ParsedMotdComponent):
+    def test_get_formatting_before_color(self, last_item: ParsedMotdComponent) -> None:
         assert get_formatting_before_color([JavaFormatting.BOLD, last_item]) == {0}
 
     @pytest.mark.parametrize(
         "first_item", [JavaFormatting.RESET, JavaMinecraftColor.RED, WebColor.from_hex(hex="#ff0000"), "abc"]
     )
-    def test_get_formatting_before_color_without_formatting_before_color(self, first_item: ParsedMotdComponent):
+    def test_get_formatting_before_color_without_formatting_before_color(self, first_item: ParsedMotdComponent) -> None:
         assert get_formatting_before_color([first_item, "abc", JavaMinecraftColor.WHITE]) == set()
 
-    def test_skip_get_formatting_before_color(self):
+    def test_skip_get_formatting_before_color(self) -> None:
         assert get_formatting_before_color(["abc", JavaFormatting.BOLD, "def", JavaFormatting.RESET, "ghi"]) == set()
 
     @pytest.mark.parametrize("last_item", [JavaMinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_get_formatting_before_color_if_space_between(self, last_item: ParsedMotdComponent):
+    def test_get_formatting_before_color_if_space_between(self, last_item: ParsedMotdComponent) -> None:
         assert get_formatting_before_color([JavaFormatting.BOLD, " ", last_item]) == {0}
 
-    def test_two_formattings_before_minecraft_color(self):
+    def test_two_formattings_before_minecraft_color(self) -> None:
         """See `https://github.com/py-mine/mcstatus/pull/335#discussion_r1048476090`_."""
         assert get_formatting_before_color([JavaFormatting.BOLD, JavaFormatting.ITALIC, JavaMinecraftColor.RED]) == {0, 1}
 
-    def test_two_formattings_one_by_one(self):
+    def test_two_formattings_one_by_one(self) -> None:
         obj = Motd([JavaFormatting.BOLD, JavaFormatting.ITALIC], raw="")
         assert obj.simplify().parsed == []
 
     @pytest.mark.parametrize("last_item", [JavaFormatting.RESET, JavaMinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_non_text_in_the_end(self, last_item: ParsedMotdComponent):
+    def test_non_text_in_the_end(self, last_item: ParsedMotdComponent) -> None:
         assert get_end_non_text(["abc", JavaFormatting.BOLD, "def", JavaFormatting.RESET, "ghi", last_item]) == {5}
 
-    def test_translation_tag_in_the_end(self):
+    def test_translation_tag_in_the_end(self) -> None:
         assert (
             get_end_non_text(["abc", JavaFormatting.BOLD, "def", JavaFormatting.RESET, "ghi", TranslationTag("key")]) == set()
         )
 
     @pytest.mark.parametrize("item", [JavaFormatting.BOLD, JavaMinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_meaningless_resets_and_colors_active(self, item: ParsedMotdComponent):
+    def test_meaningless_resets_and_colors_active(self, item: ParsedMotdComponent) -> None:
         assert get_meaningless_resets_and_colors([item, "foo", item, "bar"]) == {2}
 
-    def test_meaningless_resets_and_colors_reset_nothing(self):
+    def test_meaningless_resets_and_colors_reset_nothing(self) -> None:
         assert get_meaningless_resets_and_colors(["foo", JavaFormatting.RESET, "bar"]) == {1}
 
     @pytest.mark.parametrize("item", [JavaFormatting.BOLD, JavaMinecraftColor.RED, WebColor.from_hex(hex="#ff0000")])
-    def test_meaningless_resets_and_colors_resets(self, item: ParsedMotdComponent):
+    def test_meaningless_resets_and_colors_resets(self, item: ParsedMotdComponent) -> None:
         assert get_meaningless_resets_and_colors([item, "foo", JavaFormatting.RESET, item, "bar"]) == set()
 
-    def test_no_conflict_on_popping_items(self):
+    def test_no_conflict_on_popping_items(self) -> None:
         """See `https://github.com/py-mine/mcstatus/pull/335#discussion_r1045303652`_."""
         obj = Motd(["0", "1"], raw="")
         call_count = 0
@@ -150,21 +150,21 @@ class TestMotdSimplifies:
                 _ = stack.enter_context(mock.patch("mcstatus.motd._simplifies." + simplifier, remove_first_element))
             assert obj.simplify().parsed == ["1"]
 
-    def test_simplify_function_provides_the_same_raw(self):
+    def test_simplify_function_provides_the_same_raw(self) -> None:
         obj = object()
         assert Motd([], raw=obj).simplify().raw is obj  # pyright: ignore[reportArgumentType]
 
-    def test_simplify_do_not_remove_string_contains_only_spaces(self):
+    def test_simplify_do_not_remove_string_contains_only_spaces(self) -> None:
         """Those can be used as delimiters."""
         assert Motd([" " * 20], raw="").simplify().parsed == [" " * 20]
 
-    def test_simplify_meaningless_resets_and_colors(self):
+    def test_simplify_meaningless_resets_and_colors(self) -> None:
         assert Motd.parse("&a1&a2&a3").simplify().parsed == [JavaMinecraftColor.GREEN, "123"]
 
-    def test_remove_formatting_reset_if_there_was_no_color_or_formatting(self):
+    def test_remove_formatting_reset_if_there_was_no_color_or_formatting(self) -> None:
         motd = Motd.parse({"text": "123", "extra": [{"text": "123"}]})
         assert motd.parsed == ["123", JavaFormatting.RESET, "123", JavaFormatting.RESET]
         assert motd.simplify().parsed == ["123123"]
 
-    def test_squash_nearby_strings(self):
+    def test_squash_nearby_strings(self) -> None:
         assert Motd(["123", "123", "123"], raw="").simplify().parsed == ["123123123"]

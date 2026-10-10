@@ -90,7 +90,7 @@ commands:
 
 
 @contextlib.contextmanager
-def patch_stdout_stderr():
+def patch_stdout_stderr() -> Generator[tuple[io.StringIO, io.StringIO], None, None]:
     outpatch = patch("sys.stdout", new=io.StringIO())
     errpatch = patch("sys.stderr", new=io.StringIO())
     with outpatch as out, errpatch as err:
@@ -136,7 +136,7 @@ def normalise_help_output(s: str) -> str:
 # for ordinary exits in the CLI code, we can simply inspect the return value.
 
 
-def test_no_args():
+def test_no_args() -> None:
     with patch_stdout_stderr() as (out, err), pytest.raises(SystemExit, match=r"^2$") as exn:
         _ = main_under_test([])
 
@@ -145,7 +145,7 @@ def test_no_args():
     assert exn.value.code != 0
 
 
-def test_help():
+def test_help() -> None:
     with patch_stdout_stderr() as (out, err), pytest.raises(SystemExit, match=r"^0$") as exn:
         _ = main_under_test(["--help"])
 
@@ -155,7 +155,7 @@ def test_help():
 
 
 @mock.patch.dict(os.environ, {"COLUMNS": "100000"})  # prevent line-wrapping in --help output
-def test_help_matches_recorded_output():
+def test_help_matches_recorded_output() -> None:
     with patch_stdout_stderr() as (out, err), pytest.raises(SystemExit, match=r"^0$"):
         _ = main_under_test(["--help"])
 
@@ -163,7 +163,7 @@ def test_help_matches_recorded_output():
     assert err.getvalue() == ""
 
 
-def test_one_argument_is_status(mock_network_requests: None):
+def test_one_argument_is_status(mock_network_requests: None) -> None:
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com"]) == 0
 
@@ -176,7 +176,7 @@ def test_one_argument_is_status(mock_network_requests: None):
     assert err.getvalue() == ""
 
 
-def test_status(mock_network_requests: None):
+def test_status(mock_network_requests: None) -> None:
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "status"]) == 0
 
@@ -189,7 +189,7 @@ def test_status(mock_network_requests: None):
     assert err.getvalue() == ""
 
 
-def test_status_with_sample(mock_network_requests: None):
+def test_status_with_sample(mock_network_requests: None) -> None:
     raw_response = JAVA_RAW_RESPONSE.copy()
     raw_response["players"] = JAVA_RAW_RESPONSE["players"].copy()
     raw_response["players"]["sample"] = [
@@ -216,7 +216,7 @@ def test_status_with_sample(mock_network_requests: None):
     assert err.getvalue() == ""
 
 
-def test_status_sample_empty_list(mock_network_requests: None):
+def test_status_sample_empty_list(mock_network_requests: None) -> None:
     raw_response = JAVA_RAW_RESPONSE.copy()
     raw_response["players"] = JAVA_RAW_RESPONSE["players"].copy()
     raw_response["players"]["sample"] = []
@@ -236,7 +236,7 @@ def test_status_sample_empty_list(mock_network_requests: None):
     assert err.getvalue() == ""
 
 
-def test_status_bedrock(mock_network_requests: None):
+def test_status_bedrock(mock_network_requests: None) -> None:
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "--bedrock", "status"]) == 0
 
@@ -251,7 +251,7 @@ def test_status_bedrock(mock_network_requests: None):
     assert err.getvalue() == ""
 
 
-def test_status_legacy(mock_network_requests: None):
+def test_status_legacy(mock_network_requests: None) -> None:
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "--legacy", "status"]) == 0
 
@@ -261,7 +261,7 @@ def test_status_legacy(mock_network_requests: None):
     assert err.getvalue() == ""
 
 
-def test_status_offline(mock_network_requests: None):
+def test_status_offline(mock_network_requests: None) -> None:
     with patch_stdout_stderr() as (out, err), patch("mcstatus.server.JavaServer.status", side_effect=TimeoutError):
         assert main_under_test(["example.com", "status"]) == 1
 
@@ -269,7 +269,7 @@ def test_status_offline(mock_network_requests: None):
     assert err.getvalue() == "Error: TimeoutError()\n"
 
 
-def test_query(mock_network_requests: None):
+def test_query(mock_network_requests: None) -> None:
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "query"]) == 0
 
@@ -283,7 +283,7 @@ def test_query(mock_network_requests: None):
     assert err.getvalue() == ""
 
 
-def test_query_offline(mock_network_requests: None):
+def test_query_offline(mock_network_requests: None) -> None:
     with patch_stdout_stderr() as (out, err), patch("mcstatus.server.JavaServer.query", side_effect=socket.timeout):
         assert main_under_test(["example.com", "query"]) != 0
 
@@ -291,7 +291,7 @@ def test_query_offline(mock_network_requests: None):
     assert err.getvalue() == QUERY_FAIL_WARNING + "\n"
 
 
-def test_query_on_bedrock(mock_network_requests: None):
+def test_query_on_bedrock(mock_network_requests: None) -> None:
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "--bedrock", "query"]) != 0
 
@@ -299,7 +299,7 @@ def test_query_on_bedrock(mock_network_requests: None):
     assert err.getvalue() == "The 'query' protocol is only supported by Java servers.\n"
 
 
-def test_json(mock_network_requests: None):
+def test_json(mock_network_requests: None) -> None:
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "json"]) == 0
 
@@ -362,7 +362,7 @@ def test_json(mock_network_requests: None):
     assert err.getvalue() == ""
 
 
-def test_ping(mock_network_requests: None):
+def test_ping(mock_network_requests: None) -> None:
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "ping"]) == 0
 
@@ -370,7 +370,7 @@ def test_ping(mock_network_requests: None):
     assert err.getvalue() == ""
 
 
-def test_ping_bedrock(mock_network_requests: None):
+def test_ping_bedrock(mock_network_requests: None) -> None:
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "--bedrock", "ping"]) == 0
 
@@ -378,7 +378,7 @@ def test_ping_bedrock(mock_network_requests: None):
     assert err.getvalue() == ""
 
 
-def test_ping_legacy(mock_network_requests: None):
+def test_ping_legacy(mock_network_requests: None) -> None:
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "--legacy", "ping"]) == 0
 
@@ -386,7 +386,7 @@ def test_ping_legacy(mock_network_requests: None):
     assert err.getvalue() == ""
 
 
-def test_ping_server_doesnt_support(mock_network_requests: None):
+def test_ping_server_doesnt_support(mock_network_requests: None) -> None:
     with patch_stdout_stderr() as (out, err), patch("mcstatus.server.JavaServer.ping", side_effect=TimeoutError("timeout")):
         assert main_under_test(["example.com", "ping"]) == 0
 
