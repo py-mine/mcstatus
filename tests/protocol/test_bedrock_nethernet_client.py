@@ -31,7 +31,8 @@ class NetherNetHTTPHandler(http.server.BaseHTTPRequestHandler):
             return
 
         body = (
-            b'{"motd": "NetherNet Live", "version": {"name": "1.26.0", "protocol": 100}, "players": {"online": 2, "max": 10}}'
+            b'{"name": "NetherNet Live", "protocol": 100, "version": "1.26.0", '
+            b'"players": 2, "maxPlayers": 10, "level": "world", "gameType": 1}'
         )
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
@@ -58,8 +59,8 @@ def nethernet_server() -> Generator[NetherNetMockServer]:
 
 def test_nethernet_parse_response_with_json_body():
     body = (
-        b'{"motd": "NetherNet Survival Server", "version": {"name": "1.26.52", "protocol": 2193}, '
-        b'"players": {"online": 3, "max": 20}}'
+        b'{"name": "NetherNet Survival Server", "protocol": 2193, "version": "1.26.52", '
+        b'"players": 3, "maxPlayers": 20, "level": "survival_world", "gameType": 0}'
     )
     parsed = BedrockNetherNetClient.parse_response(body, 5.0)
 
@@ -70,23 +71,13 @@ def test_nethernet_parse_response_with_json_body():
     assert parsed.players.online == 3
     assert parsed.players.max == 20
     assert parsed.motd.to_plain() == "NetherNet Survival Server"
+    assert parsed.map_name == "survival_world"
+    assert parsed.gamemode == "Survival"
     assert parsed.latency == pytest.approx(5.0)
 
 
-def test_nethernet_parse_response_with_semicolon_body():
-    body = b"MCPE;\xc2\xa7rServer Name;422;1.18.10;1;10;12345;World;Default;1;19132;-1;"
-    parsed = BedrockNetherNetClient.parse_response(body, 2.5)
-
-    assert isinstance(parsed, BedrockStatusResponse)
-    assert parsed.version.name == "1.18.10"
-    assert parsed.version.protocol == 422
-    assert parsed.players.online == 1
-    assert parsed.players.max == 10
-    assert parsed.latency == pytest.approx(2.5)
-
-
 def test_nethernet_parse_response_empty_body():
-    with pytest.raises(OSError, match="Received empty response"):
+    with pytest.raises(ValueError, match="Invalid NetherNet status payload"):
         _ = BedrockNetherNetClient.parse_response(b"", 1.0)
 
 
@@ -100,26 +91,22 @@ def test_nethernet_parse_response_non_dict_json():
         _ = BedrockNetherNetClient.parse_response(b"[1, 2, 3]", 1.0)
 
 
-def test_nethernet_parse_response_defaults():
-    body = b"{}"
+def test_nethernet_parse_response_missing_required_fields():
+    body = b'{"name": "Server", "players": 1}'
+    with pytest.raises(ValueError, match="NetherNet status field"):
+        _ = BedrockNetherNetClient.parse_response(body, 1.0)
+
+
+def test_nethernet_parse_response_optional_fields():
+    body = b'{"name": "Minimal Server", "protocol": 900, "version": "1.26.50", "players": 0, "maxPlayers": 5}'
     parsed = BedrockNetherNetClient.parse_response(body, 1.0)
-
-    assert parsed.version.name == "NetherNet"
-    assert parsed.version.protocol == -1
-    assert parsed.players.online == -1
-    assert parsed.players.max == -1
-    assert parsed.motd.to_plain() == "NetherNet Bedrock Server"
-
-
-def test_nethernet_parse_response_partial_fields():
-    body = b'{"motd": "Custom", "version": {"name": "1.0"}, "players": {"online": 5}}'
-    parsed = BedrockNetherNetClient.parse_response(body, 1.0)
-
-    assert parsed.motd.to_plain() == "Custom"
-    assert parsed.version.name == "1.0"
-    assert parsed.version.protocol == -1
-    assert parsed.players.online == 5
-    assert parsed.players.max == -1
+    assert parsed.motd.to_plain() == "Minimal Server"
+    assert parsed.version.protocol == 900
+    assert parsed.version.name == "1.26.50"
+    assert parsed.players.online == 0
+    assert parsed.players.max == 5
+    assert parsed.map_name is None
+    assert parsed.gamemode is None
 
 
 def test_read_status_sync_success(nethernet_server: NetherNetMockServer):
@@ -131,6 +118,8 @@ def test_read_status_sync_success(nethernet_server: NetherNetMockServer):
     assert res.version.protocol == 100
     assert res.players.online == 2
     assert res.players.max == 10
+    assert res.gamemode == "Creative"
+    assert res.map_name == "world"
     assert res.latency > 0
 
 
@@ -155,6 +144,8 @@ async def test_read_status_async_success(nethernet_server: NetherNetMockServer):
     assert res.version.protocol == 100
     assert res.players.online == 2
     assert res.players.max == 10
+    assert res.gamemode == "Creative"
+    assert res.map_name == "world"
     assert res.latency > 0
 
 
@@ -163,7 +154,7 @@ async def test_read_status_async_no_content_length(nethernet_server: NetherNetMo
         h.send_response(200)
         h.send_header("Connection", "close")
         h.end_headers()
-        _ = h.wfile.write(b'{"motd": "No Content Length"}')
+        _ = h.wfile.write(b'{"name": "No Content Length", "protocol": 100, "version": "1.0", "players": 0, "maxPlayers": 1}')
 
     nethernet_server.custom_handler = chunk_handler
     client = BedrockNetherNetClient(Address("127.0.0.1", nethernet_server.server_address[1]))
@@ -213,6 +204,7 @@ async def test_read_status_async_malformed_status():
 
     def send_malformed() -> None:
         client_s, _ = server_sock.accept()
+        _ = client_s.recv(1024)
         _ = client_s.sendall(b"NOT_HTTP\r\n\r\n")
         client_s.close()
 
@@ -220,7 +212,7 @@ async def test_read_status_async_malformed_status():
     thread.start()
 
     client = BedrockNetherNetClient(Address("127.0.0.1", port))
-    with pytest.raises(OSError, match="Server returned HTTP Unknown"):
+    with pytest.raises(OSError, match="Received malformed HTTP response"):
         _ = await client.read_status_async()
 
     server_sock.close()
@@ -232,7 +224,7 @@ async def test_read_status_async_invalid_content_length(nethernet_server: Nether
         h.send_header("Content-Length", "invalid")
         h.send_header("Connection", "close")
         h.end_headers()
-        _ = h.wfile.write(b'{"motd": "Fallback"}')
+        _ = h.wfile.write(b'{"name": "Fallback", "protocol": 100, "version": "1.0", "players": 0, "maxPlayers": 1}')
 
     nethernet_server.custom_handler = invalid_cl_handler
     client = BedrockNetherNetClient(Address("127.0.0.1", nethernet_server.server_address[1]))

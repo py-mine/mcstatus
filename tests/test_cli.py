@@ -268,6 +268,10 @@ def test_bedrock_transport_legacy_conflict():
         _ = main_under_test(["example.com", "--legacy", "--bedrock-transport", "nethernet", "status"])
     assert "--bedrock-transport cannot be used with --legacy" in err.getvalue()
 
+    with pytest.raises(SystemExit), patch_stdout_stderr() as (_out, err2):
+        _ = main_under_test(["example.com", "--legacy", "--bedrock-transport", "auto", "status"])
+    assert "--bedrock-transport cannot be used with --legacy" in err2.getvalue()
+
 
 def test_status_offline(mock_network_requests: None):
     with patch_stdout_stderr() as (out, err), patch("mcstatus.server.JavaServer.status", side_effect=TimeoutError):
