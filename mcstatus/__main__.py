@@ -163,7 +163,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     _ = parser.add_argument(
         "--bedrock-transport",
         choices=["auto", "raknet", "nethernet"],
-        default="auto",
+        default=None,
         help="Specifies transport protocol for Bedrock servers (default: auto).",
     )
 
@@ -181,11 +181,12 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     ).set_defaults(func=json_cmd)
 
     args = parser.parse_args(argv)
-    if args.bedrock_transport != "auto" and args.legacy:
+    if args.bedrock_transport is not None and args.legacy:
         parser.error("--bedrock-transport cannot be used with --legacy")
 
-    if args.bedrock or args.bedrock_transport != "auto":
-        lookup = partial(BedrockServer.lookup, transport=args.bedrock_transport)
+    if args.bedrock or args.bedrock_transport is not None:
+        transport = args.bedrock_transport or "auto"
+        lookup = partial(BedrockServer.lookup, transport=transport)
     elif args.legacy:
         lookup = LegacyServer.lookup
     else:
