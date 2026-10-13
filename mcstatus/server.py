@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import asyncio
+import contextlib
 from abc import ABC
-from typing import ClassVar, TYPE_CHECKING, final
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Any, ClassVar, Literal, TYPE_CHECKING, TypeVar, final
 
 from mcstatus._net.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus._protocol.bedrock_client import BedrockClient
+from mcstatus._protocol.bedrock_nethernet_client import BedrockNetherNetClient
 from mcstatus._protocol.io.connection import (
     TCPAsyncSocketConnection,
     TCPSocketConnection,
@@ -17,14 +21,20 @@ from mcstatus._protocol.query_client import AsyncQueryClient, QueryClient
 from mcstatus._utils import retry
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Coroutine, Sequence
+
     from typing_extensions import Self, override
 
     from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse, QueryResponse
 else:
     override = lambda f: f  # ruff: ignore[lambda-assignment]
 
+T = TypeVar("T")
 
-__all__ = ["BedrockServer", "JavaServer", "LegacyServer", "MCServer"]
+BedrockTransport = Literal["auto", "raknet", "nethernet"]
+_BEDROCK_TRANSPORTS: tuple[BedrockTransport, ...] = ("auto", "raknet", "nethernet")
+
+__all__ = ["BedrockServer", "BedrockTransport", "JavaServer", "LegacyServer", "MCServer"]
 
 
 class MCServer(ABC):
@@ -301,9 +311,62 @@ class LegacyServer(BaseJavaServer):
 
 @final
 class BedrockServer(MCServer):
-    """Base class for a Minecraft Bedrock Edition server."""
+    """Base class for a Minecraft Bedrock Edition server.
+
+    Bedrock servers can be queried over two transports, selected with the ``transport`` argument:
+
+    * ``"raknet"``: the classic RakNet unconnected ping over UDP.
+    * ``"nethernet"``: the NetherNet HTTP signaling capability check (``GET /v1/join`` over TCP), used by
+      servers running NetherNet, the default Bedrock Dedicated Server transport since 26.50.
+      Only plaintext HTTP signaling is supported.
+    * ``"auto"`` (default): query both transports concurrently and return whichever answers first.
+      If both fail, the RakNet error is raised.
+
+    .. note::
+        NetherNet latency includes the TCP handshake and the HTTP round trip, so it is typically
+        higher than the single UDP round trip measured over RakNet.
+    """
 
     DEFAULT_PORT = 19132
+
+    def __init__(
+        self,
+        host: str,
+        port: int | None = None,
+        timeout: float = 3,
+        transport: BedrockTransport = "auto",
+    ) -> None:
+        """
+        :param host: The host/ip of the minecraft server.
+        :param port: The port that the server is on.
+        :param timeout: The timeout in seconds before failing to connect.
+        :param transport: Transport to query: ``"auto"``, ``"raknet"`` or ``"nethernet"``.
+        """  # ruff: ignore[missing-blank-line-after-summary, multi-line-summary-first-line]
+        if transport not in _BEDROCK_TRANSPORTS:
+            raise ValueError(f"Unknown Bedrock transport {transport!r}, expected one of {_BEDROCK_TRANSPORTS}")
+        super().__init__(host, port, timeout)
+        self.transport: BedrockTransport = transport
+
+    @classmethod
+    @override
+    def lookup(cls, address: str, timeout: float = 3, transport: BedrockTransport = "auto") -> Self:
+        """Mimics minecraft's server address field.
+
+        :param address: The address of the Minecraft server, like ``example.com:19132``
+        :param timeout: The timeout in seconds before failing to connect.
+        :param transport: Transport to query: ``"auto"``, ``"raknet"`` or ``"nethernet"``.
+        """
+        addr = Address.parse_address(address, default_port=cls.DEFAULT_PORT)
+        return cls(addr.host, addr.port, timeout=timeout, transport=transport)
+
+    def _clients(self) -> list[BedrockClient | BedrockNetherNetClient]:
+        """Clients for the configured transport, in priority order (RakNet first)."""
+        clients: list[BedrockClient | BedrockNetherNetClient] = []
+        if self.transport in {"auto", "raknet"}:
+            clients.append(BedrockClient(self.address, self.timeout))
+        if self.transport in {"auto", "nethernet"}:
+            clients.append(BedrockNetherNetClient(self.address, self.timeout))
+        return clients
 
     @retry(tries=3)
     def status(self, *, tries: int = 3) -> BedrockStatusResponse:  # ruff: ignore[unused-method-argument]
@@ -312,7 +375,10 @@ class BedrockServer(MCServer):
         :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return BedrockClient(self.address, self.timeout).read_status()
+        clients = self._clients()
+        if len(clients) == 1:
+            return clients[0].read_status()
+        return _first_success([client.read_status for client in clients])
 
     @retry(tries=3)
     async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:  # ruff: ignore[unused-method-argument]
@@ -321,4 +387,40 @@ class BedrockServer(MCServer):
         :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return await BedrockClient(self.address, self.timeout).read_status_async()
+        clients = self._clients()
+        if len(clients) == 1:
+            return await clients[0].read_status_async()
+        return await _async_first_success([client.read_status_async() for client in clients])
+
+
+def _first_success(funcs: Sequence[Callable[[], T]]) -> T:
+    """Run ``funcs`` concurrently in threads and return the first result that doesn't raise.
+
+    If every function fails, the exception raised by the first function in ``funcs`` is re-raised.
+    """
+    executor = ThreadPoolExecutor(max_workers=len(funcs))
+    futures = [executor.submit(func) for func in funcs]
+    try:
+        for future in as_completed(futures):
+            if future.exception() is None:
+                return future.result()
+        return futures[0].result()  # all failed, so this raises the first function's exception
+    finally:
+        executor.shutdown(wait=False, cancel_futures=True)
+
+
+async def _async_first_success(coros: Sequence[Coroutine[Any, Any, T]]) -> T:
+    """Run ``coros`` concurrently and return the first result that doesn't raise.
+
+    Remaining tasks are cancelled once a result is available (or if the caller is cancelled).
+    If every coroutine fails, the exception raised by the first coroutine in ``coros`` is re-raised.
+    """
+    tasks = [asyncio.ensure_future(coro) for coro in coros]
+    try:
+        for next_done in asyncio.as_completed(tasks):
+            with contextlib.suppress(Exception):
+                return await next_done
+        return tasks[0].result()  # all failed, so this raises the first coroutine's exception
+    finally:
+        for task in tasks:
+            _ = task.cancel()
