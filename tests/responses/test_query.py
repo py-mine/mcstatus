@@ -39,10 +39,10 @@ class TestQueryResponse(BaseResponseTest):
 
     @pytest.fixture(scope="class")
     @classmethod
-    def build(cls):
+    def build(cls) -> QueryResponse:
         return QueryResponse.build(raw=cls.RAW, players_list=cls.RAW_PLAYERS)
 
-    def test_as_dict(self, build: QueryResponse):
+    def test_as_dict(self, build: QueryResponse) -> None:
         assert build.as_dict() == {
             "game_id": "GAME ID",
             "game_type": "GAME TYPE",
@@ -90,7 +90,7 @@ class TestQueryPlayers(BaseResponseTest):
 
     @pytest.fixture(scope="class")
     @staticmethod
-    def build():
+    def build() -> QueryPlayers:
         return QueryPlayers.build(
             raw={
                 "hostname": "A Minecraft Server",
@@ -109,18 +109,18 @@ class TestQueryPlayers(BaseResponseTest):
 
 
 class TestQuerySoftware:
-    def test_vanilla(self):
+    def test_vanilla(self) -> None:
         software = QuerySoftware.build("1.8", "")
         assert software.brand == "vanilla"
         assert software.version == "1.8"
         assert software.plugins == []
 
-    def test_modded(self):
+    def test_modded(self) -> None:
         software = QuerySoftware.build("1.8", "A modded server: Foo 1.0; Bar 2.0; Baz 3.0")
         assert software.brand == "A modded server"
         assert software.plugins == ["Foo 1.0", "Bar 2.0", "Baz 3.0"]
 
-    def test_modded_no_plugins(self):
+    def test_modded_no_plugins(self) -> None:
         software = QuerySoftware.build("1.8", "A modded server")
         assert software.brand == "A modded server"
         assert software.plugins == []

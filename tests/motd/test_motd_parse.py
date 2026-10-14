@@ -16,7 +16,7 @@ from mcstatus.responses._raw import RawJavaResponseMotd, RawJavaResponseMotdWhen
 
 
 class TestMotdParse:
-    def test_correct_result_bedrock(self, source_bedrock: RawJavaResponseMotd):
+    def test_correct_result_bedrock(self, source_bedrock: RawJavaResponseMotd) -> None:
         assert Motd.parse(source_bedrock, bedrock=True) == Motd(
             [
                 "1",
@@ -58,32 +58,32 @@ class TestMotdParse:
     @pytest.mark.parametrize(
         ("bedrock", "expected"), [(True, BedrockMinecraftColor.MINECOIN_GOLD), (False, InvalidFormatting("g"))]
     )
-    def test_parse_as_str_ignore_minecoin_gold_on_java(self, bedrock: bool, expected: ParsedMotdComponent):
+    def test_parse_as_str_ignore_minecoin_gold_on_java(self, bedrock: bool, expected: ParsedMotdComponent) -> None:
         assert Motd.parse("&g", bedrock=bedrock).parsed == [expected]
 
     @pytest.mark.parametrize(
         ("bedrock", "expected"), [(True, BedrockMinecraftColor.MATERIAL_IRON), (False, InvalidFormatting("i"))]
     )
-    def test_parse_as_str_ignore_material_colors_on_java(self, bedrock: bool, expected: ParsedMotdComponent):
+    def test_parse_as_str_ignore_material_colors_on_java(self, bedrock: bool, expected: ParsedMotdComponent) -> None:
         assert Motd.parse("&i", bedrock=bedrock).parsed == [expected]
 
     @pytest.mark.parametrize(
         ("bedrock", "expected"), [(True, BedrockMinecraftColor.MATERIAL_COPPER), (False, JavaFormatting.UNDERLINED)]
     )
-    def test_parse_as_str_underlined_on_java(self, bedrock: bool, expected: ParsedMotdComponent):
+    def test_parse_as_str_underlined_on_java(self, bedrock: bool, expected: ParsedMotdComponent) -> None:
         assert Motd.parse("&n", bedrock=bedrock).parsed == [expected]
 
-    def test_parse_incorrect_formatting(self):
+    def test_parse_incorrect_formatting(self) -> None:
         assert Motd.parse("&z").parsed == [InvalidFormatting("z")]
 
-    def test_parse_uppercase_passes(self):
+    def test_parse_uppercase_passes(self) -> None:
         assert Motd.parse("&A").parsed == [JavaMinecraftColor.GREEN]
 
     @pytest.mark.parametrize(
         ("input_", "expected"),
         [("", []), ([], [JavaFormatting.RESET]), ({"extra": [], "text": ""}, [JavaFormatting.RESET])],
     )
-    def test_empty_input_also_empty_raw(self, input_: RawJavaResponseMotd, expected: list[ParsedMotdComponent]):
+    def test_empty_input_also_empty_raw(self, input_: RawJavaResponseMotd, expected: list[ParsedMotdComponent]) -> None:
         assert Motd.parse(input_).parsed == expected
 
     def test_top_level_formatting_applies_to_all_in_extra(self) -> None:
@@ -135,21 +135,21 @@ class TestMotdParse:
             JavaFormatting.RESET,
         ]
 
-    def test_translate_string(self):
+    def test_translate_string(self) -> None:
         assert Motd.parse(RawJavaResponseMotdWhenDict(translate="the key")).parsed == [
             TranslationTag("the key"),
             JavaFormatting.RESET,
         ]
 
-    def test_short_text_is_not_considered_as_color(self):
+    def test_short_text_is_not_considered_as_color(self) -> None:
         """See `https://github.com/py-mine/mcstatus/pull/335#discussion_r984535349`_."""
         assert Motd.parse("a").parsed == ["a"]
 
-    def test_text_field_contains_formatting(self):
+    def test_text_field_contains_formatting(self) -> None:
         """See `https://github.com/py-mine/mcstatus/pull/335#issuecomment-1264191303`_."""
         assert Motd.parse({"text": "&aHello!"}).parsed == [JavaMinecraftColor.GREEN, "Hello!", JavaFormatting.RESET]
 
-    def test_invalid_raw_input(self):
+    def test_invalid_raw_input(self) -> None:
         obj = object()
         with pytest.raises(
             TypeError,
@@ -157,11 +157,11 @@ class TestMotdParse:
         ):
             _ = Motd.parse(obj)  # pyright: ignore[reportArgumentType]
 
-    def test_parse_invalid_color(self):
+    def test_parse_invalid_color(self) -> None:
         with pytest.raises(ValueError, match=r"^Unable to parse color: 'a', report this!$"):
             _ = Motd._parse_color("a", bedrock=False)
 
-    def test_multiple_times_nested_extras(self):
+    def test_multiple_times_nested_extras(self) -> None:
         """See `https://discord.com/channels/936788458939224094/938591600160956446/1062860329597534258`_."""
         motd = Motd.parse(
             {
@@ -212,6 +212,6 @@ class TestMotdParse:
             JavaFormatting.RESET,
         ]  # fmt: skip
 
-    def test_raw_attribute(self, source_bedrock: RawJavaResponseMotd):
+    def test_raw_attribute(self, source_bedrock: RawJavaResponseMotd) -> None:
         motd = Motd.parse(source_bedrock, bedrock=True)
         assert motd.raw == source_bedrock
