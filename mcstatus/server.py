@@ -83,7 +83,7 @@ class BaseJavaServer(MCServer):
         return cls(addr.host, addr.port, timeout=timeout)
 
     @classmethod
-    async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
+    async def async_lookup(cls, address: str, timeout: float = 3) -> Self:  # ruff: ignore[async-function-with-timeout]
         """Asynchronous alternative to :meth:`.lookup`.
 
         For more details, check the :meth:`JavaServer.lookup() <.lookup>` docstring.
