@@ -31,16 +31,18 @@ class BedrockNetherNetClient:
         typically higher than the single UDP round trip measured over RakNet.
     """
 
-    GAMEMODES: ClassVar[dict[int, str]] = {0: "Survival", 1: "Creative", 2: "Adventure", 3: "Spectator"}
+    MAX_RESPONSE_SIZE: ClassVar[int] = 64 * 1024
+    GAMEMODES: ClassVar[dict[int, str]] = {0: "Survival", 1: "Creative", 2: "Adventure"}
 
     def __init__(self, address: Address, timeout: float = 3) -> None:
         self.address = address
         self.timeout = timeout
 
     def _build_request(self) -> bytes:
+        host = f"[{self.address.host}]" if ":" in self.address.host else self.address.host
         return (
             "GET /v1/join HTTP/1.0\r\n"
-            f"Host: {self.address.host}:{self.address.port}\r\n"
+            f"Host: {host}:{self.address.port}\r\n"
             "User-Agent: mcstatus\r\n"
             "Accept: application/json\r\n"
             "Connection: close\r\n"
@@ -54,6 +56,18 @@ class BedrockNetherNetClient:
                 with contextlib.suppress(ValueError):
                     return int(line.split(b":", 1)[1].strip())
         return None
+
+    @classmethod
+    def _feed(cls, raw: bytearray, chunk: bytes) -> bool:
+        """Append ``chunk`` to ``raw``; return True once the full response has arrived."""
+        raw.extend(chunk)
+        if len(raw) > cls.MAX_RESPONSE_SIZE:
+            raise OSError(f"NetherNet signaling response exceeded {cls.MAX_RESPONSE_SIZE} bytes")
+        head, sep, body = raw.partition(b"\r\n\r\n")
+        if not sep:
+            return False
+        content_length = cls._parse_content_length(head)
+        return content_length is not None and len(body) >= content_length
 
     @classmethod
     def _extract_body(cls, raw: bytes) -> bytes:
@@ -78,19 +92,18 @@ class BedrockNetherNetClient:
         return body
 
     @staticmethod
-    def _require(raw: dict[str, object], key: str, expected: type[int | str]) -> int | str:
+    def _require_int(raw: dict[str, object], key: str) -> int:
         value = raw.get(key)
-        if expected is int:
-            if isinstance(value, int) and not isinstance(value, bool):
-                return value
-            if isinstance(value, str) and (value.isdigit() or (value.startswith("-") and value[1:].isdigit())):
-                return int(value)
-            raise ValueError(f"NetherNet status field {key!r} must be int, got {value!r}")
-        if expected is str:
-            if isinstance(value, str):
-                return value
-            raise ValueError(f"NetherNet status field {key!r} must be str, got {value!r}")
-        raise TypeError(f"Unsupported expected type {expected}")
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise OSError(f"NetherNet status field {key!r} must be an integer, got {value!r}")
+        return value
+
+    @staticmethod
+    def _require_str(raw: dict[str, object], key: str) -> str:
+        value = raw.get(key)
+        if not isinstance(value, str):
+            raise OSError(f"NetherNet status field {key!r} must be a string, got {value!r}")
+        return value
 
     @classmethod
     def parse_response(cls, body: bytes, latency: float) -> BedrockStatusResponse:
@@ -99,15 +112,15 @@ class BedrockNetherNetClient:
         :param body: Response payload bytes from the server.
         :param latency: Latency of the request in milliseconds.
         :return: Parsed :class:`~mcstatus.responses.BedrockStatusResponse` instance.
-        :raises ValueError: If the payload isn't a JSON object with the expected fields.
+        :raises OSError: If the payload isn't a JSON object with the expected fields.
         """
         try:
             raw_data: object = json.loads(body)
         except ValueError as exc:
-            raise ValueError(f"Invalid NetherNet status payload: {body[:128]!r}") from exc
+            raise OSError(f"Invalid NetherNet status payload: {body[:128]!r}") from exc
 
         if not isinstance(raw_data, dict):
-            raise TypeError(f"Expected JSON object in NetherNet status response, got {type(raw_data).__name__}")
+            raise OSError(f"Expected JSON object in NetherNet status response, got {type(raw_data).__name__}")
         raw = cast("dict[str, object]", raw_data)
 
         level = raw.get("level")
@@ -115,15 +128,15 @@ class BedrockNetherNetClient:
 
         return BedrockStatusResponse(
             players=BedrockStatusPlayers(
-                online=cast("int", cls._require(raw, "players", int)),
-                max=cast("int", cls._require(raw, "maxPlayers", int)),
+                online=cls._require_int(raw, "players"),
+                max=cls._require_int(raw, "maxPlayers"),
             ),
             version=BedrockStatusVersion(
-                name=cast("str", cls._require(raw, "version", str)),
-                protocol=cast("int", cls._require(raw, "protocol", int)),
-                brand="MCPE",
+                name=cls._require_str(raw, "version"),
+                protocol=cls._require_int(raw, "protocol"),
+                brand="MCPE",  # /v1/join doesn't report an edition brand; RakNet would say MCPE or MCEE
             ),
-            motd=Motd.parse(cast("str", cls._require(raw, "name", str)), bedrock=True),
+            motd=Motd.parse(cls._require_str(raw, "name"), bedrock=True),
             latency=latency,
             map_name=level if isinstance(level, str) else None,
             gamemode=cls.GAMEMODES.get(game_type) if isinstance(game_type, int) else None,
@@ -145,25 +158,14 @@ class BedrockNetherNetClient:
                 raise TimeoutError("timed out")
             return left
 
-        with socket.create_connection((self.address.host, self.address.port), timeout=self.timeout) as sock:
-            sock.settimeout(remaining())
+        with socket.create_connection((self.address.host, self.address.port), timeout=remaining()) as sock:
             sock.sendall(self._build_request())
             raw = bytearray()
-            content_length: int | None = None
             while True:
                 sock.settimeout(remaining())
                 chunk = sock.recv(4096)
-                if not chunk:
-                    break
-                raw.extend(chunk)
-                if content_length is None and b"\r\n\r\n" in raw:
-                    head, _, _ = raw.partition(b"\r\n\r\n")
-                    content_length = self._parse_content_length(head)
-                if content_length is not None:
-                    _, _, body = raw.partition(b"\r\n\r\n")
-                    if len(body) >= content_length:
-                        break
-        return bytes(raw)
+                if not chunk or self._feed(raw, chunk):
+                    return bytes(raw)
 
     async def read_status_async(self) -> BedrockStatusResponse:
         """Probe the NetherNet server over TCP asynchronously."""
@@ -178,20 +180,10 @@ class BedrockNetherNetClient:
             writer.write(self._build_request())
             await writer.drain()
             raw = bytearray()
-            content_length: int | None = None
             while True:
                 chunk = await reader.read(4096)
-                if not chunk:
-                    break
-                raw.extend(chunk)
-                if content_length is None and b"\r\n\r\n" in raw:
-                    head, _, _ = raw.partition(b"\r\n\r\n")
-                    content_length = self._parse_content_length(head)
-                if content_length is not None:
-                    _, _, body = raw.partition(b"\r\n\r\n")
-                    if len(body) >= content_length:
-                        break
-            return bytes(raw)
+                if not chunk or self._feed(raw, chunk):
+                    return bytes(raw)
         finally:
             writer.close()
             with contextlib.suppress(OSError):
