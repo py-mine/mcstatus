@@ -6,12 +6,13 @@ import json
 import socket
 import sys
 from functools import partial
-from typing import Any, TYPE_CHECKING, TypeAlias
+from typing import Any, TYPE_CHECKING, TypeAlias, get_args
 
 import dns.resolver
 
-from mcstatus import BedrockServer, JavaServer, LegacyServer
+from mcstatus import JavaServer, LegacyServer
 from mcstatus.responses import JavaStatusResponse
+from mcstatus.server import BedrockServer, BedrockTransport
 
 if TYPE_CHECKING:
     from mcstatus.motd import Motd
@@ -162,7 +163,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     )
     _ = parser.add_argument(
         "--bedrock-transport",
-        choices=["auto", "raknet", "nethernet"],
+        choices=get_args(BedrockTransport),
         default=None,
         help="Specifies transport protocol for Bedrock servers (default: auto).",
     )

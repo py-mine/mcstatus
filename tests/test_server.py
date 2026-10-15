@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import sys
+import threading
 from typing import TYPE_CHECKING, final
 from unittest.mock import call, patch
 
@@ -8,6 +10,7 @@ import pytest
 import pytest_asyncio
 
 from mcstatus._net.address import Address
+from mcstatus.responses import BedrockStatusResponse
 from mcstatus.server import BedrockServer, JavaServer, LegacyServer
 from tests.protocol.helpers import AsyncBufferConnection, SyncBufferConnection, SyncDatagramConnection
 
@@ -127,9 +130,41 @@ class TestBedrockServer:
         with (
             patch("mcstatus.server.BedrockClient.read_status", side_effect=TimeoutError("raknet timeout")),
             patch("mcstatus.server.BedrockNetherNetClient.read_status", side_effect=OSError("nethernet err")),
-            pytest.raises(TimeoutError, match="raknet timeout"),
+            pytest.raises(TimeoutError, match="raknet timeout") as exc_info,
         ):
             _ = server.status()
+
+        if sys.version_info >= (3, 11):
+            assert any("nethernet err" in str(note) for note in getattr(exc_info.value, "__notes__", []))
+
+    def test_status_auto_does_not_wait_for_loser(self):
+        server = BedrockServer("127.0.0.1", transport="auto")
+        release_raknet = threading.Event()
+        mock_response = BedrockStatusResponse.build(
+            ["MCPE", "Test", "1", "1.0", "0", "10", "1", "world", "Survival"], latency=5.0
+        )
+
+        def slow_raknet():
+            _ = release_raknet.wait(timeout=5)
+            raise TimeoutError("slow raknet")
+
+        threads_checked: list[bool] = []
+
+        def fast_nethernet():
+            threads_checked.extend(t.daemon for t in threading.enumerate() if t.name.startswith("mcstatus-bedrock-"))
+            return mock_response
+
+        try:
+            with (
+                patch("mcstatus.server.BedrockClient.read_status", side_effect=slow_raknet),
+                patch("mcstatus.server.BedrockNetherNetClient.read_status", side_effect=fast_nethernet),
+            ):
+                res = server.status(tries=1)
+                assert res is mock_response
+                assert len(threads_checked) > 0
+                assert all(threads_checked)
+        finally:
+            release_raknet.set()
 
     async def test_async_status_raknet_transport(self):
         server = BedrockServer("127.0.0.1", transport="raknet")
@@ -158,9 +193,39 @@ class TestBedrockServer:
         with (
             patch("mcstatus.server.BedrockClient.read_status_async", side_effect=TimeoutError("raknet timeout")),
             patch("mcstatus.server.BedrockNetherNetClient.read_status_async", side_effect=OSError("nethernet err")),
-            pytest.raises(TimeoutError, match="raknet timeout"),
+            pytest.raises(TimeoutError, match="raknet timeout") as exc_info,
         ):
             _ = await server.async_status()
+
+        if sys.version_info >= (3, 11):
+            assert any("nethernet err" in str(note) for note in getattr(exc_info.value, "__notes__", []))
+
+    async def test_async_status_auto_cancels_loser(self):
+        server = BedrockServer("127.0.0.1", transport="auto")
+        mock_response = BedrockStatusResponse.build(
+            ["MCPE", "Test", "1", "1.0", "0", "10", "1", "world", "Survival"], latency=5.0
+        )
+        raknet_cancelled = False
+
+        async def slow_raknet():
+            nonlocal raknet_cancelled
+            try:
+                await asyncio.sleep(10)
+            except asyncio.CancelledError:
+                raknet_cancelled = True
+                raise
+
+        async def fast_nethernet():
+            await asyncio.sleep(0)
+            return mock_response
+
+        with (
+            patch("mcstatus.server.BedrockClient.read_status_async", side_effect=slow_raknet),
+            patch("mcstatus.server.BedrockNetherNetClient.read_status_async", side_effect=fast_nethernet),
+        ):
+            res = await server.async_status(tries=1)
+            assert res is mock_response
+            assert raknet_cancelled
 
 
 @final
