@@ -5,7 +5,7 @@ import errno
 import socket
 from abc import ABC
 from ipaddress import ip_address
-from typing import ClassVar, Self, TYPE_CHECKING, TypeAlias, final
+from typing import ClassVar, Self, SupportsIndex, TYPE_CHECKING, TypeAlias, final
 
 import asyncio_dgram
 
@@ -14,7 +14,7 @@ from mcstatus._protocol.io.base_io import BaseAsyncReader, BaseAsyncWriter, Base
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from typing_extensions import SupportsIndex, override
+    from typing_extensions import override
 
     from mcstatus._net.address import Address
 else:
