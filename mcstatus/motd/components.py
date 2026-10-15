@@ -4,9 +4,6 @@ import typing as t
 from dataclasses import dataclass
 from enum import Enum
 
-if t.TYPE_CHECKING:
-    from typing_extensions import Self
-
 __all__ = [
     "AnyFormatting",
     "AnyMinecraftColor",
@@ -151,7 +148,7 @@ class WebColor:
     rgb: tuple[int, int, int]
 
     @classmethod
-    def from_hex(cls, hex: str) -> Self:  # ruff: ignore[builtin-argument-shadowing]
+    def from_hex(cls, hex: str) -> t.Self:  # ruff: ignore[builtin-argument-shadowing]
         """Construct web color using hex color string.
 
         :raises ValueError: Invalid hex color string.
@@ -172,7 +169,7 @@ class WebColor:
         return cls.from_rgb(rgb)
 
     @classmethod
-    def from_rgb(cls, rgb: tuple[int, int, int]) -> Self:
+    def from_rgb(cls, rgb: tuple[int, int, int]) -> t.Self:
         """Construct web color using rgb color tuple.
 
         :raises ValueError: When RGB color is out of its 8-bit range.

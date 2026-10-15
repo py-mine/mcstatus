@@ -16,14 +16,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from io import StringIO
-from typing import Final, TYPE_CHECKING, final
+from typing import Final, Self, TYPE_CHECKING, final
 
 from mcstatus._protocol.io.base_io import BaseSyncReader, StructFormat
 from mcstatus._protocol.io.buffer import Buffer
 from mcstatus._utils import or_none
 
 if TYPE_CHECKING:
-    from typing_extensions import Self, override
+    from typing_extensions import override
 
     from mcstatus.responses._raw import RawForgeData, RawForgeDataChannel, RawForgeDataMod
 else:

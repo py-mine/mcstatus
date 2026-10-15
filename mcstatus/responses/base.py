@@ -2,11 +2,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
-from typing import Any, TYPE_CHECKING
+from typing import Any, Self, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
-
     from mcstatus.motd import Motd
 
 __all__ = [

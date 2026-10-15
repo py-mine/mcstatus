@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import Any, TYPE_CHECKING
+from typing import Any, Self, TYPE_CHECKING
 
 from mcstatus.motd import Motd
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
-
     from mcstatus.responses._raw import RawQueryResponse
 
 __all__ = [
