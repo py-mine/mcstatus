@@ -18,8 +18,6 @@ from mcstatus.motd.components import (
 )
 
 if t.TYPE_CHECKING:
-    from typing_extensions import Self
-
     from mcstatus.responses._raw import RawJavaResponseMotd, RawJavaResponseMotdWhenDict
 
 __all__ = ["Motd"]
@@ -47,7 +45,7 @@ class Motd:
         raw: RawJavaResponseMotd,  # pyright: ignore[reportRedeclaration] # later, we overwrite the type
         *,
         bedrock: bool = False,
-    ) -> Self:
+    ) -> t.Self:
         """Parse a raw MOTD to less raw MOTD (:attr:`.parsed` attribute).
 
         :param raw: Raw MOTD, directly from server.
@@ -195,7 +193,7 @@ class Motd:
             except ValueError as e:
                 raise ValueError(f"Unable to parse color: {color!r}, report this!") from e
 
-    def simplify(self) -> Self:
+    def simplify(self) -> t.Self:
         """Create new MOTD without unused elements.
 
         After parsing, the MOTD may contain some unused elements, like empty strings, or formatting/colors

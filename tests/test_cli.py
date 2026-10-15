@@ -64,7 +64,7 @@ BEDROCK_RAW_RESPONSE = [
 ]
 
 # NOTE: if updating this, be sure to change other occurrences of this help text!
-# to update, use: `COLUMNS=100000 poetry run mcstatus --help`
+# to update, use: `COLUMNS=100000 uv run mcstatus --help`
 EXPECTED_HELP_OUTPUT = """
 usage: mcstatus [-h] [--bedrock | --legacy] address {ping,status,query,json} ...
 
@@ -86,7 +86,7 @@ commands:
     status              Prints server status.
     query               Prints detailed server information. Must be enabled in servers' server.properties file.
     json                Prints server status and query in json.
-"""  # ruff: ignore[line-too-long]
+""".strip()  # ruff: ignore[line-too-long]
 
 
 @contextlib.contextmanager
@@ -117,21 +117,6 @@ def mock_network_requests() -> Generator[None]:
         yield
 
 
-def normalise_help_output(s: str) -> str:
-    """Normalises the output of `mcstatus --help`.
-
-    A work around some discrepancies between Python versions while still
-    retaining meaningful information for comparison.
-    """
-    elided = "[...]:"
-
-    s = s.strip()
-
-    # drop lines which end in ":". these argparse section headings vary between python versions.
-    # it is just a small style change, so it doesn't matter so much to do `sys.version_info` check
-    return "\n".join(ln if not ln.endswith(":") else elided for ln in s.splitlines())
-
-
 # NOTE: for premature exits in argparse, we must catch SystemExit.
 # for ordinary exits in the CLI code, we can simply inspect the return value.
 
@@ -159,7 +144,7 @@ def test_help_matches_recorded_output():
     with patch_stdout_stderr() as (out, err), pytest.raises(SystemExit, match=r"^0$"):
         _ = main_under_test(["--help"])
 
-    assert normalise_help_output(out.getvalue()) == normalise_help_output(EXPECTED_HELP_OUTPUT)
+    assert out.getvalue().strip() == EXPECTED_HELP_OUTPUT
     assert err.getvalue() == ""
 
 

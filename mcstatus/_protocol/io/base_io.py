@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import struct
 from abc import ABC, abstractmethod
-from enum import Enum
+from enum import StrEnum
 from typing import ClassVar, Literal, TYPE_CHECKING, TypeAlias, TypeVar, overload
 
 if TYPE_CHECKING:
@@ -72,7 +72,7 @@ def from_twos_complement(number: int, bits: int) -> int:
 # region: Format types
 
 
-class StructFormat(str, Enum):
+class StructFormat(StrEnum):
     """All possible struct format types used for reading and writing binary data.
 
     These values correspond directly to format characters accepted by the

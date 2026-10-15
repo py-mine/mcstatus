@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal, TYPE_CHECKING, TypeAlias, TypedDict
-
-if TYPE_CHECKING:
-    from typing_extensions import NotRequired
+from typing import Literal, NotRequired, TypeAlias, TypedDict
 
 __all__ = [
     "RawForgeData",

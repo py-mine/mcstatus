@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import ClassVar, TYPE_CHECKING, final
+from typing import ClassVar, Self, TYPE_CHECKING, final
 
 from mcstatus._net.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
 from mcstatus._protocol.bedrock_client import BedrockClient
@@ -17,7 +17,7 @@ from mcstatus._protocol.query_client import AsyncQueryClient, QueryClient
 from mcstatus._utils import retry
 
 if TYPE_CHECKING:
-    from typing_extensions import Self, override
+    from typing_extensions import override
 
     from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse, QueryResponse
 else:
@@ -83,7 +83,7 @@ class BaseJavaServer(MCServer):
         return cls(addr.host, addr.port, timeout=timeout)
 
     @classmethod
-    async def async_lookup(cls, address: str, timeout: float = 3) -> Self:
+    async def async_lookup(cls, address: str, timeout: float = 3) -> Self:  # ruff: ignore[async-function-with-timeout]
         """Asynchronous alternative to :meth:`.lookup`.
 
         For more details, check the :meth:`JavaServer.lookup() <.lookup>` docstring.
