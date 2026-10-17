@@ -44,9 +44,9 @@ Documentation = "https://mcstatus.readthedocs.io"
 default-groups = ["dev", "lint", "test", "docs"]
 
 [dependency-groups]
-dev = ["poethepoet~=0.48.0"]
+dev = ["poethepoet~=0.49.0"]
 lint = [
-  "pre-commit~=4.6.0",
+  "pre-commit~=4.7.0",
   "ruff~=0.17.0",
   "basedpyright~=1.40.0",
   "typing-extensions~=4.16.0",
