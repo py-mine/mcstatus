@@ -34,7 +34,7 @@ async def status(host: str) -> JavaStatusResponse | BedrockStatusResponse:
         for task in asyncio.as_completed(tasks):
             try:
                 result = await task
-            except Exception:  # ruff: ignore[try-except-continue, try-except-in-loop]
+            except Exception:  # ruff: ignore[try-except-continue]
                 continue
             else:
                 # Cancel the remaining task, we succeeded

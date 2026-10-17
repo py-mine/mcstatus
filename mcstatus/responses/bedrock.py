@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, TYPE_CHECKING
+from typing import Any, Self, TYPE_CHECKING
 
 from mcstatus.motd import Motd
 from mcstatus.responses.base import BaseStatusPlayers, BaseStatusResponse, BaseStatusVersion
 
 if TYPE_CHECKING:
-    from typing_extensions import Self, override
+    from typing_extensions import override
 else:
     override = lambda f: f  # ruff: ignore[lambda-assignment]
 

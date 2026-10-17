@@ -1,13 +1,11 @@
 """Tests for compatibility shims and build-time packaging behavior."""
 
+import contextlib
 import importlib
-import os
 import shutil
 import sys
 import tarfile
 import zipfile
-from collections.abc import Generator
-from contextlib import contextmanager
 from pathlib import Path
 from typing import Literal
 
@@ -15,38 +13,6 @@ import pytest
 from hatchling.build import build_sdist, build_wheel
 
 from tests.helpers import patch_project_version
-
-
-@contextmanager
-def _chdir(path: Path) -> Generator[None]:
-    """Temporarily change the working directory (Python 3.10 compatibility equivalent of ``contextlib.chdir``)."""
-    original = Path.cwd()
-    os.chdir(path)
-    try:
-        yield
-    finally:
-        os.chdir(original)
-
-
-def _extractall_compat(tar: tarfile.TarFile, destination: Path) -> None:
-    """Extract a tar archive in a way that works across Python versions and platforms.
-
-    This is a helper utility that avoids a deprecation warning from tarfile stdlib.
-
-    Python 3.14 deprecates ``TarFile.extractall`` without a filter, but Python 3.10 on
-    Windows does not accept the ``filter`` keyword. Use the secure filter when available,
-    and fall back to the legacy call only when the runtime rejects the keyword argument.
-    """
-    try:
-        tar.extractall(destination, filter="data")
-    except TypeError as exc:
-        if "unexpected keyword argument 'filter'" not in str(exc):
-            raise
-        # This call is unsafe for malicious archives, due to path escapes (like files
-        # with ../foo getting placed outside of our destination) but we know what we
-        # built and this is only used within unit-tests, so it's not really important
-        # to be strict about handling this.
-        tar.extractall(destination)  # ruff: ignore[tarfile-unsafe-members]
 
 
 @pytest.mark.parametrize("raises", [False, True])
@@ -101,7 +67,7 @@ def sdist_path(tmp_path_factory: pytest.TempPathFactory) -> Path:
     dist_dir.mkdir()
 
     # Build from a clean temp copy so we validate the sdist contents.
-    with _chdir(build_root):
+    with contextlib.chdir(build_root):
         sdist_name = build_sdist(str(dist_dir))
 
     sdist_path = dist_dir / sdist_name
@@ -125,7 +91,7 @@ def wheel_member_names(sdist_path: Path, tmp_path_factory: pytest.TempPathFactor
     sdist_extract_root = tmp_path / "sdist"
     sdist_extract_root.mkdir()
     with tarfile.open(sdist_path, "r:gz") as tar:
-        _extractall_compat(tar, sdist_extract_root)
+        tar.extractall(sdist_extract_root, filter="data")
 
     # Get the first (and only) subdir inside of the sdist extract directory.
     # This will contain the sdist files from this specific build (e.g. mcstatus-0.0.0).
@@ -135,7 +101,7 @@ def wheel_member_names(sdist_path: Path, tmp_path_factory: pytest.TempPathFactor
     wheel_build_dir.mkdir()
 
     # Build the wheel from the sdist content to ensure compat shims persist.
-    with _chdir(sdist_root):
+    with contextlib.chdir(sdist_root):
         wheel_name = build_wheel(str(wheel_build_dir))
 
     wheel_path = wheel_build_dir / wheel_name
