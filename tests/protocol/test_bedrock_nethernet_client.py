@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import http.server
-import socket
-import threading
-from typing import TYPE_CHECKING, cast
+import contextlib
+import functools
+from typing import TYPE_CHECKING, final
+from unittest.mock import patch
 
+import httpx2
 import pytest
 
 from mcstatus._net.address import Address
@@ -12,49 +13,57 @@ from mcstatus._protocol.bedrock_nethernet_client import BedrockNetherNetClient
 from mcstatus.responses import BedrockStatusResponse
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator
+    from collections.abc import AsyncGenerator, Callable, Generator
 
     from typing_extensions import override
 else:
     override = lambda f: f  # ruff: ignore[lambda-assignment]
 
+VALID_BODY = (
+    b'{"name": "NetherNet Live", "protocol": 100, "version": "1.26.0", '
+    b'"players": 2, "maxPlayers": 10, "level": "world", "gameType": 1}'
+)
 
-class NetherNetMockServer(http.server.ThreadingHTTPServer):
-    custom_handler: Callable[[http.server.BaseHTTPRequestHandler], None] | None = None
 
-
-class NetherNetHTTPHandler(http.server.BaseHTTPRequestHandler):
-    def do_GET(self) -> None:
-        server = cast("NetherNetMockServer", self.server)
-        if server.custom_handler is not None:
-            server.custom_handler(self)
-            return
-
-        body = (
-            b'{"name": "NetherNet Live", "protocol": 100, "version": "1.26.0", '
-            b'"players": 2, "maxPlayers": 10, "level": "world", "gameType": 1}'
-        )
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        _ = self.wfile.write(body)
+@final
+class IterableStream(httpx2.SyncByteStream, httpx2.AsyncByteStream):
+    def __init__(self, chunks: list[bytes]) -> None:
+        self.chunks = chunks
 
     @override
-    def log_message(self, format: str, *args: object) -> None:  # ruff: ignore[builtin-argument-shadowing]
-        pass
+    def __iter__(self) -> Generator[bytes]:
+        yield from self.chunks
+
+    @override
+    async def __aiter__(self) -> AsyncGenerator[bytes]:
+        for chunk in self.chunks:
+            yield chunk
 
 
-@pytest.fixture
-def nethernet_server() -> Generator[NetherNetMockServer]:
-    server = NetherNetMockServer(("127.0.0.1", 0), NetherNetHTTPHandler)
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    try:
-        yield server
-    finally:
-        server.shutdown()
-        server.server_close()
+@contextlib.contextmanager
+def mock_nethernet_transport(
+    handler: Callable[[httpx2.Request], httpx2.Response],
+) -> Generator[BedrockNetherNetClient]:
+    transport = httpx2.MockTransport(handler)
+    with (
+        patch(
+            "mcstatus._protocol.bedrock_nethernet_client.httpx2.Client",
+            side_effect=functools.partial(httpx2.Client, transport=transport),
+        ),
+        patch(
+            "mcstatus._protocol.bedrock_nethernet_client.httpx2.AsyncClient",
+            side_effect=functools.partial(httpx2.AsyncClient, transport=transport),
+        ),
+    ):
+        yield BedrockNetherNetClient(Address("127.0.0.1", 19132))
+
+
+def test_url_ipv4_and_ipv6():
+    client_ipv4 = BedrockNetherNetClient(Address("127.0.0.1", 19132))
+    assert client_ipv4.url == "http://127.0.0.1:19132/v1/join"
+
+    client_ipv6 = BedrockNetherNetClient(Address("::1", 19132))
+    assert client_ipv6.url == "http://[::1]:19132/v1/join"
 
 
 def test_nethernet_parse_response_with_json_body():
@@ -115,205 +124,171 @@ def test_nethernet_parse_response_optional_fields():
     assert parsed.gamemode is None
 
 
-def test_read_status_sync_success(nethernet_server: NetherNetMockServer):
-    client = BedrockNetherNetClient(Address("127.0.0.1", nethernet_server.server_address[1]))
-    res = client.read_status()
+def test_read_status_sync_success():
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        assert request.headers["User-Agent"] == "mcstatus"
+        assert request.headers["Accept"] == "application/json"
+        return httpx2.Response(200, content=VALID_BODY)
+
+    with mock_nethernet_transport(handler) as client:
+        res = client.read_status()
 
     assert res.motd.to_plain() == "NetherNet Live"
     assert res.version.name == "1.26.0"
     assert res.version.protocol == 100
+    assert res.version.brand is None
     assert res.players.online == 2
     assert res.players.max == 10
     assert res.gamemode == "Creative"
     assert res.map_name == "world"
-    assert res.latency > 0
+    assert res.latency >= 0
 
 
-def test_read_status_sync_http_error(nethernet_server: NetherNetMockServer):
-    def error_handler(h: http.server.BaseHTTPRequestHandler) -> None:
-        h.send_response(500)
-        h.end_headers()
+async def test_read_status_async_success():
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        assert request.headers["User-Agent"] == "mcstatus"
+        assert request.headers["Accept"] == "application/json"
+        return httpx2.Response(200, content=VALID_BODY)
 
-    nethernet_server.custom_handler = error_handler
-    client = BedrockNetherNetClient(Address("127.0.0.1", nethernet_server.server_address[1]))
-
-    with pytest.raises(OSError, match="Server returned HTTP 500"):
-        _ = client.read_status()
-
-
-async def test_read_status_async_success(nethernet_server: NetherNetMockServer):
-    client = BedrockNetherNetClient(Address("127.0.0.1", nethernet_server.server_address[1]))
-    res = await client.read_status_async()
+    with mock_nethernet_transport(handler) as client:
+        res = await client.read_status_async()
 
     assert res.motd.to_plain() == "NetherNet Live"
     assert res.version.name == "1.26.0"
     assert res.version.protocol == 100
+    assert res.version.brand is None
     assert res.players.online == 2
     assert res.players.max == 10
     assert res.gamemode == "Creative"
     assert res.map_name == "world"
-    assert res.latency > 0
+    assert res.latency >= 0
 
 
-async def test_read_status_async_no_content_length(nethernet_server: NetherNetMockServer):
-    def chunk_handler(h: http.server.BaseHTTPRequestHandler) -> None:
-        h.send_response(200)
-        h.send_header("Connection", "close")
-        h.end_headers()
-        _ = h.wfile.write(b'{"name": "No Content Length", "protocol": 100, "version": "1.0", "players": 0, "maxPlayers": 1}')
+def test_read_status_sync_no_content_length():
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(200, stream=IterableStream([VALID_BODY]))
 
-    nethernet_server.custom_handler = chunk_handler
-    client = BedrockNetherNetClient(Address("127.0.0.1", nethernet_server.server_address[1]))
-    res = await client.read_status_async()
+    with mock_nethernet_transport(handler) as client:
+        res = client.read_status()
 
-    assert res.motd.to_plain() == "No Content Length"
+    assert res.motd.to_plain() == "NetherNet Live"
+    assert res.version.name == "1.26.0"
 
 
-def test_build_request_ipv6_host():
-    client = BedrockNetherNetClient(Address("::1", 19132))
-    assert b"Host: [::1]:19132\r\n" in client._build_request()
+async def test_read_status_async_no_content_length():
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(200, stream=IterableStream([VALID_BODY]))
+
+    with mock_nethernet_transport(handler) as client:
+        res = await client.read_status_async()
+
+    assert res.motd.to_plain() == "NetherNet Live"
+    assert res.version.name == "1.26.0"
 
 
-def test_read_status_sync_no_content_length(nethernet_server: NetherNetMockServer):
-    def chunk_handler(h: http.server.BaseHTTPRequestHandler) -> None:
-        h.send_response(200)
-        h.send_header("Connection", "close")
-        h.end_headers()
-        _ = h.wfile.write(b'{"name": "No CL Sync", "protocol": 100, "version": "1.0", "players": 0, "maxPlayers": 1}')
+@pytest.mark.parametrize("status_code", [404, 500])
+def test_read_status_sync_http_error(status_code: int):
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(status_code)
 
-    nethernet_server.custom_handler = chunk_handler
-    client = BedrockNetherNetClient(Address("127.0.0.1", nethernet_server.server_address[1]))
-    res = client.read_status()
-
-    assert res.motd.to_plain() == "No CL Sync"
-
-
-def test_read_status_response_size_cap(nethernet_server: NetherNetMockServer):
-    def oversized_handler(h: http.server.BaseHTTPRequestHandler) -> None:
-        h.send_response(200)
-        h.send_header("Connection", "close")
-        h.end_headers()
-        _ = h.wfile.write(b"X" * (BedrockNetherNetClient.MAX_RESPONSE_SIZE + 10))
-
-    nethernet_server.custom_handler = oversized_handler
-    client = BedrockNetherNetClient(Address("127.0.0.1", nethernet_server.server_address[1]))
-
-    with pytest.raises(OSError, match="exceeded"):
+    with mock_nethernet_transport(handler) as client, pytest.raises(OSError, match=f"Server returned HTTP {status_code}"):
         _ = client.read_status()
 
 
-def test_read_status_sync_closed_prematurely():
-    server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_sock.bind(("127.0.0.1", 0))
-    server_sock.listen(1)
-    port = server_sock.getsockname()[1]
+@pytest.mark.parametrize("status_code", [404, 500])
+async def test_read_status_async_http_error(status_code: int):
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(status_code)
 
-    def accept_and_close() -> None:
-        client_s, _ = server_sock.accept()
-        _ = client_s.recv(1024)
-        client_s.close()
-
-    thread = threading.Thread(target=accept_and_close, daemon=True)
-    thread.start()
-
-    try:
-        client = BedrockNetherNetClient(Address("127.0.0.1", port))
-        with pytest.raises(OSError, match="Server closed connection"):
-            _ = client.read_status()
-    finally:
-        server_sock.close()
-
-
-def test_read_status_sync_malformed_status():
-    server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_sock.bind(("127.0.0.1", 0))
-    server_sock.listen(1)
-    port = server_sock.getsockname()[1]
-
-    def send_malformed() -> None:
-        client_s, _ = server_sock.accept()
-        _ = client_s.recv(1024)
-        _ = client_s.sendall(b"NOT_HTTP\r\n\r\n")
-        client_s.close()
-
-    thread = threading.Thread(target=send_malformed, daemon=True)
-    thread.start()
-
-    try:
-        client = BedrockNetherNetClient(Address("127.0.0.1", port))
-        with pytest.raises(OSError, match="Received malformed HTTP response"):
-            _ = client.read_status()
-    finally:
-        server_sock.close()
-
-
-async def test_read_status_async_http_error(nethernet_server: NetherNetMockServer):
-    def error_handler(h: http.server.BaseHTTPRequestHandler) -> None:
-        h.send_response(404)
-        h.end_headers()
-
-    nethernet_server.custom_handler = error_handler
-    client = BedrockNetherNetClient(Address("127.0.0.1", nethernet_server.server_address[1]))
-
-    with pytest.raises(OSError, match="Server returned HTTP 404"):
+    with mock_nethernet_transport(handler) as client, pytest.raises(OSError, match=f"Server returned HTTP {status_code}"):
         _ = await client.read_status_async()
 
 
-async def test_read_status_async_closed_prematurely():
-    server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_sock.bind(("127.0.0.1", 0))
-    server_sock.listen(1)
-    port = server_sock.getsockname()[1]
+@pytest.mark.parametrize("bad_header", ["invalid", "-1"])
+def test_read_status_sync_invalid_content_length(bad_header: str):
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(200, headers={"Content-Length": bad_header}, stream=IterableStream([VALID_BODY]))
 
-    def accept_and_close() -> None:
-        client_s, _ = server_sock.accept()
-        _ = client_s.recv(1024)
-        client_s.close()
-
-    thread = threading.Thread(target=accept_and_close, daemon=True)
-    thread.start()
-
-    try:
-        client = BedrockNetherNetClient(Address("127.0.0.1", port))
-        with pytest.raises(OSError, match="Server closed connection"):
-            _ = await client.read_status_async()
-    finally:
-        server_sock.close()
+    with mock_nethernet_transport(handler) as client, pytest.raises(OSError, match="Invalid Content-Length header"):
+        _ = client.read_status()
 
 
-async def test_read_status_async_malformed_status():
-    server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_sock.bind(("127.0.0.1", 0))
-    server_sock.listen(1)
-    port = server_sock.getsockname()[1]
+@pytest.mark.parametrize("bad_header", ["invalid", "-1"])
+async def test_read_status_async_invalid_content_length(bad_header: str):
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(200, headers={"Content-Length": bad_header}, stream=IterableStream([VALID_BODY]))
 
-    def send_malformed() -> None:
-        client_s, _ = server_sock.accept()
-        _ = client_s.recv(1024)
-        _ = client_s.sendall(b"NOT_HTTP\r\n\r\n")
-        client_s.close()
-
-    thread = threading.Thread(target=send_malformed, daemon=True)
-    thread.start()
-
-    try:
-        client = BedrockNetherNetClient(Address("127.0.0.1", port))
-        with pytest.raises(OSError, match="Received malformed HTTP response"):
-            _ = await client.read_status_async()
-    finally:
-        server_sock.close()
+    with mock_nethernet_transport(handler) as client, pytest.raises(OSError, match="Invalid Content-Length header"):
+        _ = await client.read_status_async()
 
 
-async def test_read_status_async_invalid_content_length(nethernet_server: NetherNetMockServer):
-    def invalid_cl_handler(h: http.server.BaseHTTPRequestHandler) -> None:
-        h.send_response(200)
-        h.send_header("Content-Length", "invalid")
-        h.send_header("Connection", "close")
-        h.end_headers()
-        _ = h.wfile.write(b'{"name": "Fallback", "protocol": 100, "version": "1.0", "players": 0, "maxPlayers": 1}')
+def test_read_status_sync_content_length_exceeded():
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(200, headers={"Content-Length": str(100 * 1024)}, stream=IterableStream([VALID_BODY]))
 
-    nethernet_server.custom_handler = invalid_cl_handler
-    client = BedrockNetherNetClient(Address("127.0.0.1", nethernet_server.server_address[1]))
-    res = await client.read_status_async()
+    with mock_nethernet_transport(handler) as client, pytest.raises(OSError, match="exceeded 65536 bytes"):
+        _ = client.read_status()
 
-    assert res.motd.to_plain() == "Fallback"
+
+async def test_read_status_async_content_length_exceeded():
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(200, headers={"Content-Length": str(100 * 1024)}, stream=IterableStream([VALID_BODY]))
+
+    with mock_nethernet_transport(handler) as client, pytest.raises(OSError, match="exceeded 65536 bytes"):
+        _ = await client.read_status_async()
+
+
+def test_read_status_sync_stream_size_cap():
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(200, stream=IterableStream([b"x" * 40000, b"x" * 40000]))
+
+    with mock_nethernet_transport(handler) as client, pytest.raises(OSError, match="exceeded 65536 bytes"):
+        _ = client.read_status()
+
+
+async def test_read_status_async_stream_size_cap():
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(200, stream=IterableStream([b"x" * 40000, b"x" * 40000]))
+
+    with mock_nethernet_transport(handler) as client, pytest.raises(OSError, match="exceeded 65536 bytes"):
+        _ = await client.read_status_async()
+
+
+def test_read_status_sync_timeout():
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        raise httpx2.ReadTimeout("timed out")
+
+    with mock_nethernet_transport(handler) as client, pytest.raises(TimeoutError, match="timed out"):
+        _ = client.read_status()
+
+
+async def test_read_status_async_timeout():
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        raise httpx2.ReadTimeout("timed out")
+
+    with mock_nethernet_transport(handler) as client, pytest.raises(TimeoutError, match="timed out"):
+        _ = await client.read_status_async()
+
+
+@pytest.mark.parametrize("exc_to_raise", [httpx2.RemoteProtocolError("malformed"), httpx2.ConnectError("closed")])
+def test_read_status_sync_network_error(exc_to_raise: Exception):
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        raise exc_to_raise
+
+    with (
+        mock_nethernet_transport(handler) as client,
+        pytest.raises(OSError, match="Failed to connect to NetherNet signaling server"),
+    ):
+        _ = client.read_status()
+
+
+@pytest.mark.parametrize("exc_to_raise", [httpx2.RemoteProtocolError("malformed"), httpx2.ConnectError("closed")])
+async def test_read_status_async_network_error(exc_to_raise: Exception):
+    def handler(_request: httpx2.Request) -> httpx2.Response:
+        raise exc_to_raise
+
+    with (
+        mock_nethernet_transport(handler) as client,
+        pytest.raises(OSError, match="Failed to connect to NetherNet signaling server"),
+    ):
+        _ = await client.read_status_async()
