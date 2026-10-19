@@ -104,7 +104,7 @@ class TestBedrockServer:
 
     def test_status_raknet_transport(self):
         server = BedrockServer("127.0.0.1", transport="raknet")
-        with patch("mcstatus.server.BedrockClient.read_status") as mock_raknet:
+        with patch("mcstatus.server.BedrockRakNetClient.read_status") as mock_raknet:
             _ = server.status()
             mock_raknet.assert_called_once()
 
@@ -117,7 +117,7 @@ class TestBedrockServer:
     def test_status_auto_fallback(self):
         server = BedrockServer("127.0.0.1", transport="auto")
         with (
-            patch("mcstatus.server.BedrockClient.read_status", side_effect=TimeoutError("timed out")) as mock_raknet,
+            patch("mcstatus.server.BedrockRakNetClient.read_status", side_effect=TimeoutError("timed out")) as mock_raknet,
             patch("mcstatus.server.BedrockNetherNetClient.read_status") as mock_nethernet,
         ):
             _ = server.status()
@@ -127,7 +127,7 @@ class TestBedrockServer:
     def test_status_auto_both_fail(self):
         server = BedrockServer("127.0.0.1", transport="auto")
         with (
-            patch("mcstatus.server.BedrockClient.read_status", side_effect=TimeoutError("raknet timeout")),
+            patch("mcstatus.server.BedrockRakNetClient.read_status", side_effect=TimeoutError("raknet timeout")),
             patch("mcstatus.server.BedrockNetherNetClient.read_status", side_effect=OSError("nethernet err")),
             pytest.raises(TimeoutError, match="raknet timeout") as exc_info,
         ):
@@ -154,7 +154,7 @@ class TestBedrockServer:
 
         try:
             with (
-                patch("mcstatus.server.BedrockClient.read_status", side_effect=slow_raknet),
+                patch("mcstatus.server.BedrockRakNetClient.read_status", side_effect=slow_raknet),
                 patch("mcstatus.server.BedrockNetherNetClient.read_status", side_effect=fast_nethernet),
             ):
                 res = server.status(tries=1)
@@ -166,7 +166,7 @@ class TestBedrockServer:
 
     async def test_async_status_raknet_transport(self):
         server = BedrockServer("127.0.0.1", transport="raknet")
-        with patch("mcstatus.server.BedrockClient.read_status_async") as mock_raknet:
+        with patch("mcstatus.server.BedrockRakNetClient.read_status_async") as mock_raknet:
             _ = await server.async_status()
             mock_raknet.assert_called_once()
 
@@ -179,7 +179,10 @@ class TestBedrockServer:
     async def test_async_status_auto_fallback(self):
         server = BedrockServer("127.0.0.1", transport="auto")
         with (
-            patch("mcstatus.server.BedrockClient.read_status_async", side_effect=TimeoutError("timed out")) as mock_raknet,
+            patch(
+                "mcstatus.server.BedrockRakNetClient.read_status_async",
+                side_effect=TimeoutError("timed out"),
+            ) as mock_raknet,
             patch("mcstatus.server.BedrockNetherNetClient.read_status_async") as mock_nethernet,
         ):
             _ = await server.async_status()
@@ -189,7 +192,7 @@ class TestBedrockServer:
     async def test_async_status_auto_both_fail(self):
         server = BedrockServer("127.0.0.1", transport="auto")
         with (
-            patch("mcstatus.server.BedrockClient.read_status_async", side_effect=TimeoutError("raknet timeout")),
+            patch("mcstatus.server.BedrockRakNetClient.read_status_async", side_effect=TimeoutError("raknet timeout")),
             patch("mcstatus.server.BedrockNetherNetClient.read_status_async", side_effect=OSError("nethernet err")),
             pytest.raises(TimeoutError, match="raknet timeout") as exc_info,
         ):
@@ -217,7 +220,7 @@ class TestBedrockServer:
             return mock_response
 
         with (
-            patch("mcstatus.server.BedrockClient.read_status_async", side_effect=slow_raknet),
+            patch("mcstatus.server.BedrockRakNetClient.read_status_async", side_effect=slow_raknet),
             patch("mcstatus.server.BedrockNetherNetClient.read_status_async", side_effect=fast_nethernet),
         ):
             res = await server.async_status(tries=1)

@@ -8,8 +8,8 @@ from abc import ABC
 from typing import Any, ClassVar, Literal, Self, TYPE_CHECKING, TypeVar, cast, final, get_args
 
 from mcstatus._net.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
-from mcstatus._protocol.bedrock_client import BedrockClient
 from mcstatus._protocol.bedrock_nethernet_client import BedrockNetherNetClient
+from mcstatus._protocol.bedrock_raknet_client import BedrockRakNetClient
 from mcstatus._protocol.io.connection import (
     TCPAsyncSocketConnection,
     TCPSocketConnection,
@@ -355,11 +355,11 @@ class BedrockServer(MCServer):
         addr = Address.parse_address(address, default_port=cls.DEFAULT_PORT)
         return cls(addr.host, addr.port, timeout=timeout, transport=transport)
 
-    def _clients(self) -> list[BedrockClient | BedrockNetherNetClient]:
+    def _clients(self) -> list[BedrockRakNetClient | BedrockNetherNetClient]:
         """Clients for the configured transport, in priority order (RakNet first)."""
-        clients: list[BedrockClient | BedrockNetherNetClient] = []
+        clients: list[BedrockRakNetClient | BedrockNetherNetClient] = []
         if self.transport in {"auto", "raknet"}:
-            clients.append(BedrockClient(self.address, self.timeout))
+            clients.append(BedrockRakNetClient(self.address, self.timeout))
         if self.transport in {"auto", "nethernet"}:
             clients.append(BedrockNetherNetClient(self.address, self.timeout))
         return clients
