@@ -67,7 +67,7 @@ def test_nethernet_parse_response_with_json_body():
     assert isinstance(parsed, BedrockStatusResponse)
     assert parsed.version.name == "1.26.52"
     assert parsed.version.protocol == 2193
-    assert parsed.version.brand == "MCPE"
+    assert parsed.version.brand is None
     assert parsed.players.online == 3
     assert parsed.players.max == 20
     assert parsed.motd.to_plain() == "NetherNet Survival Server"

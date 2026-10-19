@@ -79,5 +79,5 @@ class BedrockStatusVersion(BaseStatusVersion):
     See `Minecraft wiki <https://minecraft.wiki/w/Bedrock_Edition_version_history#Bedrock_Edition>`__
     for complete list.
     """
-    brand: str
-    """``MCPE`` or ``MCEE`` for Education Edition."""
+    brand: str | None = None
+    """``MCPE`` or ``MCEE`` for Education Edition. ``None`` when querying over NetherNet."""

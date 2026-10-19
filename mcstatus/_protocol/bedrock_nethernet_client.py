@@ -134,7 +134,7 @@ class BedrockNetherNetClient:
             version=BedrockStatusVersion(
                 name=cls._require_str(raw, "version"),
                 protocol=cls._require_int(raw, "protocol"),
-                brand="MCPE",  # /v1/join doesn't report an edition brand; RakNet would say MCPE or MCEE
+                brand=None,
             ),
             motd=Motd.parse(cls._require_str(raw, "name"), bedrock=True),
             latency=latency,
