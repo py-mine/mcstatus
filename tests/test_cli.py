@@ -263,11 +263,13 @@ def test_status_bedrock_transport_implied():
     assert err.getvalue() == ""
 
 
-def test_bedrock_transport_legacy_conflict():
+def test_bedrock_transport_legacy_conflict_with_nethernet():
     with pytest.raises(SystemExit), patch_stdout_stderr() as (_out, err):
         _ = main_under_test(["example.com", "--legacy", "--bedrock-transport", "nethernet", "status"])
     assert "--bedrock-transport cannot be used with --legacy" in err.getvalue()
 
+
+def test_bedrock_transport_legacy_conflict_with_auto():
     with pytest.raises(SystemExit), patch_stdout_stderr() as (_out, err2):
         _ = main_under_test(["example.com", "--legacy", "--bedrock-transport", "auto", "status"])
     assert "--bedrock-transport cannot be used with --legacy" in err2.getvalue()
