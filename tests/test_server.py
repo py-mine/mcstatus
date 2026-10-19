@@ -104,15 +104,23 @@ class TestBedrockServer:
 
     def test_status_raknet_transport(self):
         server = BedrockServer("127.0.0.1", transport="raknet")
-        with patch("mcstatus.server.BedrockRakNetClient.read_status") as mock_raknet:
+        with (
+            patch("mcstatus.server.BedrockRakNetClient.read_status") as mock_raknet,
+            patch("mcstatus.server.BedrockNetherNetClient.read_status") as mock_nethernet,
+        ):
             _ = server.status()
             mock_raknet.assert_called_once()
+            mock_nethernet.assert_not_called()
 
     def test_status_nethernet_transport(self):
         server = BedrockServer("127.0.0.1", transport="nethernet")
-        with patch("mcstatus.server.BedrockNetherNetClient.read_status") as mock_nethernet:
+        with (
+            patch("mcstatus.server.BedrockRakNetClient.read_status") as mock_raknet,
+            patch("mcstatus.server.BedrockNetherNetClient.read_status") as mock_nethernet,
+        ):
             _ = server.status()
             mock_nethernet.assert_called_once()
+            mock_raknet.assert_not_called()
 
     def test_status_auto_fallback(self):
         server = BedrockServer("127.0.0.1", transport="auto")
@@ -138,18 +146,19 @@ class TestBedrockServer:
     def test_status_auto_does_not_wait_for_loser(self):
         server = BedrockServer("127.0.0.1", transport="auto")
         release_raknet = threading.Event()
+        raknet_finished = threading.Event()
         mock_response = BedrockStatusResponse.build(
             ["MCPE", "Test", "1", "1.0", "0", "10", "1", "world", "Survival"], latency=5.0
         )
 
         def slow_raknet():
-            _ = release_raknet.wait(timeout=5)
-            raise TimeoutError("slow raknet")
-
-        threads_checked: list[bool] = []
+            try:
+                _ = release_raknet.wait(timeout=5)
+                raise TimeoutError("slow raknet")
+            finally:
+                raknet_finished.set()
 
         def fast_nethernet():
-            threads_checked.extend(t.daemon for t in threading.enumerate() if t.name.startswith("mcstatus-bedrock-"))
             return mock_response
 
         try:
@@ -159,22 +168,29 @@ class TestBedrockServer:
             ):
                 res = server.status(tries=1)
                 assert res is mock_response
-                assert len(threads_checked) > 0
-                assert all(threads_checked)
+                assert not raknet_finished.is_set()
         finally:
             release_raknet.set()
 
     async def test_async_status_raknet_transport(self):
         server = BedrockServer("127.0.0.1", transport="raknet")
-        with patch("mcstatus.server.BedrockRakNetClient.read_status_async") as mock_raknet:
+        with (
+            patch("mcstatus.server.BedrockRakNetClient.read_status_async") as mock_raknet,
+            patch("mcstatus.server.BedrockNetherNetClient.read_status_async") as mock_nethernet,
+        ):
             _ = await server.async_status()
             mock_raknet.assert_called_once()
+            mock_nethernet.assert_not_called()
 
     async def test_async_status_nethernet_transport(self):
         server = BedrockServer("127.0.0.1", transport="nethernet")
-        with patch("mcstatus.server.BedrockNetherNetClient.read_status_async") as mock_nethernet:
+        with (
+            patch("mcstatus.server.BedrockRakNetClient.read_status_async") as mock_raknet,
+            patch("mcstatus.server.BedrockNetherNetClient.read_status_async") as mock_nethernet,
+        ):
             _ = await server.async_status()
             mock_nethernet.assert_called_once()
+            mock_raknet.assert_not_called()
 
     async def test_async_status_auto_fallback(self):
         server = BedrockServer("127.0.0.1", transport="auto")
@@ -210,7 +226,7 @@ class TestBedrockServer:
         async def slow_raknet():
             nonlocal raknet_cancelled
             try:
-                await asyncio.sleep(10)
+                await asyncio.sleep(5)
             except asyncio.CancelledError:
                 raknet_cancelled = True
                 raise
