@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import sys
 import threading
 from typing import TYPE_CHECKING, final
 from unittest.mock import call, patch
@@ -134,8 +133,7 @@ class TestBedrockServer:
         ):
             _ = server.status()
 
-        if sys.version_info >= (3, 11):
-            assert any("nethernet err" in str(note) for note in getattr(exc_info.value, "__notes__", []))
+        assert any("nethernet err" in str(note) for note in exc_info.value.__notes__)
 
     def test_status_auto_does_not_wait_for_loser(self):
         server = BedrockServer("127.0.0.1", transport="auto")
@@ -197,8 +195,7 @@ class TestBedrockServer:
         ):
             _ = await server.async_status()
 
-        if sys.version_info >= (3, 11):
-            assert any("nethernet err" in str(note) for note in getattr(exc_info.value, "__notes__", []))
+        assert any("nethernet err" in str(note) for note in exc_info.value.__notes__)
 
     async def test_async_status_auto_cancels_loser(self):
         server = BedrockServer("127.0.0.1", transport="auto")

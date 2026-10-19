@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import queue
-import sys
 import threading
 from abc import ABC
 from typing import Any, ClassVar, Literal, Self, TYPE_CHECKING, TypeVar, cast, final, get_args
@@ -317,16 +316,11 @@ class BedrockServer(MCServer):
 
     Bedrock servers can be queried over two transports, selected with the ``transport`` argument:
 
-    * ``"raknet"``: the classic RakNet unconnected ping over UDP.
-    * ``"nethernet"``: the NetherNet HTTP signaling capability check (``GET /v1/join`` over TCP), used by
-      servers running NetherNet, the default Bedrock Dedicated Server transport since 26.50.
-      Only plaintext HTTP signaling is supported.
+    * ``"raknet"``: the classic RakNet unconnected ping over UDP. Dropped in Bedrock Dedicated Server 1.26.60.
+    * ``"nethernet"``: the NetherNet HTTP signaling capability check (``GET /v1/join`` over TCP), the default
+      Bedrock Dedicated Server transport since 26.50.
     * ``"auto"`` (default): query both transports concurrently and return whichever answers first.
-      If both fail, the RakNet error is raised (on Python 3.11+, the NetherNet error is attached as an exception note).
-
-    .. note::
-        NetherNet latency includes the TCP handshake and the HTTP round trip, so it is typically
-        higher than the single UDP round trip measured over RakNet.
+      If both fail, the RakNet error is raised (the NetherNet error is attached as an exception note).
     """
 
     DEFAULT_PORT = 19132
@@ -345,7 +339,7 @@ class BedrockServer(MCServer):
         :param transport: Transport to query: ``"auto"``, ``"raknet"`` or ``"nethernet"``.
         """  # ruff: ignore[missing-blank-line-after-summary, multi-line-summary-first-line]
         if transport not in _BEDROCK_TRANSPORTS:
-            raise ValueError(f"Unknown Bedrock transport {transport!r}, expected one of {_BEDROCK_TRANSPORTS}")
+            raise ValueError(f"Unknown Bedrock transport {transport!r}, expected one of {', '.join(_BEDROCK_TRANSPORTS)}")
         super().__init__(host, port, timeout)
         self.transport: BedrockTransport = transport
 
@@ -390,11 +384,10 @@ class BedrockServer(MCServer):
 
 
 def _primary_error(errors: Sequence[Exception]) -> Exception:
-    """Return the first error, annotated with the others (notes require Python 3.11+)."""
+    """Return the first error, annotated with notes for remaining errors."""
     primary = errors[0]
-    if sys.version_info >= (3, 11):
-        for other in errors[1:]:
-            primary.add_note(f"Other Bedrock transport also failed: {other!r}")
+    for other in errors[1:]:
+        primary.add_note(f"Other Bedrock transport also failed: {other!r}")
     return primary
 
 
