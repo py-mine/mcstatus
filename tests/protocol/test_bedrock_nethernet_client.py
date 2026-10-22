@@ -60,10 +60,12 @@ def mock_nethernet_transport(
 
 def test_url_ipv4_and_ipv6():
     client_ipv4 = BedrockNetherNetClient(Address("127.0.0.1", 19132))
-    assert client_ipv4.url == "http://127.0.0.1:19132/v1/join"
+    assert client_ipv4.url == httpx2.URL("http://127.0.0.1:19132/v1/join")
+    assert isinstance(client_ipv4.url, httpx2.URL)
 
     client_ipv6 = BedrockNetherNetClient(Address("::1", 19132))
-    assert client_ipv6.url == "http://[::1]:19132/v1/join"
+    assert client_ipv6.url == httpx2.URL("http://[::1]:19132/v1/join")
+    assert isinstance(client_ipv6.url, httpx2.URL)
 
 
 def test_nethernet_parse_response_with_json_body():

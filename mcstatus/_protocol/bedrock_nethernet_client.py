@@ -26,16 +26,16 @@ class BedrockNetherNetClient:
 
     MAX_RESPONSE_SIZE: ClassVar[int] = 64 * 1024
     GAMEMODES: ClassVar[dict[int, str]] = {0: "Survival", 1: "Creative", 2: "Adventure"}
-    HEADERS: ClassVar[dict[str, str]] = {"User-Agent": "mcstatus", "Accept": "application/json"}
+    HEADERS: ClassVar[httpx2.Headers] = httpx2.Headers({"User-Agent": "mcstatus", "Accept": "application/json"})
 
     def __init__(self, address: Address, timeout: float = 3) -> None:
         self.address = address
         self.timeout = timeout
 
     @property
-    def url(self) -> str:
+    def url(self) -> httpx2.URL:
         host = f"[{self.address.host}]" if ":" in self.address.host else self.address.host
-        return f"http://{host}:{self.address.port}/v1/join"
+        return httpx2.URL(f"http://{host}:{self.address.port}/v1/join")
 
     @classmethod
     def _validate_response_headers(cls, response: httpx2.Response) -> None:
@@ -104,22 +104,24 @@ class BedrockNetherNetClient:
             gamemode=cls.GAMEMODES.get(game_type) if isinstance(game_type, int) else None,
         )
 
-    def _consume_stream(self, response: httpx2.Response) -> bytes:
-        self._validate_response_headers(response)
+    @classmethod
+    def _consume_stream(cls, response: httpx2.Response) -> bytes:
+        cls._validate_response_headers(response)
         raw = bytearray()
         for chunk in response.iter_bytes():
             raw.extend(chunk)
-            if len(raw) > self.MAX_RESPONSE_SIZE:
-                raise OSError(f"NetherNet signaling response exceeded {self.MAX_RESPONSE_SIZE} bytes")
+            if len(raw) > cls.MAX_RESPONSE_SIZE:
+                raise OSError(f"NetherNet signaling response exceeded {cls.MAX_RESPONSE_SIZE} bytes")
         return bytes(raw)
 
-    async def _async_consume_stream(self, response: httpx2.Response) -> bytes:
-        self._validate_response_headers(response)
+    @classmethod
+    async def _async_consume_stream(cls, response: httpx2.Response) -> bytes:
+        cls._validate_response_headers(response)
         raw = bytearray()
         async for chunk in response.aiter_bytes():
             raw.extend(chunk)
-            if len(raw) > self.MAX_RESPONSE_SIZE:
-                raise OSError(f"NetherNet signaling response exceeded {self.MAX_RESPONSE_SIZE} bytes")
+            if len(raw) > cls.MAX_RESPONSE_SIZE:
+                raise OSError(f"NetherNet signaling response exceeded {cls.MAX_RESPONSE_SIZE} bytes")
         return bytes(raw)
 
     def read_status(self) -> BedrockStatusResponse:
