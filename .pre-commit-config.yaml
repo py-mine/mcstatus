@@ -21,7 +21,7 @@ repos:
 
   - repo: local
     hooks:
-      - id: ruff
+      - id: ruff-linter
         name: Ruff Linter
         description: Run ruff checks on the code
         entry: ruff check --force-exclude
@@ -32,7 +32,7 @@ repos:
 
   - repo: local
     hooks:
-      - id: ruff-ruff
+      - id: ruff-formatter
         name: Ruff Formatter
         description: Ruf ruff auto-formatter
         entry: ruff format
