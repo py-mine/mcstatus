@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import ClassVar, Self, TYPE_CHECKING, final
+from typing import ClassVar, Literal, Self, TYPE_CHECKING, final, get_args
 
 from mcstatus._net.address import Address, async_minecraft_srv_address_lookup, minecraft_srv_address_lookup
-from mcstatus._protocol.bedrock_client import BedrockClient
+from mcstatus._protocol.bedrock_nethernet_client import BedrockNetherNetClient
+from mcstatus._protocol.bedrock_raknet_client import BedrockRakNetClient
 from mcstatus._protocol.io.connection import (
     TCPAsyncSocketConnection,
     TCPSocketConnection,
@@ -14,7 +15,7 @@ from mcstatus._protocol.io.connection import (
 from mcstatus._protocol.java_client import AsyncJavaClient, JavaClient
 from mcstatus._protocol.legacy_client import AsyncLegacyClient, LegacyClient
 from mcstatus._protocol.query_client import AsyncQueryClient, QueryClient
-from mcstatus._utils import retry
+from mcstatus._utils import async_first_success, first_success, retry
 
 if TYPE_CHECKING:
     from typing_extensions import override
@@ -23,8 +24,10 @@ if TYPE_CHECKING:
 else:
     override = lambda f: f  # ruff: ignore[lambda-assignment]
 
+BedrockTransport = Literal["auto", "raknet", "nethernet"]
+_BEDROCK_TRANSPORTS: tuple[BedrockTransport, ...] = get_args(BedrockTransport)
 
-__all__ = ["BedrockServer", "JavaServer", "LegacyServer", "MCServer"]
+__all__ = ["BedrockServer", "BedrockTransport", "JavaServer", "LegacyServer", "MCServer"]
 
 
 class MCServer(ABC):
@@ -301,9 +304,57 @@ class LegacyServer(BaseJavaServer):
 
 @final
 class BedrockServer(MCServer):
-    """Base class for a Minecraft Bedrock Edition server."""
+    """Base class for a Minecraft Bedrock Edition server.
+
+    Bedrock servers can be queried over two transports, selected with the ``transport`` argument:
+
+    * ``"raknet"``: the classic RakNet unconnected ping over UDP. Dropped in Bedrock Dedicated Server 1.26.60.
+    * ``"nethernet"``: the NetherNet HTTP signaling capability check (``GET /v1/join`` over TCP), the default
+      Bedrock Dedicated Server transport since 26.50.
+    * ``"auto"`` (default): query both transports concurrently and return whichever answers first.
+      If both fail, the RakNet error is raised (the NetherNet error is attached as an exception note).
+    """
 
     DEFAULT_PORT = 19132
+
+    def __init__(
+        self,
+        host: str,
+        port: int | None = None,
+        timeout: float = 3,
+        transport: BedrockTransport = "auto",
+    ) -> None:
+        """
+        :param host: The host/ip of the minecraft server.
+        :param port: The port that the server is on.
+        :param timeout: The timeout in seconds before failing to connect.
+        :param transport: Transport to query: ``"auto"``, ``"raknet"`` or ``"nethernet"``.
+        """  # ruff: ignore[missing-blank-line-after-summary, multi-line-summary-first-line]
+        if transport not in _BEDROCK_TRANSPORTS:
+            raise ValueError(f"Unknown Bedrock transport {transport!r}, expected one of {', '.join(_BEDROCK_TRANSPORTS)}")
+        super().__init__(host, port, timeout)
+        self.transport: BedrockTransport = transport
+
+    @classmethod
+    @override
+    def lookup(cls, address: str, timeout: float = 3, transport: BedrockTransport = "auto") -> Self:
+        """Mimics minecraft's server address field.
+
+        :param address: The address of the Minecraft server, like ``example.com:19132``
+        :param timeout: The timeout in seconds before failing to connect.
+        :param transport: Transport to query: ``"auto"``, ``"raknet"`` or ``"nethernet"``.
+        """
+        addr = Address.parse_address(address, default_port=cls.DEFAULT_PORT)
+        return cls(addr.host, addr.port, timeout=timeout, transport=transport)
+
+    def _clients(self) -> list[BedrockRakNetClient | BedrockNetherNetClient]:
+        """Clients for the configured transport, in priority order (RakNet first)."""
+        clients: list[BedrockRakNetClient | BedrockNetherNetClient] = []
+        if self.transport in {"auto", "raknet"}:
+            clients.append(BedrockRakNetClient(self.address, self.timeout))
+        if self.transport in {"auto", "nethernet"}:
+            clients.append(BedrockNetherNetClient(self.address, self.timeout))
+        return clients
 
     @retry(tries=3)
     def status(self, *, tries: int = 3) -> BedrockStatusResponse:  # ruff: ignore[unused-method-argument]
@@ -312,7 +363,7 @@ class BedrockServer(MCServer):
         :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return BedrockClient(self.address, self.timeout).read_status()
+        return first_success([client.read_status for client in self._clients()])
 
     @retry(tries=3)
     async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:  # ruff: ignore[unused-method-argument]
@@ -321,4 +372,4 @@ class BedrockServer(MCServer):
         :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return await BedrockClient(self.address, self.timeout).read_status_async()
+        return await async_first_success([client.read_status_async() for client in self._clients()])
