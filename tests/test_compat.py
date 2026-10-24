@@ -22,7 +22,7 @@ from tests.helpers import patch_project_version
         ("mcstatus._compat.forge_data", r"use mcstatus\.responses\.forge instead"),
     ],
 )
-def test_deprecated_import_path(raises: bool, module: str, msg_pattern: str):
+def test_deprecated_import_path(raises: bool, module: str, msg_pattern: str) -> None:
     """Test that the compatibility shims emit deprecation warnings at import time.
 
     Note that this does NOT test the actual inclusion of the compatibility modules into

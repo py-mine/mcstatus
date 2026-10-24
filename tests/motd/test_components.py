@@ -14,7 +14,7 @@ class TestWebColor:
             ("#4000ff", (64, 0, 255)),
         ],
     )
-    def test_hex_to_rgb_correct(self, hex_: str, rgb: tuple[int, int, int]):
+    def test_hex_to_rgb_correct(self, hex_: str, rgb: tuple[int, int, int]) -> None:
         assert WebColor.from_hex(hex=hex_).rgb == rgb
 
     @pytest.mark.parametrize(
@@ -25,26 +25,26 @@ class TestWebColor:
             ("#4000ff", (64, 0, 255)),
         ],
     )
-    def test_rgb_to_hex_correct(self, hex_: str, rgb: tuple[int, int, int]):
+    def test_rgb_to_hex_correct(self, hex_: str, rgb: tuple[int, int, int]) -> None:
         assert WebColor.from_rgb(rgb=rgb).hex == hex_
 
-    def test_hex_in_output_has_number_sign(self):
+    def test_hex_in_output_has_number_sign(self) -> None:
         assert WebColor.from_hex(hex="#bfff00").hex == "#bfff00"
         assert WebColor.from_hex(hex="4000ff").hex == "#4000ff"
 
-    def test_fail_on_incorrect_hex(self):
+    def test_fail_on_incorrect_hex(self) -> None:
         with pytest.raises(ValueError, match=r"^Failed to parse given hex color: '#!!!!!!'$"):
             _ = WebColor.from_hex(hex="#!!!!!!")
 
     @pytest.mark.parametrize("length", [0, 1, 2, 4, 5, 7, 8, 9, 10])
-    def test_fail_on_too_long_or_too_short_hex(self, length: int):
+    def test_fail_on_too_long_or_too_short_hex(self, length: int) -> None:
         color = "a" * length
         with pytest.raises(ValueError, match=f"^Got too long/short hex color: '#{color}'$"):
             _ = WebColor.from_hex(hex="a" * length)
 
-    def test_fail_on_incorrect_rgb(self):
+    def test_fail_on_incorrect_rgb(self) -> None:
         with pytest.raises(ValueError, match=r"^RGB color byte out of its 8-bit range \(0-255\) for red \(value=-23\)$"):
             _ = WebColor.from_rgb(rgb=(-23, 699, 1000))
 
-    def test_3_symbols_hex(self):
+    def test_3_symbols_hex(self) -> None:
         assert WebColor.from_hex("a1b").hex == "#aa11bb"
