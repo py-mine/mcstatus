@@ -1,21 +1,12 @@
 from __future__ import annotations
 
 import asyncio
+import threading
 import time
 
 import pytest
 
-from mcstatus._utils.concurrency import async_first_success, first_success, primary_error
-
-
-def test_primary_error():
-    err1 = RuntimeError("first failure")
-    err2 = ValueError("second failure")
-
-    result = primary_error([err1, err2])
-    assert result is err1
-    assert hasattr(result, "__notes__")
-    assert any("second failure" in str(note) for note in result.__notes__)
+from mcstatus._utils.concurrency import async_first_success, first_success
 
 
 def test_first_success_single_item_fast_path():
@@ -49,17 +40,40 @@ def test_first_success_fallback_succeeds():
     assert first_success([fail, succeed]) == "fallback"
 
 
-def test_first_success_all_fail_with_notes():
+def test_first_success_all_fail_raises_exception_group():
     def fail1():
         raise RuntimeError("err 1")
 
     def fail2():
         raise ValueError("err 2")
 
-    with pytest.raises(RuntimeError, match="err 1") as exc_info:
+    with pytest.raises(ExceptionGroup) as exc_info:
         _ = first_success([fail1, fail2])
 
-    assert any("err 2" in str(note) for note in exc_info.value.__notes__)
+    assert exc_info.value.message == "All concurrent operations failed"
+    assert len(exc_info.value.exceptions) == 2
+    assert isinstance(exc_info.value.exceptions[0], RuntimeError)
+    assert isinstance(exc_info.value.exceptions[1], ValueError)
+
+
+def test_first_success_thread_name_prefix():
+    captured_names: list[str] = []
+
+    def task():
+        captured_names.append(threading.current_thread().name)
+        return "ok"
+
+    res = first_success([task], thread_name_prefix="custom-worker")
+    assert res == "ok"
+
+    # Multi-item concurrency
+    def slow_task():
+        captured_names.append(threading.current_thread().name)
+        return "multi-ok"
+
+    res = first_success([slow_task, slow_task], thread_name_prefix="custom-worker")
+    assert res == "multi-ok"
+    assert any(name.startswith("custom-worker-") for name in captured_names)
 
 
 def test_first_success_base_exception_immediate():
@@ -124,7 +138,7 @@ async def test_async_first_success_fallback_succeeds():
     assert await async_first_success([fail(), succeed()]) == "fallback"
 
 
-async def test_async_first_success_all_fail_with_notes():
+async def test_async_first_success_all_fail_raises_exception_group():
     async def fail1():
         await asyncio.sleep(0)
         raise RuntimeError("err 1")
@@ -133,7 +147,10 @@ async def test_async_first_success_all_fail_with_notes():
         await asyncio.sleep(0)
         raise ValueError("err 2")
 
-    with pytest.raises(RuntimeError, match="err 1") as exc_info:
+    with pytest.raises(ExceptionGroup) as exc_info:
         _ = await async_first_success([fail1(), fail2()])
 
-    assert any("err 2" in str(note) for note in exc_info.value.__notes__)
+    assert exc_info.value.message == "All concurrent operations failed"
+    assert len(exc_info.value.exceptions) == 2
+    assert isinstance(exc_info.value.exceptions[0], RuntimeError)
+    assert isinstance(exc_info.value.exceptions[1], ValueError)

@@ -10,7 +10,7 @@ import pytest_asyncio
 
 from mcstatus._net.address import Address
 from mcstatus.responses import BedrockStatusResponse
-from mcstatus.server import BedrockServer, JavaServer, LegacyServer
+from mcstatus.server import BedrockServer, BedrockTransport, JavaServer, LegacyServer
 from tests.protocol.helpers import AsyncBufferConnection, SyncBufferConnection, SyncDatagramConnection
 
 if TYPE_CHECKING:
@@ -92,15 +92,19 @@ class TestBedrockServer:
         s = BedrockServer.lookup("example.org")
         assert s.address.host == "example.org"
         assert s.address.port == 19132
+        assert s.transport is BedrockTransport.AUTO
         assert s.transport == "auto"
 
     def test_lookup_constructor_with_transport(self):
         s = BedrockServer.lookup("example.org", transport="nethernet")
-        assert s.transport == "nethernet"
+        assert s.transport is BedrockTransport.NETHERNET
+
+        s_enum = BedrockServer.lookup("example.org", transport=BedrockTransport.RAKNET)
+        assert s_enum.transport is BedrockTransport.RAKNET
 
     def test_invalid_transport(self):
         with pytest.raises(ValueError, match="Unknown Bedrock transport 'invalid'"):
-            _ = BedrockServer("127.0.0.1", transport="invalid")  # pyright: ignore[reportArgumentType]
+            _ = BedrockServer("127.0.0.1", transport="invalid")
 
     def test_status_raknet_transport(self):
         server = BedrockServer("127.0.0.1", transport="raknet")
@@ -137,11 +141,13 @@ class TestBedrockServer:
         with (
             patch("mcstatus.server.BedrockRakNetClient.read_status", side_effect=TimeoutError("raknet timeout")),
             patch("mcstatus.server.BedrockNetherNetClient.read_status", side_effect=OSError("nethernet err")),
-            pytest.raises(TimeoutError, match="raknet timeout") as exc_info,
+            pytest.raises(ExceptionGroup) as exc_info,
         ):
             _ = server.status()
 
-        assert any("nethernet err" in str(note) for note in exc_info.value.__notes__)
+        assert len(exc_info.value.exceptions) == 2
+        assert isinstance(exc_info.value.exceptions[0], TimeoutError)
+        assert isinstance(exc_info.value.exceptions[1], OSError)
 
     def test_status_auto_does_not_wait_for_loser(self):
         server = BedrockServer("127.0.0.1", transport="auto")
@@ -210,11 +216,13 @@ class TestBedrockServer:
         with (
             patch("mcstatus.server.BedrockRakNetClient.read_status_async", side_effect=TimeoutError("raknet timeout")),
             patch("mcstatus.server.BedrockNetherNetClient.read_status_async", side_effect=OSError("nethernet err")),
-            pytest.raises(TimeoutError, match="raknet timeout") as exc_info,
+            pytest.raises(ExceptionGroup) as exc_info,
         ):
             _ = await server.async_status()
 
-        assert any("nethernet err" in str(note) for note in exc_info.value.__notes__)
+        assert len(exc_info.value.exceptions) == 2
+        assert isinstance(exc_info.value.exceptions[0], TimeoutError)
+        assert isinstance(exc_info.value.exceptions[1], OSError)
 
     async def test_async_status_auto_cancels_loser(self):
         server = BedrockServer("127.0.0.1", transport="auto")

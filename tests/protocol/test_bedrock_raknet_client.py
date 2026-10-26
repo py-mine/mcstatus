@@ -5,10 +5,8 @@ from unittest import mock
 import pytest
 
 from mcstatus._net.address import Address
-from mcstatus._protocol.bedrock_client import BedrockClient
 from mcstatus._protocol.bedrock_raknet_client import BedrockRakNetClient
 from mcstatus.responses import BedrockStatusResponse
-from tests.helpers import patch_project_version
 
 
 def test_bedrock_response_is_expected_type():
@@ -62,11 +60,3 @@ async def test_async_latency_is_real_number():
 
         # we slept 1ms, so this should be always ~1.
         assert mocked_parse_response.call_args[0][1] >= 1
-
-
-def test_deprecated_bedrock_client():
-    with (
-        patch_project_version("0.0.0"),
-        pytest.deprecated_call(match=r"mcstatus\._protocol\.bedrock_client\.BedrockClient is deprecated"),
-    ):
-        _ = BedrockClient(Address("localhost", 25565))

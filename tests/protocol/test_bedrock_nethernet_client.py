@@ -206,40 +206,6 @@ async def test_read_status_async_http_error(status_code: int):
         _ = await client.read_status_async()
 
 
-@pytest.mark.parametrize("bad_header", ["invalid", "-1"])
-def test_read_status_sync_invalid_content_length(bad_header: str):
-    def handler(_request: httpx2.Request) -> httpx2.Response:
-        return httpx2.Response(200, headers={"Content-Length": bad_header}, stream=IterableStream([VALID_BODY]))
-
-    with mock_nethernet_transport(handler) as client, pytest.raises(OSError, match="Invalid Content-Length header"):
-        _ = client.read_status()
-
-
-@pytest.mark.parametrize("bad_header", ["invalid", "-1"])
-async def test_read_status_async_invalid_content_length(bad_header: str):
-    def handler(_request: httpx2.Request) -> httpx2.Response:
-        return httpx2.Response(200, headers={"Content-Length": bad_header}, stream=IterableStream([VALID_BODY]))
-
-    with mock_nethernet_transport(handler) as client, pytest.raises(OSError, match="Invalid Content-Length header"):
-        _ = await client.read_status_async()
-
-
-def test_read_status_sync_content_length_exceeded():
-    def handler(_request: httpx2.Request) -> httpx2.Response:
-        return httpx2.Response(200, headers={"Content-Length": str(100 * 1024)}, stream=IterableStream([VALID_BODY]))
-
-    with mock_nethernet_transport(handler) as client, pytest.raises(OSError, match="exceeded 65536 bytes"):
-        _ = client.read_status()
-
-
-async def test_read_status_async_content_length_exceeded():
-    def handler(_request: httpx2.Request) -> httpx2.Response:
-        return httpx2.Response(200, headers={"Content-Length": str(100 * 1024)}, stream=IterableStream([VALID_BODY]))
-
-    with mock_nethernet_transport(handler) as client, pytest.raises(OSError, match="exceeded 65536 bytes"):
-        _ = await client.read_status_async()
-
-
 def test_read_status_sync_stream_size_cap():
     def handler(_request: httpx2.Request) -> httpx2.Response:
         return httpx2.Response(200, stream=IterableStream([b"x" * 40000, b"x" * 40000]))

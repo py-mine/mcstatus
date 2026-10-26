@@ -34,24 +34,17 @@ class BedrockNetherNetClient:
 
     @property
     def url(self) -> httpx2.URL:
-        host = f"[{self.address.host}]" if ":" in self.address.host else self.address.host
-        return httpx2.URL(f"http://{host}:{self.address.port}/v1/join")
+        return httpx2.URL(
+            scheme="http",
+            host=self.address.host,
+            port=self.address.port,
+            path="/v1/join",
+        )
 
     @classmethod
     def _validate_response_headers(cls, response: httpx2.Response) -> None:
         if not 200 <= response.status_code < 300:
             raise OSError(f"Server returned HTTP {response.status_code}")
-
-        content_length = response.headers.get("content-length")
-        if content_length is not None:
-            try:
-                length = int(content_length)
-            except ValueError as exc:
-                raise OSError(f"Invalid Content-Length header: {content_length!r}") from exc
-            if length < 0:
-                raise OSError(f"Invalid Content-Length header: {content_length!r}")
-            if length > cls.MAX_RESPONSE_SIZE:
-                raise OSError(f"NetherNet signaling response exceeded {cls.MAX_RESPONSE_SIZE} bytes")
 
     @staticmethod
     def _require_int(raw: dict[str, object], key: str) -> int:
@@ -126,34 +119,30 @@ class BedrockNetherNetClient:
 
     def read_status(self) -> BedrockStatusResponse:
         """Probe the NetherNet server synchronously."""
-        start = perf_counter()
         try:
-            with (
-                httpx2.Client(timeout=self.timeout) as client,
-                client.stream("GET", self.url, headers=self.HEADERS) as response,
-            ):
-                raw = self._consume_stream(response)
+            with httpx2.Client(timeout=self.timeout) as client:
+                start = perf_counter()
+                with client.stream("GET", self.url, headers=self.HEADERS) as response:
+                    raw = self._consume_stream(response)
+                end = perf_counter()
         except httpx2.TimeoutException as exc:
             raise TimeoutError("timed out") from exc
         except (httpx2.RequestError, httpx2.InvalidURL) as exc:
             raise OSError(f"Failed to connect to NetherNet signaling server: {exc}") from exc
 
-        end = perf_counter()
         return self.parse_response(raw, (end - start) * 1000)
 
     async def read_status_async(self) -> BedrockStatusResponse:
         """Probe the NetherNet server asynchronously."""
-        start = perf_counter()
         try:
-            async with (
-                httpx2.AsyncClient(timeout=self.timeout) as client,
-                client.stream("GET", self.url, headers=self.HEADERS) as response,
-            ):
-                raw = await self._async_consume_stream(response)
+            async with httpx2.AsyncClient(timeout=self.timeout) as client:
+                start = perf_counter()
+                async with client.stream("GET", self.url, headers=self.HEADERS) as response:
+                    raw = await self._async_consume_stream(response)
+                end = perf_counter()
         except httpx2.TimeoutException as exc:
             raise TimeoutError("timed out") from exc
         except (httpx2.RequestError, httpx2.InvalidURL) as exc:
             raise OSError(f"Failed to connect to NetherNet signaling server: {exc}") from exc
 
-        end = perf_counter()
         return self.parse_response(raw, (end - start) * 1000)

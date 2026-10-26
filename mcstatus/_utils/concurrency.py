@@ -9,24 +9,17 @@ from typing import Any, TYPE_CHECKING, TypeVar, cast
 if TYPE_CHECKING:
     from collections.abc import Callable, Coroutine, Sequence
 
-__all__ = ["async_first_success", "first_success", "primary_error"]
+__all__ = ["async_first_success", "first_success"]
 
 T = TypeVar("T")
 
 
-def primary_error(errors: Sequence[Exception]) -> Exception:
-    """Return the first error, annotated with notes for remaining errors."""
-    primary = errors[0]
-    for other in errors[1:]:
-        primary.add_note(f"Other Bedrock transport also failed: {other!r}")
-    return primary
-
-
-def first_success(funcs: Sequence[Callable[[], T]]) -> T:
+def first_success(funcs: Sequence[Callable[[], T]], *, thread_name_prefix: str = "mcstatus-worker") -> T:
     """Run ``funcs`` concurrently and return the first result that doesn't raise.
 
     Workers are daemon threads: a losing transport still blocked on I/O will not delay
-    interpreter shutdown. If every function fails, the first function's exception is raised.
+    interpreter shutdown. If every function fails, an :exc:`ExceptionGroup` containing
+    all errors is raised.
     """
     if len(funcs) == 1:
         return funcs[0]()
@@ -40,7 +33,7 @@ def first_success(funcs: Sequence[Callable[[], T]]) -> T:
             outcomes.put((index, None, exc))
 
     for index, func in enumerate(funcs):
-        threading.Thread(target=run, args=(index, func), name=f"mcstatus-bedrock-{index}", daemon=True).start()
+        threading.Thread(target=run, args=(index, func), name=f"{thread_name_prefix}-{index}", daemon=True).start()
 
     errors: dict[int, Exception] = {}
     for _ in funcs:
@@ -51,14 +44,14 @@ def first_success(funcs: Sequence[Callable[[], T]]) -> T:
             raise exc
         errors[index] = exc
 
-    raise primary_error([errors[i] for i in range(len(funcs))])
+    raise ExceptionGroup("All concurrent operations failed", [errors[i] for i in range(len(funcs))])
 
 
 async def async_first_success(coros: Sequence[Coroutine[Any, Any, T]]) -> T:
     """Run ``coros`` concurrently and return the first result that doesn't raise.
 
     Remaining tasks are cancelled and awaited once a result is available (or if all fail).
-    If every coroutine fails, the exception raised by the first coroutine in ``coros`` is re-raised.
+    If every coroutine fails, an :exc:`ExceptionGroup` containing all errors is raised.
     """
     if len(coros) == 1:
         return await coros[0]
@@ -68,7 +61,7 @@ async def async_first_success(coros: Sequence[Coroutine[Any, Any, T]]) -> T:
         for next_done in asyncio.as_completed(tasks):
             with contextlib.suppress(Exception):
                 return await next_done
-        raise primary_error([cast("Exception", task.exception()) for task in tasks])
+        raise ExceptionGroup("All concurrent operations failed", [cast("Exception", task.exception()) for task in tasks])
     finally:
         for task in tasks:
             _ = task.cancel()

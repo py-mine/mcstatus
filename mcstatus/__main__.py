@@ -6,7 +6,7 @@ import json
 import socket
 import sys
 from functools import partial
-from typing import Any, TYPE_CHECKING, TypeAlias, get_args
+from typing import Any, TYPE_CHECKING, TypeAlias
 
 import dns.resolver
 
@@ -163,7 +163,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     )
     _ = parser.add_argument(
         "--bedrock-transport",
-        choices=get_args(BedrockTransport),
+        choices=[t.value for t in BedrockTransport],
         default=None,
         help="Specifies transport protocol for Bedrock servers (default: auto).",
     )
@@ -196,7 +196,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     try:
         server = lookup(args.address)
         return args.func(server)
-    except (socket.gaierror, dns.resolver.NoNameservers, ConnectionError, TimeoutError) as e:
+    except (socket.gaierror, dns.resolver.NoNameservers, ConnectionError, TimeoutError, ExceptionGroup) as e:
         # catch and hide traceback for expected user-facing errors
         print(f"Error: {e!r}", file=sys.stderr)
         return 1

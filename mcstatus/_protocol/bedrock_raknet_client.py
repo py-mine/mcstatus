@@ -4,17 +4,16 @@ import asyncio
 import socket
 import struct
 from time import perf_counter
-from typing import ClassVar, TYPE_CHECKING, final
+from typing import ClassVar, TYPE_CHECKING
 
 import asyncio_dgram
 
-from mcstatus._utils import deprecation_warn
 from mcstatus.responses import BedrockStatusResponse
 
 if TYPE_CHECKING:
     from mcstatus._net.address import Address
 
-__all__ = ["BedrockClient", "BedrockRakNetClient"]
+__all__ = ["BedrockRakNetClient"]
 
 
 class BedrockRakNetClient:
@@ -73,20 +72,3 @@ class BedrockRakNetClient:
                 stream.close()
 
         return data
-
-
-@final
-class BedrockClient(BedrockRakNetClient):
-    """Deprecated alias for :class:`BedrockRakNetClient`.
-
-    .. deprecated:: 14.3.0
-        Use :class:`BedrockRakNetClient` instead. Scheduled for removal in 15.0.0.
-    """
-
-    def __init__(self, address: Address, timeout: float = 3) -> None:
-        deprecation_warn(
-            obj_name="mcstatus._protocol.bedrock_client.BedrockClient",
-            removal_version="15.0.0",
-            replacement="mcstatus._protocol.bedrock_raknet_client.BedrockRakNetClient",
-        )
-        super().__init__(address, timeout)
