@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import threading
 from typing import TYPE_CHECKING, final
 from unittest.mock import call, patch
 
@@ -8,7 +9,8 @@ import pytest
 import pytest_asyncio
 
 from mcstatus._net.address import Address
-from mcstatus.server import BedrockServer, JavaServer, LegacyServer
+from mcstatus.responses import BedrockStatusResponse
+from mcstatus.server import BedrockServer, BedrockTransport, JavaServer, LegacyServer
 from tests.protocol.helpers import AsyncBufferConnection, SyncBufferConnection, SyncDatagramConnection
 
 if TYPE_CHECKING:
@@ -90,6 +92,164 @@ class TestBedrockServer:
         s = BedrockServer.lookup("example.org")
         assert s.address.host == "example.org"
         assert s.address.port == 19132
+        assert s.transport is BedrockTransport.AUTO
+        assert s.transport == "auto"
+
+    def test_lookup_constructor_with_transport(self):
+        s = BedrockServer.lookup("example.org", transport="nethernet")
+        assert s.transport is BedrockTransport.NETHERNET
+
+        s_enum = BedrockServer.lookup("example.org", transport=BedrockTransport.RAKNET)
+        assert s_enum.transport is BedrockTransport.RAKNET
+
+    def test_invalid_transport(self):
+        with pytest.raises(ValueError, match="Unknown Bedrock transport 'invalid'"):
+            _ = BedrockServer("127.0.0.1", transport="invalid")
+
+    def test_status_raknet_transport(self):
+        server = BedrockServer("127.0.0.1", transport="raknet")
+        with (
+            patch("mcstatus.server.BedrockRakNetClient.read_status") as mock_raknet,
+            patch("mcstatus.server.BedrockNetherNetClient.read_status") as mock_nethernet,
+        ):
+            _ = server.status()
+            mock_raknet.assert_called_once()
+            mock_nethernet.assert_not_called()
+
+    def test_status_nethernet_transport(self):
+        server = BedrockServer("127.0.0.1", transport="nethernet")
+        with (
+            patch("mcstatus.server.BedrockRakNetClient.read_status") as mock_raknet,
+            patch("mcstatus.server.BedrockNetherNetClient.read_status") as mock_nethernet,
+        ):
+            _ = server.status()
+            mock_nethernet.assert_called_once()
+            mock_raknet.assert_not_called()
+
+    def test_status_auto_fallback(self):
+        server = BedrockServer("127.0.0.1", transport="auto")
+        with (
+            patch("mcstatus.server.BedrockRakNetClient.read_status", side_effect=TimeoutError("timed out")) as mock_raknet,
+            patch("mcstatus.server.BedrockNetherNetClient.read_status") as mock_nethernet,
+        ):
+            _ = server.status()
+            mock_raknet.assert_called_once()
+            mock_nethernet.assert_called_once()
+
+    def test_status_auto_both_fail(self):
+        server = BedrockServer("127.0.0.1", transport="auto")
+        with (
+            patch("mcstatus.server.BedrockRakNetClient.read_status", side_effect=TimeoutError("raknet timeout")),
+            patch("mcstatus.server.BedrockNetherNetClient.read_status", side_effect=OSError("nethernet err")),
+            pytest.raises(ExceptionGroup) as exc_info,
+        ):
+            _ = server.status()
+
+        assert len(exc_info.value.exceptions) == 2
+        assert isinstance(exc_info.value.exceptions[0], TimeoutError)
+        assert isinstance(exc_info.value.exceptions[1], OSError)
+
+    def test_status_auto_does_not_wait_for_loser(self):
+        server = BedrockServer("127.0.0.1", transport="auto")
+        release_raknet = threading.Event()
+        raknet_finished = threading.Event()
+        mock_response = BedrockStatusResponse.build(
+            ["MCPE", "Test", "1", "1.0", "0", "10", "1", "world", "Survival"], latency=5.0
+        )
+
+        def slow_raknet():
+            try:
+                _ = release_raknet.wait(timeout=5)
+                raise TimeoutError("slow raknet")
+            finally:
+                raknet_finished.set()
+
+        def fast_nethernet():
+            return mock_response
+
+        try:
+            with (
+                patch("mcstatus.server.BedrockRakNetClient.read_status", side_effect=slow_raknet),
+                patch("mcstatus.server.BedrockNetherNetClient.read_status", side_effect=fast_nethernet),
+            ):
+                res = server.status(tries=1)
+                assert res is mock_response
+                assert not raknet_finished.is_set()
+        finally:
+            release_raknet.set()
+
+    async def test_async_status_raknet_transport(self):
+        server = BedrockServer("127.0.0.1", transport="raknet")
+        with (
+            patch("mcstatus.server.BedrockRakNetClient.read_status_async") as mock_raknet,
+            patch("mcstatus.server.BedrockNetherNetClient.read_status_async") as mock_nethernet,
+        ):
+            _ = await server.async_status()
+            mock_raknet.assert_called_once()
+            mock_nethernet.assert_not_called()
+
+    async def test_async_status_nethernet_transport(self):
+        server = BedrockServer("127.0.0.1", transport="nethernet")
+        with (
+            patch("mcstatus.server.BedrockRakNetClient.read_status_async") as mock_raknet,
+            patch("mcstatus.server.BedrockNetherNetClient.read_status_async") as mock_nethernet,
+        ):
+            _ = await server.async_status()
+            mock_nethernet.assert_called_once()
+            mock_raknet.assert_not_called()
+
+    async def test_async_status_auto_fallback(self):
+        server = BedrockServer("127.0.0.1", transport="auto")
+        with (
+            patch(
+                "mcstatus.server.BedrockRakNetClient.read_status_async",
+                side_effect=TimeoutError("timed out"),
+            ) as mock_raknet,
+            patch("mcstatus.server.BedrockNetherNetClient.read_status_async") as mock_nethernet,
+        ):
+            _ = await server.async_status()
+            mock_raknet.assert_called_once()
+            mock_nethernet.assert_called_once()
+
+    async def test_async_status_auto_both_fail(self):
+        server = BedrockServer("127.0.0.1", transport="auto")
+        with (
+            patch("mcstatus.server.BedrockRakNetClient.read_status_async", side_effect=TimeoutError("raknet timeout")),
+            patch("mcstatus.server.BedrockNetherNetClient.read_status_async", side_effect=OSError("nethernet err")),
+            pytest.raises(ExceptionGroup) as exc_info,
+        ):
+            _ = await server.async_status()
+
+        assert len(exc_info.value.exceptions) == 2
+        assert isinstance(exc_info.value.exceptions[0], TimeoutError)
+        assert isinstance(exc_info.value.exceptions[1], OSError)
+
+    async def test_async_status_auto_cancels_loser(self):
+        server = BedrockServer("127.0.0.1", transport="auto")
+        mock_response = BedrockStatusResponse.build(
+            ["MCPE", "Test", "1", "1.0", "0", "10", "1", "world", "Survival"], latency=5.0
+        )
+        raknet_cancelled = False
+
+        async def slow_raknet():
+            nonlocal raknet_cancelled
+            try:
+                await asyncio.sleep(5)
+            except asyncio.CancelledError:
+                raknet_cancelled = True
+                raise
+
+        async def fast_nethernet():
+            await asyncio.sleep(0)
+            return mock_response
+
+        with (
+            patch("mcstatus.server.BedrockRakNetClient.read_status_async", side_effect=slow_raknet),
+            patch("mcstatus.server.BedrockNetherNetClient.read_status_async", side_effect=fast_nethernet),
+        ):
+            res = await server.async_status(tries=1)
+            assert res is mock_response
+            assert raknet_cancelled
 
 
 @final
