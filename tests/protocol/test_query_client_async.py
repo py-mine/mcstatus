@@ -6,18 +6,18 @@ from tests.protocol.helpers import AsyncDatagramConnection, async_decorator
 
 @final
 class TestAsyncQueryClient:
-    def setup_method(self):
+    def setup_method(self) -> None:
         self.connection = AsyncDatagramConnection()
         self.query_client = AsyncQueryClient(self.connection)  # pyright: ignore[reportArgumentType]
 
-    def test_handshake(self):
+    def test_handshake(self) -> None:
         self.connection.receive(bytearray.fromhex("090000000035373033353037373800"))
         async_decorator(self.query_client.handshake)()
         conn_bytes = self.connection.flush()
         assert conn_bytes[:3] == bytearray.fromhex("FEFD09")
         assert self.query_client.challenge == 570350778
 
-    def test_query(self):
+    def test_query(self) -> None:
         self.connection.receive(
             bytearray.fromhex(
                 "00000000000000000000000000000000686f73746e616d650041204d696e656372616674205365727665720067616d6574797"

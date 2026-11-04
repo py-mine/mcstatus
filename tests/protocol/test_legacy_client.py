@@ -6,7 +6,7 @@ from mcstatus.responses.legacy import LegacyStatusPlayers, LegacyStatusResponse,
 from tests.protocol.helpers import SyncBufferConnection
 
 
-def test_invalid_kick_reason():
+def test_invalid_kick_reason() -> None:
     with pytest.raises(IOError, match=r"^Received invalid kick packet reason$"):
         _ = LegacyClient.parse_response("Invalid Reason".encode("UTF-16BE"), 123.0)
 
@@ -35,11 +35,11 @@ def test_invalid_kick_reason():
     ],
     ids=["b1.8", "1.4.7"],
 )
-def test_parse_response(response: bytes, expected: LegacyStatusResponse):
+def test_parse_response(response: bytes, expected: LegacyStatusResponse) -> None:
     assert LegacyClient.parse_response(response, 123.0) == expected
 
 
-def test_invalid_packet_id():
+def test_invalid_packet_id() -> None:
     socket = SyncBufferConnection()
     socket.receive(bytearray.fromhex("00"))
     server = LegacyClient(socket)

@@ -49,7 +49,7 @@ class BaseResponseTest(abc.ABC):
 
     # implementations for tests
 
-    def test_values_of_attributes(self, build: BaseStatusResponse, field: str, value: Any) -> None:
+    def test_values_of_attributes(self, build: BaseStatusResponse, field: str, value: object) -> None:
         assert getattr(build, field) == value
 
     def test_types_of_attributes(self, build: BaseStatusResponse, field: str, type_: type) -> None:
