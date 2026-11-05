@@ -1,18 +1,33 @@
 from __future__ import annotations
 
+import asyncio
+import http.client
 import json
+import urllib.error
+import urllib.request
 from time import perf_counter
 from typing import ClassVar, TYPE_CHECKING, cast, final
-
-import httpx2
 
 from mcstatus.motd import Motd
 from mcstatus.responses import BedrockStatusPlayers, BedrockStatusResponse, BedrockStatusVersion
 
 if TYPE_CHECKING:
+    from typing_extensions import override
+
     from mcstatus._net.address import Address
+else:
+    override = lambda f: f  # ruff: ignore[lambda-assignment]
+
 
 __all__ = ["BedrockNetherNetClient"]
+
+
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Refuse redirects so a queried server cannot point mcstatus at an arbitrary URL."""
+
+    @override
+    def redirect_request(self, *args: object, **kwargs: object) -> None:  # ruff: ignore[unused-method-argument]
+        return None
 
 
 @final
@@ -26,25 +41,17 @@ class BedrockNetherNetClient:
 
     MAX_RESPONSE_SIZE: ClassVar[int] = 64 * 1024
     GAMEMODES: ClassVar[dict[int, str]] = {0: "Survival", 1: "Creative", 2: "Adventure"}
-    HEADERS: ClassVar[httpx2.Headers] = httpx2.Headers({"User-Agent": "mcstatus", "Accept": "application/json"})
+    HEADERS: ClassVar[dict[str, str]] = {"User-Agent": "mcstatus", "Accept": "application/json"}
+    _OPENER: ClassVar[urllib.request.OpenerDirector] = urllib.request.build_opener(_NoRedirectHandler)
 
     def __init__(self, address: Address, timeout: float = 3) -> None:
         self.address = address
         self.timeout = timeout
 
     @property
-    def url(self) -> httpx2.URL:
-        return httpx2.URL(
-            scheme="http",
-            host=self.address.host,
-            port=self.address.port,
-            path="/v1/join",
-        )
-
-    @classmethod
-    def _validate_response_headers(cls, response: httpx2.Response) -> None:
-        if not 200 <= response.status_code < 300:
-            raise OSError(f"Server returned HTTP {response.status_code}")
+    def url(self) -> str:
+        host = f"[{self.address.host}]" if ":" in self.address.host else self.address.host
+        return f"http://{host}:{self.address.port}/v1/join"
 
     @staticmethod
     def _require_int(raw: dict[str, object], key: str) -> int:
@@ -97,52 +104,33 @@ class BedrockNetherNetClient:
             gamemode=cls.GAMEMODES.get(game_type) if isinstance(game_type, int) else None,
         )
 
-    @classmethod
-    def _consume_stream(cls, response: httpx2.Response) -> bytes:
-        cls._validate_response_headers(response)
-        raw = bytearray()
-        for chunk in response.iter_bytes():
-            raw.extend(chunk)
-            if len(raw) > cls.MAX_RESPONSE_SIZE:
-                raise OSError(f"NetherNet signaling response exceeded {cls.MAX_RESPONSE_SIZE} bytes")
-        return bytes(raw)
-
-    @classmethod
-    async def _async_consume_stream(cls, response: httpx2.Response) -> bytes:
-        cls._validate_response_headers(response)
-        raw = bytearray()
-        async for chunk in response.aiter_bytes():
-            raw.extend(chunk)
-            if len(raw) > cls.MAX_RESPONSE_SIZE:
-                raise OSError(f"NetherNet signaling response exceeded {cls.MAX_RESPONSE_SIZE} bytes")
-        return bytes(raw)
-
     def read_status(self) -> BedrockStatusResponse:
         """Probe the NetherNet server synchronously."""
+        request = urllib.request.Request(self.url, headers=self.HEADERS)  # ruff: ignore[suspicious-url-open-usage] # always http://
+        start = perf_counter()
         try:
-            with httpx2.Client(timeout=self.timeout) as client:
-                start = perf_counter()
-                with client.stream("GET", self.url, headers=self.HEADERS) as response:
-                    raw = self._consume_stream(response)
-                end = perf_counter()
-        except httpx2.TimeoutException as exc:
-            raise TimeoutError("timed out") from exc
-        except (httpx2.RequestError, httpx2.InvalidURL) as exc:
-            raise OSError(f"Failed to connect to NetherNet signaling server: {exc}") from exc
+            with self._OPENER.open(request, timeout=self.timeout) as response:
+                body: bytes = response.read(self.MAX_RESPONSE_SIZE + 1)
+        except urllib.error.HTTPError as exc:
+            raise OSError(f"Server returned HTTP {exc.code}") from exc
+        except urllib.error.URLError as exc:
+            if isinstance(exc.reason, OSError):
+                raise exc.reason from None
+            raise OSError(f"Failed to connect to NetherNet signaling server: {exc.reason}") from exc
+        except http.client.HTTPException as exc:
+            raise OSError(f"Invalid HTTP response from NetherNet signaling server: {exc!r}") from exc
+        latency = (perf_counter() - start) * 1000
 
-        return self.parse_response(raw, (end - start) * 1000)
+        if len(body) > self.MAX_RESPONSE_SIZE:
+            raise OSError(f"NetherNet signaling response exceeded {self.MAX_RESPONSE_SIZE} bytes")
+        return self.parse_response(body, latency)
 
     async def read_status_async(self) -> BedrockStatusResponse:
-        """Probe the NetherNet server asynchronously."""
-        try:
-            async with httpx2.AsyncClient(timeout=self.timeout) as client:
-                start = perf_counter()
-                async with client.stream("GET", self.url, headers=self.HEADERS) as response:
-                    raw = await self._async_consume_stream(response)
-                end = perf_counter()
-        except httpx2.TimeoutException as exc:
-            raise TimeoutError("timed out") from exc
-        except (httpx2.RequestError, httpx2.InvalidURL) as exc:
-            raise OSError(f"Failed to connect to NetherNet signaling server: {exc}") from exc
+        """Probe the NetherNet server asynchronously.
 
-        return self.parse_response(raw, (end - start) * 1000)
+        .. note::
+            Delegates to :meth:`read_status` via :func:`asyncio.to_thread`.
+            If the probe task is cancelled while blocked on a network socket,
+            the underlying thread continues running until the socket timeout expires.
+        """
+        return await asyncio.to_thread(self.read_status)
