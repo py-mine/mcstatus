@@ -93,21 +93,16 @@ class TestBedrockServer:
         assert s.address.host == "example.org"
         assert s.address.port == 19132
         assert s.transport is BedrockTransport.AUTO
-        assert s.transport == "auto"
 
     def test_lookup_constructor_with_transport(self):
-        s = BedrockServer.lookup("example.org", transport="nethernet")
+        s = BedrockServer.lookup("example.org", transport=BedrockTransport.NETHERNET)
         assert s.transport is BedrockTransport.NETHERNET
 
         s_enum = BedrockServer.lookup("example.org", transport=BedrockTransport.RAKNET)
         assert s_enum.transport is BedrockTransport.RAKNET
 
-    def test_invalid_transport(self):
-        with pytest.raises(ValueError, match="Unknown Bedrock transport 'invalid'"):
-            _ = BedrockServer("127.0.0.1", transport="invalid")
-
     def test_status_raknet_transport(self):
-        server = BedrockServer("127.0.0.1", transport="raknet")
+        server = BedrockServer("127.0.0.1", transport=BedrockTransport.RAKNET)
         with (
             patch("mcstatus.server.BedrockRakNetClient.read_status") as mock_raknet,
             patch("mcstatus.server.BedrockNetherNetClient.read_status") as mock_nethernet,
@@ -117,7 +112,7 @@ class TestBedrockServer:
             mock_nethernet.assert_not_called()
 
     def test_status_nethernet_transport(self):
-        server = BedrockServer("127.0.0.1", transport="nethernet")
+        server = BedrockServer("127.0.0.1", transport=BedrockTransport.NETHERNET)
         with (
             patch("mcstatus.server.BedrockRakNetClient.read_status") as mock_raknet,
             patch("mcstatus.server.BedrockNetherNetClient.read_status") as mock_nethernet,
@@ -127,7 +122,7 @@ class TestBedrockServer:
             mock_raknet.assert_not_called()
 
     def test_status_auto_fallback(self):
-        server = BedrockServer("127.0.0.1", transport="auto")
+        server = BedrockServer("127.0.0.1", transport=BedrockTransport.AUTO)
         with (
             patch("mcstatus.server.BedrockRakNetClient.read_status", side_effect=TimeoutError("timed out")) as mock_raknet,
             patch("mcstatus.server.BedrockNetherNetClient.read_status") as mock_nethernet,
@@ -137,7 +132,7 @@ class TestBedrockServer:
             mock_nethernet.assert_called_once()
 
     def test_status_auto_both_fail(self):
-        server = BedrockServer("127.0.0.1", transport="auto")
+        server = BedrockServer("127.0.0.1", transport=BedrockTransport.AUTO)
         with (
             patch("mcstatus.server.BedrockRakNetClient.read_status", side_effect=TimeoutError("raknet timeout")),
             patch("mcstatus.server.BedrockNetherNetClient.read_status", side_effect=OSError("nethernet err")),
@@ -146,11 +141,11 @@ class TestBedrockServer:
             _ = server.status()
 
         assert len(exc_info.value.exceptions) == 2
-        assert isinstance(exc_info.value.exceptions[0], TimeoutError)
-        assert isinstance(exc_info.value.exceptions[1], OSError)
+        assert any(isinstance(exc, TimeoutError) for exc in exc_info.value.exceptions)
+        assert any(isinstance(exc, OSError) for exc in exc_info.value.exceptions)
 
     def test_status_auto_does_not_wait_for_loser(self):
-        server = BedrockServer("127.0.0.1", transport="auto")
+        server = BedrockServer("127.0.0.1", transport=BedrockTransport.AUTO)
         release_raknet = threading.Event()
         raknet_finished = threading.Event()
         mock_response = BedrockStatusResponse.build(
@@ -179,7 +174,7 @@ class TestBedrockServer:
             release_raknet.set()
 
     async def test_async_status_raknet_transport(self):
-        server = BedrockServer("127.0.0.1", transport="raknet")
+        server = BedrockServer("127.0.0.1", transport=BedrockTransport.RAKNET)
         with (
             patch("mcstatus.server.BedrockRakNetClient.read_status_async") as mock_raknet,
             patch("mcstatus.server.BedrockNetherNetClient.read_status_async") as mock_nethernet,
@@ -189,7 +184,7 @@ class TestBedrockServer:
             mock_nethernet.assert_not_called()
 
     async def test_async_status_nethernet_transport(self):
-        server = BedrockServer("127.0.0.1", transport="nethernet")
+        server = BedrockServer("127.0.0.1", transport=BedrockTransport.NETHERNET)
         with (
             patch("mcstatus.server.BedrockRakNetClient.read_status_async") as mock_raknet,
             patch("mcstatus.server.BedrockNetherNetClient.read_status_async") as mock_nethernet,
@@ -199,7 +194,7 @@ class TestBedrockServer:
             mock_raknet.assert_not_called()
 
     async def test_async_status_auto_fallback(self):
-        server = BedrockServer("127.0.0.1", transport="auto")
+        server = BedrockServer("127.0.0.1", transport=BedrockTransport.AUTO)
         with (
             patch(
                 "mcstatus.server.BedrockRakNetClient.read_status_async",
@@ -212,7 +207,7 @@ class TestBedrockServer:
             mock_nethernet.assert_called_once()
 
     async def test_async_status_auto_both_fail(self):
-        server = BedrockServer("127.0.0.1", transport="auto")
+        server = BedrockServer("127.0.0.1", transport=BedrockTransport.AUTO)
         with (
             patch("mcstatus.server.BedrockRakNetClient.read_status_async", side_effect=TimeoutError("raknet timeout")),
             patch("mcstatus.server.BedrockNetherNetClient.read_status_async", side_effect=OSError("nethernet err")),
@@ -221,11 +216,11 @@ class TestBedrockServer:
             _ = await server.async_status()
 
         assert len(exc_info.value.exceptions) == 2
-        assert isinstance(exc_info.value.exceptions[0], TimeoutError)
-        assert isinstance(exc_info.value.exceptions[1], OSError)
+        assert any(isinstance(exc, TimeoutError) for exc in exc_info.value.exceptions)
+        assert any(isinstance(exc, OSError) for exc in exc_info.value.exceptions)
 
     async def test_async_status_auto_cancels_loser(self):
-        server = BedrockServer("127.0.0.1", transport="auto")
+        server = BedrockServer("127.0.0.1", transport=BedrockTransport.AUTO)
         mock_response = BedrockStatusResponse.build(
             ["MCPE", "Test", "1", "1.0", "0", "10", "1", "world", "Survival"], latency=5.0
         )

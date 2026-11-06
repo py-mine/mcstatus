@@ -9,9 +9,11 @@ import pytest
 from mcstatus._utils.concurrency import async_first_success, first_success
 
 
-def test_first_success_single_item_fast_path():
+def test_first_success_single_item_success():
     assert first_success([lambda: 42]) == 42
 
+
+def test_first_success_single_item_failure():
     def fail():
         raise RuntimeError("failed")
 
@@ -35,6 +37,7 @@ def test_first_success_fallback_succeeds():
         raise RuntimeError("first failed")
 
     def succeed():
+        time.sleep(0.05)
         return "fallback"
 
     assert first_success([fail, succeed]) == "fallback"
@@ -42,6 +45,7 @@ def test_first_success_fallback_succeeds():
 
 def test_first_success_all_fail_raises_exception_group():
     def fail1():
+        time.sleep(0.05)
         raise RuntimeError("err 1")
 
     def fail2():
@@ -51,6 +55,8 @@ def test_first_success_all_fail_raises_exception_group():
         _ = first_success([fail1, fail2])
 
     assert exc_info.value.message == "All concurrent operations failed"
+    # ExceptionGroup order is guaranteed to match the input function sequence order,
+    # even though fail2 finished before fail1.
     assert len(exc_info.value.exceptions) == 2
     assert isinstance(exc_info.value.exceptions[0], RuntimeError)
     assert isinstance(exc_info.value.exceptions[1], ValueError)
@@ -91,16 +97,19 @@ def test_first_success_base_exception_immediate():
         _ = first_success([raise_base, normal])
 
 
-async def test_async_first_success_single_item_fast_path():
+async def test_async_first_success_single_item_success():
     async def succeed():
         await asyncio.sleep(0)
         return 42
 
+    assert await async_first_success([succeed()]) == 42
+
+
+async def test_async_first_success_single_item_failure():
     async def fail():
         await asyncio.sleep(0)
         raise RuntimeError("failed")
 
-    assert await async_first_success([succeed()]) == 42
     with pytest.raises(RuntimeError, match="failed"):
         _ = await async_first_success([fail()])
 
@@ -132,7 +141,7 @@ async def test_async_first_success_fallback_succeeds():
         raise RuntimeError("first failed")
 
     async def succeed():
-        await asyncio.sleep(0)
+        await asyncio.sleep(0.05)
         return "fallback"
 
     assert await async_first_success([fail(), succeed()]) == "fallback"
@@ -140,7 +149,7 @@ async def test_async_first_success_fallback_succeeds():
 
 async def test_async_first_success_all_fail_raises_exception_group():
     async def fail1():
-        await asyncio.sleep(0)
+        await asyncio.sleep(0.05)
         raise RuntimeError("err 1")
 
     async def fail2():
@@ -151,6 +160,8 @@ async def test_async_first_success_all_fail_raises_exception_group():
         _ = await async_first_success([fail1(), fail2()])
 
     assert exc_info.value.message == "All concurrent operations failed"
+    # ExceptionGroup order is guaranteed to match the input coroutine sequence order,
+    # even though fail2 finished before fail1.
     assert len(exc_info.value.exceptions) == 2
     assert isinstance(exc_info.value.exceptions[0], RuntimeError)
     assert isinstance(exc_info.value.exceptions[1], ValueError)

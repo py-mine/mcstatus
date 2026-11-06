@@ -17,9 +17,12 @@ T = TypeVar("T")
 def first_success(funcs: Sequence[Callable[[], T]], *, thread_name_prefix: str = "mcstatus-worker") -> T:
     """Run ``funcs`` concurrently and return the first result that doesn't raise.
 
-    Workers are daemon threads: a losing transport still blocked on I/O will not delay
-    interpreter shutdown. If every function fails, an :exc:`ExceptionGroup` containing
-    all errors is raised.
+    Workers are daemon threads: Python OS threads blocked on synchronous socket I/O cannot
+    be cancelled externally from user space, so daemon status and socket timeouts ensure blocked
+    threads terminate without delaying interpreter shutdown.
+
+    If every function fails, an :exc:`ExceptionGroup` containing all errors is raised. The
+    order of exceptions in the group is guaranteed to match the input sequence order of ``funcs``.
     """
     if len(funcs) == 1:
         return funcs[0]()
@@ -51,7 +54,8 @@ async def async_first_success(coros: Sequence[Coroutine[Any, Any, T]]) -> T:
     """Run ``coros`` concurrently and return the first result that doesn't raise.
 
     Remaining tasks are cancelled and awaited once a result is available (or if all fail).
-    If every coroutine fails, an :exc:`ExceptionGroup` containing all errors is raised.
+    If every coroutine fails, an :exc:`ExceptionGroup` containing all errors is raised. The
+    order of exceptions in the group is guaranteed to match the input sequence order of ``coros``.
     """
     if len(coros) == 1:
         return await coros[0]

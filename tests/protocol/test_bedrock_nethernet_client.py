@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import json
 import socket
 import threading
 import urllib.error
@@ -32,9 +34,9 @@ class _NetherNetHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         if self.mode == "valid":
-            if self.headers.get("User-Agent") != "mcstatus" or self.headers.get("Accept") != "application/json":
-                self.send_error(400, "Bad headers")
-                return
+            assert self.path == "/v1/join"
+            assert self.headers.get("User-Agent") == "mcstatus"
+            assert self.headers.get("Accept") == "application/json"
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(VALID_BODY)))
@@ -102,25 +104,48 @@ def test_nethernet_parse_response_with_json_body():
     assert parsed.latency == pytest.approx(5.0)
 
 
-def test_nethernet_parse_response_empty_body():
+@pytest.mark.parametrize(
+    "payload",
+    [
+        b"not json payload",
+        b"\xff\xfe\x80invalid utf-8",
+        b"",
+    ],
+)
+def test_nethernet_parse_response_invalid_json(payload: bytes):
     with pytest.raises(OSError, match="Invalid NetherNet status payload"):
-        _ = BedrockNetherNetClient.parse_response(b"", 1.0)
+        _ = BedrockNetherNetClient.parse_response(payload, 1.0)
 
 
-def test_nethernet_parse_response_invalid_json():
-    with pytest.raises(OSError, match="Invalid NetherNet status payload"):
-        _ = BedrockNetherNetClient.parse_response(b"not json payload", 1.0)
-
-
-def test_nethernet_parse_response_non_dict_json():
+@pytest.mark.parametrize(
+    "payload",
+    [
+        b"[]",
+        b"[1, 2, 3]",
+        b'"foobar"',
+        b"123",
+    ],
+)
+def test_nethernet_parse_response_non_dict_json(payload: bytes):
     with pytest.raises(OSError, match="Expected JSON object"):
-        _ = BedrockNetherNetClient.parse_response(b"[1, 2, 3]", 1.0)
+        _ = BedrockNetherNetClient.parse_response(payload, 1.0)
 
 
-def test_nethernet_parse_response_missing_required_fields():
-    body = b'{"name": "Server", "players": 1}'
-    with pytest.raises(OSError, match="NetherNet status field"):
-        _ = BedrockNetherNetClient.parse_response(body, 1.0)
+@pytest.mark.parametrize(
+    "missing_key",
+    ["name", "protocol", "version", "players", "maxPlayers"],
+)
+def test_nethernet_parse_response_missing_required_fields(missing_key: str):
+    full: dict[str, object] = {
+        "name": "Server",
+        "protocol": 100,
+        "version": "1.0",
+        "players": 1,
+        "maxPlayers": 10,
+    }
+    _ = full.pop(missing_key)
+    with pytest.raises(OSError, match=f"NetherNet status field {missing_key!r}"):
+        _ = BedrockNetherNetClient.parse_response(json.dumps(full).encode(), 1.0)
 
 
 def test_nethernet_parse_response_rejects_string_int():
@@ -135,16 +160,62 @@ def test_nethernet_parse_response_rejects_non_string():
         _ = BedrockNetherNetClient.parse_response(body, 1.0)
 
 
-def test_nethernet_parse_response_optional_fields():
-    body = b'{"name": "Minimal Server", "protocol": 900, "version": "1.26.50", "players": 0, "maxPlayers": 5}'
-    parsed = BedrockNetherNetClient.parse_response(body, 1.0)
+@pytest.mark.parametrize(
+    ("extra_fields", "expected_map_name", "expected_gamemode"),
+    [
+        ({}, None, None),
+        ({"level": "survival_world"}, "survival_world", None),
+        ({"gameType": 0}, None, "Survival"),
+        ({"level": "survival_world", "gameType": 1}, "survival_world", "Creative"),
+    ],
+)
+def test_nethernet_parse_response_optional_fields(
+    extra_fields: dict[str, object],
+    expected_map_name: str | None,
+    expected_gamemode: str | None,
+):
+    payload: dict[str, object] = {
+        "name": "Minimal Server",
+        "protocol": 900,
+        "version": "1.26.50",
+        "players": 0,
+        "maxPlayers": 5,
+        **extra_fields,
+    }
+    parsed = BedrockNetherNetClient.parse_response(json.dumps(payload).encode(), 1.0)
     assert parsed.motd.to_plain() == "Minimal Server"
     assert parsed.version.protocol == 900
     assert parsed.version.name == "1.26.50"
     assert parsed.players.online == 0
     assert parsed.players.max == 5
-    assert parsed.map_name is None
-    assert parsed.gamemode is None
+    assert parsed.map_name == expected_map_name
+    assert parsed.gamemode == expected_gamemode
+
+
+@pytest.mark.parametrize(
+    ("extra_fields", "error_match"),
+    [
+        ({"gameType": -5}, "Unknown NetherNet gameType -5"),
+        ({"gameType": 99}, "Unknown NetherNet gameType 99"),
+        ({"gameType": "Survival"}, "must be an integer"),
+        ({"level": 123}, "must be a string"),
+        ({"level": {"nested": "dict"}}, "must be a string"),
+    ],
+)
+def test_nethernet_parse_response_invalid_optional_fields(
+    extra_fields: dict[str, object],
+    error_match: str,
+):
+    payload: dict[str, object] = {
+        "name": "Server",
+        "protocol": 100,
+        "version": "1.0",
+        "players": 1,
+        "maxPlayers": 10,
+        **extra_fields,
+    }
+    with pytest.raises(OSError, match=error_match):
+        _ = BedrockNetherNetClient.parse_response(json.dumps(payload).encode(), 1.0)
 
 
 def test_read_status_sync_success(nethernet_server: tuple[Address, type[_NetherNetHandler]]):
@@ -256,12 +327,28 @@ def test_read_status_dns_failure():
 
 
 def test_read_status_timeout():
-    client = BedrockNetherNetClient(Address("127.0.0.1", 19132))
-    with (
-        patch.object(client._OPENER, "open", side_effect=urllib.error.URLError(TimeoutError("timed out"))),
-        pytest.raises(TimeoutError, match="timed out"),
-    ):
-        _ = client.read_status()
+    raw = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    raw.bind(("127.0.0.1", 0))
+    raw.listen(1)
+    port = raw.getsockname()[1]
+    unresponsive_event = threading.Event()
+
+    def unresponsive_worker() -> None:
+        with contextlib.suppress(OSError):
+            conn, _ = raw.accept()
+            _ = unresponsive_event.wait(timeout=2)
+            conn.close()
+
+    server_thread = threading.Thread(target=unresponsive_worker, daemon=True)
+    server_thread.start()
+    try:
+        client = BedrockNetherNetClient(Address("127.0.0.1", port), timeout=0.05)
+        with pytest.raises(TimeoutError):
+            _ = client.read_status()
+    finally:
+        unresponsive_event.set()
+        raw.close()
+        server_thread.join()
 
 
 def test_read_status_non_oserror_urlerror():

@@ -85,8 +85,17 @@ class BedrockNetherNetClient:
             raise OSError(f"Expected JSON object in NetherNet status response, got {type(raw_data).__name__}")
         raw = cast("dict[str, object]", raw_data)
 
-        level = raw.get("level")
-        game_type = raw.get("gameType")
+        map_name = cls._require_str(raw, "level") if "level" in raw else None
+
+        gamemode: str | None = None
+        if "gameType" in raw:
+            game_type = cls._require_int(raw, "gameType")
+            try:
+                gamemode = cls.GAMEMODES[game_type]
+            except KeyError:
+                raise OSError(
+                    f"Unknown NetherNet gameType {game_type!r}, expected one of {list(cls.GAMEMODES)}"
+                ) from None
 
         return BedrockStatusResponse(
             players=BedrockStatusPlayers(
@@ -100,8 +109,8 @@ class BedrockNetherNetClient:
             ),
             motd=Motd.parse(cls._require_str(raw, "name"), bedrock=True),
             latency=latency,
-            map_name=level if isinstance(level, str) else None,
-            gamemode=cls.GAMEMODES.get(game_type) if isinstance(game_type, int) else None,
+            map_name=map_name,
+            gamemode=gamemode,
         )
 
     def read_status(self) -> BedrockStatusResponse:
@@ -129,8 +138,13 @@ class BedrockNetherNetClient:
         """Probe the NetherNet server asynchronously.
 
         .. note::
-            Delegates to :meth:`read_status` via :func:`asyncio.to_thread`.
+            Delegates to synchronous :meth:`read_status` via :func:`asyncio.to_thread`.
+
             If the probe task is cancelled while blocked on a network socket,
             the underlying thread continues running until the socket timeout expires.
+
+            It is also subject to the configured thread pool executor's max workers limit
+            on the running async loop (e.g. for many concurrent async calls, you might
+            experience thread pooling).
         """
         return await asyncio.to_thread(self.read_status)

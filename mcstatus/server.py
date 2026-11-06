@@ -329,7 +329,7 @@ class BedrockServer(MCServer):
         host: str,
         port: int | None = None,
         timeout: float = 3,
-        transport: BedrockTransport | str = BedrockTransport.AUTO,
+        transport: BedrockTransport = BedrockTransport.AUTO,
     ) -> None:
         """
         :param host: The host/ip of the minecraft server.
@@ -347,7 +347,7 @@ class BedrockServer(MCServer):
 
     @classmethod
     @override
-    def lookup(cls, address: str, timeout: float = 3, transport: BedrockTransport | str = BedrockTransport.AUTO) -> Self:
+    def lookup(cls, address: str, timeout: float = 3, transport: BedrockTransport = BedrockTransport.AUTO) -> Self:
         """Mimics minecraft's server address field.
 
         :param address: The address of the Minecraft server, like ``example.com:19132``
@@ -373,7 +373,10 @@ class BedrockServer(MCServer):
         :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return first_success([client.read_status for client in self._clients()], thread_name_prefix="mcstatus-bedrock")
+        return first_success(
+            [client.read_status for client in self._clients()],
+            thread_name_prefix=f"mcstatus-bedrock-{self.address.host}:{self.address.port}",
+        )
 
     @retry(tries=3)
     async def async_status(self, *, tries: int = 3) -> BedrockStatusResponse:  # ruff: ignore[unused-method-argument]

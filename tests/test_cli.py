@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 import pytest
 
-from mcstatus import BedrockServer, JavaServer, LegacyServer
+from mcstatus import BedrockServer, BedrockTransport, JavaServer, LegacyServer
 from mcstatus.__main__ import PING_PACKET_FAIL_WARNING, QUERY_FAIL_WARNING, main as main_under_test
 from mcstatus.responses import BedrockStatusResponse, JavaStatusResponse, LegacyStatusResponse, QueryResponse
 from mcstatus.responses._raw import RawJavaResponse
@@ -253,13 +253,13 @@ def test_status_bedrock_transport_implied():
         patch("mcstatus.server.BedrockServer.lookup") as mock_lookup,
         patch_stdout_stderr() as (_out, err),
     ):
-        mock_lookup.return_value = BedrockServer("example.com", port=19132, transport="nethernet")
+        mock_lookup.return_value = BedrockServer("example.com", port=19132, transport=BedrockTransport.NETHERNET)
         with patch(
             "mcstatus.server.BedrockServer.status",
             return_value=BedrockStatusResponse.build(BEDROCK_RAW_RESPONSE, latency=123),
         ):
             assert main_under_test(["example.com", "--bedrock-transport", "nethernet", "status"]) == 0
-        mock_lookup.assert_called_once_with("example.com", transport="nethernet")
+        mock_lookup.assert_called_once_with("example.com", transport=BedrockTransport.NETHERNET)
     assert err.getvalue() == ""
 
 

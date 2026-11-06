@@ -186,7 +186,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
         parser.error("--bedrock-transport cannot be used with --legacy")
 
     if args.bedrock or args.bedrock_transport is not None:
-        transport = args.bedrock_transport or "auto"
+        transport = BedrockTransport(args.bedrock_transport) if args.bedrock_transport is not None else BedrockTransport.AUTO
         lookup = partial(BedrockServer.lookup, transport=transport)
     elif args.legacy:
         lookup = LegacyServer.lookup
