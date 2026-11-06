@@ -5,7 +5,7 @@ from unittest import mock
 import pytest
 
 from mcstatus._net.address import Address
-from mcstatus._protocol.bedrock_client import BedrockClient
+from mcstatus._protocol.bedrock_raknet_client import BedrockRakNetClient
 from mcstatus.responses import BedrockStatusResponse
 
 
@@ -16,7 +16,7 @@ def test_bedrock_response_is_expected_type():
         b"\xa71o\xc2\xa7r\xc2\xa79w\xc2\xa7r\xc2\xa7ds\xc2\xa7r\xc2\xa74e\xc2\xa7r\xc2\xa76r;422;;1;69;376707197539105"
         b"3022;;Default;1;19132;-1;"
     )
-    parsed = BedrockClient.parse_response(data, 1)
+    parsed = BedrockRakNetClient.parse_response(data, 1)
     assert isinstance(parsed, BedrockStatusResponse)
 
 
@@ -28,7 +28,7 @@ def test_latency_is_real_number():
         time.sleep(0.001)
         return mock.DEFAULT
 
-    bedrock_client = BedrockClient(Address("localhost", 25565))
+    bedrock_client = BedrockRakNetClient(Address("localhost", 25565))
     with (
         mock.patch.object(bedrock_client, "_read_status") as mocked_read,
         mock.patch.object(bedrock_client, "parse_response") as mocked_parse_response,
@@ -49,7 +49,7 @@ async def test_async_latency_is_real_number():
         time.sleep(0.001)
         return mock.DEFAULT
 
-    bedrock_client = BedrockClient(Address("localhost", 25565))
+    bedrock_client = BedrockRakNetClient(Address("localhost", 25565))
     with (
         mock.patch.object(bedrock_client, "_read_status_async") as mocked_read,
         mock.patch.object(bedrock_client, "parse_response") as mocked_parse_response,
