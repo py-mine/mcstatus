@@ -11,7 +11,7 @@ def _record_socket_family(client: BedrockClient) -> int:
     fake_socket.recvfrom.return_value = (b"\x00" * 100, None)
 
     with mock.patch("mcstatus._protocol.bedrock_client.socket.socket", return_value=fake_socket) as mock_socket:
-        client._read_status()
+        _ = client._read_status()
 
     args = mock_socket.call_args.args
     if args:
