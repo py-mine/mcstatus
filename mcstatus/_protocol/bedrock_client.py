@@ -42,10 +42,11 @@ class BedrockClient:
         return self.parse_response(data, (end - start) * 1000)
 
     def _read_status(self) -> bytes:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        family, _, _, _, sockaddr = socket.getaddrinfo(self.address[0], self.address[1], type=socket.SOCK_DGRAM)[0]
+        s = socket.socket(family, socket.SOCK_DGRAM)
         s.settimeout(self.timeout)
 
-        _ = s.sendto(self.request_status_data, self.address)
+        _ = s.sendto(self.request_status_data, sockaddr)
         data, _ = s.recvfrom(2048)
 
         return data
