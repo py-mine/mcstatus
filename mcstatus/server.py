@@ -315,7 +315,7 @@ class BedrockServer(MCServer):
 
     Bedrock servers can be queried over two transports, selected with the ``transport`` argument:
 
-    * ``"raknet"``: the classic RakNet unconnected ping over UDP. Dropped in Bedrock Dedicated Server 1.26.60.
+    * ``"raknet"``: the classic RakNet unconnected ping over UDP. Dropped in Bedrock Dedicated Server 26.60.
     * ``"nethernet"``: the NetherNet HTTP signaling capability check (``GET /v1/join``), the default
       Bedrock Dedicated Server transport since 1.26.50.
     * ``"auto"`` (default): query both transports concurrently and return whichever answers first.
