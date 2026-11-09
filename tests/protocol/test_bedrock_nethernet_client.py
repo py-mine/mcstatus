@@ -77,9 +77,10 @@ def nethernet_server() -> Generator[tuple[Address, type[_NetherNetHandler]]]:
         server_thread.join()
 
 
-def test_url_ipv4_and_ipv6():
+def test_url_ipv4():
     client_ipv4 = BedrockNetherNetClient(Address("127.0.0.1", 19132))
     assert client_ipv4.url == "http://127.0.0.1:19132/v1/join"
+
 
 def test_url_ipv6():
     client_ipv6 = BedrockNetherNetClient(Address("::1", 19132))

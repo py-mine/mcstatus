@@ -376,6 +376,43 @@ def test_json(mock_network_requests: None):
     assert err.getvalue() == ""
 
 
+def test_json_offline(mock_network_requests: None):
+    with (
+        patch_stdout_stderr() as (out, err),
+        patch("mcstatus.server.JavaServer.status", side_effect=TimeoutError("timed out")),
+        patch("mcstatus.server.JavaServer.query", side_effect=TimeoutError("timed out")),
+    ):
+        assert main_under_test(["example.com", "json"]) == 0
+
+    data = json.loads(out.getvalue())
+    assert data == {
+        "online": False,
+        "kind": "Java",
+        "error": "TimeoutError('timed out')",
+    }
+    assert err.getvalue() == ""
+
+
+def test_json_offline_bedrock_exception_group(mock_network_requests: None):
+    eg = ExceptionGroup(
+        "All concurrent operations failed",
+        [TimeoutError("raknet timed out"), ConnectionRefusedError(111, "nethernet connection refused")],
+    )
+    with (
+        patch_stdout_stderr() as (out, err),
+        patch("mcstatus.server.BedrockServer.status", side_effect=eg),
+    ):
+        assert main_under_test(["example.com", "--bedrock", "json"]) == 0
+
+    data = json.loads(out.getvalue())
+    assert data == {
+        "online": False,
+        "kind": "Bedrock",
+        "error": repr(eg),
+    }
+    assert err.getvalue() == ""
+
+
 def test_ping(mock_network_requests: None):
     with patch_stdout_stderr() as (out, err):
         assert main_under_test(["example.com", "ping"]) == 0

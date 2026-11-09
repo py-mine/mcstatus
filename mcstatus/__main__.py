@@ -114,7 +114,7 @@ def json_cmd(server: SupportedServers) -> int:
     data["online"] = bool(status_res or query_res)
     if not data["online"]:
         assert exn, "server offline but no exception?"
-        data["error"] = str(exn)
+        data["error"] = repr(exn)
 
     if status_res is not None:
         data["status"] = status_res.as_dict()

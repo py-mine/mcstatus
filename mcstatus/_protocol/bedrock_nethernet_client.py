@@ -93,9 +93,7 @@ class BedrockNetherNetClient:
             try:
                 gamemode = cls.GAMEMODES[game_type]
             except KeyError:
-                raise OSError(
-                    f"Unknown NetherNet gameType {game_type!r}, expected one of {list(cls.GAMEMODES)}"
-                ) from None
+                raise OSError(f"Unknown NetherNet gameType {game_type!r}, expected one of {list(cls.GAMEMODES)}") from None
 
         return BedrockStatusResponse(
             players=BedrockStatusPlayers(
