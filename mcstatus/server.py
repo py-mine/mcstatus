@@ -317,7 +317,7 @@ class BedrockServer(MCServer):
 
     * ``"raknet"``: the classic RakNet unconnected ping over UDP. Dropped in Bedrock Dedicated Server 1.26.60.
     * ``"nethernet"``: the NetherNet HTTP signaling capability check (``GET /v1/join``), the default
-      Bedrock Dedicated Server transport since 26.50.
+      Bedrock Dedicated Server transport since 1.26.50.
     * ``"auto"`` (default): query both transports concurrently and return whichever answers first.
       If both fail, an :exc:`ExceptionGroup` containing the errors from all attempted transports is raised.
     """
