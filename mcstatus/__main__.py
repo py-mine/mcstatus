@@ -5,12 +5,14 @@ import argparse
 import json
 import socket
 import sys
+from functools import partial
 from typing import Any, TYPE_CHECKING, TypeAlias
 
 import dns.resolver
 
-from mcstatus import BedrockServer, JavaServer, LegacyServer
+from mcstatus import JavaServer, LegacyServer
 from mcstatus.responses import JavaStatusResponse
+from mcstatus.server import BedrockServer, BedrockTransport
 
 if TYPE_CHECKING:
     from mcstatus.motd import Motd
@@ -112,7 +114,7 @@ def json_cmd(server: SupportedServers) -> int:
     data["online"] = bool(status_res or query_res)
     if not data["online"]:
         assert exn, "server offline but no exception?"
-        data["error"] = str(exn)
+        data["error"] = repr(exn)
 
     if status_res is not None:
         data["status"] = status_res.as_dict()
@@ -159,6 +161,12 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     _ = group.add_argument(
         "--legacy", help="Specifies that 'address' is a pre-1.7 Java server (default: 1.7+).", action="store_true"
     )
+    _ = parser.add_argument(
+        "--bedrock-transport",
+        choices=[t.value for t in BedrockTransport],
+        default=None,
+        help="Specifies transport protocol for Bedrock servers (default: auto).",
+    )
 
     subparsers = parser.add_subparsers(title="commands", description="Command to run, defaults to 'status'.")
     parser.set_defaults(func=status_cmd)
@@ -174,8 +182,12 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     ).set_defaults(func=json_cmd)
 
     args = parser.parse_args(argv)
-    if args.bedrock:
-        lookup = BedrockServer.lookup
+    if args.bedrock_transport is not None and args.legacy:
+        parser.error("--bedrock-transport cannot be used with --legacy")
+
+    if args.bedrock or args.bedrock_transport is not None:
+        transport = BedrockTransport(args.bedrock_transport) if args.bedrock_transport is not None else BedrockTransport.AUTO
+        lookup = partial(BedrockServer.lookup, transport=transport)
     elif args.legacy:
         lookup = LegacyServer.lookup
     else:
@@ -184,7 +196,7 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     try:
         server = lookup(args.address)
         return args.func(server)
-    except (socket.gaierror, dns.resolver.NoNameservers, ConnectionError, TimeoutError) as e:
+    except (socket.gaierror, dns.resolver.NoNameservers, ConnectionError, TimeoutError, ExceptionGroup) as e:
         # catch and hide traceback for expected user-facing errors
         print(f"Error: {e!r}", file=sys.stderr)
         return 1
