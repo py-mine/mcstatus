@@ -22,19 +22,20 @@ class FakeAsyncStream(asyncio.StreamReader):
 
 
 async def fake_asyncio_asyncio_open_connection(  # should be async without await # ruff: ignore[unused-async]
-    hostname: str, port: int
-):
+    hostname: str,
+    port: int,
+) -> tuple[FakeAsyncStream, None]:
     return FakeAsyncStream(), None
 
 
 class TestAsyncSocketConnection:
-    async def test_tcp_socket_read(self):
+    async def test_tcp_socket_read(self) -> None:
         with patch("asyncio.open_connection", fake_asyncio_asyncio_open_connection):
             async with TCPAsyncSocketConnection(Address("dummy_address", 1234), timeout=0.01) as tcp_async_socket:
                 with pytest.raises(AsyncioTimeoutError):
                     _ = await tcp_async_socket.read(10)
 
-    async def test_tcp_socket_read_partial_data_then_eof(self):
+    async def test_tcp_socket_read_partial_data_then_eof(self) -> None:
         """Raise when the stream ends after only partial payload delivery."""
         tcp_async_socket = TCPAsyncSocketConnection(Address("dummy_address", 1234), timeout=0.01)
         tcp_async_socket.reader = Mock(read=AsyncMock(side_effect=[b"a", b""]))
@@ -48,7 +49,7 @@ class TestAsyncSocketConnection:
         ):
             _ = await tcp_async_socket.read(2)
 
-    async def test_tcp_socket_read_eof_without_any_data(self):
+    async def test_tcp_socket_read_eof_without_any_data(self) -> None:
         """Raise when the stream immediately ends without returning any data."""
         tcp_async_socket = TCPAsyncSocketConnection(Address("dummy_address", 1234), timeout=0.01)
         tcp_async_socket.reader = Mock(read=AsyncMock(return_value=b""))
@@ -56,7 +57,7 @@ class TestAsyncSocketConnection:
         with pytest.raises(OSError, match=r"^Server did not respond with any information!$"):
             _ = await tcp_async_socket.read(2)
 
-    async def test_tcp_socket_write_awaits_drain(self):
+    async def test_tcp_socket_write_awaits_drain(self) -> None:
         """Ensure writes await ``drain`` so buffered data is flushed."""
         writer = Mock()
         writer.write = Mock()
@@ -70,7 +71,7 @@ class TestAsyncSocketConnection:
         writer.write.assert_called_once_with(b"hello")
         writer.drain.assert_awaited_once_with()
 
-    async def test_tcp_socket_close_waits_for_writer(self):
+    async def test_tcp_socket_close_waits_for_writer(self) -> None:
         """Ensure close awaits ``wait_closed`` on the stream writer."""
         writer = Mock()
         writer.close = Mock()

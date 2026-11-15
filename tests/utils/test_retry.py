@@ -4,11 +4,11 @@ from mcstatus._utils.retry import retry
 from tests.protocol.helpers import async_decorator
 
 
-def test_sync_success():
+def test_sync_success() -> None:
     x = -1
 
     @retry(tries=2)
-    def func():
+    def func() -> float:
         nonlocal x
         x += 1
         return 5 / x
@@ -18,11 +18,11 @@ def test_sync_success():
     assert y == 5
 
 
-def test_sync_fail():
+def test_sync_fail() -> None:
     x = -1
 
     @retry(tries=2)
-    def func():
+    def func() -> None:
         nonlocal x
         x += 1
         if x == 0:
@@ -35,11 +35,11 @@ def test_sync_fail():
         func()
 
 
-def test_async_success():
+def test_async_success() -> None:
     x = -1
 
     @retry(tries=2)
-    async def func():  # should be async without await # ruff: ignore[unused-async]
+    async def func() -> float:  # should be async without await # ruff: ignore[unused-async]
         nonlocal x
         x += 1
         return 5 / x
@@ -49,11 +49,11 @@ def test_async_success():
     assert y == 5
 
 
-def test_async_fail():
+def test_async_fail() -> None:
     x = -1
 
     @retry(tries=2)
-    async def func():  # should be async without await # ruff: ignore[unused-async]
+    async def func() -> None:  # should be async without await # ruff: ignore[unused-async]
         nonlocal x
         x += 1
         if x == 0:

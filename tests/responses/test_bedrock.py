@@ -15,7 +15,7 @@ from tests.responses import BaseResponseTest
 
 
 @pytest.fixture(scope="module")
-def build():
+def build() -> BedrockStatusResponse:
     return BedrockStatusResponse.build(
         [
             "MCPE",
@@ -56,7 +56,7 @@ class TestBedrockStatusResponse(BaseResponseTest):
         return build
 
     @pytest.mark.parametrize(("field", "pop_index"), [("map_name", 7), ("gamemode", 7), ("gamemode", 8)])
-    def test_optional_parameters_is_none(self, field: str, pop_index: int):
+    def test_optional_parameters_is_none(self, field: str, pop_index: int) -> None:
         parameters = [
             "MCPE",
             "§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r",
@@ -76,7 +76,7 @@ class TestBedrockStatusResponse(BaseResponseTest):
         build = BedrockStatusResponse.build(parameters, 123.0)
         assert getattr(build, field) is None
 
-    def test_as_dict(self, build: BedrockStatusResponse):
+    def test_as_dict(self, build: BedrockStatusResponse) -> None:
         assert build.as_dict() == {
             "gamemode": "Default",
             "latency": 123.0,
@@ -86,7 +86,7 @@ class TestBedrockStatusResponse(BaseResponseTest):
             "version": {"brand": "MCPE", "name": "1.18.100500", "protocol": 422},
         }
 
-    def test_description_alias(self, build: BedrockStatusResponse):
+    def test_description_alias(self, build: BedrockStatusResponse) -> None:
         assert build.description == "§r§4G§r§6a§r§ey§r§2B§r§1o§r§9w§r§ds§r§4e§r§6r"
 
 

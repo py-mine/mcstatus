@@ -8,11 +8,11 @@ from tests.protocol.helpers import SyncDatagramConnection
 
 @final
 class TestQueryClient:
-    def setup_method(self):
+    def setup_method(self) -> None:
         self.connection = SyncDatagramConnection()
         self.query_client = QueryClient(self.connection)  # pyright: ignore[reportArgumentType]
 
-    def test_handshake(self):
+    def test_handshake(self) -> None:
         self.connection.receive(bytearray.fromhex("090000000035373033353037373800"))
         self.query_client.handshake()
 
@@ -20,7 +20,7 @@ class TestQueryClient:
         assert conn_bytes[:3] == bytearray.fromhex("FEFD09")
         assert self.query_client.challenge == 570350778
 
-    def test_query(self):
+    def test_query(self) -> None:
         self.connection.receive(
             bytearray.fromhex(
                 "00000000000000000000000000000000686f73746e616d650041204d696e656372616674205365727665720067616d6574797"
@@ -48,7 +48,7 @@ class TestQueryClient:
         }
         assert response.players.list == ["Dinnerbone", "Djinnibone", "Steve"]
 
-    def test_query_handles_unorderd_map_response(self):
+    def test_query_handles_unorderd_map_response(self) -> None:
         self.connection.receive(
             bytearray(
                 b"\x00\x00\x00\x00\x00GeyserMC\x00\x80\x00hostname\x00Geyser\x00hostip\x001.1.1.1\x00plugins\x00\x00numplayers"
@@ -63,7 +63,7 @@ class TestQueryClient:
         assert response.motd == Motd.parse("Geyser")
         assert response.software.version == "Geyser (git-master-0fd903e) 1.18.10"
 
-    def test_query_handles_unicode_motd_with_nulls(self):
+    def test_query_handles_unicode_motd_with_nulls(self) -> None:
         self.connection.receive(
             bytearray(
                 b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00hostname\x00\x00*K\xd5\x00gametype\x00SMP"
@@ -78,7 +78,7 @@ class TestQueryClient:
         assert response.raw["game_id"] == "MINECRAFT"
         assert response.motd == Motd.parse("\x00*KÕ")
 
-    def test_query_handles_unicode_motd_with_2a00_at_the_start(self):
+    def test_query_handles_unicode_motd_with_2a00_at_the_start(self) -> None:
         self.connection.receive(
             bytearray.fromhex(
                 "00000000000000000000000000000000686f73746e616d6500006f746865720067616d657479706500534d500067616d655f6964004d"
@@ -95,8 +95,8 @@ class TestQueryClient:
         # but the query protocol for vanilla has a bug when it comes to unicode handling.
         # The status protocol correctly shows "⨀other".
 
-    def test_session_id(self):
-        def session_id():
+    def test_session_id(self) -> None:
+        def session_id() -> int:
             return 0x01010101
 
         self.connection.receive(bytearray.fromhex("090000000035373033353037373800"))

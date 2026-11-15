@@ -45,7 +45,7 @@ class TestJavaStatusResponse(BaseResponseTest):
     def build(cls) -> JavaStatusResponse:
         return JavaStatusResponse.build(cls.RAW)  # pyright: ignore[reportArgumentType] # dict[str, Unknown] cannot be assigned to TypedDict
 
-    def test_as_dict(self, build: JavaStatusResponse):
+    def test_as_dict(self, build: JavaStatusResponse) -> None:
         assert build.as_dict() == {
             "enforces_secure_chat": True,
             "forge_data": None,
@@ -64,14 +64,14 @@ class TestJavaStatusResponse(BaseResponseTest):
             "version": {"name": "1.8-pre1", "protocol": 44},
         }
 
-    def test_description_alias(self, build: JavaStatusResponse):
+    def test_description_alias(self, build: JavaStatusResponse) -> None:
         assert build.description == "A Minecraft Server"
 
-    def test_is_modded(self):
+    def test_is_modded(self) -> None:
         build = JavaStatusResponse.build({**self.RAW, "isModded": True})  # pyright: ignore[reportArgumentType]
         assert build.is_modded is True
 
-    def test_is_modded_with_forge_data(self):
+    def test_is_modded_with_forge_data(self) -> None:
         build = JavaStatusResponse.build(
             {  # pyright: ignore[reportArgumentType]
                 **self.RAW,
