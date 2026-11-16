@@ -51,7 +51,7 @@ def test_first_success_all_fail_raises_exception_group():
     def fail2():
         raise ValueError("err 2")
 
-    with pytest.raises(ExceptionGroup) as exc_info:
+    with pytest.RaisesGroup(RuntimeError, ValueError) as exc_info:
         _ = first_success([fail1, fail2])
 
     assert exc_info.value.message == "All concurrent operations failed"
@@ -156,7 +156,7 @@ async def test_async_first_success_all_fail_raises_exception_group():
         await asyncio.sleep(0)
         raise ValueError("err 2")
 
-    with pytest.raises(ExceptionGroup) as exc_info:
+    with pytest.RaisesGroup(RuntimeError, ValueError) as exc_info:
         _ = await async_first_success([fail1(), fail2()])
 
     assert exc_info.value.message == "All concurrent operations failed"

@@ -136,13 +136,9 @@ class TestBedrockServer:
         with (
             patch("mcstatus.server.BedrockRakNetClient.read_status", side_effect=TimeoutError("raknet timeout")),
             patch("mcstatus.server.BedrockNetherNetClient.read_status", side_effect=OSError("nethernet err")),
-            pytest.raises(ExceptionGroup) as exc_info,
+            pytest.RaisesGroup(TimeoutError, OSError),
         ):
             _ = server.status()
-
-        assert len(exc_info.value.exceptions) == 2
-        assert any(isinstance(exc, TimeoutError) for exc in exc_info.value.exceptions)
-        assert any(isinstance(exc, OSError) for exc in exc_info.value.exceptions)
 
     def test_status_auto_does_not_wait_for_loser(self):
         server = BedrockServer("127.0.0.1", transport=BedrockTransport.AUTO)
@@ -211,13 +207,9 @@ class TestBedrockServer:
         with (
             patch("mcstatus.server.BedrockRakNetClient.read_status_async", side_effect=TimeoutError("raknet timeout")),
             patch("mcstatus.server.BedrockNetherNetClient.read_status_async", side_effect=OSError("nethernet err")),
-            pytest.raises(ExceptionGroup) as exc_info,
+            pytest.RaisesGroup(TimeoutError, OSError),
         ):
             _ = await server.async_status()
-
-        assert len(exc_info.value.exceptions) == 2
-        assert any(isinstance(exc, TimeoutError) for exc in exc_info.value.exceptions)
-        assert any(isinstance(exc, OSError) for exc in exc_info.value.exceptions)
 
     async def test_async_status_auto_cancels_loser(self):
         server = BedrockServer("127.0.0.1", transport=BedrockTransport.AUTO)
