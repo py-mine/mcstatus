@@ -63,7 +63,7 @@ async def async_first_success(coros: Sequence[Coroutine[Any, Any, T]]) -> T:
     tasks = [asyncio.ensure_future(coro) for coro in coros]
     try:
         for next_done in asyncio.as_completed(tasks):
-            with contextlib.suppress(Exception):
+            with contextlib.suppress(Exception, asyncio.CancelledError):
                 return await next_done
         raise ExceptionGroup("All concurrent operations failed", [cast("Exception", task.exception()) for task in tasks])
     finally:
