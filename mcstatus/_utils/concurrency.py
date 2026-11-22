@@ -102,15 +102,15 @@ async def async_first_success(coros: Sequence[Coroutine[Any, Any, T]], *, task_n
         # as it successfully finished before the others. In this case, we just need to cancel
         # the remaining tasks.
         #
-        # This can also be entered if none of the tasks finished (all failed), in which case
-        # this basically does nothing, since all the tasks were already finished and their
-        # results were already consumed (as raised exceptions that we suppressed).
+        # This can also be entered if none of the tasks succeeded, in which case this basically
+        # does nothing, since all the tasks were already finished and their results were already
+        # consumed (as raised exceptions that we suppressed).
         #
         # Less commonly, there could have been an unhandled exception raised from the above
         # code. Most notably that would be `asyncio.CancelledError` from the await statement
-        # in `asyncio.wait` call. Meaning this function itself (not of of the tasks) got
+        # in `asyncio.wait` call. Meaning this function itself (not one of the tasks) got
         # cancelled. It could however also trigger for other exceptions raised above, like
-        # any BaseException (other than async cancellation) occurring in the one of the tasks.
+        # any BaseException (other than async cancellation) occurring in one of the tasks.
         #
         # Either way, we want to do cleanup here and cancel all the tasks we started, so they
         # don't keep running in the background once this function exits. We also consume their
