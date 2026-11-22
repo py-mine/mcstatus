@@ -385,4 +385,7 @@ class BedrockServer(MCServer):
         :param tries: The number of times to retry if an error is encountered.
         :return: Status information in a :class:`~mcstatus.responses.BedrockStatusResponse` instance.
         """
-        return await async_first_success([client.read_status_async() for client in self._clients()])
+        return await async_first_success(
+            [client.read_status_async() for client in self._clients()],
+            task_name_prefix=f"mcstatus-bedrock-{self.address.host}:{self.address.port}",
+        )
