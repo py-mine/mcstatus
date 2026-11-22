@@ -7,6 +7,7 @@ import time
 import pytest
 
 from mcstatus._utils.concurrency import async_first_success, first_success
+from mcstatus.exceptions import ChildCancelledError
 
 
 class TestSyncFirstSuccess:
@@ -195,3 +196,104 @@ class TestAsyncFirstSuccess:
         result = await async_first_success([task(), task()], task_name_prefix="custom-worker")
         assert result == "ok"
         assert set(captured_names) == {"custom-worker-0", "custom-worker-1"}
+
+    async def test_single_inner_cancellation_direct(self):
+        async def task():  # ruff: ignore[unused-async]
+            raise asyncio.CancelledError
+
+        with pytest.raises(ChildCancelledError) as exc_info:
+            await async_first_success([task()])
+
+        assert isinstance(exc_info.value.exc, asyncio.CancelledError)
+        assert isinstance(exc_info.value.__cause__, asyncio.CancelledError)
+
+    async def test_multiple_inner_cancellation_direct(self):
+        async def task():  # ruff: ignore[unused-async]
+            raise asyncio.CancelledError
+
+        with pytest.RaisesGroup(ChildCancelledError, ChildCancelledError) as exc_info:
+            await async_first_success([task(), task()])
+
+        assert exc_info.value.message == "All concurrent operations failed"
+
+        for exc in exc_info.value.exceptions:
+            assert isinstance(exc, ChildCancelledError)
+            assert isinstance(exc.exc, asyncio.CancelledError)
+            assert isinstance(exc.__cause__, asyncio.CancelledError)
+
+    async def test_single_inner_cancellation_indirect(self):
+        async def task():
+            task = asyncio.create_task(asyncio.sleep(10), name="test-task")
+            assert task.cancel()
+            await task  # raises CancelledError indirectly
+
+        with pytest.raises(ChildCancelledError) as exc_info:
+            await async_first_success([task()])
+
+        assert isinstance(exc_info.value.exc, asyncio.CancelledError)
+        assert isinstance(exc_info.value.__cause__, asyncio.CancelledError)
+
+    async def test_multiple_inner_cancellation_indirect(self):
+        async def task():
+            task = asyncio.create_task(asyncio.sleep(10), name="test-task")
+            assert task.cancel()
+            await task  # raises CancelledError indirectly
+
+        with pytest.RaisesGroup(ChildCancelledError, ChildCancelledError) as exc_info:
+            await async_first_success([task(), task()])
+
+        assert exc_info.value.message == "All concurrent operations failed"
+
+        for exc in exc_info.value.exceptions:
+            assert isinstance(exc, ChildCancelledError)
+            assert isinstance(exc.exc, asyncio.CancelledError)
+            assert isinstance(exc.__cause__, asyncio.CancelledError)
+
+    async def test_inner_cancellation_followed_by_success(self):
+        cancelled = asyncio.Event()
+
+        async def cancel():  # ruff: ignore[unused-async]
+            current = asyncio.current_task()
+            assert current is not None
+            current.add_done_callback(lambda _: cancelled.set())
+            raise asyncio.CancelledError
+
+        async def succeed():
+            _ = await cancelled.wait()
+            return "success"
+
+        assert await async_first_success([cancel(), succeed()]) == "success"
+
+    async def test_inner_cancellation_and_other_failure(self):
+        async def fail():  # ruff: ignore[unused-async]
+            raise ValueError("failed")
+
+        async def cancel():  # ruff: ignore[unused-async]
+            raise asyncio.CancelledError
+
+        with pytest.RaisesGroup(ValueError, ChildCancelledError) as exc_info:
+            await async_first_success([fail(), cancel()])
+
+        assert isinstance(exc_info.value.exceptions[0], ValueError)
+        assert isinstance(exc_info.value.exceptions[1], ChildCancelledError)
+
+    async def test_parent_cancellation_awaits_child_cleanup(self):
+        started = [asyncio.Event(), asyncio.Event()]
+        cleaned_up = [False, False]
+
+        async def child(index: int):
+            started[index].set()
+            try:
+                await asyncio.sleep(float("inf"))  # block forever
+            finally:
+                await asyncio.sleep(0.01)  # test cleanup can still yield control
+                cleaned_up[index] = True
+
+        parent = asyncio.create_task(async_first_success([child(0), child(1)]))
+        _ = await asyncio.gather(*(event.wait() for event in started))  # only cancel after the tasks started
+        assert parent.cancel()
+
+        with pytest.raises(asyncio.CancelledError):  # (Not ChildCancelledError)
+            await parent
+
+        assert all(cleaned_up)
