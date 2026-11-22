@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import contextlib
 import queue
 import threading
 from typing import Any, TYPE_CHECKING, TypeVar, cast
@@ -80,6 +79,7 @@ async def async_first_success(coros: Sequence[Coroutine[Any, Any, T]], *, task_n
     tasks = [asyncio.create_task(coro, name=f"{task_name_prefix}-{idx}") for idx, coro in enumerate(coros)]
     tasks_pending = set(tasks)
     tasks_done: set[asyncio.Task[T]] = set()
+    excs: dict[asyncio.Task[T], Exception] = {}
 
     try:
         while len(tasks_pending) > 0:
@@ -89,8 +89,12 @@ async def async_first_success(coros: Sequence[Coroutine[Any, Any, T]], *, task_n
             tasks_done, tasks_pending = await asyncio.wait(tasks_pending, return_when=asyncio.FIRST_COMPLETED)
 
             for task in tasks_done:
-                with contextlib.suppress(Exception, asyncio.CancelledError):
+                try:
                     return task.result()
+                except Exception as exc:  # ruff: ignore[blind-except]
+                    excs[task] = exc
+                except asyncio.CancelledError as exc:
+                    excs[task] = ChildCancelledError(task=task, exc=exc)
     finally:
         # Cleanup the remaining pending tasks here, regardless of success.
         #
@@ -116,15 +120,9 @@ async def async_first_success(coros: Sequence[Coroutine[Any, Any, T]], *, task_n
         _ = await asyncio.gather(*tasks, return_exceptions=True)
 
     # If we're here, all tasks got finished, but we never reached return => all tasks failed.
-    excs: list[Exception] = []
-    for task in tasks:
-        try:
-            excs.append(cast("Exception", task.exception()))
-        except asyncio.CancelledError as exc:
-            wrapped = ChildCancelledError(task=task, exc=exc)
-            excs.append(wrapped)
+    excs_ordered: list[Exception] = [excs[task] for task in tasks]
 
-    if len(excs) == 1:
-        raise excs[0]
+    if len(excs_ordered) == 1:
+        raise excs_ordered[0]
 
-    raise ExceptionGroup("All concurrent operations failed", excs)
+    raise ExceptionGroup("All concurrent operations failed", excs_ordered)
