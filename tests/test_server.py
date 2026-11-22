@@ -211,6 +211,43 @@ class TestBedrockServer:
         ):
             _ = await server.async_status()
 
+    @pytest.mark.parametrize("transport", [BedrockTransport.AUTO, BedrockTransport.NETHERNET, BedrockTransport.RAKNET])
+    async def test_async_status_wait_for_timeout(self, transport: BedrockTransport):
+        server = BedrockServer("127.0.0.1", transport=transport)
+        started: list[str] = []
+        cleaned_up: list[str] = []
+
+        async def stalled_client(name: str):
+            started.append(name)
+            try:
+                _ = await asyncio.sleep(float("inf"))  # block forever
+            finally:
+                await asyncio.sleep(0)
+                cleaned_up.append(name)
+
+        async def stalled_raknet():
+            await stalled_client("raknet")
+
+        async def stalled_nethernet():
+            await stalled_client("nethernet")
+
+        with (
+            patch("mcstatus.server.BedrockRakNetClient.read_status_async", side_effect=stalled_raknet) as raknet,
+            patch("mcstatus.server.BedrockNetherNetClient.read_status_async", side_effect=stalled_nethernet) as nethernet,
+            pytest.raises(TimeoutError),
+        ):
+            _ = await asyncio.wait_for(server.async_status(), timeout=0.1)
+
+        expected = {
+            BedrockTransport.AUTO: {"raknet", "nethernet"},
+            BedrockTransport.RAKNET: {"raknet"},
+            BedrockTransport.NETHERNET: {"nethernet"},
+        }[transport]
+        assert set(started) == expected
+        assert set(cleaned_up) == expected
+        assert raknet.await_count == int("raknet" in expected)
+        assert nethernet.await_count == int("nethernet" in expected)
+
     async def test_async_status_auto_cancels_loser(self):
         server = BedrockServer("127.0.0.1", transport=BedrockTransport.AUTO)
         mock_response = BedrockStatusResponse.build(
