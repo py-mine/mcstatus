@@ -1,8 +1,6 @@
 import asyncio
 from abc import ABC
-from typing import Generic, TypeVar, cast, final
-
-T = TypeVar("T")
+from typing import Any, cast, final
 
 
 class McstatusError(Exception, ABC):
@@ -18,7 +16,7 @@ class McstatusError(Exception, ABC):
 
 
 @final
-class ChildCancelledError(McstatusError, Generic[T]):
+class ChildCancelledError(McstatusError):
     """Raised as a result of handling a managed child asyncio Task being cancelled.
 
     This exception is used in some of our concurrency helpers that directly manage asyncio tasks, signalling
@@ -28,7 +26,7 @@ class ChildCancelledError(McstatusError, Generic[T]):
     requires.
     """
 
-    def __init__(self, *, task: asyncio.Task[T], exc: asyncio.CancelledError, msg: str | None = None) -> None:
+    def __init__(self, *, task: asyncio.Task[Any], exc: asyncio.CancelledError, msg: str | None = None) -> None:
         self.task = task
         self.__cause__ = exc
 
