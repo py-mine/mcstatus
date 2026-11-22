@@ -6,8 +6,7 @@ import time
 
 import pytest
 
-from mcstatus._utils.concurrency import async_first_success, first_success
-from mcstatus.exceptions import ChildCancelledError
+from mcstatus._utils.concurrency import ChildCancelledError, async_first_success, first_success
 
 
 class TestSyncFirstSuccess:

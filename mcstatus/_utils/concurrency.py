@@ -3,9 +3,9 @@ from __future__ import annotations
 import asyncio
 import queue
 import threading
-from typing import Any, TYPE_CHECKING, TypeVar, cast
+from typing import Any, TYPE_CHECKING, TypeVar, cast, final
 
-from mcstatus.exceptions import ChildCancelledError
+from mcstatus.exceptions import McstatusError
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Coroutine, Sequence
@@ -13,6 +13,32 @@ if TYPE_CHECKING:
 __all__ = ["async_first_success", "first_success"]
 
 T = TypeVar("T")
+
+
+@final
+class ChildCancelledError(McstatusError):
+    """Raised as a result of handling a managed child asyncio Task being cancelled.
+
+    This exception is used in some of our concurrency helpers that directly manage asyncio tasks, signalling
+    that a managed task was cancelled (e.g. that it raised an :exc:`asyncio.CancelledError`). We use it to
+    distinguish a child task getting cancelled from the main concurrency handler function getting cancelled,
+    and to avoid the need for a ``BaseException`` level handling that ``asyncio.CancelledError`` normally
+    requires.
+    """
+
+    def __init__(self, *, task: asyncio.Task[Any], exc: asyncio.CancelledError, msg: str | None = None) -> None:
+        self.task = task
+        self.__cause__ = exc
+
+        if msg is None:
+            msg = f"Child async Task: {task!r} failed with {exc!r}"
+
+        super().__init__(msg)
+
+    @property
+    def exc(self) -> asyncio.CancelledError:
+        """The underlying :exc:`asyncio.CancelledError` exception."""
+        return cast("asyncio.CancelledError", self.__cause__)
 
 
 def first_success(funcs: Sequence[Callable[[], T]], *, thread_name_prefix: str = "mcstatus-worker") -> T:
