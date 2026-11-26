@@ -5,6 +5,11 @@ This page contains some internal objects, classes, functions, etc. These **are n
 you **should not use them**, as we do not guarantee their backwards compatibility between different library
 versions. They are only documented here for linkable reference to them.
 
+.. automodule:: mcstatus._utils.concurrency
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 .. autoclass:: mcstatus._protocol.java_client.JavaClient
     :members:
