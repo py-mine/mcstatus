@@ -10,7 +10,7 @@ from mcstatus.exceptions import McstatusError
 if TYPE_CHECKING:
     from collections.abc import Callable, Coroutine, Sequence
 
-__all__ = ["async_first_success", "first_success"]
+__all__ = ["ChildCancelledError", "async_first_success", "first_success"]
 
 T = TypeVar("T")
 
