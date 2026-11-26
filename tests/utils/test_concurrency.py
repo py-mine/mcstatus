@@ -283,7 +283,8 @@ class TestAsyncFirstSuccess:
         async def child(index: int):
             started[index].set()
             try:
-                await asyncio.sleep(float("inf"))  # block forever
+                await asyncio.sleep(10)
+                pytest.fail("Timeout")
             finally:
                 await asyncio.sleep(0.01)  # test cleanup can still yield control
                 cleaned_up[index] = True

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import threading
+import time
 from typing import TYPE_CHECKING, final
 from unittest.mock import call, patch
 
@@ -220,7 +221,8 @@ class TestBedrockServer:
         async def stalled_client(name: str):
             started.append(name)
             try:
-                _ = await asyncio.sleep(float("inf"))  # block forever
+                _ = await asyncio.sleep(10)
+                pytest.fail("Timeout")
             finally:
                 await asyncio.sleep(0)
                 cleaned_up.append(name)
@@ -231,12 +233,15 @@ class TestBedrockServer:
         async def stalled_nethernet():
             await stalled_client("nethernet")
 
+        start = time.perf_counter()
         with (
             patch("mcstatus.server.BedrockRakNetClient.read_status_async", side_effect=stalled_raknet) as raknet,
             patch("mcstatus.server.BedrockNetherNetClient.read_status_async", side_effect=stalled_nethernet) as nethernet,
             pytest.raises(TimeoutError),
         ):
             _ = await asyncio.wait_for(server.async_status(), timeout=0.1)
+        took = time.perf_counter() - start
+        assert 0.1 < took < 1
 
         expected = {
             BedrockTransport.AUTO: {"raknet", "nethernet"},
