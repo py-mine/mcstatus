@@ -71,8 +71,8 @@ from mcstatus import BedrockServer
 server = BedrockServer.lookup("example.org:19132")
 
 # Bedrock servers speak RakNet (UDP) or NetherNet (TCP, default since 26.50). Both are tried by default;
-# pin one with BedrockServer.lookup("example.org:19132", transport="nethernet") to send a single probe.
-# 'status' is the only feature that is supported by Bedrock at this time.
+# pin one with BedrockServer.lookup("example.org:19132", transport=BedrockTransport.NETHERNET) to send a
+# single probe. 'status' is the only feature that is supported by Bedrock at this time.
 # In this case status includes players.online, latency, motd, map, gamemode, and players.max. (ex: status.gamemode)
 status = server.status()
 print(f"The server has {status.players.online} players online and replied in {status.latency} ms")
